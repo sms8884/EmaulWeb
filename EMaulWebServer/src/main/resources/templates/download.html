@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>IoT 아파트앱</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+<meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, e마을, 구로이마을, e도어, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표, 이마을, 이도어, 전자투표, 모바일투표" />
+<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+<link rel="shortcut icon" type="image/png" href="/static/favicon.ico" th:href="@{/favicon.ico}"/>
+
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+<link  type="text/css" rel="stylesheet" href="/js/jquery-ui/jquery-ui.min.css" th:href="@{/js/jquery-ui/jquery-ui.min.css}"  />
+<script src="/jquery-ui/jquery-ui.min.js" th:src="@{/js/jquery-ui/jquery-ui.min.js}" ></script>
+
+<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" href="/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+<link type="text/css" rel="stylesheet" href="/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+<link type="text/css" rel="stylesheet" href="/js/colorpicker-master/jquery.colorpicker.css" th:href="@{/js/colorpicker-master/jquery.colorpicker.css}"  />
+<link type="text/css" rel="stylesheet" href="/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+<style>
+.imgwrap{width:100%;}
+.imgwrap img{width:100%;}
+.img1{width:100%;position:relative;}
+.img2{width:100%;position:relative;}
+.textarea{position:absolute; width:100%; top:50%; margin-top:-50px; text-align:center; font-size: 0.938em; letter-spacing:-1px; }
+.textarea p{color:#fff; }
+
+.yellowTxt{color:#e0db82; }
+.yellowTxt a{color:#e0db82; border-bottom:1px solid #e0db82; padding-bottom:1px; font-weight:normal; letter-spacing:0.5px;}
+.lastP{margin-top:25px; color:#a59faf !important; font-weight:bold; }
+
+.appbtnBox {width:100%; text-align:center; padding:0 3%; position:absolute; top:34%;}
+.appbtn1,.appbtn2,.appbtn3 {width:30%; display:inline-block; margin:0 1%; }
+.appbtn1 img,
+.appbtn2 img,
+.appbtn3 img {width:100%; }
+</style>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+<body>
+
+	<div class="imgwrap">
+		<div class="img1" th:if="${device eq 'pc'}">
+			<img src="/img/userHome/appdownload4.png" alt="e마을로 초대 받으셨습니다. 한번 사용해보세요"/>
+			<div class="appbtnBox" >
+				<div class="appbtn1">
+					<a href="https://itunes.apple.com/kr/app/ima-eul-mobail-tupyo-mich/id1058747039?mt=8"><img src="/img/userHome/apple.png" alt="애플스토어 바로가기"/></a>
+				</div>
+				<div class="appbtn2">
+					<a href="https://play.google.com/store/apps/details?id=com.jaha.app.emaul"><img src="/img/userHome/google.png" alt="구글플레이 바로가기"/></a>
+				</div>
+				<div class="appbtn3">
+					<a href="http://www.emaul.co.kr"><img src="/img/userHome/emaul.png" alt="이마을웹사이트 바로가기"/></a>
+				</div>
+			</div>
+		</div>
+		<div class="img1" th:unless="${device eq 'pc'}">
+			<img src="/img/userHome/appdownload.png" alt=""/>
+		</div>
+
+		<div class="img2" th:unless="${device eq 'pc'}">
+			<img src="/img/userHome/appdownload2.png" alt=""/>
+			<div class="textarea">
+				<!-- 웹 G/W 페이지에서는 세션이 없이 자동 연결만 수행한다.
+				<p>※ 회원가입시 추천인을 입력해주세요.</p>
+				<p>&lt;추천인:<span class="yellowTxt" >홍길동</span>&gt;</p> -->
+				<p class="lastP" th:if="${device eq 'android'}">앱 다운로드 <span class="yellowTxt"><a href="market://details?id=com.jaha.app.emaul">다운로드</a></span></p>
+				<p class="lastP" th:if="${device eq 'ios'}">앱 다운로드 <span class="yellowTxt"><a href="https://itunes.apple.com/kr/app/ima-eul-mobail-tupyo-mich/id1058747039?mt=8">다운로드</a></span></p>
+			</div>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+	var device = /*[[${device}]]*/ 'device';
+
+	if ("ios" == device) {
+		console.log("ios");
+		document.location.href = "https://itunes.apple.com/kr/app/ima-eul-mobail-tupyo-mich/id1058747039?mt=8";
+	} else if ("android" == device) {
+		console.log("android")
+		document.location.href = "market://details?id=com.jaha.app.emaul";
+	} else {
+		console.log(">>> PC");
+	}
+	</script>
+</body>
+</html>
+

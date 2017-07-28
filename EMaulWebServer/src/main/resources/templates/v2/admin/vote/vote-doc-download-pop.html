@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout_popup">
+<head>
+    <title>투표서식 다운로드</title>
+</head>
+<body>
+	<div class="popup_container" style="width:90%; margin:0 auto; padding:10px 0;" layout:fragment="layout_cpopup_ontent">
+
+		<table class="table table-bordered">
+
+			<tbody>
+			   <tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">투표록</th>
+					<td>
+						<button type="button" class="btn btn-primary" id="vote-hwp-document">한글(HWP)</button>
+						<button type="button" class="btn btn-primary" id="vote-doc-document">워드(DOC)</button>
+						<button type="button" class="btn btn-primary" id="vote-pdf-document">PDF</button>
+					</td>
+				</tr>
+				<tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">투표개시안내문</th>
+					<td>
+						<button type="button" class="btn btn-primary" id="vote-hwp-noti">한글(HWP)</button>
+						<button type="button" class="btn btn-primary" id="vote-doc-noti">워드(DOC)</button>
+						<button type="button" class="btn btn-primary" id="vote-pdf-noti">PDF</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div style="text-align:center; margin-top:10px;">
+			<button type="button" class="btn btn-default" id="btn-cloase">닫기</button>
+		</div>
+
+		<!-- javascript page wrapper th include location -->
+		<script th:inline="javascript">
+	    	/*<![CDATA[*/
+			$(function () {
+
+				// 닫기
+				$('#btn-cloase').click(function (e) {
+					e.preventDefault();
+					self.close();
+				});
+
+		    	//투표록 다운로드
+		    	// 한글 (HWP)
+		    	$('#vote-hwp-document').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+		    	// 워드 (DOC)
+		    	$('#vote-doc-document').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+		    	// PDF
+		    	$('#vote-pdf-document').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+
+		    	// 투표개시 안내문 다운로드
+		    	// 한글 (HWP)
+		    	$('#vote-hwp-noti').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+		    	// 워드 (DOC)
+		    	$('#vote-doc-noti').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+		    	// PDF
+		    	$('#vote-pdf-noti').click(function (e) {
+					e.preventDefault();
+					voteDocDownload('');
+				});
+			});
+
+			// 서식 경로 다운로드
+			function voteDocDownload(type) {
+				console.log("투표서식 다운로드 : " + type);
+				// TODO : 서식 확인 후 다운로드
+			}
+			/*]]>*/
+		</script>
+		<!--// javascript page wrapper th include location -->
+
+	</div>
+</body>
+</html>

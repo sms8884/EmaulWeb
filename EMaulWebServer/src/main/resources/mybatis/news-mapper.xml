@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.NewsMapper">
+
+	<select id="selectNewsListCount" parameterType="Map" resultType="int">
+		SELECT Count(*)
+		FROM board_post bp
+			, board_category bc
+		WHERE bp.category_id = bc.id
+		AND bc.type='today'
+		<if test="searchCategory != '' and searchCategory != null and !searchCategory.equals('')">AND bp.news_category = #{searchCategory} </if>
+		<if test="searchKeyword !='' and searchKeyword != null and !searchKeyword.equals('') ">
+			<if test="searchColumn == 'title' ">AND  bp.title LIKE CONCAT('%',#{searchKeyword},'%') </if>
+			<if test="searchColumn == 'content' ">AND  bp.content LIKE CONCAT('%',#{searchKeyword},'%')</if>
+		</if>
+
+		<!-- [START] 단체관리자 기능 추가 : 마을 뉴스 메뉴 표시 by PNS 2016.09.19 -->
+		<!-- User ID로 검색하는 기능 추가  -->
+		<if test="searchUserId != '' and searchUserId != null and !searchUserId.equals('')">AND  bp.user_id = #{searchUserId} </if>
+		<!-- [END] -->
+
+		<if test="searchSdate !='' and searchSdate != null and !searchSdate.equals('') ">
+		AND DATE_FORMAT(bp.reg_date,'%Y.%m.%d') BETWEEN DATE_FORMAT(#{searchSdate},'%Y.%m.%d') AND DATE_FORMAT(#{searchEdate},'%Y.%m.%d')
+		</if>
+	</select>
+
+	<select id="selectNewsList" parameterType="Map" resultType="Map">
+		SELECT bp.id
+			, bp.content
+			, bp.image_count
+			, bp.range_all
+			, bp.range_sido
+			, bp.range_sigungu
+			, bp.reg_date
+			, bp.title
+			, bp.category_id
+			, bp.user_id
+			, bp.file1
+			, bp.file2
+			, bp.view_count
+			, bp.count_empathy
+			, bp.blocked
+			, bp.comment_count
+			, bp.display_yn
+			, bp.slide_yn
+			, bp.gender
+			, bp.age
+			, IF(isnull(bp.news_type), '-', (SELECT cc.name from common_code cc WHERE cc.code_group = 'NEWS_TYPE' AND cc.code = bp.news_type)) as news_type
+			, IF(isnull(bp.news_category), '-', (SELECT cc.name from common_code cc WHERE cc.code_group = 'NEWS_CTG' AND cc.code = bp.news_category)) as news_ctg
+		FROM board_post bp
+			, board_category bc
+		WHERE bp.category_id = bc.id
+		AND bc.type='today'
+		<if test="searchCategory != '' and searchCategory != null and !searchCategory.equals('')">AND  bp.news_category = #{searchCategory} </if>
+		<if test="searchKeyword !='' and searchKeyword != null and !searchKeyword.equals('') ">
+			<if test="searchColumn == 'title' ">AND  bp.title LIKE CONCAT('%',#{searchKeyword},'%') </if>
+			<if test="searchColumn == 'content' ">AND  bp.content LIKE CONCAT('%',#{searchKeyword},'%')</if>
+		</if>
+
+		<!-- [START] 단체관리자 기능 추가 : 마을 뉴스 메뉴 표시 by PNS 2016.09.19 -->
+		<!-- User ID로 검색하는 기능 추가  -->
+		<if test="searchUserId != '' and searchUserId != null and !searchUserId.equals('')">AND  bp.user_id = #{searchUserId} </if>
+		<!-- [END] -->
+
+		<if test="searchSdate !='' and searchSdate != null and !searchSdate.equals('') ">
+		AND DATE_FORMAT(bp.reg_date,'%Y.%m.%d') BETWEEN DATE_FORMAT(#{searchSdate},'%Y.%m.%d') AND DATE_FORMAT(#{searchEdate},'%Y.%m.%d')
+		ORDER BY bp.reg_date DESC
+		</if>
+		LIMIT #{startNum}, #{endNum}
+	</select>
+
+	<select id="getNews" parameterType="Long" resultType="Map">
+		SELECT bp.id
+			, bp.content
+			, bp.image_count
+			, cast(bp.range_all as unsigned int) as range_all
+			, bp.range_sido
+			, bp.range_sigungu
+			, bp.reg_date
+			, bp.title
+			, bp.category_id
+			, bp.user_id
+			, bp.file1
+			, bp.file2
+			, bp.view_count
+			, bp.count_empathy
+			, bp.blocked
+			, bp.comment_count
+			, bp.display_yn
+			, bp.slide_yn
+			, bp.news_type
+			, bp.news_category
+			, bp.gender
+			, bp.age
+		FROM board_post bp
+		WHERE bp.id = #{postId}
+	</select>
+
+	<insert id="insertNews" parameterType="Map" useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO board_post(
+		content
+		, image_count
+		, range_all
+		, range_sido
+		, range_sigungu
+		, reg_date
+		, title
+		, category_id
+		, user_id
+		, file1
+		, file2
+		, view_count
+		, count_empathy
+		, blocked
+		, comment_count
+		, news_type
+		, news_category
+		, display_yn
+		, slide_yn
+		, gender
+		, age
+	) VALUES (
+		#{content}
+		,#{image_count}
+		,#{range_all}
+		,#{range_sido}
+		,#{range_sigungu}
+		,now()
+		,#{title}
+		,#{category_id}
+		,#{user_id}
+		,#{file1}
+		,#{file2}
+		,0
+		,0
+		,0
+		,0
+		,#{news_type}
+		,#{news_category}
+		,#{display_yn}
+		,#{slide_yn}
+		,#{gender}
+		,#{age}
+	)
+	</insert>
+
+	<update id="updateNews" parameterType="Map">
+	UPDATE board_post
+	SET user_id = #{user_id}
+		<if test='title != null and !title.equals("")'> , title = #{title}</if>
+		<if test='content != null and !content.equals("")'> , content = #{content}</if>
+		<if test='image_count != null and !image_count.equals("")'> , image_count = #{image_count}</if>
+		<if test='range_all != null and !range_all.equals("")'> , range_all = #{range_all}</if>
+		, range_sido = #{range_sido}
+		, range_sigungu = #{range_sigungu}
+		<if test='category_id != null and !category_id.equals("")'> , category_id = #{category_id}</if>
+		<if test='file1 != null and !file1.equals("")'> , file1 = #{file1}</if>
+		<if test='file2 != null and !file2.equals("")'> , file2 = #{file2}</if>
+		<if test='view_count != null and !view_count.equals("")'> , view_count = #{view_count}</if>
+		<if test='count_empathy != null and !count_empathy.equals("")'> , count_empathy = #{count_empathy}</if>
+		<if test='blocked != null and !blocked.equals("")'> , blocked = #{blocked}</if>
+		<if test='comment_count != null and !comment_count.equals("")'> , comment_count = #{comment_count}</if>
+		<if test='news_type != null and !news_type.equals("")'> , news_type = #{news_type}</if>
+		<if test='news_category != null and !news_category.equals("")'> , news_category = #{news_category}</if>
+		<if test='display_yn != null and !display_yn.equals("")'> , display_yn = #{display_yn}</if>
+		<if test='voice_gubun != null and !voice_gubun.equals("")'> , voice_gubun = #{voice_gubun}</if>
+		<if test='voice_volume != null and !voice_volume.equals("")'> , voice_volume = #{voice_volume}</if>
+		<if test='slide_yn != null and !slide_yn.equals("")'> , slide_yn = #{slide_yn}</if>
+		<if test='gender != null and !gender.equals("")'> , gender = #{gender}</if>
+		<if test='age != null and !age.equals("")'> , age = #{age}</if>
+	WHERE board_post.id = #{id}
+	</update>
+
+	<delete id ="deleteNews" parameterType="Long">
+	DELETE FROM board_post
+	WHERE id = #{postId}
+	</delete>
+
+
+	<!-- 사용자 ID를 통해 사용자가 사는 시도구명, 카테고리ID를 통해 뉴스를가져온다. -->
+	<select id="selectUserNewsListCount" parameterType="Map" resultType="int">
+	SELECT count(*)
+	FROM board_post as b
+			, (
+				SELECT address.시도명 as sido
+				       , address.시군구명 as gugun
+				       , user.id as user_id
+				       , house.apt_id
+				       , board_category.id as category_id
+				FROM address, user
+						, house, apt
+						, board_category
+				WHERE user.house_id = house.id
+				AND house.apt_id = apt.id
+				AND apt.address_code = address.건물관리번호
+				AND apt.id = board_category.apt_id
+				AND board_category.type ='today'
+				AND user.id = #{user_id}
+				)a
+	<!-- [START] 단체관리자 기능 추가 : 마을 뉴스 리스트 by PNS 2016.09.26 -->
+	<!-- 마을뉴스 타겟주소 구조가 '경기도'의 경우 '수원시 권선구' 시/구가 같이 있는 구조라서 '수원시' 전체에 권한을 주기가 힘듬 ==> 문자열에 들어있는지만 체크하는 것으로 수정하고 range_all은 제일 먼제 체크하게 수정함   -->
+	WHERE (b.category_id = a.category_id OR (b.range_all=1 OR b.range_sido=IF(b.range_sigungu='', a.sido, null) OR (b.range_sigungu!='' AND LOCATE(b.range_sigungu, a.gugun) > 0)))
+	<!-- [END] -->
+	AND b.display_yn ='Y'
+	<if test="searchCategory != '' and searchCategory != null and !searchCategory.equals('')">AND  b.news_category = #{searchCategory} </if>
+	<if test="searchKeyword !='' and searchKeyword != null and !searchKeyword.equals('') ">
+		<if test="searchColumn == 'title' ">AND  b.title LIKE CONCAT('%',#{searchKeyword},'%') </if>
+		<if test="searchColumn == 'content' ">AND  b.content LIKE CONCAT('%',#{searchKeyword},'%')</if>
+		<if test="searchColumn == '' ">AND  ( b.title LIKE CONCAT('%',#{searchKeyword},'%') OR b.content LIKE CONCAT('%',#{searchKeyword},'%'))</if>
+	</if>
+	<if test="hashtag !='' and hashtag != null and !hashtag.equals('') ">
+		AND b.id in (SELECT post_id FROM board_post_hashtag WHERE name = #{hashtag})
+	</if>
+	</select>
+
+	<select id="selectUserNewsList" parameterType="Map" resultType="Map">
+	SELECT b.*
+	FROM board_post as b
+			, (
+				SELECT address.시도명 as sido
+				       , address.시군구명 as gugun
+				       , user.id as user_id
+				       , house.apt_id
+				       , board_category.id as category_id
+				FROM address, user
+						, house, apt
+						, board_category
+				WHERE user.house_id = house.id
+				AND house.apt_id = apt.id
+				AND apt.address_code = address.건물관리번호
+				AND apt.id = board_category.apt_id
+				AND board_category.type ='today'
+				AND user.id = #{user_id}
+				) as a
+	<!-- [START] 단체관리자 기능 추가 : 마을 뉴스 리스트 by PNS 2016.09.26 -->
+	<!-- 마을뉴스 타겟주소 구조가 '경기도'의 경우 '수원시 권선구' 시/구가 같이 있는 구조라서 '수원시' 전체에 권한을 주기가 힘듬 ==> 문자열에 들어있는지만 체크하는 것으로 수정하고 range_all은 제일 먼제 체크하게 수정함   -->
+	WHERE (b.category_id = a.category_id OR (b.range_all=1 OR b.range_sido=IF(b.range_sigungu='', a.sido, null) OR (b.range_sigungu!='' AND LOCATE(b.range_sigungu, a.gugun) > 0)))
+	<!-- [END] -->
+	AND b.display_yn ='Y'
+	<if test="searchCategory != '' and searchCategory != null and !searchCategory.equals('')">AND  b.news_category = #{searchCategory} </if>
+	<if test="searchKeyword !='' and searchKeyword != null and !searchKeyword.equals('') ">
+		<if test="searchColumn == 'title' ">AND  b.title LIKE CONCAT('%',#{searchKeyword},'%') </if>
+		<if test="searchColumn == 'content' ">AND  b.content LIKE CONCAT('%',#{searchKeyword},'%')</if>
+		<if test="searchColumn == '' ">AND  ( b.title LIKE CONCAT('%',#{searchKeyword},'%') OR b.content LIKE CONCAT('%',#{searchKeyword},'%'))</if>
+	</if>
+	<if test="hashtag !='' and hashtag != null and !hashtag.equals('') ">
+	AND b.id in (SELECT post_id FROM board_post_hashtag WHERE name = #{hashtag})
+	</if>
+	ORDER BY b.reg_date DESC
+	LIMIT #{startNum}, #{endNum}
+	</select>
+
+</mapper>

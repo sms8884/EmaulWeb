@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 자하 > 메뉴 > APP 버전관리
+	* 경로 : /v2/admin/app/app-version-list
+	* 이력 :
+		- 2016.10.22 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>App 버전관리</title>
+	<style>
+		.modal-body th {
+            width: 20%;
+		}
+        .modal-body {
+            word-break: break-all;
+        }
+        .box {
+
+text-overflow:ellipsis;
+white-space:nowrap;
+word-wrap:normal;
+width:100px;
+overflow:hidden;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+
+
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">App 버전관리</h1>
+
+				<div class="panel panel-info">
+					<div class="panel-heading" style="font-weight:900"></div>
+					<div class="panel-body">
+
+<form name="frm" id="frm" method="post">
+
+						<table class="table table-bordered" style="margin:0;">
+							<tr>
+								<th style="background-color: #f3f3f3">OS</th>
+								<td>
+									<select class="form-control" name="os" id="os" style="width:200px;float:left;">
+										<option value="android" >안드로이드</option>
+										<option value="ios" >IOS</option>
+									</select>
+								</td>
+								<th style="background-color: #f3f3f3">강제여부</th>
+								<td class="form-inline" >
+									 <select class="form-control" name="forceYn" id="forceYn" style="width:200px;float:left;">
+				                          	<option value="N" >일반</option>
+				                          	<option value="Y" >강제</option>
+				                      	</select>
+								</td>
+								<th style="background-color: #f3f3f3;" >메세지</th>
+								<td class="form-inline" style=" width:150px;">
+									<input type="text" id="message" name="message" class="form-control" placeholder="업데이트 메세지" th:maxlength="100"/>
+								</td>
+							</tr>
+							<tr>
+								<th style="background-color: #f3f3f3">버전코드</th>
+								<td class="form-inline" >
+									<input type="text" id="versionCode" name="versionCode" class="form-control" placeholder="버전코드" th:maxlength="10"/>
+								</td>
+								<th style="background-color: #f3f3f3">버전<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+								<td class="form-inline" >
+									<input type="text" id="versionName" name="versionName" class="form-control" placeholder="버전" th:maxlength="20"/>
+								</td>
+								<th style="background-color: #f3f3f3">경로</th>
+								<td class="form-inline" >
+									<input type="text" id="url" name="url" class="form-control" placeholder="업데이트 경로" th:maxlength="200"/>
+								</td>
+							</tr>
+						</table>
+
+</form>
+						<div style="text-align:center; margin:20px 0;">
+							<input type="button" id="setBtn" name="setBtn" class="btn btn-default btn-info" value="등록"/>
+						</div>
+					</div>
+				</div>
+
+
+				<div id="content-container" >
+					<div id="table-container" style="width:49% ;float:left;">
+					<h3>안드로이드</h3>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th style="text-align:center;">버전코드</th>
+									<th style="text-align:center;" >버전명</th>
+									<th style="text-align:center;">강제여부</th>
+									<th style="text-align:center;">메세지</th>
+									<th style="text-align:center;">URL</th>
+								</tr>
+							</thead>
+							<tbody id="androidVersionList"></tbody>
+						</table>
+					</div>
+
+					<div id="content-container" style="width:49%; float:right;">
+						<h3>IOS</h3>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th style="text-align:center;">버전코드</th>
+									<th style="text-align:center;" >버전명</th>
+									<th style="text-align:center;">강제여부</th>
+									<th style="text-align:center;">메세지</th>
+									<th style="text-align:center;">URL</th>
+								</tr>
+							</thead>
+							<tbody id="iosVersionList"></tbody>
+						</table>
+
+					</div>
+
+
+				</div>
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+	<!-- javascript page wrapper th include location -->
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+	$(document).ready(function (){
+
+		$("#setBtn").click(function(){
+			setAppVersion();
+	    });
+
+		getAppVersionList('android');
+		getAppVersionList('ios');
+	});
+
+    function setAppVersion() {
+
+    	if (isEmpty($('#versionName').val())) {
+    		alert("버전을 입력하세요.");
+    		$('#versionName').focus();
+    		return;
+    	}
+
+		if(confirm("등록하시겠습니까?")){
+
+            $.ajax({
+                url: '/v2/jaha/app-version/create',
+                type: 'post',
+                dataType: 'json',
+                data: $("#frm").serialize(),
+                success: function(data) {
+                	getAppVersionList(data.os) ;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+
+        }
+    }
+
+
+    function deleteAppVersion(id, os) {
+
+    	console.log(">>> id : " + id + "/os : " + os);
+		if(confirm("삭제 하시겠습니까?")){
+
+            $.ajax({
+                url: '/v2/jaha/app-version/delete',
+                type: 'post',
+                dataType: 'json',
+                data: {id : id, os : os},
+                success: function(data) {
+                	getAppVersionList(data.os) ;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+
+        }
+    }
+
+	// App 버전정보 조회
+	function getAppVersionList(os) {
+
+		var reqData = {};
+	    reqData.os = os
+
+		$.ajax({
+			type: 'post'
+			,url: '/v2/jaha/app-version/list/' + os
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+			, data: JSON.stringify(reqData)
+            , success: function (data) {
+
+           		var versionHtml = '';
+
+           		if(data.appVersionList.length > 0){
+
+           			$(data.appVersionList).each(function (i, obj) {
+           				versionHtml += '<tr>'
+           					versionHtml += '<td style="text-align:center;">' + obj.versionCode + ' <span onClick="deleteAppVersion(\'' + obj.id + '\',\'' + obj.os + '\')">[삭제]</span></td>'
+           					versionHtml += '<td style="text-align:center;">' + obj.versionName + '</td>'
+           					versionHtml += '<td style="text-align:center;">' + obj.forceYn + '</td>'
+           					versionHtml += '<td style="text-align:center;" ><div class="box">' + obj.message + '</div></td>'
+           					versionHtml += '<td style="text-align:center;" ><div class="box">' + obj.url + '</div></td>'
+						versionHtml += '</ tr>'
+					});
+
+           		} else {
+          				versionHtml += '<tr>'
+          									+ '<td colspan="7">버전 정보가 없습니다.</td>'
+                   						+ '</tr>';
+           		}
+           		$('#' + os + 'VersionList').html(versionHtml);
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+	}
+	/*]]>*/
+	</script>
+	<!--// javascript page wrapper th include location -->
+
+
+    </div>
+    <!--// page wrapper -->
+
+</body>
+</html>

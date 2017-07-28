@@ -1,0 +1,172 @@
+#div_grid_header1 td.day_of_week_7 {background-color: #6699FF !important;}
+#div_grid_header1 td.day_of_week_1 {background-color: #FF33CC !important;}
+
+#div_grid_body1 td.day_of_week_7 {background-color: #99FFFF !important;}
+#div_grid_body1 td.day_of_week_1 {background-color: #FFCCCC !important;}
+
+#div_grid_body1 td[org="1"] {background-color: #DEDEDE !important;}
+
+.td_align_left {
+	text-align: left;
+}
+.td_align_center {
+	text-align: center;
+}
+.td_align_right {
+	text-align: right;
+}
+.outdiv {
+	word-wrap: normal;
+}
+.outspan {
+	border-color: transparent;
+}
+.inspan {
+	white-space: nowrap;
+}
+.sbgrid_datagrid
+{
+	/*
+	border-style:solid;
+	text-align:left;
+	
+	border-top-width:2px;
+	border-color:#B2BAD2;
+	
+	border-top-color:#888888;
+	border-top-left-radius: 0.3em; 
+	border-top-right-radius: 0.3em;
+	border-bottom-right-radius: 0.3em;
+	border-bottom-left-radius: 0.3em;
+	
+	font-size: 10pt; 
+	color: #353535;
+	font-family:"돋움",verdana;
+	
+	border-top-width: 1px; 
+	border-right-width: 1px; 
+	border-bottom-width: 1px; 
+	border-left-width: 1px; 
+	background-color: rgb(255, 255, 255);
+	
+	overflow: auto; 
+	position: relative; 
+	visibility: visible; 
+	
+	background-position-x: left;
+	background-position-y: top;
+	
+	margin-top: 0px; 
+	margin-right: 0px; 
+	margin-bottom: 0px; 
+	margin-left: 0px; 
+	*/
+	border-style:solid;
+	text-align:left;
+	border-top-width:2px;
+	border-color:#b2bad2;
+	/*border-top-color:#888;*/
+	/*
+	border-top-left-radius:.3em;
+	border-top-right-radius:.3em;
+	border-bottom-right-radius:.3em;
+	border-bottom-left-radius:.3em;
+	*/
+	font-size:10pt;color:#353535;
+	font-family:"돋움",verdana;
+	border-top-width:1px;
+	border-right-width:1px;
+	border-bottom-width:1px;
+	border-left-width:1px;
+	background-color:#fff;
+	overflow:auto;
+	position:relative;
+	visibility:visible;
+	background-position-x:left;
+	background-position-y:top;
+	margin-top:0;margin-right:0;
+	margin-bottom:0;margin-left:0;
+}
+
+.sbgrid_datagrid_FixedCell {
+	/*
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	line-height:19px;
+	colo r: #4B4B4B;
+	background:url('../imageGray/datagrid/HeaderBg.png'); border:0;
+	font-weight:bold;
+	font-size:11px;
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:solid;
+	border-left-style:solid;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#D7E4FA;
+	border-color:#b0c4de;
+	overflow:hidden;
+	*/
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	line-height:19px;
+	/*color:#4b4b4b;*/
+	color:#265e8e;
+	/*background:url('../imageGray/datagrid/HeaderBg.png');*/
+	border:0;
+	/*font-weight:bold;*/
+	font-family: "dotum" !important;
+	/*font-size:11px;*/
+	font-size:12px;
+	border-top-width:0 !important;
+	border-left-width:0 !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:solid;
+	border-left-style:solid;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	/*background-color:#d7e4fa;*/
+	background-color:#e7f4ff;
+	border-color:#b0c4de;
+	overflow:hidden;
+}
+
+.sbgrid_datagrid_DataCell
+{
+	border-top-width:1px !important;
+	border-left-width:1px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#FCFCFC;
+	border-right-color:#b0c4de;
+	border-bottom-color:#b0c4de;
+}
+.sbgrid_datagrid_Output {
+	width:100%;
+	border-left-color:transparent;
+	border-right-color:transparent; 
+	border-bottom-color:transparent; 
+	border-top-color:transparent;
+	overflow:hidden;
+}
+.sbgrid_datagrid1_col {
+	padding: 0 5px 0 5px;
+}
+.sbgrid_datagrid_GridWhole {
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:100%;
+	overflow:visible;
+	text-align:left;
+}

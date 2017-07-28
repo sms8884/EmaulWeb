@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/print-vote.css"
+          th:href="@{/css/print-vote.css}"/>
+
+    <link type="text/css" rel="stylesheet"
+          href="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"
+          th:href="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-responsive/css/dataTables.responsive.css"
+          th:href="@{/datatables-responsive/css/dataTables.responsive.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-tabletools/css/dataTables.tableTools.min.css"
+          th:href="@{/datatables-tabletools/css/dataTables.tableTools.min.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        th:after {
+            display: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>투표결과보기</title>
+</head>
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+    <div th:replace="admin/admin :: top-nav"></div>
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">투표 결과</h1>
+
+                <div id="content-container">
+                    <div id="table-container">
+                        <!--<div th:if="${vote.status}=='done' or ${vote.type.main}=='poll'" id="button-position" style="position: absolute; right: 30px;">-->
+                        <div th:if="${resultState}==true" id="button-position" style="position: absolute; right: 30px;">
+                        <a class="btn btn-success" id="print-button">결과출력</a></div>
+
+<!-- 
+                        <h2 th:if="${vote.enableSecurity} == 'Y' and ${vote.securityLevel} != null" th:text="${vote.title} + ' [보안투표 '+${vote.securityLevel}+']'"></h2>
+                        <h2 th:if="${vote.enableSecurity} == 'Y' and ${vote.securityLevel} == null" th:text="${vote.title} + ' [보안투표]'"></h2>
+ -->
+                        <div style="display:inline-block;">
+	                        <h2 style="float:left" th:text="${vote.title}"></h2>
+	                        <h2 style="float:left;margin-left:10px;color:red;" th:text="[보안투표]" th:if="${vote.enableSecurity} == 'Y' and ${vote.securityLevel} == null"></h2>
+	                        <h2 style="float:left;margin-left:10px;color:red;" th:text="'[보안투표 ' + ${vote.securityLevel} + '등급]'" th:if="${vote.enableSecurity} == 'Y' and ${vote.securityLevel} != null"></h2>
+                        </div>                 
+                        <!--<div id="hide-if-underway1" th:if="${vote.status}=='done' or ${vote.type.main}=='poll'">-->
+                        <div id="hide-if-underway1" th:if="${resultState}==true">
+                        <div id="result-print-wrapper">
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">투표결과보고서</div>
+                                        <div class="panel-body">
+
+                                        <h3 align="center" th:text="'투표명 : '+${vote.title}">투표제목</h3>
+                                            <br/>
+                                            <h3>투표내용</h3>
+                                            <div style="padding-left: 20px">
+                                        <p th:text="'투표기간 : '+${vote.startDate}+' ~ '+${vote.endDate}">투표기간</p>
+                                            <p th:if="${vote.targetDong.empty}" th:text="'투표참여대상 : 아파트 전체'">투표참여대상</p>
+                                            <p th:if="!${vote.targetDong.empty}" th:text="'투표참여대상 : '+${vote.targetDong}+'동'">투표참여대상</p><!--수정필요, 라인, 층 고려-->
+                                            <!--<p th:text="'안건 : '+${vote.question}"></p>-->
+                                            <p th:text="'질문 : '+${vote.question}"></p>
+
+                                            <h4 th:if="${vote.type.sub == 'candidate_single'}" th:text="'후보명 : '+${first}"></h4><!--바꿔줘야 함-->
+
+                                            </div>
+                                            <h3>투표 결과</h3>
+
+                                            <h4 align="center" th:text="'전자투표 참여자 수 '+ ${result.voterCount} +'명'"></h4>
+
+                                            <table th:if="!${vote.voteResultAvailable} and !${off}" class="table table-bordered table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th>최다득표 항목이름</th>
+                                                    <th width="20%">득표수</th>
+                                                    <th width="20%">득표비율</th>
+                                                </tr>
+                                                </thead>
+                                                <tr th:each="m:${max}">
+                                                    <td th:if="${vote.type.sub != 'candidate_single'}" th:text="${m.name}"></td>
+                                                    <td th:if="${vote.type.sub == 'candidate_single'} and ${m.name!='반대'}">찬성</td>
+                                                    <td th:if="${vote.type.sub == 'candidate_single'} and ${m.name=='반대'}">반대</td>
+                                                    <td th:text="${m.count}"></td>
+                                                    <td th:text="${m.rate}"></td>
+                                                </tr>
+                                            </table>
+
+                                        <table id="table-statuses" class="table table-bordered table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>후보/선택지</th>
+                                                <th width="20%">득표수</th>
+                                                <th width="20%">득표비율</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody><!--voteItems, votersCountMap, voters-->
+                                            <!--<tr th:each="co : ${votersCountMap}">
+                                                <td colspan="3" th:text="${co.voteItem.id}"></td>
+                                            </tr>-->
+                                            <tr th:if="${result.statuses.empty}">
+                                                <td colspan="3">목록이 없습니다.</td>
+                                            </tr>
+                                            <tr th:id="cand-num" th:each="vi:${result.statuses}">
+                                                <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name!='반대'}">찬성</td>
+                                                <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name=='반대'}">반대</td>
+                                                <td th:if="${vote.type.sub != 'candidate_single'}" th:id="cand-name" th:text="${vi.name}"></td>
+                                                <td th:id="cand-count" th:text="${vi.count}"></td>
+                                                <td th:text="${vi.rate}"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                            <div id="if-off-exist" th:if="${off}">
+
+                                                <h4 align="center" th:text="'오프라인 투표 참여자 수 '+ ${off.offVoterCount} +'명'"></h4>
+                                                <table id="table-off-statuses" class="table table-bordered table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>후보/선택지</th>
+                                                        <th width="20%">득표수</th>
+                                                        <th width="20%">득표비율</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr th:if="${off.offStatuses.empty}">
+                                                        <td colspan="3">목록이 없습니다.</td>
+                                                    </tr>
+                                                    <tr th:each="vi:${off.offStatuses}">
+                                                        <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name!='반대'}">찬성</td>
+                                                        <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name=='반대'}">반대</td>
+                                                        <td th:if="${vote.type.sub != 'candidate_single'}" th:text="${vi.name}"></td>
+                                                        <td th:text="${vi.count}"></td>
+                                                        <td th:text="${vi.rate}"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+
+                                                <h4 align="center" th:text="'전체 투표 참여자 수 '+ ${off.additionVoterCount} +'명'"></h4>
+                                                <table id="table-addition-statuses" class="table table-bordered table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>후보/선택지</th>
+                                                        <th width="20%">득표수</th>
+                                                        <th width="20%">득표비율</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr th:each="vi:${off.additionStatuses}">
+                                                        <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name!='반대'}">찬성</td>
+                                                        <td th:if="${vote.type.sub == 'candidate_single'} and ${vi.name=='반대'}">반대</td>
+                                                        <td th:if="${vote.type.sub != 'candidate_single'}" th:text="${vi.name}"></td>
+                                                        <td th:text="${vi.count}"></td>
+                                                        <td th:text="${vi.rate}"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <h4 th:if="${vote.voteResultAvailable}" align="center"><strong>최종결과</strong></h4>
+                                            <table th:if="${vote.voteResultAvailable}" class="table table-bordered table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th>최다득표 항목이름</th>
+                                                    <th width="20%">득표수</th>
+                                                    <th width="20%">득표비율</th>
+                                                </tr>
+                                                </thead>
+                                                <tr th:each="m:${max}">
+                                                    <td th:if="${vote.type.sub != 'candidate_single'}" th:text="${m.name}"></td>
+                                                    <td th:if="${vote.type.sub == 'candidate_single'} and ${m.name!='반대'}">찬성</td>
+                                                    <td th:if="${vote.type.sub == 'candidate_single'} and ${m.name=='반대'}">반대</td>
+                                                    <td th:text="${m.count}"></td>
+                                                    <td th:text="${m.rate}"></td>
+                                                </tr>
+                                            </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        <!--차트 플러그인 쓰기-->
+                        <div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    전자 투표 결과 그래프
+                                </div>
+                                <div class="panel-body">
+                                    <div id="chart" style="width: 600px;height:300px"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                            <div th:if="${off}" id="if-off-exist-graph-off">
+                                <div>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            오프라인 투표 결과 그래프
+                                        </div>
+                                        <div class="panel-body">
+                                            <div id="chart2" style="width: 600px;height:300px"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${off}" id="if-off-exist-graph-addition">
+                                <div style="margin-bottom: 5%">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            전체 투표 결과 그래프
+                                        </div>
+                                        <div class="panel-body">
+                                            <div id="chart3" style="width: 600px;height:300px"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="!${off}" style="display: none">
+                                <table id="table-off-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <table id="table-addition-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <div id="chart2" style="width: 100px;height:100px"></div>
+                                <div id="chart3" style="width: 100px;height:100px"></div>
+                            </div>
+
+
+                            <!--차트끝-->
+                        </div>
+
+
+                        <div class="alert alert-danger" role="alert" id="hide-if-underway2" th:if="${vote.status}!='done' and ${vote.type.main}=='vote'" style="margin: 5% 0">
+                            <p>투표 완료 전에는 결과가 나타나지 않습니다. 투표가 완료되면 결과를 확인할 수 있습니다.</p>
+                            <div style="display: none">
+
+                                <table id="table-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <table id="table-off-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <table id="table-addition-statuses"><tr><td>0</td><td>0</td></tr></table>
+
+                                <div id="chart" style="width: 100px;height:100px"></div>
+                                <div id="chart2" style="width: 100px;height:100px"></div>
+                                <div id="chart3" style="width: 100px;height:100px"></div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-danger" role="alert" id="hide-if-underway3" th:if="${vote.status}=='done' and ${vote.enableSecurity}=='Y' and ${vote.decYn}=='N' and ${vote.type.main}=='vote'" style="margin: 5% 0">
+                            <p>개표 대기 중입니다. 개표 처리 후에 결과를 확인할 수 있습니다.</p>
+                            <div style="display: none">
+
+                                <table id="table-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <table id="table-off-statuses"><tr><td>0</td><td>0</td></tr></table>
+                                <table id="table-addition-statuses"><tr><td>0</td><td>0</td></tr></table>
+
+                                <div id="chart" style="width: 100px;height:100px"></div>
+                                <div id="chart2" style="width: 100px;height:100px"></div>
+                                <div id="chart3" style="width: 100px;height:100px"></div>
+                            </div>
+                        </div>
+
+                        <h3>전자 투표에 참여한 사람</h3>
+
+                        <div class="dataTable_wrapper" style="margin-bottom: 5%; margin-top: 3%">
+                            <table id="voters" class="table table-striped table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>투표한 시각</th>
+                                    <th>동</th>
+                                    <th>호</th>
+                                    <th>휴대폰</th>
+                                    <th>이름</th>
+                                    <th th:if="${vote.type.main}=='vote'">서명</th>
+                                    <th th:if="${user.type.jaha} == true and ${vote.type.main}=='vote' and ${vote.securityLevel != null}">투표참여정보</th>
+                                </tr>
+
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="v : ${result.voterList}">
+                                    <td th:text="${v.voteDate}"></td>
+                                    <td th:text="${v.dong}"></td>
+                                    <td th:text="${v.ho}"></td>
+                                    <td th:text="${v.phone}"></td>
+                                    <td th:text="${v.name}"></td>
+                                    <td th:if="${vote.type.main}=='vote'"><img height="90px" th:src="${v.signUrl}"/></td>
+<!--
+                                    <td th:if="${user.type.jaha} == true and ${vote.type.main}=='vote' and ${vote.securityLevel != null}">동영상 <input type="button" class="btn btn-default btn-sm" value="재생" th:onclick="'popupSignVideo(\''+${voteId}+'\',\''+${v.userId}+'\')'" /></td>
+-->
+                                    <td th:if="${user.type.jaha} == true and ${vote.type.main}=='vote' and ${vote.securityLevel != null}">동영상 <input type="button" value="재생" th:onclick="'popupSignVideo(\''+${voteId}+'\',\''+${v.userId}+'\')'" /></td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+
+
+                        <div th:if="${vote.offlineAvailable} and ${voterOfflines}">
+                            <h3 style="margin-bottom: 0">오프라인 투표에 참여한 사람</h3>
+
+                            <div class="dataTable_wrapper" style="margin-bottom: 5%; margin-top: 3%">
+                                <table id="offline-voters" class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th width="25%">투표한 시각</th>
+                                        <th width="20%">동</th>
+                                        <th width="20%">호</th>
+                                        <th width="35%">이름</th>
+                                    </tr>
+
+                                    </thead>
+                                    <tbody>
+
+                                    <tr th:each="v : ${voterOfflines}">
+                                        <td th:text="${v.regDate}"></td>
+                                        <td th:text="${v.dong}"></td>
+                                        <td th:text="${v.ho}"></td>
+                                        <td th:text="${v.fullName}"></td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery-2.1.3.min.js" th:src="@{/js/jquery-2.1.3.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<!--flot-->
+<script src="../../static/js/excanvas.min.js" th:src="@{/js/excanvas.min.js}"></script>
+<script src="../../static/js/jquery.flot.js" th:src="@{/js/jquery.flot.js}"></script>
+<script src="../../static/js/jquery.flot.pie.js" th:src="@{/js/jquery.flot.pie.js}"></script>
+<script src="../../static/js/jquery.flot.resize.js" th:src="@{/js/jquery.flot.resize.js}"></script>
+<script src="../../static/js/jquery.flot.time.js" th:src="@{/js/jquery.flot.time.js}"></script>
+<script src="../../static/js/jquery.flot.tooltip.min.js" th:src="@{/js/jquery.flot.tooltip.min.js}"></script>
+<!--datatables-->
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js"
+        th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"
+        th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+<script src="../../static/datatables-tabletools/js/dataTables.tableTools.min.js"
+        th:src="@{/datatables-tabletools/js/dataTables.tableTools.min.js}"></script>
+<script src="../../static/js/jQuery.print.js"
+        th:src="@{/js/jQuery.print.js}"></script>
+
+
+
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function () {
+        $('#voters thead th').each( function () {
+            var title = $('#voters thead th').eq( $(this).index() ).text();
+            $(this).html( title+'<input type="text" placeholder="검색" style="width: 100px; margin-left: 10px"/>');
+        } );
+
+        var table = $('#voters').DataTable( {
+            "dom": 'T<"clear">lfrtip',
+            "tableTools": {
+                "sSwfPath": "/datatables-tabletools/swf/copy_csv_xls_pdf.swf",
+                "aButtons" : ["copy", "xls", {"sExtends":"print",
+                                                "sInfo":"Ctrl+P를 눌러 인쇄하세요. 이전화면으로 돌아가려면 Esc를 누르세요"}]
+            }
+        });
+
+        table.columns().eq(0).each( function (colIdx) {
+
+            $( 'input', table.column(colIdx).header() ).on( 'keyup change', function () {
+                table
+                        .column( colIdx)
+                        .search( this.value )
+                        .draw();
+            } );
+        } );
+
+        var table2 = $('#offline-voters').DataTable({
+            "dom": 'T<"clear">lfrtip',
+            "tableTools": {
+                "sSwfPath": "/datatables-tabletools/swf/copy_csv_xls_pdf.swf",
+                "aButtons": ["copy", "xls", {
+                    "sExtends": "print",
+                    "sInfo": "Ctrl+P를 눌러 인쇄하세요. 이전화면으로 돌아가려면 Esc를 누르세요"}]
+            }
+        });
+
+    });
+
+    $(document).ready(function (){
+
+        var selectedTargetHo = /*[[${vote.jsonArrayTargetHo}]]*/ [];
+        if(selectedTargetHo == ''){
+            selectedTargetHo = [];
+        }
+        if(!Array.isArray(selectedTargetHo)){
+            selectedTargetHo = JSON.parse(selectedTargetHo);
+        }
+        for(i in selectedTargetHo){
+            $('#show-selected-ho').append('<span>'+selectedTargetHo[i]+'호 </span>');
+        }
+
+    });
+
+    $('#button-position').click(function (){
+        $('#result-print-wrapper').print({
+            mediaPrint: true
+        });
+    });
+
+    //Flot Pie Chart
+    $(function () {
+
+        var data = [];
+        $("#table-statuses").find('tr').each(function () {
+            var tds = $(this).find('td');
+            data.push({
+                label: tds.eq(0).text(),
+                data: tds.eq(1).text()
+            });
+        });
+
+        var data2 = [];
+        $("#table-off-statuses").find('tr').each(function () {
+            var tds = $(this).find('td');
+            data2.push({
+                label: tds.eq(0).text(),
+                data: tds.eq(1).text()
+            });
+        });
+
+        var data3 = [];
+        $("#table-addition-statuses").find('tr').each(function () {
+            var tds = $(this).find('td');
+            data3.push({
+                label: tds.eq(0).text(),
+                data: tds.eq(1).text()
+            });
+        });
+
+
+        var data1 = [{
+            label: "Series 0",
+            data: 1
+        }, {
+            label: "Series 1",
+            data: 3
+        }, {
+            label: "Series 2",
+            data: 9
+        }, {
+            label: "Series 3",
+            data: 20
+        }];
+
+        var plotObj = $.plot($("#chart"), data, {
+            series: {
+                pie: {
+                    innerRadius: 0.5,
+                    show: true
+                }
+            },
+            grid: {
+                hoverable: true
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            }
+        });
+
+
+
+        var plotObj2 = $.plot($("#chart2"), data2, {
+            series: {
+                pie: {
+                    innerRadius: 0.5,
+                    show: true
+                }
+            },
+            grid: {
+                hoverable: true
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            }
+        });
+
+        var plotObj3 = $.plot($("#chart3"), data3, {
+            series: {
+                pie: {
+                    innerRadius: 0.5,
+                    show: true
+                }
+            },
+            grid: {
+                hoverable: true
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            }
+        });
+
+
+    });
+    
+    function popupSignVideo(voteId, userId){
+    	var width = 700;
+        var height = 500;
+        var left = (screen.width-width)/2;
+        var top = (screen.height-height)/2;
+        window.open("/jaha/vote/sign-video-popup?voteId="+voteId+"&userId="+userId,"voteSecurityVideoPopup","width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

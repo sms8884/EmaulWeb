@@ -1,0 +1,46 @@
+@charset "utf-8";
+
+
+
+
+/*leftmenu*/
+
+.leftmenu_sub{
+	line-height:3.5;
+	font-size:17px;
+	font-weight:bold;
+}
+
+.leftmenu_sub a{
+	display:inline-block;
+	width:94%;
+	border:1px solid #fff;
+	padding-left:5%;
+}
+
+.submenu_hide{
+	display:none;
+}
+
+.submenu_hide2{
+	height:32px;
+	line-height:32px;
+}
+
+.submenu_hide2 a{
+	font-size:14px; 
+	width:94%;
+	padding-left:5%;
+	display:inline-block;
+	
+}
+
+.leftmenu_sub a:hover,
+.leftmenu_sub a:active,
+.leftmenu_sub a:focus{
+	border:1px solid #041D39;
+	text-decoration:none;
+	color:#5C81AA;
+}
+
+

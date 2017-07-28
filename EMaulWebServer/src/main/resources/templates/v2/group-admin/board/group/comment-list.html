@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/group-admin/template/layout">
+
+<head>
+
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title th:text="${category.name} + ' | 댓글관리'">댓글관리</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+<form name="boardSearchForm" id="boardSearchForm" method="post" action="">
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- <h1 th:text="${category.name + ' 댓글관리'}" class="page-header">댓글관리</h1> -->
+            <h1 class="page-header">댓글관리</h1>
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+					<div th:replace="v2/group-admin/board/comment-search-form :: board-search-form"></div>
+
+					<div  class="btn-group btn-group-sm" role="group" style="height:50px; padding-top:10px;">
+						<!-- &sort=BP.reg_date&sort=BP.view_count,ASC -->
+						<button type="button" th:class="((${boardDto.sortColumns == 'BC.reg_date'})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, 'BC.reg_date');">최신순</button>
+						<button type="button" th:class="((${boardDto.sortColumns == 'BC.reply_count'})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, 'BC.reply_count');">답글순</button>
+					</div>
+
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="5%" style="text-align:center;">번호</th>
+                            <th width="30%" style="text-align:center;">게시물 제목</th>
+                            <th width="25%" style="text-align:center;">댓글 내용</th>
+                            <th width="10%" style="text-align:center;">등록자</th>
+                            <th width="10%" style="text-align:center;">등록일</th>
+                            <th width="10%" style="text-align:center;">수정일</th>
+                            <th width="5%" style="text-align:center;">답글수</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${boardPostCommentList.empty}">
+                            <td colspan="8" style="text-align:center;" th:text="${category.name} + ' 댓글 목록이 없습니다.'">댓글 목록이 없습니다.</td>
+                        </tr>
+                        <tr th:each="comment,iterStat : ${boardPostCommentList}">
+                            <td>
+                                <span th:text="${pagingHelper.listStartNum - iterStat.index}"></span>
+                            </td>
+                            <td>
+                                <div class="board-list-contents" style="height:40px; text-align:left;">
+                                	<a class="board-list-contents" th:href="${'/v2/group-admin/board/group/read/' + category.id + '/' + comment.postId }" style="line-height:40px;" th:text="${comment.postTitle}">아파트 지하 주차장에 아침 저녁으로 출퇴근시</a>
+                                </div>
+                            </td>
+                            <td>
+                            	<span th:text="${comment.content}" th:unless="${comment.replyCount} > 0"></span>
+                            	<div th:if="${comment.replyCount} > 0">
+
+                            		<span th:text="${comment.content}"  th:onclick="${'toggle(' + comment.id + ')'}"></span>
+                            		<div  style="display:none; text-align:left;" th:id="${'comment_reply_view_' + comment.id}">
+                            			<div th:each="reply,status : ${comment.boardCommentReplyList}" >
+								    		<i class="fa fa-share fa-flip-vertical"></i>
+								    		<span th:text="${reply.fullName} + ' (' + ${reply.nickname} + ') ' + ${reply.dong} + '동 ' + ${#dates.format(reply.regDate, 'yyyy-MM-dd HH:mm:ss')}">답글 등록자</span>
+								    		<pre style="padding:0px;background: none; border: none" th:text="${reply.content}">답글 본문</pre>
+								    	</div>
+                            		</div>
+							    </div>
+
+                            </td>
+                            <td th:text="${comment.fullName + ' (' + comment.nickname + ')'}"></td>
+                            <td th:text="${#dates.format(comment.regDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td><span th:if="${comment.modDate != null}" th:text="${#dates.format(comment.modDate, 'yyyy-MM-dd HH:mm:ss')}"></span></td>
+                            <td th:text="${comment.replyCount}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+			<!-- paging -->
+			<div th:replace="v2/group-admin/template/paging :: paginationbar"></div>
+
+        </div>
+	</div>
+</form>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+function toggle(id) {
+
+	if($('#comment_reply_view_' + id).css("display") == "none"){
+		$('#comment_reply_view_' + id).show();
+	  } else {
+		  $('#comment_reply_view_' + id).hide();
+	  }
+}
+
+var categoryId = /*[[${category.id}]]*/ '0';
+
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum, sortColumns) {
+	$("#pageNum").val(movePageNum);
+
+	var actionUrl = "";
+
+	if (sortColumns) {
+		actionUrl = $("#listUrl").val() + "?sortColumns=" + sortColumns;
+	}
+	else {
+		actionUrl = $("#listUrl").val();
+	}
+
+	var $form = $("#boardSearchForm");
+	$form.attr("action", actionUrl);
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+  	$('#startDateWrap, #endDateWrap').datetimepicker({
+        format : "YYYY-MM-DD",
+        useCurrent: false
+    });
+    $("#startDateWrap").on("dp.change", function (e) {
+        $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endDateWrap").on("dp.change", function (e) {
+        $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+    });
+
+    // 검색 버튼 클릭 시
+    $("#searchBtn").bind("click", function() {
+      	paging(1);
+    });
+
+    // 초기화 버튼 클릭 시
+    $("#resetBtn").bind("click", function() {
+      	$("#searchStartDate").val("");
+        $("#searchEndDate").val("");
+        $("#searchKeyword").val("");
+
+        paging(1);
+    });
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

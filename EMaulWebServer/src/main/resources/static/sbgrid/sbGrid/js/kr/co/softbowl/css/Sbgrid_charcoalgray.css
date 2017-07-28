@@ -1,0 +1,1367 @@
+﻿/* 여기 부터*/
+*
+{
+	border-width:1px;
+	background-repeat:no-repeat;
+}
+
+.sbgrid_boxsizing
+{
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+}
+
+.sbgrid_group_plus
+{
+	background-image:url(../imageCharcoalgray/treeview/plus.gif);
+	background-position:right center;
+}
+
+.sbgrid_group_subtraction
+{
+	background-image:url(../imageCharcoalgray/treeview/minus.gif);
+	background-position:right center;
+}
+
+.sbgrid_group_normal
+{
+	background-image:url(../imageCharcoalgray/treeview/normal.gif);
+	background-position:right center;
+}
+
+
+.sbgrid_body
+{
+	width: 100%; 
+
+	height: 100%;
+	margin-top: 0px; 
+	margin-right: 0px; 
+	margin-bottom: 0px; 
+	margin-left: 0px; 
+	color: rgb(0, 0, 0); 
+	font-family : gulim ,verdana !important;
+	font-size: 10pt; 
+	overflow: auto; 
+	position: absolute; 
+	visibility: visible; 
+	
+	background-position-x: left;
+	background-position-y: top;
+}
+
+.sbgrid_button
+{
+	position:absolute;
+	overflow:hidden;
+	padding:0px;
+	cursor:pointer;
+}
+
+.sbgrid_button_div
+{
+	white-space:nowrap;
+	overflow:hidden;
+}
+
+/* calendar */
+.sbgrid_calendar
+{
+	position:absolute;
+	border-style:solid;
+	border-width:1px;
+	border-color:#ced9e2;
+	background-color:#FFFFFF;
+	cursor:default;
+	font-family: gulim, arial;
+	font-size: 10pt;
+	top:0px;
+	width:200px;
+	height:150px;
+}
+
+.sbgrid_calendar_header
+{
+	color:white;
+	background-color:#4F5359;
+	vertical-align:middle;
+	table-layout:fixed;
+	font-weight:bold;
+}
+
+
+.sbgrid_calendar_prevyear
+{
+	background-color:#4F5359;
+	background-image:url(../imageCharcoalgray/calendar/cal_py.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	color:blue;
+	focus-rect:hidden;
+	cursor:pointer;
+	border : 1px solid transparent;
+}
+
+
+.sbgrid_calendar_prevmonth
+{
+	background-color:#4F5359;
+	background-image:url(../imageCharcoalgray/calendar/cal_pm.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	color:blue;
+	focus-rect:hidden;
+	cursor:pointer;
+	border : 1px solid transparent;
+}
+
+.sbgrid_calendar_nextmonth
+{
+	background-color:#4F5359;
+	background-image:url(../imageCharcoalgray/calendar/cal_nm.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	color:blue;
+	focus-rect:hidden;
+	cursor:pointer;
+	border : 1px solid transparent;
+}
+
+
+.sbgrid_calendar_nextyear
+{
+	background-color:#4F5359;
+	background-image:url(../imageCharcoalgray/calendar/cal_ny.png);
+	background-repeat:no-repeat;
+	background-position:center;
+	focus-rect:hidden;
+	cursor:pointer;
+	border : 1px solid transparent;
+}
+
+.
+.sbgrid_calendar_body
+{
+	background-color:transparent;
+	cursor:default;
+}
+
+
+.sbgrid_calendar_item_sun
+{
+	color:#FF0000;
+	cursor:pointer;
+}
+
+.sbgrid_calendar_item_sat
+{
+	color:#0000FF;
+	cursor:pointer;
+}
+
+.sbgrid_calendar_item_day
+{
+	color:#000000;
+	cursor:pointer;
+}
+
+.sbgrid_caption
+{
+	cursor:default;
+	table-layout:fixed;
+	position:absolute;
+}
+
+.sbgrid_caption_auto
+{
+	cursor:default;
+	position:absolute;
+	width:0px !important;
+}
+
+.sbgrid_caption_div
+{
+	cursor:default;
+	position:absolute;
+	overflow:hidden;
+	margin:0px;
+	padding:0px;
+}
+
+.sbgrid_caption_table
+{
+	cursor:default;
+	position:relative;
+	border-width:0px !important;
+	border-style:none !important;
+	background-color:transparent;
+	color:inherit;
+	color:expression(this.parentNode.currentStyle.color);
+	font-size:inherit;
+	font-size:expression(this.parentNode.currentStyle.fontSize);
+	font-family:inherit;
+	font-family:expression(this.parentNode.currentStyle.fontFamily);
+	font-style:inherit;
+	font-style:expression(this.parentNode.currentStyle.fontStyle);
+	font-weight:inherit;
+	font-weight:expression(this.parentNode.currentStyle.fontWeight);
+	text-decoration:inherit;
+	text-decoration:expression(this.parentNode.currentStyle.textDecoration);
+	vertical-align:inherit;
+	vertical-align:expression(this.parentNode.currentStyle.verticalAlign);
+}
+.sbgrid_caption_tbody
+{
+	vertical-align:inherit;
+	vertical-align:expression(this.parentNode.currentStyle.verticalAlign);
+}
+.sbgrid_table_fixed
+{
+	height:100%;
+	width:100%;
+	/*table-layout:fixed;*/
+}
+
+.sbgrid_caption_td
+{
+	cursor:default;
+	border-width:0px !important;
+	border-style:none !important;
+}
+
+.sbgrid_caption_td_auto
+{
+	cursor:default;
+	border-width:0px !important;
+	border-style:none !important;
+}
+
+
+/* select계열 */
+.sbgrid_select
+{
+	position:absolute;
+	border-color:#D1D1D1;
+	border-width:1px;
+	border-style:solid;
+	cursor:default;
+	padding-top:0px;
+	padding-bottom:0px;
+	table-layout:fixed;
+	background-color:#ffffff;
+}
+
+/* checkbox */
+.sbgrid_selectitem1
+{
+	border-style:none;
+	word-wrap:none;
+	text-rect:visible;
+	background-position:left center;
+	padding-left:16px;
+	background-image:url(../imageCharcoalgray/checkbox/uncheck.png);
+}
+
+*.sbgrid_selectitem1[disabled="true"],*.sbgrid_selectitem1[disabled]
+{
+	background-image:url(../imageCharcoalgray/checkbox/disuncheck.png);
+}
+
+.sbgrid_selectitem1_check
+{
+	border-style:none;
+	word-wrap:none;
+	text-rect:visible;
+	background-position:left center;
+	padding-left:16px;
+	background-image:url(../imageCharcoalgray/checkbox/check.png);
+}
+
+*.sbgrid_selectitem1_check[disabled="true"],*.sbgrid_selectitem1_check[disabled]
+{
+	background-image:url(../imageCharcoalgray/checkbox/discheck.png);
+}
+
+/* radio */
+.sbgrid_selectitem2
+{
+	border-style:none;
+	word-wrap:none;
+	text-rect:visible;
+	background-position:left center;
+	padding-left:16px;
+	background-image:url(../imageCharcoalgray/radio/unradio.png);
+}
+
+*.sbgrid_selectitem2[disabled="true"],*.sbgrid_selectitem2[disabled]
+{
+	background-image:url(../imageCharcoalgray/radio/disunradio.png);
+}
+
+.sbgrid_selectitem2_check
+{
+	border-style:none;
+	word-wrap:none;
+	text-rect:visible;
+	background-position:left center;
+	padding-left:16px;
+	background-image:url(../imageCharcoalgray/radio/radio.png);
+}
+
+*.sbgrid_selectitem2_check[disabled="true"],*.sbgrid_selectitem2_check[disabled]
+{
+	background-image:url(../imageCharcoalgray/radio/disradio.png);
+}
+
+/* listbox */
+.sbgrid_selectitem3
+{
+	border-style:none;
+	word-wrap:none;
+	text-rect:visible;
+	background-position-x:left;
+	background-position-y:center;
+	padding-left:2px;
+}
+
+/* combo */
+.sbgrid_selectitem4
+{
+	padding-left: 3px;
+	padding-right: 3px;
+	border-style:none;
+	word-wrap:none;
+	font-size: 10pt;
+	font-family: gulim, arial, verdana;
+	text-rect:visible;
+	background-position-x:left;
+	background-position-y:center;
+	text-overflow:ellipsis;
+	overflow:hidden;
+}
+
+.sbgrid_combo_input
+{
+	border-width:0px;
+	padding-width:0px;
+	margin-left:3px!important;
+	margin-top:0px!important;
+	margin-right:3px!important;
+	margin-bottom:0px!important;
+	border-style:none;
+	padding-style:none;
+	width:100%;
+	overflow:hidden;
+	background-color:transparent;
+}
+
+.sbgrid_combo_input_td
+{
+	background-color: #ffffff;
+	border : 1px solid #ffffff;
+}
+.sbgrid_combo_button_td
+{
+	width:18px;
+	height:100%;
+	border : 1px solid #D4D4D4;
+}
+
+.sbgrid_combo_button
+{
+	position:relative;
+	width:18px;
+	height:100%;
+	background-image:url(../imageCharcoalgray/combo/combo.png);
+	background-color:#4F5359;
+	background-position:center;
+	border : 1px solid #4F5359;
+	cursor:pointer;
+}
+
+.sbgrid_combo_itemlist
+{
+	position:absolute;
+	z-index:2000;
+	border-width:1px;
+	border-color:#000000;
+	border-style:solid;
+	overflow:hidden;
+	background-color:#FFFFFF;
+}
+
+.sbgrid_combo_itemlist_table
+{
+	left:0px;
+	position:absolute;
+	background-color:#FFFFFF;
+	cursor:default;
+	table-layout:fixed;
+	text-align:left;
+}
+.sbgrid_group
+{
+	position:absolute;
+	background-color:#FFFFFF;
+	border-width:1px;
+}
+
+.sbgrid_group_ul_li
+{
+	position:absolute;
+	list-style-type:none;
+	list-style-position:outside;
+	list-style-image:none;
+	margin:0px;
+}
+
+.sbgrid_group_fieldset
+{
+	border-style:none;
+}
+
+.sbgrid_group_legend
+{
+	width:0px;
+	heigth:0px;
+	font-size:0px;
+	visibility:hidden;
+}
+
+.sbgrid_image
+{
+	position:absolute;
+}
+
+.sbgrid_image_upload
+{
+	position:absolute;
+	visibility:hidden;
+	overflow:hidden;
+}
+
+.sbgrid_image_upload_shadow
+{
+	position:absolute;
+	background-color:#FFFFFF;
+	filter:alpha(opacity=50);
+	opacity:0.5;	
+}
+
+.sbgrid_image_attach
+{
+	position:absolute;
+	background-image:url(../imageCharcoalgray/img/attach.gif);
+	background-position:left top;
+	border-style:none;
+}
+
+.sbgrid_image_detach
+{
+	position:absolute;
+	background-image:url(../imageCharcoalgray/img/detach.gif);
+	background-color:transparent;
+	background-position:center;
+	border-style:none;
+}
+
+.sbgrid_input
+{
+	position:absolute;
+	border-style:solid;
+	border-color:#999999;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+.sbgrid_inputbutton
+{
+	position:absolute;
+	background-position:center center;
+	background-image:url(../imageCharcoalgray/input/button.png);
+	background-color:#D4D0C8;
+}
+
+.sbgrid_output
+{
+	position:absolute;
+	table-layout:fixed;
+	word-break:break-all;
+}
+
+.sbgrid_output_auto
+{
+	position:absolute;
+	width:0px !important;
+}
+
+.sbgrid_secret
+{
+	position:absolute;
+	border-style:solid;
+	border-color:#999999;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+.sbgrid_textarea
+{
+	position:absolute;
+	border-style:solid;
+	border-color:#999999;
+	font-family:gulim, arial, MSGothic;
+}
+
+.sbgrid_datagrid
+{
+/*	border:1px;
+	border-style:solid;*/
+	cursor:default;
+	position:relative;
+	overflow:hidden;
+	text-align:left;
+	font-family: gulim, arial; 
+	font-size: 10pt;
+	background-color:transparent;
+	border-top-width:2px;
+	border-color:transparent;
+/*	border-top-color:#87A0BB;*/
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */
+}
+
+.sbgrid_Footer_div
+{
+	/*border:1px;
+	border-top-style:solid; */
+	cursor:default;
+	position:relative;
+	overflow:hidden;
+	text-align:center;
+	font-family: gulim, arial; 
+	font-size: 10pt;
+	background-color:#FFFFFF;
+	border-color:#bbbbbb;
+}
+
+.sbgrid_datagrid_GridFS
+{
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100%;
+	text-align:left;
+}
+
+.sbgrid_datagrid_HLine
+{
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:1px;
+	border-left:1px dashed #000000;
+	font-size:0px;
+	visibility:hidden;
+	z-index:10;
+}
+
+.sbgrid_datagrid_VLine
+{
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:1px;
+	width:100%;
+	border-top:1px dashed #000000;
+	font-size:0px;
+	visibility:hidden;
+	z-index:10;
+}
+
+.sbgrid_datagrid_MoveColBar
+{
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:100px;
+	border:1px dashed #aaa;
+	background-color:#ffffff;
+	filter:alpha(opacity=70);
+	opacity:0.7;
+	display:none;
+	z-index:50;
+}
+
+.sbgrid_datagrid_GridWhole
+{
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:100%;
+	overflow:auto;
+	text-align:left;
+	margin-right: 5px; 
+}
+
+.sbgrid_datagrid_GridWhole_table
+{
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */
+	table-layout:fixed;
+	position:absolute;
+}
+
+.sbgrid_datagrid_GridWhole_table td
+{
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.sbgrid_datagrid_GridFFS
+{
+	border-top-left-radius:8px;
+	border-top-right-radius:8px;
+	position:absolute;
+	left:0px;
+	top:0px;
+	overflow:hidden;
+	text-align:left;
+}
+
+.sbgrid_datagrid_GridFFS_table
+{
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */
+	table-layout:fixed;
+}
+
+.sbgrid_datagrid_GridFFS_table td
+{
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.sbgrid_datagrid_GridFFC
+{
+	position:absolute;
+	left:0px;
+	overflow:hidden;
+	text-align:left;
+}	
+
+.sbgrid_datagrid_SearchingData
+{
+	position:absolute;
+	width:255px;
+	height:110px;
+	-ms-filter: alpha(opacity=90); /*ie8*/
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=90); /*ie7 and olders*/
+	opacity: 0.9; /*others*/
+	display:none;
+	
+}
+
+.sbgrid_datagrid_GridFFB
+{
+	position:absolute;
+	left:0px;
+	overflow:hidden;
+	text-align:left;
+}
+
+.sbgrid_datagrid_GridFFBN_table
+{
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */
+	table-layout:fixed;
+	width:100%;
+}
+
+.sbgrid_datagrid_GridFFBN_table td
+{
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.sbgrid_datagrid_MergeTable
+{
+	width:0px;
+	height:0px;
+	overflow:hidden;
+	visibility:hidden;
+}	
+
+.sbgrid_StatusDiv
+{
+	filter:alpha(opacity=60);
+	opacity:0.6;
+	background-color:#FFFFFF;
+}
+
+.sbgrid_ScrollDiv
+{
+	top:0px;
+	left:0px;
+	width:1px;
+	border:0px none;
+	visibility:hidden;
+}
+
+.sbgrid_datagrid_Input
+{
+	background-color: #ffffff;
+	border: 1px solid #808080 !important;
+	padding-left: 3px;
+	padding-right: 3px;
+	color: #5a5d5f;
+	position:absolute;
+	top:0px;
+	left:0px;
+	border:0px;
+	z-index:50;
+	visibility:hidden;
+	margin-left:0px!important;
+	margin-top:0px!important;
+	margin-right:0px!important;
+	margin-bottom:0px!important;
+}
+
+.sbgrid_datagrid_Textarea
+{
+	background-color: #ffffff;
+	position:absolute;
+	padding-left: 3px;
+	padding-right: 3px;
+	top:0px;
+	left:0px;
+	border:1px;
+	z-index:50;
+	border-style : solid;
+	overflow:visible;
+	/*크롬에서 resize사용 할 경우 주석처리*/
+	resize:none;
+	visibility:hidden;
+	font-family:gulim, arial, MSGothic;
+	margin-left:0px!important;
+	margin-top:0px!important;
+	margin-right:0px!important;
+	margin-bottom:0px!important;
+}
+
+.sbgrid_datagrid_LoadingImg
+{
+	position:absolute;
+	display:none;
+}
+
+.sbgrid_datagrid_Cell
+{
+	overflow:hidden;
+	vertical-align:middle;
+	background-repeat:no-repeat;
+}
+
+.sbgrid_datagrid_FixedCell
+{
+	text-align:center;
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#4F5359;
+	border-color:#bbbbbb;
+	color:#ffffff;
+	font-weight: bold;
+	font-family: Arial;
+	overflow:hidden;
+}
+
+.sbgrid_datagrid_FixedCol_Cell
+{
+	text-align: center;
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	border-color:#bbbbbb;
+	color:#ffffff;
+	background-color:#4F5359;
+	font-weight: bold !important;
+	font-family: Arial;
+	overflow: hidden;
+}
+.sbgrid_datagrid_FixedCell_Temp
+{
+	text-align:center;
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	/*background-color:#FFFFFF;*/
+	border-right-color:#D4D0C8;
+	border-bottom-color:#D4D0C8;
+	overflow:hidden;
+}	
+
+.sbgrid_datagrid_DataCell
+{
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#F5F5F5;
+	border-right-color: #bbbbbb;
+	border-bottom-color: #bbbbbb;
+	color : #000000;
+	font-family: Arial;
+	padding-left: 2px;
+	padding-right: 2px;
+	background-repeat: no-repeat;
+}
+
+.sbgrid_datagrid_BFixedCell
+{
+	text-align:center;
+	border-top-width:1px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:solid;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#4F5359;
+	font-weight: bold;
+	font-family: Arial;
+	border-color:#bbbbbb;
+	color:#ffffff;
+	overflow:hidden;
+}	
+
+.sbgrid_datagrid_BDataCell
+{
+	border-top-width:1px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:solid !important;
+	border-left-style:none !important;
+	border-right-style:solid !important;
+	border-bottom-style:solid !important;
+	background-color:#F7F7F7;
+	border-color:#bbbbbb;
+	font-family: Arial;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+.sbgrid_datagrid_Output
+{
+	width:100%;
+	border-left-color:transparent;
+	border-right-color:transparent; 
+	border-bottom-color:transparent; 
+	border-top-color:transparent;
+	overflow:hidden; 
+}
+/*이정근 - Image Control 추가*/
+.sbgrid_datagrid_Image
+{
+	width:100%;
+	border-left-color:transparent;
+	border-right-color:transparent; 
+	border-bottom-color:transparent; 
+	border-top-color:transparent;
+	overflow:hidden; 
+}
+
+.sbgrid_datagrid_Combo
+{
+	margin :0 !important;
+	border-left-color:transparent;
+	border-right-color:transparent; 
+	border-bottom-color:transparent; 
+	border-top-color:transparent;
+	overflow:hidden; 
+}
+
+.sbgrid_datagrid_IsInputButton
+{
+	height:15px;
+	margin-left: 2px;
+	background-position:center;
+	background-image:url(../imageCharcoalgray/input/input_button.png);
+	border:0px none transparent;
+	cursor:pointer;
+	background-color:transparent;
+}
+
+.sbgrid_datagrid_InputButton
+{
+	height:100%;
+	background-position:center;
+	background-image:url(../imageCharcoalgray/datagrid/input.png);
+}
+
+.sbgrid_datagrid_IsCalenderButton
+{
+	height:15px;
+	background-position:center;
+	background-image:url(../imageCharcoalgray/input/cal_button.png);
+	border:0px none transparent;
+	background-color:transparent;
+	margin-top:0px;
+	margin-left:2px;
+	margin-right:1px;
+	cursor:pointer;
+	outline-style:none;
+}
+
+.sbgrid_scrollHIcon
+{
+	height: 35px;
+	width: 35px;
+	position:absolute;
+	background-image:url(../image/scroll/icon_grid_more1.png);
+	background-size:35px 35px;
+	background-repeat:no-repeat;
+	opacity:0.2;
+	z-index:100;
+	display:none;
+}
+
+.sbgrid_scrollVIcon
+{
+	height: 35px;
+	width: 35px;
+	position:absolute;
+	background-image:url(../image/scroll/icon_grid_more2.png);
+	background-size:35px 35px;
+	background-repeat:no-repeat;
+	opacity:0.2;
+	z-index:100;
+	display:none;
+}
+
+.sbgrid_datagrid_InputButton_table
+{
+	table-layout:fixed;
+	width:100%;
+	border-width:0px;
+	border-style:none;
+}
+
+.sbgrid_datagrid_InputButtonDiv
+{
+	width:98%;
+	border-left-color:transparent;
+	border-right-color:transparent; 
+	border-bottom-color:transparent; 
+	border-top-color:transparent;
+	overflow:hidden; 
+}
+
+.sbgrid_datagrid_LayoutDiv
+{
+	border:0px solid transparent !important;
+}
+
+.sbgrid_datagrid_SearchingData_LayoutDiv
+{
+	border:1px solid #4b6887 !important;
+	text-align : left;
+}
+
+.sbgrid_comboDiv_alpha
+{
+	background-color:#FFFFFF;
+	filter:alpha(opacity=60);
+	opacity:0.6;
+	positon:absolute;
+	width:100% !important;
+	visibility:visible !important;
+}
+
+.sbgrid_combo_MoveBar
+{
+	cursor:pointer;
+}
+
+/*
+2015-01-21(sonymaker): multi sorting 순서 표시 UI에 사용되는 'sbgrid_multi_sort' class 추가
+*/
+.sbgrid_multi_sort
+{
+    font-weight:bold;
+    width:13px;
+    height:13px;
+}
+
+.sbgrid_sort_up
+{
+	position:relative;
+	width:13px;
+	height:13px;
+	right:0%;
+	border-width:0px !important;
+	border-style:none !important;
+	background-image:url(../imageCharcoalgray/input/spinup.gif);
+	
+}
+
+.sbgrid_sort_down
+{
+	position:relative;
+	width:13px;
+	height:13px;
+	right:0%;
+	border-width:0px !important;
+	border-style:none !important;
+	background-image:url(../imageCharcoalgray/input/spindown.gif);
+}
+
+.sbgrid_sort_Td
+{
+	padding: 0px 0px 0px 0px !important;
+	overflow:hidden !important;
+	
+}
+
+/*
+//2015-04-20 (lmh) : default가 left 이므로 주석 처리
+.sbgrid_al
+{
+	text-align:left;
+}*/
+
+.sbgrid_ac
+{
+	text-align:center;
+}
+
+.sbgrid_ar
+{
+	text-align:right;
+}
+
+.sbgrid_vat
+{
+	vertical-align:top;
+}
+
+/****** Context Menu Styles ******/
+ #SbgridContextMenu {
+	background: #F9F9F9;
+	box-shadow: 0 0 12px rgba( 0, 0, 0, .3 );
+	border: 1px solid #ccc;
+	display: none;
+	position: absolute;
+	top: 0; left: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	min-width: 80px;
+}
+
+#SbgridContextMenu li {
+	position: relative;
+	font-size:12px;
+	color: #444;
+	padding-top:3px;
+	padding-bottom:3px;
+	display: inline-block;
+	text-decoration: none;
+	width: 100%;
+}
+
+#SbgridContextMenu li:hover {
+	background: #444;
+	color: #f9f9f9;
+}
+
+/*
+   2013-07-23(sonymaker): ExplorerUI를 위한 css 추가 - start
+*/
+
+/*1단계 UI 표시*/
+#sb_explorerUI_top,
+#sb_explorerUI_flitering_top,
+#sb_explorerUI_hide_column_top
+{
+	position: absolute;
+	border:1px solid #3a93d2;
+	overflow:auto;
+	background:white;
+	visibility: hidden;
+}
+
+/*1단계 UI 위치, 및 크기*/
+#sb_explorerUI_top
+{
+	top:200px;
+	width:120px;
+	height:auto;
+}
+
+/*2단계 필터링 UI 표시*/
+#sb_explorerUI_flitering_top
+{
+	top:200px;
+	min-width:120px;
+	width:auto;
+	height:auto;
+}
+
+/*2단계 hide_column UI 표시*/
+#sb_explorerUI_hide_column_top
+{
+	top:300px;
+	min-width:120px;
+	width:auto;
+	height:auto;
+}
+
+/*공통 UI 디자인*/
+#sb_explorerUI_top div.sb_explorerUI_step1,
+#sb_explorerUI_flitering_top div.sb_explorerUI_flitering_step1,
+#sb_explorerUI_hide_column_top div.sb_explorerUI_hide_column_step1
+{
+	display:block;
+	font-size:11px;
+	height:20px;
+	line-height:20px;
+	color:#000;
+	text-decoration:none;
+	text-indent:5px;
+}
+
+.align_bottom
+{
+	border-bottom:1px solid #3a93d2;
+}
+
+.sb_explorerUI_sort_ascending_label,
+.sb_explorerUI_sort_descending_label,
+.sb_explorerUI_hide_column_label,
+.sb_explorerUI_flitering_label
+{
+	height:20px;
+	width:85%;
+	float:left;
+	left:0px;
+	text-indent:5px;
+}
+
+.sb_explorerUI_sort_ascending_icon,
+.sb_explorerUI_sort_descending_icon,
+.sb_explorerUI_flitering_icon,
+.sb_explorerUI_hide_column_icon
+{
+	height:20px;
+	width:15%;
+	float:right;
+}
+
+.sb_explorerUI_sort_ascending_icon
+{
+	background: #fff url(../imageCharcoalgray/explorerUI/sort_ascending.png) no-repeat center;
+}
+
+.sb_explorerUI_sort_descending_icon
+{
+	background: #fff url(../imageCharcoalgray/explorerUI/sort_descending.png) no-repeat center;
+}
+
+.sb_explorerUI_flitering_icon,
+.sb_explorerUI_hide_column_icon
+{
+	background: #fff url(../imageCharcoalgray/explorerUI/arrow.gif) no-repeat center;
+}
+
+#sb_explorerUI_top:hover div:hover,
+#sb_explorerUI_flitering_top:hover div:hover,
+#sb_explorerUI_hide_column_top:hover div:hover
+{
+	background:#3a93d2;
+}
+
+#sb_explorerUI_top:hover div:hover div.sb_explorerUI_sort_ascending_icon
+{
+	background:#3a93d2 url(../imageCharcoalgray/explorerUI/sort_ascending_over.png) no-repeat center;
+}
+
+#sb_explorerUI_top:hover div:hover div.sb_explorerUI_sort_descending_icon
+{
+	background:#3a93d2 url(../imageCharcoalgray/explorerUI/sort_descending_over.png) no-repeat center;
+}
+
+#sb_explorerUI_top:hover div:hover div.sb_explorerUI_flitering_icon,
+#sb_explorerUI_top:hover div:hover div.sb_explorerUI_hide_column_icon
+{
+	background:#3a93d2 url(../imageCharcoalgray/explorerUI/arrow_over.gif) no-repeat center;
+}
+
+/*2단계 UI의 자식div들의 공통 디자인 설정*/
+.sb_explorerUI_filtering_status_icon,
+.sb_explorerUI_filtering_value,
+.sb_explorerUI_hide_column_status_icon,
+.sb_explorerUI_column_name
+{
+	float:left;
+	height:20px;
+}
+
+.sb_explorerUI_filtering_status_icon,
+.sb_explorerUI_hide_column_status_icon
+{
+	width:20px;
+}
+
+.sb_explorerUI_filtering_value,
+.sb_explorerUI_column_name
+{
+	width:auto;
+	text-indent:5px;
+}
+
+
+.sb_explorerUI_filtering_status_icon,
+.sb_explorerUI_hide_column_status_icon
+{
+	background: #fff url(../imageCharcoalgray/explorerUI/check.png) no-repeat center;
+}
+
+.sb_explorerUI_use_seperator_line
+{
+	border-bottom:1px solid #3a93d2;
+}
+
+#sb_explorerUI_flitering_top:hover div:hover div.sb_explorerUI_filtering_status_icon,
+#sb_explorerUI_hide_column_top:hover div:hover div.sb_explorerUI_hide_column_status_icon
+{
+	background: #3a93d2 url(../imageCharcoalgray/explorerUI/check.png) no-repeat center;
+}
+/*
+   2013-07-23(sonymaker): ExplorerBar UI를 위한 css 추가 - end
+*/
+
+.pagenate {
+    padding-top: 20px;
+    position: relative;
+}
+.pagenate .page {
+    text-align: center;
+}
+.pagenate .page a {
+    border: 1px solid #E9E9E9;
+    color: #4C4C4C;
+    display: inline-block;
+    font-family: tahoma;
+    font-size: 12px;
+    height: 21px;
+    line-height: 1.5;
+    margin: 0 1px;
+    padding: 2px 8px 0;
+    text-align: center;
+    vertical-align: middle;
+}
+.pagenate .page a:hover, .pagenate .page a:active, .pagenate .page a:focus {
+    border: 1px solid #BFBBB6;
+    text-decoration: none;
+}
+.pagenate .page a.on {
+    background: url("../imageCharcoalgray/common/ico_board3.png") no-repeat scroll left -60px transparent;
+    border: 0 none;
+    color: #FFFFFF;
+    height: 22px;
+    padding: 3px 9px 0;
+}
+.pagenate .page a.page_btn {
+    background: url("../imageCharcoalgray/common/ico_board3.png") no-repeat scroll 0 0 transparent;
+    font-size: 1px;
+    height: 25px;
+    line-height: 0;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    text-indent: -9999em;
+    width: 25px;
+}
+.pagenate .page a.first {
+    background-position: -2px -2px;
+}
+.pagenate .page a.first:hover, .pagenate .page a.first:active, .pagenate .page a.first:focus {
+    background-position: -2px -32px;
+}
+.pagenate .page a.prev {
+    background-position: -32px -2px;
+}
+.pagenate .page a.prev:hover, .pagenate .page a.prev:active .pagenate .page a.prev:focus {
+    background-position: -32px -32px;
+}
+.pagenate .page a.end {
+    background-position: -94px -2px;
+}
+.pagenate .page a.end:hover, .pagenate .page a.end:active, .pagenate .page a.end:focus {
+    background-position: -94px -32px;
+}
+.pagenate .page a.next {
+    background-position: -62px -2px;
+}
+.pagenate .page a.next:hover, .pagenate .page a.next:active, .pagenate .page a.next:focus {
+    background-position: -62px -32px;
+}
+.pagenate .btn_right {
+    position: absolute;
+    right: 0;
+    top: 20px;
+}
+.pagenate .btn_left {
+    left: 0;
+    position: absolute;
+    top: 20px;
+}
+/*
+2014-05-25(sonymaker): strSelectMode가 free가 아닌 byrow나 bycol에서도 cell 단위의 focus 위치를 확인할 수 있도록 배경색을 지정하는 기능 추가
+*/
+.sb_cell_focus {
+	/*border:solid yellow 1px !important;*/
+}
+
+/*
+2015-01-15(jklee) : DIV 추가
+*/
+.sb_div {
+	width:100%;
+	height:100%;
+}

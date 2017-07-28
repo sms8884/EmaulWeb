@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+
+	<meta http-equiv="Expires" content="0" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        table th{width:15%}
+		table{width:100%;}
+
+		.modal.modal-center {
+		  text-align: center;
+		}
+
+		@media screen and (min-width: 768px) {
+		  .modal.modal-center:before {
+		    display: inline-block;
+		    vertical-align: middle;
+		    content: " ";
+		    height: 100%;
+		  }
+		}
+
+		.modal-dialog.modal-center {
+		  display: inline-block;
+		  text-align: left;
+		  vertical-align: middle;
+		}
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA| 방송 게시판  팝업</title>
+</head>
+
+<body >
+            <div class="col-lg-12">
+                <div id="content-container">
+                    <form enctype="multipart/form-data" method="post" action="" id="theForm" name="theForm">
+						<div class="panel panel-info"><!--add-->
+							<div class="panel-heading">방송 내보내기</div><!--add-->
+							<div class="panel-body" >
+								<!-- <p class="bcnecessaryP" style="text-align:right; color:red;"><span class="fa fa-asterisk nesessary" style="font-size:7px; color:red;"></span>필수 입력 항목입니다.</p> -->
+								① 방송을 내보내기 전 <span class="bcAttention" style="font-weight:bold;">방송시스템이 연결되어 있는지 확인하여 주시기 바랍니다.	</span><p></p>
+
+								<span>② 즉시방송 버튼을 클릭하면 아파트에 방송이 시작되므로 방송내용을 다시 한번 확인해주세요.
+									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;방송 취소 버튼을 누르면 방송이 취소됩니다.</p>
+								</span>
+								  ③ 방송 예약시간 설정 시,<span class="bcAttention" style="font-weight:bold;"> 예약시간이 되면 자동으로 방송이 시작</span>됩니다. 
+    											<span><br>&nbsp;&nbsp;&nbsp;	예약설정한 시간에 컴퓨터 전원이 켜져있어야하고 인터넷이 연결된 상태에서</br> </span><span class="bcAttention" style="font-weight:bold;">
+    											 &nbsp;&nbsp;&nbsp;&nbsp;현재 창이 켜져	있어야 방송이 됩니다.</span>
+								<!--add-->
+
+							</div>
+						</div>
+
+						<div th:if="${id == null}" class="bcSignupbox" style="overflow:hidden; margin:20px 0 0 0">
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-success bcBroadcast" id="bcBroadcast" value="등록" name="bcBroadcast" onclick="addBoardPost();" />
+								<input type="button" class="btn btn-outline btn-info bcCancle" id="bcCancle" value="취소" name="bcCancle" onclick="movePrePage();" />
+							</div>
+						</div>
+
+
+						<!-- 방송내용  -->
+						<div th:if="${id !=null} " class="panel panel-info" hidden="hidden"><!--add-->
+							<div class="panel-heading"></div>
+									<div class="audiobox" style=" text-align:left: ;" >
+										<audio id="ttsAudio"  ></audio>
+									</div>
+						</div><!--add:end-->
+							<div class="panel panel-info"><!--add-->
+							<div class="panel-heading">방송정보</div><!--add-->
+							<div class="panel-body" >
+								<!-- <p class="bcAttention" style="font-weight:bold;">ⓘ e마을 방송게시판과 아파트 방송시스템이 연결이 되어야만 게시물 등록 후 아파트에 방송을 내보낼 수 있습니다.</p> --><!--add-->
+								<div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+									<table class="table table-responsive table" style="margin-bottom: 0">
+										<tbody>
+											<tr>
+												<th>내용 <span class="fa fa-asterisk nesessary" style="font-size:7px; color:red;"></span></th>
+												<td>
+													<textarea class="form-control bcContentsTxt" id="_content" placeholder=" 1,500자 내로 작성해주세요." rows="10" style="resize: none" name="_content" disabled="disabled" maxlength="1500" readonly="readonly"></textarea>
+												</td>
+											</tr>
+							
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+
+
+
+
+						<!--  주의사항-->
+					<p class="bcnecessaryP" style="text-align:reft; color:red; font-weight: bold;">※주의※<br></br>현재 창을 종료하시면 예약이 자동 취소됩니다.</p>
+							<!-- 방송파일및 송출  -->
+						<div th:if="${id !=null} " class="panel panel-info"  id="reserveTable" hidden="hidden"><!--add-->
+									<table class="table table-responsive table" style="margin-bottom: 0">
+										<tbody>
+											<tr>
+												<th >예약시간 </th>
+												<td class="form-inline">
+													<div class="">
+													<span id="reserveDate"></span>
+
+													</div>
+
+												</td>
+											</tr>
+										<!-- 	<tr>
+												<th>방송송출</th>
+
+												<td class="form-inline">
+													<input type="button" class="btn btn-default bcPlayBtn" id="bcPlayBtn" value="방송 내보내기" name="bcPlayBtn" onclick="broadcasting();" />
+												</td>
+											</tr> -->
+										</tbody>
+									</table>
+						</div><!--add:end-->
+
+						<!-- 버튼  -->
+
+					<div th:if="${repeat != null}" class="bcSignupbox" style="overflow:hidden; margin:20px 0 0 0">
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-success bcChange" id="bcChange" value="즉시방송하기" name="bcChange" onclick="startNowBroadCast();" />
+								<input type="button" class="btn btn-outline btn-info bcCancle" id="bcCancle" value="방송취소" name="bcCancle" onclick="cancelBroadCast();" />
+							</div>
+						</div>
+						<!-- 버튼 end -->
+
+
+						<input type="hidden" id="categoryId" name="categoryId" th:value="${category.id}" value="0" />
+						<input type="hidden" id="categoryType" name="categoryType" th:value="${category.type}" value="0" />
+						<input type="hidden" id="id" name="id" th:value="${id}" />
+						<input type="hidden" id="pushSendYn" name="pushSendYn" value="" />
+						<input type="hidden" id="repeat" name="repeat" value="1" />
+						
+
+                    </form>
+                </div>
+            </div>
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+function movePrePage() {
+	history.back();
+};
+
+
+/**
+ * 방송 게시판 JSON 데이타 세팅
+ */
+function postLoad(jsonData) {
+
+	$("input:radio[name='_pushSendYn']").removeAttr("checked");
+	$("input:radio[name='_pushSendYn']:radio[value='" + jsonData.pushSendYn + "']").prop("checked", true);
+	$("textarea[name='_content']").val(jsonData.content);
+
+	// 음성파일 미리 다운로드
+	var audioUrl = "/api/board/post/file/" + jsonData.id + "/" + jsonData.id + ".mp3"; // ?nocache=" + new Date().getTime();
+	var myAudio = document.getElementById("ttsAudio");
+    var dbrepeat = parseInt([[${repeat}]]);
+	myAudio.src = audioUrl;
+   
+	//myAudio.preload = "auto";
+
+
+	// 방송 시작 시 이벤트
+
+  	 if (myAudio.attachEvent) {
+		myAudio.attachEvent("onplay", function() {
+			$.getJSON("/admin/board/post/modify-airSendDate-json/" + jsonData.id);
+		});
+	}
+	else {
+		myAudio.addEventListener("play", function() {
+			$.getJSON("/admin/board/post/modify-airSendDate-json/" + jsonData.id);
+		}, false);
+	}
+
+
+
+		// 방송 완료 후 푸시 전송
+		if (myAudio.attachEvent) {
+
+			myAudio.attachEvent("onended", function() {
+				//반복 설정에 따라 방송이 끝난후 푸시 발송
+				var repeat = parseInt($("#repeat").val());
+			 	if(repeat < dbrepeat){ //repeat 값이 예약한 반복수보다 작으면 반복방송을합니다
+			 		startBroadCast();
+				$("#repeat").val(repeat+1);  //방송이 한번끝나고 repeat 값을 1증가시킵니다
+			 	} else if(repeat  ==  dbrepeat){
+			 		myAudio.pause();
+				$("#repeat").val("1");
+				clearInterval(refreshIntervalId);
+				// 방송 반복이 끝나고 푸시 여부에따라 푸시를 합니다
+				if (jsonData.pushSendYn === "Y") {
+					sendTtsGcm(jsonData.id, jsonData.content);
+					}
+			 	}
+		///	 	location.reload();
+			 	
+			});
+		}
+		else {
+			myAudio.addEventListener("ended", function() {
+				var repeat = parseInt($("#repeat").val());
+			 	if(repeat < dbrepeat){
+			 		startBroadCast();
+				$("#repeat").val(repeat+1);
+			 	} else if(repeat  ==  dbrepeat){
+				$("#repeat").val("1");
+				clearInterval(refreshIntervalId);
+				if (jsonData.pushSendYn === "Y") {
+					sendTtsGcm(jsonData.id, jsonData.content);
+					}
+			 	///location.reload();
+			 	}
+			}, false);
+		}
+
+
+};
+
+
+/**
+ * 방송 게시판 상세정보 JSON 조회
+ */
+function searchFormJson() {
+	var idVal = $("#id").val();
+	if (!idVal || idVal === "0") {
+		return;
+	}
+
+	var searchUrl = "/admin/board/post/read-json/" + idVal;
+
+	// cosole.log(id);
+
+    $.ajax({
+        url: searchUrl
+        , type: 'post'
+        , async: true
+        , dataType: "json"
+        , data: { "id":idVal }
+        , success: function(jsonData) {
+        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+        	postLoad(jsonData);
+        }
+        , error: function(xhr, status, error) {
+        	if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+};
+
+/**
+ * 방송 게시판 내용을 푸시로 발송
+ */
+ function sendTtsGcm(id, content) {
+	var json = {};
+    json.type = "action";
+    json.action = "emaul://post-detail?id=" + id;
+    json.title = "방송 게시판 푸시알림";
+    json.message = content;
+    json.isTargetAll = false;
+    json.target = "notiAlarm";
+
+	sendGcm("/common/gcm/send-per-apt", json);
+};
+
+/**
+ * 방송파일을 방송한다
+ */
+
+ function startBroadCast(){
+	  var myAudio = document.getElementById("ttsAudio");
+	 myAudio.play();
+	 
+ }
+
+/**
+ * 즉시방송
+ */
+function startNowBroadCast(){
+	  var myAudio = document.getElementById("ttsAudio");
+		if([[${airReserveDate}]] !="" &&[[${airReserveYn}]]=='Y'){
+			
+				 if (confirm("지금 방송하시면 예약이 취소됩니다. 즉시방송하시겠습니까?") === true){
+				 myAudio.play();
+				 var modUrl = "/admin/board/broadCastSeting/" + $("#id").val();
+				 var obj = { "airReserveDate" : "0000-00-00 Am00:00" , "airReserveYn" : "N" , "airReserveCancelYn":"Y"};
+					 
+							$("#theForm").ajaxSubmit({
+						        url: modUrl
+						        , type: 'post'
+						        , data: obj
+						        , success: function(jsonData) {
+						        	clearInterval(refreshIntervalId);
+						        	$("#reserveTable").attr("hidden",true)
+						        }
+						        , error: function(xhr, status, error) {
+						        	if (window.console && console.log) console.log("error : " + error.message);
+						        }
+						    });
+				 }
+		}else{
+		myAudio.play();
+		}
+	 
+ }
+ 
+ /* 예약 방송시간 설정 */
+ var refreshIntervalId;
+ function setReserveTime(dbReserveDate){
+	var d = new Date();
+	 var meridiem = dbReserveDate.substring(10,12);
+	 var reserveDate = dbReserveDate.replace(/-/gi, "");
+	 var endTime = reserveDate.substring(0,8); //예약시간
+	 	   endTime += reserveDate.substring(10,12) + reserveDate.substring(13,15) +d.getSeconds().toString() ;
+	 console.log("endTime" + endTime);
+
+	var startTime = "" // 현재시간
+ 	var month = (d.getMonth()+1);
+ 	var date = d.getDate();
+ 	var hours = d.getHours();
+ 	var minutes = d.getMinutes();
+
+ 	/* 월,일,시,분 이 10보다 작으면 앞에 0을 붙여줍니다  */
+ 	if(month< 10){
+		month = "0" + month;
+	}
+	if(date < 10){
+		date  = "0" + date ;
+	}
+	if(hours< 10){
+		hours= "0" + hours;
+	}
+	if(minutes < 10){
+		minutes =  "0" + minutes;
+	}
+		startTime += d.getFullYear().toString() +month+date + hours+ minutes+ d.getSeconds().toString();
+   // 시작일시
+		 if(meridiem =="PM"){
+			 if(endTime.substring(8,10) =="12"){
+			 endHour = parseInt(endTime.substring(8,10), 10);
+			 }else{
+
+			 endHour = parseInt(endTime.substring(8,10), 10) + 12;
+			 }
+		 }else{
+			 if(endTime.substring(8,10) =="12"){
+			 endHour = parseInt(endTime.substring(8,10), 10) + 12;
+
+			 }else{
+			 endHour = parseInt(endTime.substring(8,10), 10);
+			 }
+		 }
+		   var startDate = new Date(parseInt(startTime.substring(0,4), 10),
+		             parseInt(startTime.substring(4,6), 10)-1,
+		             parseInt(startTime.substring(6,8), 10),
+		             parseInt(startTime.substring(8,10), 10),
+		             parseInt(startTime.substring(10,12), 10),
+		             parseInt(startTime.substring(12,14), 10)
+		            );
+
+		   // 종료일시
+		   var endDate   = new Date(parseInt(endTime.substring(0,4), 10),
+		             parseInt(endTime.substring(4,6), 10)-1,
+		             parseInt(endTime.substring(6,8), 10),
+		             endHour,
+		             parseInt(endTime.substring(10,12), 10),
+		             parseInt(endTime.substring(12,14), 10)
+		            );
+
+		   // 두 일자(startTime, endTime) 사이의 차이를 구한다.
+		   var dateGap = endDate.getTime() - startDate.getTime();
+		   var timeGap = new Date(0, 0, 0, 0, 0, 0, endDate - startDate);
+
+		   // 두 일자(startTime, endTime) 사이의 간격을 "일-시간-분"으로 표시한다.
+		   var diffDay  = Math.floor(dateGap / (1000 * 60 * 60 * 24)); // 일수
+		   var diffHour = timeGap.getHours();       // 시간
+		   var diffMin  = timeGap.getMinutes();      // 분
+		   var diffSec  = timeGap.getSeconds();      // 초
+
+		   console.log("diffMin" + diffMin + "diffSec" + diffSec);
+		   if(diffMin == 0 && diffSec > 2){
+			   diffMin = 1;
+		   }
+		   
+		   if(meridiem =="PM"){
+		   dbReserveDate = dbReserveDate.replace('PM','오후');
+		   }else if(meridiem =="AM"){
+		   dbReserveDate = dbReserveDate.replace('AM','오전');
+			   
+		   }
+
+		   dbReserveDate += "(방송 시간까지" + diffHour + "시간 " + diffMin + "분 "  +"남았습니다.)";
+
+		   $("#reserveDate").text(dbReserveDate);
+		   /* 예약시간이 되었으면 방송을 시작합니다  */
+		   if(diffHour==0 && diffMin == 0 ){
+			   startBroadCast();
+			  clearInterval(refreshIntervalId);
+		   }
+
+		 }
+
+    	 function cancelBroadCast(){
+    		 if (confirm("방송을 취소하시겠습니까??") == true){    //확인
+    		 window.close();
+    			}else{   //취소
+    			    return;
+    			}
+    	 }
+
+$(document).ready(function() {
+	searchFormJson();
+
+	/* 예약시간이 있으면 시간을 표시하고 3초단위로 시간셋팅 함수를 호출합니다 */
+	if([[${airReserveDate}]] !="" &&[[${airReserveYn}]]=='Y'){
+		$("#reserveTable").attr("hidden",false)
+	var reserveTime = [[${airReserveDate}]];
+	setReserveTime(reserveTime );
+	 refreshIntervalId = setInterval(function(){
+		setReserveTime(reserveTime);
+		}, 2000);
+
+	}
+});
+/*]]>*/
+</script>
+</body>
+</html>

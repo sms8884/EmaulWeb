@@ -1,0 +1,43 @@
+@charset "utf-8";
+
+
+/*layout*/
+body{
+	height:100%;
+	width:100%;	
+}
+
+header{
+	margin:0 auto;
+	border-bottom:1px solid #CFCFCF;
+	height:70px;
+	line-height:70px;
+	padding:0 1%;
+}
+
+
+#container{
+	height:100%;
+	width:100%;
+	overflow:hidden;
+	margin:0 auto;
+	position:relative;
+}
+
+#leftmenu{
+	width:10%;
+	float:left;
+	position:relative;
+}
+
+#contents{
+	min-height:910px;
+	width:88%;
+	float:left;
+	overflow:hidden;
+	padding-left:1%;
+	position:relative;
+	border-left:1px solid #CFCFCF;
+}
+
+footer{}

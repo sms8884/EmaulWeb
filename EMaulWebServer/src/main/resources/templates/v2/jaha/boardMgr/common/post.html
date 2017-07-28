@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/jaha/boardMgr/template/layout_popup">
+<head>
+	<title>내용보기</title>
+</head>
+<body>
+	<div class="panel-body"  layout:fragment="layout_popup_content">
+		<div class="border-round contentTable" >
+			<table class="table table-responsive" style="margin-bottom:0;">
+				<colgroup>
+					<col style="width:10px"/>
+					<col style="width:90%"/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<th class="info">제목</th>
+						<td th:text="${post.title}"></td>
+					</tr>
+					<tr>
+						<th class="info">작성자</th>
+						<td>
+						    <a href="javascript:pu_memberInfo();" th:href="${'javascript:pu_memberInfo(' + post.userId + ');'}" th:text="${post.writerName}"></a>
+						    <span th:text="${#dates.format(post.regDate, 'yyyy-MM-dd HH:mm')}" ></span>
+						</td>
+					</tr>
+					<tr>
+						<th class="info">내용</th>
+						<td>
+						    <pre th:if="${category.contentMode == 'text'}" th:text="${post.content}" style="margin-bottom: 5%; background: none; border: none; width:850px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; "></pre>
+							<div class="board-detail-content" th:if="${category.contentMode == 'html' and post.contentOnlyBody != null}" th:utext="${post.contentOnlyBody}" style="margin-bottom: 5%; background: none; border: none"></div>
+                            <div class="board-detail-content" th:if="${category.contentMode == 'html' and post.contentOnlyBody == null}" th:utext="${post.content}" style="margin-bottom: 5%; background: none; border: none"></div>
+						</td>
+					</tr>
+					<tr th:if="${post.file1}" >
+						<th class="info">파일</th>
+						<td>
+							<span th:if="${post.file1}">
+								<a th:href="${post.file1}">1. 첨부파일다운받기</a>
+							</span>
+							<span th:if="${post.file2}">
+								<a th:href="${post.file2}">2. 첨부파일다운받기</a>
+							</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="bottomBtnBox" th:id="${'post_' + post.id}">
+			<input type="button" th:onclick="'postBlindYnUpdate(' + ${post.id} + ',\'N\');'" class="btn btn-outline btn-success"  value="숨김해제" name="" th:if="${post.blindYn eq 'Y'}" />
+			<input type="button" th:onclick="'postBlindYnUpdate(' + ${post.id} + ',\'Y\');'" class="btn btn-outline btn-success"  value="숨김" name="" th:if="${post.blindYn ne 'Y'}" />
+	    </div>
+
+		<table class="table replyTable">
+			<colgroup>
+				<col style="width:*"/>
+				<col style="width:20px"/>
+			</colgroup>
+			<tbody  th:unless="${not #lists.isEmpty(boardCommentList)}">
+				<tr>
+					<td colspan="2">
+						<p>등록된 댓글이 없습니다.</p>
+					</td>
+				</tr>
+			</tbody>
+			<tbody  th:if="${not #lists.isEmpty(boardCommentList)}">
+				<tr>
+					<td colspan="2">댓글(<span th:text="${#lists.size(boardCommentList)}">2</span>)</td>
+				</tr>
+				<tr th:each="comment : ${boardCommentList}" >
+					<td>
+						<p class="bold" th:text="${comment.fullName} + ' (' + ${comment.nickname} + ') ' + ${comment.dong} + '동 ' + ${#dates.format(comment.regDate, 'yyyy-MM-dd HH:mm:ss')}">댓글등록자</p>
+						<p th:id="'pre-comment-' + ${comment.id}"  th:text="${comment.content}" >댓글본문</p>
+					</td>
+					<td th:id="${'comment_' + comment.id}" >
+						<input type="button" th:onclick="'commentDisplayUpdate(' + ${comment.id} + ',0);'"  class="btn btn-outline btn-success"  value="숨김해제" name="" th:if="${comment.blocked}" />
+						<input type="button" th:onclick="'commentDisplayUpdate(' + ${comment.id} + ',1);'"  class="btn btn-outline btn-success"  value="숨김" name="" th:if="${not comment.blocked}" />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="bottomBtnBox">
+			<input type="button" class="btn btn-outline btn-info"  value="닫기" name="" onclick="javascript:window.close();"/>
+	    </div>
+	</div>
+
+
+
+</body>
+</html>

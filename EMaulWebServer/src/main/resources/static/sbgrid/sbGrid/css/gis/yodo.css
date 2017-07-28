@@ -1,0 +1,339 @@
+@charset "utf-8";
+/* 웹폰트 사용 */
+
+caption{visibility:hidden;width:0;height:0;font-size:0;line-height:0;overflow:hidden;} 
+
+.tc{text-align: center;}
+.tl{text-align: left;}
+.tr{text-align: right;}
+
+body {
+	font-size:12px;
+	font-family: 'Nanum Gothic','dotum','Nanum Gothic Coding','Nanum Myeongjo','Nanum Pen Script';
+}
+
+.mapToolBtn{cursor: pointer;}
+
+thead{
+	background-color:#c6c6c6;
+	color: #757575; 
+ 	font-wight:bold;
+}
+
+.tableList{
+	border :0; 
+	border-bottom:1px #d9d9d9 solid;
+}
+
+.dong_col
+{
+	border:1px #c6c6c6 solid;
+}
+
+.svy_col
+{
+	border:1px #c6c6c6 solid;
+}
+
+/* CI 배경 */
+.ci_bg
+{
+	background:url('/images/gis/top_bg.jpg') repeat-x;	
+	width:1578px;
+	height:55px;
+	border-style:none;
+	list-style-type: none;
+}
+
+.total_layout
+{
+	width: 1578px; /* 전체 테이블 폭 지정 */
+}
+
+.total_layout ul {
+ clear: left;
+ margin: 0; /*ul 에 대한 ie, ff 차이를 없애기 위해 0 으로 설정 */
+ padding: 0; /*ff 는 속성에 기본 margin, padding 이 설정된 경우가 았음*/
+ list-style-type: none; /* ul li 태그 사용으로 인한 disc 를 안보이도록*/
+}
+
+.total_layout ul li {
+ float: left;
+ margin: 0;  /* 테이블 속성에 사용하던 cellspacing 과 동일 */
+ padding: 0px 0px; /* 테이블 속성에 사용하던 cellpadding 과 동일 */
+ border:0px solid red;
+}
+
+.left_menu
+{
+	width: 194px; /* 전체 테이블 폭 지정 */
+	height: 827px;
+	background:url('/images/gis/left_bg.jpg') repeat-y;
+	padding-top:10px;"
+}
+
+.left_menu ul {
+ clear: left;
+ margin: 0; /*ul 에 대한 ie, ff 차이를 없애기 위해 0 으로 설정 */
+ padding: 0; /*ff 는 속성에 기본 margin, padding 이 설정된 경우가 았음*/
+ list-style-type: none; /* ul li 태그 사용으로 인한 disc 를 안보이도록*/
+}
+
+.left_menu ul li {
+ float: left;
+ margin: 0;  /* 테이블 속성에 사용하던 cellspacing 과 동일 */
+ padding: 0px 0px; /* 테이블 속성에 사용하던 cellpadding 과 동일 */
+ border:0px solid red;
+}
+
+/* 메뉴 배경 */
+.menu_bg
+{	
+	margin:0px;
+	border-style:none;
+	width:1578px;	
+	height:34px;
+	background:url('/images/gis/menu_bar_02.jpg') repeat-x;
+}
+
+.menu_txt
+{
+	color:white;
+	font-weight: bold;
+}
+
+/*범례 배경 */
+.bum_bg
+{
+	background:url('/images/gis/right_title.jpg') repeat-x;
+	font-weight:bold;
+	color:white;
+	height:34px;
+}
+
+/* 주소검색 테이블 */
+.adr_table 
+{
+	border-collapse:collapse; 
+	border:1px solid #c6c6c6; 
+	background-color:#f4f4f4;
+}
+
+.menu_text{
+}
+
+.local_searh_txt
+{	
+	padding:10px;
+	text-align:center;
+	font-size:12px;
+	font-weight: bold;
+	height:32px;
+	color: white;
+}
+
+/* 범례 테이블 */
+.bumre_table 
+{
+	border-collapse:collapse; 
+} 
+
+ .bumre_table th 
+ {
+	 font-size:13px; 
+ 	border:1px solid #c6c6c6; 
+ }
+
+ .bumre_table td 
+ { border:1px solid #c6c6c6; }
+ 
+ /* 체크 박스*/
+ .chk_st
+ {
+ 	width:12px;
+ 	height:14px; 
+ }
+ 
+ #layer_attr
+ {
+ 	visibility:hidden;
+ 
+ }
+ .layer_at_table
+ {
+ 	border-collapse:collapse; 
+ 
+ }
+  .layer_at_table th 
+ {
+ 	font-size:13px; 
+ 	border:1px solid #c6c6c6; 
+ }
+ 
+ .layer_at_table td 
+ { border:1px solid #c6c6c6; }
+ 
+ #JoyMapApp
+ {
+ 	width:1140px;
+ 	height:827px;
+ 	border:3px #d9d9d9 solid;
+ 	margin-left:5px;
+ 	margin-top:5px;
+ 
+ }
+ #JoyMapIndex
+ {
+ 	width:222px;
+ 	height:200px;
+ 	border:3px #d9d9d9 solid;
+ 	margin-left:18px;
+ 	margin-top:5px; 
+ }
+ 
+ 
+ 
+ 
+
+ #tap_menu1
+ {
+ 	width:83px;
+ 	height:34px;
+ 	background:url('/images/gis/tab_on_04.jpg') no-repeat;
+ 	cursor:pointer;
+ }
+  #tap_menu2
+ {
+ 	width:83px;
+ 	height:34px;
+ 	background:url('/images/gis/tab_on_04.jpg') no-repeat;
+ 	cursor:pointer;
+ }
+  #tap_menu3
+ {
+ 	width:83px;
+ 	height:34px;
+ 	background:url('/images/gis/tab_on_04.jpg') no-repeat;
+ 	cursor:pointer;
+ }
+ /*
+  #tap_menu2
+ {
+ 	width:63px;
+ 	height:34px;
+ 	background:url('/images/gis/tab_off_02.jpg') no-repeat;
+ 	cursor:pointer;
+ }
+ 
+  #tap_menu3
+ {
+ 	width:52px;
+ 	height:34px;
+ 	background:url('/images/gis/tab_off_03.jpg') no-repeat;
+ 	cursor:pointer;
+ }
+*/
+ 
+ #tap_menu4
+ {
+ 	width:83px;
+ 	height:34px; 	
+ 	background:url('/images/gis/tab_off_04.jpg') no-repeat;
+ 	cursor:pointer; 
+ }
+ 
+ 
+ 
+  #tap_menu5
+ {
+ 	width:83px;
+ 	height:34px; 	
+ 	background:url('/images/gis/tab_off_04.jpg') no-repeat;
+ 	cursor:pointer; 
+ }
+ #tap_menu1_txt
+ {
+ 	
+ 	height:34px; 
+ 	color:#ffffff;
+ 	font-wight:bold;
+ }
+  #tap_menu2_txt
+ {
+ 	margin-top:5px;
+ 	height:34px;
+ 	color: #757575;
+ 	font-wight:bold;
+ 
+ 
+ }
+  #tap_menu3_txt
+ {
+ 	margin-top:12px;
+ 	height:34px;
+ 	color: #757575; 
+ 	font-wight:bold;
+ }
+ #tap_menu4_txt
+ {
+ 	margin-top:10px;
+ 	height:34px;	
+ 	color: #757575; 
+ 	font-wight:bold; 
+ }
+  #tap_menu5_txt
+ {
+ 	margin-top:10px;
+ 	height:34px;
+ 	color: #757575; 
+ 	font-wight:bold;	 
+ }
+ #menu_txt1
+ {
+ 	margin-top:12px;
+ 	margin-left:30px;
+ 	color:#ffffff;
+ 
+ }
+ #menu_txt2
+ {
+ 	margin-top:12px;
+ 	margin-left:30px;
+ 	color:#ffffff;
+ 
+ }
+  
+ .left_bg
+ {
+ 
+ 	background:url('/images/gis/left_bg.jpg') repeat-y;
+ }
+ 
+ /*셀렉트 박스 메뉴 */
+ .sel_menu_txt
+ {
+ 	margin-left:10px;
+    margin-top:5px;
+ 	font-size:12px;
+ 	color:#a1a1a1;
+ }
+ /*셀렉트 박스 항목 */
+ .sel_txt
+ {
+ 	color:#5d5d5d ;
+ 	width:115px;
+ 	font-size:12px;
+ 	font-face:'dotum';
+ 	height:22px;  
+ 	border:1px solid #afb5b3;  
+ }
+ 
+.lodingbar{text-align:center; display:none;  position:absolute;top:300px;width:65px;height:65px;margin-left:-50px;z-index: 9999999999;left:50%;}
+.lodingbar img{width: 65px;height: 65px;}
+
+.boardNavigation{position: relative; clear: both; width: 100%; display: inline-block; text-align: center;}
+.paging-wrap{ clear: both; margin: 20px 0 0; text-align: center}
+.paging-wrap a, .paging-wrap a span{display: inline-block; margin: 0; padding: 0 0 0 2px; overflow: visible; vertical-align: middle; font-weight: normal; text-decoration: none !important; color: #585858 !important; white-space: nowrap; border: 0;}
+.paging-wrap a img{display: inline-block;  width : 10px; height : 14px; border: 0;}
+.paging-wrap a.on{text-decoration: none !important; font-weight: bold !important;}
+.paging-wrap a.on span, .paging-wrap a.on strong{color: #fff !important; font-weight: normal !important;}

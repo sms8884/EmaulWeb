@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+	      th:href="@{/css/bootstrap.min.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+	      th:href="@{/font-awesome/css/font-awesome.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+	      th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+	      th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	/*추가*/
+	    .middelBtnBox {
+	       text-align:right;
+	    }
+	    .bottomBtnBox {
+            text-align:left;
+            margin-top:15px;
+            margin-bottom:5px;
+        }
+        .detail-table {
+            width:100%;
+        }
+        .detail-table th{
+            width:180px;
+        }
+        .detail-table tr{
+            height : 40px;
+            border-bottom: 1px solid #EAEAEA;
+        }
+        
+        .modal-table {
+            width:100%;
+        }
+        .modal-table th{
+            width:130px;
+        }
+        .modal-table tr{
+            height : 40px;
+        }
+        
+        /** modal style */
+        .areas {
+            width:100%;
+            height: 320px;
+        }
+        .hand {
+            cursor: pointer;
+        }
+        ._dataTable {
+            width:100%;
+        }
+        ._dataTable thead{
+            font-weight: bold;
+        }
+        ._dataTable thead tr{
+            height:30px;
+        }
+        ._dataTable tbody{
+            height: 250px;
+        }
+        ._dataTable tbody tr{
+            height:30px;
+        }
+        ._dataTable td {
+            text-align: center;
+        }
+        .scrollTable {
+            height:250px;
+            overflow-y:auto;
+        }
+        .scrollTableHeader {
+            height:40px;
+            border-bottom: 1px solid gray;
+        }
+        .totalCountText {
+            margin-left:10px;
+            font-size:13px;
+            font-weight:bold;
+        }
+        input[type=text], select {
+            height:30px;
+        }
+        .scrollTable2{
+            height:400px;
+            overflow-y:auto;
+        }
+	</style>
+
+    <title>AP 상세정보</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <input type="hidden" id="_apBeaconUuid" name="_apBeaconUuid" th:value="${data.apBeaconUuid}" />
+
+    <div id="page-wrapper" style="padding-bottom:30px;">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3><input type="button" class="btn btn-sm btn-default" id="saveDetailBtn" value="&lt; 뒤로" name="backBtn" onclick="moveBack()"/> AP 상세정보</h3>
+
+                <div id="content-container">
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form name="detailFrm" id="detailFrm" method="post">
+                                <input type="hidden" id="id" name="id" th:value="${data.id}" />
+	                            <table class="table-responsive detail-table" >
+	                                 <tr>
+                                        <th>ID</th>
+                                        <td class="form-inline">
+                                            <span th:text="${data.id}"></span>
+                                        </td>
+                                    </tr>
+	                                <tr>
+                                        <th>아파트</th>
+                                        <td class="form-inline">
+                                            <input type="hidden" id="aptId" name="aptId" th:value="${data.aptId}" />
+                                            <input type="text" class="form-control" id="aptNm" name="aptNm" style="width:500px;" readonly="readonly" th:value="${data.buildingAddress}" />
+                                            <input type="button" class="btn btn-sm btn-warning" id="saveDetailBtn" value="변경" name="changeAptBtn" onclick="changeApt()" th:if="${data.aptId > 0}" />
+                                        </td>
+                                    </tr>
+	                                <tr>
+			                            <th>AP UUID</th>
+			                            <td class="form-inline" colspan="2">
+			                                <span th:text="${data.apUuid}"></span>
+			                                <input type="hidden" class="form-control" id="apUuid" name="apUuid" th:value="${data.apUuid}" />
+			                            </td>
+			                        </tr>
+			                        <tr>
+			                            <th>AP BEACON UUID</th>
+			                            <td class="form-inline">
+			                                <span th:text="${data.apBeaconUuid}"></span>
+			                                <input type="hidden" class="form-control" id="apBeaconUuid" name="apBeaconUuid" th:value="${data.apBeaconUuid}" />
+			                                <input type="button" class="btn btn-sm btn-warning" id="saveDetailBtn" value="변경이력보기" name="apBeaconUuidHistoryBtn" onclick="fnApBeaconUuidHistory()" />
+			                            </td>
+			                        </tr>
+			                        <tr>
+			                            <th>AP BEACON MAJOR</th>
+			                            <td class="form-inline">
+			                                <input type="text" class="form-control" id="apBeaconMajor" name="apBeaconMajor" maxlength="50" style="width:250px;" th:value="${data.apBeaconMajor}" />
+			                            </td>
+			                        </tr>
+			                        <tr>
+			                            <th>AP BEACON MINOR</th>
+			                            <td class="form-inline">
+			                                <input type="text" class="form-control" id="apBeaconMinor" name="apBeaconMinor" maxlength="50" style="width:250px;" th:value="${data.apBeaconMinor}" />
+			                            </td>
+			                        </tr>
+	                                <tr>
+	                                    <th>AP ID</th>
+	                                    <td class="form-inline">
+	                                        <span th:text="${data.apId}"></span>
+	                                        <input type="hidden" class="form-control" id="apId" name="apId" th:value="${data.apId}" />
+	                                    </td>
+	                                </tr>
+	                                <tr>
+	                                    <th>AP 이름</th>
+	                                    <td class="form-inline">
+	                                        <input type="text" class="form-control" id="apName" name="apName" maxlength="250" style="width:300px;" th:value="${data.apName}" />
+	                                    </td>
+	                                </tr>
+	                                <tr>
+	                                    <th>AP Password</th>
+	                                    <td class="form-inline">
+	                                        <input type="text" class="form-control" id="apPassword" name="apPassword" maxlength="100" style="width:300px;" th:value="${data.apPassword}" />
+	                                        <input type="button" class="btn btn-sm btn-warning" id="saveDetailBtn" value="갱신" name="saveDetailBtn" onclick="randomPassword('apPassword')" />
+	                                    </td>
+	                                </tr>
+	                                <tr>
+                                        <th>SSH Password</th>
+                                        <td class="form-inline">
+                                            <input type="text" class="form-control" id="sshPassword" name="sshPassword" maxlength="100" style="width:300px;" th:value="${data.sshPassword}" />
+                                            <input type="button" class="btn btn-sm btn-warning" id="saveDetailBtn" value="갱신" name="saveDetailBtn" onclick="randomPassword('sshPassword')" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>WIFI MAC</th>
+                                        <td class="form-inline">
+                                            <input type="text" class="form-control" id="wifiMac" name="wifiMac" maxlength="100" style="width:300px;" th:value="${data.wifiMac}" />
+                                        </td>
+                                    </tr>
+	                                <tr>
+                                        <th>STATUS</th>
+                                        <td class="form-inline">
+                                            <select name="status" id="status" class="form-control" >
+	                                            <option th:each="item : ${statusList}" th:value="${item.code}" th:text="${item.name}" th:selected="${data.status == item.code}" ></option>
+	                                        </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>동작방식</th>
+                                        <td class="form-inline">
+                                            <select name="operationMode" id="operationMode" class="form-control" >
+	                                            <option th:each="item : ${operationModeList}" th:value="${item.code}" th:text="${item.name}" th:selected="${data.operationMode == item.code}" ></option>
+	                                        </select>
+                                        </td>
+                                    </tr>
+	                                <tr>
+                                        <th>감도 (rssi) App</th>
+                                        <td class="form-inline">
+                                            <input type="hidden" name="hidden_rssiApp" id="hidden_rssiApp" th:value="${data.rssiApp}" />
+                                            <select class="form-control" id="rssiApp" name="rssiApp" style="height:30px;">
+                                                <option value=""></option>
+                                            </select>
+                                        </td>
+                                    </tr>
+	                                <tr>
+                                        <th>간편출입권한</th>
+                                        <td class="form-inline">
+                                            <label th:each="item : ${skipAuthList}" ><input type="checkbox" name="skipAuth" th:value="${item.value}" th:checked="${item.checked}" /><span th:text="${item.value}"></span></label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>MEMO</th>
+                                        <td class="form-inline">
+                                            <textarea class="form-control" name="memo" id="memo" rows="3" cols="70" th:text="${data.memo}"></textarea>
+                                        </td>
+                                    </tr>
+	                            </table>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="middelBtnBox">
+                        <input type="button" class="btn btn-info" id="saveDetailBtn" value="저장" name="saveDetailBtn" onclick="saveDetail()"/>
+                    </div>
+                    
+                    <h4>시스템정보</h4>
+                    
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form name="systemDataFrm" id="systemDataFrm" method="post">
+                                <input type="hidden" id="id" name="id" th:value="${data.id}" />
+                                <table class="table-responsive detail-table" >
+                                    <tr>
+                                        <th>IP</th>
+                                        <td class="form-inline">
+                                            <span th:text="${data.expIp}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Modem</th>
+                                        <td class="form-inline">
+                                            <span th:text="${data.modem}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Firmware Version</th>
+                                        <td class="form-inline">
+                                            <span th:text="${data.firmwareVersion}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>감도 (rssi)</th>
+                                        <td class="form-inline">
+                                            <input type="hidden" name="hidden_rssi" id="hidden_rssi" th:value="${data.rssi}" />
+                                            <select class="form-control" id="rssi" name="rssi" style="height:30px;">
+                                                <option value=""></option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>open지연시간 (keepon)</th>
+                                        <td class="form-inline">
+                                            <input type="text" class="form-control" id="keepon" name="keepon" th:value="${data.keepon}" placeholder="밀리세컨" maxlength="9" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>gpiodelay</th>
+                                        <td class="form-inline">
+                                            <input type="text" class="form-control" id="gpiodelay" name="gpiodelay" th:value="${data.gpiodelay}" placeholder="밀리세컨" maxlength="9" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="middelBtnBox" th:if="${data.expIp != null} and ${data.expIp != ''}" >
+                        <input type="button" class="btn btn-info" id="apRemoteSettingBtn" value="시스템 원격 설정" name="apRemoteSettingBtn" onclick="fnApRemoteSettingModal()"/>
+                        <input type="button" class="btn btn-info" id="saveSystemDataBtn" value="시스템정보 업데이트" name="saveSystemDataBtn" onclick="systemDataUpdate()"/>
+                    </div>
+        
+                    <h4 th:if="${data.aptId > 0}">출입 권한</h4>
+                    
+                    <div role="tabpanel" th:if="${data.aptId > 0}">
+	                    <ul class="nav nav-tabs" role="tablist" id="myTab" style="margin-bottom: 20px;border-bottom: 1px solid #e5e5e5;">
+	                        <li role="presentation" class="active"><a href="#single-add" aria-controls="single-add" role="tab" data-toggle="tab" >동/호수</a></li>
+	                        <li role="presentation"><a href="#batch-add" aria-controls="batch-add" role="tab" data-toggle="tab" onclick="activeUserTab()">사용자</a></li>
+	                    </ul>
+	
+	                    <div class="tab-content">
+	                    
+	                        <div role="tabpanel" class="tab-pane active" id="single-add">
+	                            <div class="bottomBtnBox">
+			                        <input type="button" class="btn btn-sm btn-primary" id="addBtn1" value="추가" name="addBtn1" onclick="moveAdd(1)"/>
+			                        <input type="button" class="btn btn-sm btn-primary" id="deleteBtn1" value="삭제" name="deleteBtn1" onclick="deleteRow(1)"/>
+			                    </div>        
+	                            <div class="sbGridArea1" id="sbGridArea1"></div>
+	                        </div>
+	                        
+	                        <div role="tabpanel" class="tab-pane" id="batch-add">
+	                            <div class="bottomBtnBox">
+	                                <input type="button" class="btn btn-sm btn-primary" id="addBtn2" value="추가" name="addBtn2" onclick="moveAdd(2)"/>
+	                                <input type="button" class="btn btn-sm btn-primary" id="deleteBtn2" value="삭제" name="deleteBtn2" onclick="deleteRow(2)"/>
+	                            </div>
+	                            <div class="sbGridArea2" id="sbGridArea2"></div>
+	                        </div>
+	                        
+	                    </div>
+	                </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<!-- apBeaconUuid 변경이력보기 modal -->
+<div class="modal fade" id="modal-apBeaconUuidHistory" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >변경이력</h4>
+            </div>
+            <div class="modal-body">
+                <p class="totalCountText" id="apBeaconUuidText" >AP BEACON UUID : </p>
+                <p class="totalCountText" id="totalCountText" >0건의 데이터가 조회되었습니다.</p>
+        
+		        <div class="areas panel panel-default panel-body">
+		            <div class="scrollTableHeader">
+		                <table class="table-hover _dataTable" >
+		                    <thead>
+		                        <tr>
+		                            <td style="width:10%;">ID</td>
+		                            <td style="width:30%;">아파트</td>
+		                            <td style="width:15%;">AP ID</td>
+		                            <td style="width:15%;">AP 이름</td>
+		                            <td style="width:15%;">등록일</td>
+		                            <td style="width:15%;">삭제일</td>
+		                        </tr>
+		                    </thead>
+		                </table>
+		            </div>
+		            <div class="scrollTable" >
+		                <table class="table table-hover _dataTable" >
+		                    <tbody id="_dataTable">
+		                        <tr><td style="width:100%;" colspan="7">조회결과가 없습니다.</td></tr>
+		                    </tbody>
+		                </table>
+		            </div>
+		        </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 시스템 원격 설정 modal -->
+<div class="modal fade" id="modal-apRemoteSetting" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >시스템 원격 설정</h4>
+            </div>
+            <div class="modal-body">
+                <form name="remoteSettingForm" id="remoteSettingForm" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="apList" th:value="${data.apBeaconUuid}" />
+                    
+                    <table class="table-responsive modal-table" >
+                        <tr>
+                            <th>Firmware Version</th>
+                            <td><input type="text" class="form-control" name="fw_version" id="fw_version" style="width:150px;" th:value="${data.firmwareVersion}" /></td>
+                        </tr>
+                    </table>
+                    
+	                <table class="table table-responsive modal-table"  >
+	                    <tr>
+	                        <th>선택</th>
+	                        <td colspan="3">
+	                            <label><input type="radio" name="remoteType" value="file" checked="checked" />File</label>
+	                            <label><input type="radio" name="remoteType" value="cmd" />Command</label>
+	                            <input type="button" class="btn btn-sm btn-primary" value="추가" name="remoteSettingBtn" onclick="fnRemoteSettingItemAdd()" style="margin-left:10px;"/>
+	                        </td>
+	                    </tr>
+	                </table>
+	                
+	                <div class="scrollTable2">
+	                    <table class="table-responsive table-hover modal-table" id="remoteSettingAddTable" >
+	                    </table>
+	                </div>
+                </form>
+                
+            </div>
+            <div class="modal-footer">
+                <div class="middelBtnBox">
+                    <input type="button" class="btn btn-sm btn-info" value="전송" name="fileBtn" onclick="fnRemoteSubmit()"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid1; 
+    var gridJsonData1;
+    var datagrid2; 
+    var gridJsonData2;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+	$(document).ready(function(){
+
+		if($("#aptId").val() != ""){
+			getData1();
+	        getData2();
+	        createDataGrid1();			
+		}
+		
+		$("#apId").keyup(function(event){
+            $(this).val($(this).val().replace(/[^_a-z0-9]/gi,''));//영어, 숫자만 가능
+        });
+		
+		$("#apPassword, #sshPassword").keyup(function(event){
+            $(this).val($(this).val().replace(/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/gi,''));//한글만 제한
+        });
+		
+		for(var i = -40 ; i >= -120 ; i--){
+            $("<option value='"+i+"'>"+i+"</option>").appendTo("#rssi");    
+        }
+		if(!gfnIsEmpty($("#hidden_rssi").val())){
+			$("#rssi").val($("#hidden_rssi").val());	
+		}
+		
+		for(var i = -40 ; i >= -120 ; i--){
+            $("<option value='"+i+"'>"+i+"</option>").appendTo("#rssiApp");    
+        }
+        if(!gfnIsEmpty($("#hidden_rssiApp").val())){
+            $("#rssiApp").val($("#hidden_rssiApp").val());    
+        }
+        
+        $("#keepon, #gpiodelay").setNumber();
+		
+	});
+	
+	
+	function createDataGrid1(){
+	    var strCaption, 
+	        strWidth,
+	        gridAttr, 
+	        objJson;
+	
+	    strCaption = "^동^호";
+	    strWidth = "10%,45%,45%";
+	    
+	    gridAttr = {
+	        "strParentId"                   : 'sbGridArea1',
+	        "strId"                         : 'datagrid1',
+	        "strCaption"                    : strCaption,
+	        "strColWidth"                   : strWidth,
+	        "strJsonRef"                    : "gridJsonData1",
+	        "strStyle"                      : "width:100%; height:250px; font-family:dotum, arial; font-size:14px;",
+	        "strExplorerbar"            : "sortshowmove",
+	        "strRowHeight"              : "50px",
+	        "strDataHeight"              : "38px",
+	        "strFocusColor"         :   "#E8E8E8",
+	        "strSelectFontColorStyle":  "none",
+	        "fixedcol"                       :"1",
+	        "bUseMultiSorting"       : false,
+	        "bDataSearching"             : true,
+	        "bDragMode" : false,
+	        "bIsShowLoadingImage"   :   true,
+	        "strExtendLastCol"       : "scroll"
+	        };
+	
+	    datagrid1 = createSBDataGrid(gridAttr);
+	    
+	    objJson = [
+	                 {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+	                 {"id" : "dongText" , "type" : "output" , "ref" : "dongText" , "style":"text-align:center;"},
+	                 {"id" : "hoText" , "type" : "output" , "ref" : "hoText" , "style":"text-align:center;"},
+	              ];
+	              
+	    datagrid1.createColumns(objJson);
+	    
+	    datagrid1.setFixedcellcheckbox(0, 0, true);
+	    
+	}
+	
+	function createDataGrid2(){
+        var strCaption, 
+            strWidth,
+            gridAttr, 
+            objJson;
+    
+        strCaption = "^아파트^동^호^이름^닉네임";
+        strWidth = "5%,25%,15%,15%,20%,20%";
+        
+        gridAttr = {
+            "strParentId"                   : 'sbGridArea2',
+            "strId"                         : 'datagrid2',
+            "strCaption"                    : strCaption,
+            "strColWidth"                   : strWidth,
+            "strJsonRef"                    : "gridJsonData2",
+            "strStyle"                      : "width:100%; height:250px; font-family:dotum, arial; font-size:14px;",
+            "strExplorerbar"            : "sortshowmove",
+            "strRowHeight"              : "50px",
+            "strDataHeight"              : "38px",
+            "strFocusColor"         :   "#E8E8E8",
+            "strSelectFontColorStyle":  "none",
+            "fixedcol"                       :"1",
+            "bUseMultiSorting"       : false,
+            "bDataSearching"             : true,
+            "bDragMode" : false,
+            "bIsShowLoadingImage"   :   true,
+            "strExtendLastCol"       : "scroll"
+            };
+    
+        datagrid2 = createSBDataGrid(gridAttr);
+        
+        objJson = [
+                     {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+                     {"id" : "accessUserAptName" , "type" : "output" , "ref" : "accessUserAptName" , "style":"text-align:center;"},
+                     {"id" : "accessUserDong" , "type" : "output" , "ref" : "accessUserDong" , "style":"text-align:center;"},
+                     {"id" : "accessUserHo" , "type" : "output" , "ref" : "accessUserHo" , "style":"text-align:center;"},
+                     {"id" : "accessUserName" , "type" : "output" , "ref" : "accessUserName" , "style":"text-align:center;"},
+                     {"id" : "accessUserNickname" , "type" : "output" , "ref" : "accessUserNickname" , "style":"text-align:center;"}
+                  ];
+                  
+        datagrid2.createColumns(objJson);
+        
+        datagrid2.setFixedcellcheckbox(0, 0, true);
+        
+    }
+	
+	// sbGrid가 display none인 layer에 생성되면 오작동하여 생성되는 버그가있어서 기본 활성화된 탭이외 다른탭은 탭클릭시 생성.
+	// bootstrap tab으로 탭선택시 active 클래스를 입력해주지만 active해주기전에 onclick이벤트가 먼저 동작하여 강제로 active클래스적용하여 활성화시킨후 sbGrid생성. 
+	function activeUserTab(){
+		if(datagrid2 == null){
+			$("#batch-add").addClass("active");
+			createDataGrid2();	
+		}
+	}
+	
+	function getData1(){
+		
+		$.ajax({
+            url: '/admin/apt/ap/access-auth-list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "type": "1",
+                "id": $("#id").val()
+            },
+            success: function(jsonData) {
+                gridJsonData1 = jsonData;
+            },
+            error: function(xhr, status, error) {
+                alert("error : apt ap access-auth-list 1 data fail");
+            }
+        });
+	}
+	
+	function getData2(){
+        $.ajax({
+        	url: '/admin/apt/ap/access-auth-list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+            	"type": "2",
+                "id": $("#id").val()
+            },
+            success: function(jsonData) {
+            	gridJsonData2 = jsonData;
+            },
+            error: function(xhr, status, error) {
+                alert("error : apt ap access-auth-list 2 data fail");
+            }
+        });
+    }
+	
+	function getData1nRebuild(){
+        getData1();
+        datagrid1.rebuild();
+    }
+	
+	function getData2nRebuild(){
+        getData2();
+        datagrid2.rebuild();
+    }
+	
+    function validationForm(){
+        
+    	if($("#apUuid").val() == ""){
+            alert("AP UUID를 입력해주세요.");
+            $("#apUuid").focus();
+            return false;
+        } else if($("#apBeaconUuid").val() == ""){
+            alert("AP BEACON UUID를 입력해주세요.");
+            $("#apBeaconUuid").focus();
+            return false;
+        } else if($("#apId").val() == ""){
+            alert("AP ID를 입력해주세요.");
+            $("#apId").focus();
+            return false;
+        } else if($("#apName").val() == ""){
+            alert("AP 이름을 입력해주세요.");
+            $("#apName").focus();
+            return false;
+        } else if($("#apPassword").val() == ""){
+            alert("AP Password를 입력해주세요.");
+            $("#apPassword").focus();
+            return false;
+        }
+        
+        return true;
+        
+    }
+	
+	function saveDetail(){
+
+		if(!confirm("저장하시겠습니까?")){
+            return;
+        }
+		
+		if(validationForm() == false){
+            return;
+        }
+		
+		$.ajax({
+            url: '/jaha/apt/ap/detail-save',
+            type: 'post',
+            async : false,
+            dataType: "html",
+            data: $("#detailFrm").serialize(),
+            success: function(data) {
+                if(data == "1"){
+                    alert("저장되었습니다.");
+                } else if(data == "2"){
+                	alert("중복된 AP BEACON UUID 입니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : apt ap detail save fail");
+            }
+        });
+	}
+	
+    function deleteRow(idx){
+    	
+    	var gridData = null;
+    	if(idx == 1){
+    		gridData = gridJsonData1;
+    	} else if(idx == 2){
+    		gridData = gridJsonData2;
+    	}
+    	
+    	if(gridData != null){
+    		
+    		$("#frm").empty();
+            for(var i=0;i<gridData.length;i++){
+                var rowData = gridData[i];
+                if(rowData._chk != null && rowData._chk == "true"){
+                    $("<input type='hidden' name='deleteId' value='"+rowData.id+"' />").appendTo("#frm");
+                }
+            }
+            $("<input type='hidden' name='aptApId' value='"+$("#id").val()+"' />").appendTo("#frm");
+    		
+    		if($("input[name=deleteId]").length > 0){
+    			
+    			if(!confirm("삭제하시겠습니까?")){
+                    return;
+                }
+    			
+    			$.ajax({
+    	            url: '/admin/apt/ap/access-auth-delete',
+    	            type: 'post',
+    	            async : false,
+    	            dataType: "html",
+    	            data: $("#frm").serialize(),
+    	            success: function(data) {
+    	            	if(data > 0){
+    	            		alert("삭제되었습니다.");
+    	            		if(idx == 1){
+    	            			getData1nRebuild();
+    	                    } else if(idx == 2){
+    	                    	getData2nRebuild();
+    	                    }
+    	            	}
+    	            },
+    	            error: function(xhr, status, error) {
+    	                alert("error : apt ap list data fail");
+    	            }
+    	        });
+    			
+    		}
+    		
+    		
+    	}
+    }
+    
+    function moveAdd(popupType){
+    	var _id = $("#id").val();
+    	if(popupType == 1){
+    		
+    		if(gridJsonData1.length > 0 && gridJsonData1[0].dong == "All"){
+                //동 전체가 이미있으면 입력불가.
+                alert("전체로 설정되어있습니다.");
+                return;
+            }
+    		
+    		var width = 800;
+            var height = 470;
+            var left = (screen.width-width)/2;
+            var top = (screen.height-height)/2;
+            window.open("/admin/apt/ap/access-auth-address-pop?id="+_id+"&aptId="+$("#aptId").val(),"aptApAccessAuthAddressPopup","width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+    	} else if(popupType == 2){
+    		var width = 1100;
+            var height = 590;
+            var left = (screen.width-width)/2;
+            var top = (screen.height-height)/2;
+            window.open("/admin/apt/ap/access-auth-user-pop?id="+_id+"&aptId="+$("#aptId").val(),"aptApAccessAuthUserPopup","width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+    	}
+    }
+    
+    function randomPassword(id){
+    	var characterList = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";//ABCDEFGHIJKLMNOPQRSTUVWXYZ //#$%&!@
+    	var size = 12;
+    	var ranText = "";
+    	for(var i=0;i<size;i++){
+    		ranText += characterList.charAt(Math.floor(Math.random() * characterList.length));	
+    	}
+    	$("#"+id).val(ranText);
+    }
+    
+    function moveBack(){
+    	history.back();
+    }
+    
+    function changeApt(){
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+    	if($("#aptId").val() == apt.aptId){
+    		alert("현재 아파트와 동일한 아파트입니다.");
+    		return;
+    	}
+        if(confirm("아파트를 변경하면 현재 AP는 비활성화처리되고\n변경된 아파트 [ "+apt.aptNm+" ] 로\n기존과 동일한 정보(출입권한은 제외)로 재생성됩니다.\n변경하시겠습니까?")){
+        	$.ajax({
+                url: '/jaha/apt/ap/change-apt',
+                type: 'post',
+                async : false,
+                dataType: "html",
+                data: {
+                	"id": $("#id").val(),
+                	"aptId": apt.aptId
+                },
+                success: function(data) {
+                    if(data > 0){
+                    	alert("아파트가 변경되었습니다.");
+                        location.href = "/jaha/apt/ap/detail?id="+data;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("error : function _searchAptCallback fail");
+                }
+            });
+        }
+    }
+    
+    function fnApBeaconUuidHistory(){
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/history/data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "_apBeaconUuid" : $("#_apBeaconUuid").val()
+            },
+            success: function(jsonDataList) {
+                var nCount = 0;
+                if(jsonDataList != null && jsonDataList.length > 0){
+                    $("#_dataTable").empty();
+                    nCount = jsonDataList.length;
+                    var _html = '';
+                    for(var i=0;i<nCount;i++){
+                        var id = jsonDataList[i].id;
+                        var aptName = jsonDataList[i].aptName;
+                        var apBeaconUuid = jsonDataList[i].apBeaconUuid;
+                        var apId = jsonDataList[i].apId;
+                        var apName = jsonDataList[i].apName;
+                        var regDate = jsonDataList[i].regDateText;
+                        var deactiveDate = jsonDataList[i].deactiveDateText;
+                        
+                        if(gfnIsEmpty(aptName)){
+                        	aptName = "";
+                        }
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:10%">'+id+'</td>';
+                        _html += '<td style="width:30%">'+aptName+'</td>';
+                        _html += '<td style="width:15%">'+apId+'</td>';
+                        _html += '<td style="width:15%">'+apName+'</td>';
+                        _html += '<td style="width:15%">'+regDate+'</td>';
+                        _html += '<td style="width:15%">'+deactiveDate+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                        $(_html).appendTo("#_dataTable");
+                    }
+                } else {
+                    $("#_dataTable").empty();
+                    $('<tr><td style="text-align:center" colspan="7">조회결과가 없습니다.</td></tr>').appendTo("#_dataTable");
+                }
+                $("#apBeaconUuidText").text("AP BEACON UUID : "+$("#_apBeaconUuid").val());
+                $("#totalCountText").text(nCount+"건의 데이터가 조회되었습니다.");
+            },
+            error: function(xhr, status, error) {
+                alert("error : function fnApBeaconUuidHistory fail");
+            }
+        });
+    	
+    	$("#modal-apBeaconUuidHistory").centerModal();
+    }
+    
+    function systemDataUpdate(){
+        
+        var apList = new Array();
+        apList.push($("#_apBeaconUuid").val());
+        
+        if($("#keepon").val() == ""){
+            alert("open지연시간을 입력해주세요");
+            return;
+        }
+        
+        if(confirm("시스템정보를 업데이트 하시겠습니까?")){
+            
+            gfnLoadingImage();
+            
+            $.ajax({
+                url: '/jaha/apt/ap/system-data/update',
+                type: 'post',
+                async : true,
+                dataType: "json",
+                traditional: true , // parameter 직렬화를 느슨하게 처리.
+                data: {
+                    "apList": apList,
+                    "rssi": $("#rssi").val(),
+                    "keepon": $("#keepon").val(),
+                    "gpiodelay": $("#gpiodelay").val()
+                },
+                success: function(data) {
+                    if(data != null){
+                        if(data.successList != null && data.successList.length > 0){
+                            alert("저장하였습니다.");
+                        } else {
+                        	alert("저장실패하였습니다.");
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("error : function systemDataUpdate fail");
+                },
+                complete : function(){
+                    gfnUnLoadingImage();
+                }
+            });
+        }
+    }
+    
+    function fnApRemoteSettingModal(){
+    	$("#remoteSettingAddTable").empty();
+        $("#modal-apRemoteSetting").centerModal({backdrop:"static",keyboard: false});
+    }
+    
+    function fnRemoteSettingItemAdd(){
+    	
+        var _html = "";
+        var fw_type = $("input[name=remoteType]:checked").val();
+    	if(fw_type == "file"){
+    		_html = '<tr><th>Path</th><td class="form-inline"><input type="text" class="form-control" name="path" style="width:450px;" /></td><td class="form-inline" style="padding-left: 10px;"><input type="file" name="files" /></td><td><input type="button" class="btn btn-sm btn-warning" value="X" name="modalDelBtn" onclick="fnDelRemoteSettingItem(this)" /><input type="hidden" name="fw_type" value="'+fw_type+'" /></td></tr>';
+    	} else {
+    		_html = '<tr><th>Command</th><td class="form-inline" colspan="2"><input type="text" class="form-control" name="cmd" style="width:650px;" /></td><td><input type="button" class="btn btn-sm btn-warning" value="X" name="modalDelBtn" onclick="fnDelRemoteSettingItem(this)"  /><input type="hidden" name="fw_type" value="'+fw_type+'" /></td></tr>';
+    	}
+    	
+    	$(_html).appendTo("#remoteSettingAddTable");
+    }
+    
+    function fnDelRemoteSettingItem(obj){
+    	$(obj).parent().parent().remove();
+    }
+    
+    function fnRemoteSubmit(){
+    	
+    	var emptyData = true;
+    	$("input[name=files]").each(function(idx){
+    		if($(this).val() == ""){
+    			alert("선택하지않은 파일이 있습니다.");
+    			emptyData = false;
+    			return false;
+    		}
+    	});
+    	
+    	if(emptyData == false){
+    		return;
+    	}
+    	
+    	$("input[name=path]").each(function(idx){
+            if($(this).val() == ""){
+                alert("입력되지않은 Path가 있습니다.");
+                emptyData = false;
+                return false;
+            }
+        });
+        
+        if(emptyData == false){
+            return;
+        }
+    	
+    	if(confirm("전송하시겠습니까?")){
+    		
+    		gfnLoadingImage();
+    		
+    		$("#remoteSettingForm").ajaxSubmit({
+                url: "/jaha/apt/ap/system/remote/control"
+                , type: 'post'
+                , async: true
+                , dataType: "html"
+                , success: function(data) {
+                	if(data != null){
+                        if(data.successList != null && data.successList.length > 0){
+                            alert("저장하였습니다.");
+                        } else {
+                            alert("저장실패하였습니다.");
+                        }
+                    }
+                }
+                , error: function(xhr, status, error) {
+                    alert("저장에 실패했습니다");
+                }
+                , complete : function(){
+                    gfnUnLoadingImage();
+                }
+            });
+    	}
+    }
+               
+    /*]]>*/
+</script>
+
+</body>
+</html>

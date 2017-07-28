@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+      th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+      th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script src="../../static/ckeditor/ckeditor.js" th:src="@{/ckeditor/ckeditor.js}"></script>
+
+<style>
+    .Right{
+        text-align:right;
+        margin:5px 5px;
+        vertical-align:middle
+    }
+    .nesessary{
+        color:red;
+        font-size:10px;
+    }
+    table th{
+        width:20%;
+    }
+</style>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<title>Jaha admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">자주하는 질문</h1>
+                <div id="content-container">
+                    <form enctype="multipart/form-data" method="post" name="sendForm" id="sendForm" >
+                        <input type="hidden" name="id" th:value="${id}" />
+                        <div class="panel-body">
+                            <p class="Right"><span class="fa fa-asterisk nesessary" style="font-size:8px;"></span>필수 입력 항목 입니다.</p>
+                            <div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+                                <table class="table table-responsive table" style="margin-bottom: 0">
+                                    <tbody>
+                                        <tr>
+                                            <th>구분<span class="fa fa-asterisk nesessary"></span></th>
+                                            <td class="form-inline">
+                                               <select name="type" id="type" class="form-control">
+                                                   <option value="" th:each="type : ${types}" th:value="${type.code}" th:text="${type.name}" ></option>
+                                               </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>서비스 노출<span class="fa fa-asterisk nesessary"></span></th>
+                                            <td>
+                                                <input type="hidden" name="viewService" id="viewService" />
+                                                <span th:each="viewService : ${viewServices}">
+                                                    <input type="checkbox" name="ckViewService" th:id="'viewService'+${viewService.code}" th:value="${viewService.code}"  />
+                                                    <label th:text="${viewService.name}" th:for="'viewService'+${viewService.code}"></label>    
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>제목<span class="fa fa-asterisk nesessary"></span></th>
+                                            <td>
+                                                <input type="text" class="form-control faqTitleTxt" id="title" value="" name="title" maxlength="100" placeholder="귀가알림은 어떻게 사용하나요?"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>내용<span class="fa fa-asterisk nesessary"></span></th>
+                                            <td>
+                                                <input type="hidden" name="content" id="hidden-content" />
+                                                <textarea class="form-control faqContentTx" id="content" placeholder="내용을 입력하세요" rows="5" style="resize: none" ></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>게시<span class="fa fa-asterisk nesessary"></span></th>
+                                            <td>
+                                                <label class="radio-inline">
+                                                    <input type="radio" value="1" name="status" checked="checked"/>게시
+                                                </label>
+                                                <label class="radio-inline">
+                                                    <input type="radio" value="0" name="status"/>미게시
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="faqSignupBox" style="margin:20px 0 0 0">
+                                <div class="faqSignupLeft" style="float:left;" th:if="${id != null}">
+                                    <input type="button" class="btn btn-outline btn-warning" id="deleteBtn" value="삭제" name="deleteBtn" onclick="removeItem()"/>
+                                </div>
+                                <div class="faqSignupRight" style="float:right;">
+                                    <input type="button" class="btn btn-outline btn-info" value="저장" name="saveBtn" onclick="save();"  />
+                                    <input type="button" class="btn btn-outline btn-info" value="취소" name="cancelBtn" onclick="moveList()" />  
+                                </div>  
+                            </div>
+                        </div>  
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /*<![CDATA[*/
+
+$(function(){
+	
+	CKEDITOR.replace( 'content', {
+        extraPlugins: 'image2,uploadimage',
+
+        removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+        'pagebreak,iframe,colorbutton,font,image',
+
+        // The toolbar groups arrangement, optimized for two toolbar rows.
+        toolbarGroups: [
+            { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+            { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+            { name: 'links' },
+            { name: 'insert' },
+            { name: 'forms' },
+            { name: 'tools' },
+            { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+            { name: 'others' },
+            '/',
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'colors' },
+            { name: 'about' }
+        ],
+
+        // Remove some buttons provided by the standard plugins, which are
+        // not needed in the Standard(s) toolbar.
+        removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+        uploadUrl: '/api/common/editor/image/temp/upload',
+
+        // Set the most common block elements.
+        format_tags: 'p;h1;h2;h3;pre',
+
+        // Simplify the dialog windows.
+        removeDialogTabs: 'link:advanced',
+
+        height: 400,
+
+        // Load the default contents.css file plus customizations for this sample.
+        contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+        stylesSet: [
+            { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+        ],
+        
+        allowedContent : true,// style 속성 직접 적용 가능 유무
+
+        // Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+        // resizer (because image size is controlled by widget styles or the image takes maximum
+        // 100% of the editor width).
+        image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+        image2_disableResizer: true
+    } );
+	
+	$("input[name=ckViewService]").bind("click", function(){
+		if($(this).val() == "1"){
+			$("input[name=ckViewService]").prop("checked", false);
+			$(this).prop("checked", true);
+		} else {
+			if($("input[name=ckViewService]:not(:first)").length == $("input[name=ckViewService]:not(:first):checked").length){
+				$("input[name=ckViewService]").prop("checked", false);
+				$("input[name=ckViewService]:first").prop("checked", true);
+			} else {
+				$("input[name=ckViewService]:first").prop("checked", false);
+			}
+		}
+	});
+	
+	$("#sendForm input[name=ckViewService]:first").prop("checked", true);
+	
+	if($("#sendForm input[name=id]").val() != ""){
+		$.ajax({
+	        url: '/jaha/faq/form-data',
+	        type: 'post',
+	        async : false,
+	        dataType: "json",
+	        data: {
+	            "id": $("#sendForm input[name=id]").val()
+	        },
+	        success: function(data) {
+	        	if(data != null){
+	        		$("#type").val(data.type);
+	        		$("#title").val(data.title);
+	        		$("#content").val(data.content);
+	        		
+	        		//서비스노출 선택처리.
+	        		if(data.viewService != null){
+	        			var arr = data.viewService.split(",");
+	        			$("#sendForm input[name=ckViewService]").prop("checked", false);
+	        			for(var i=0;i<arr.length;i++){
+	        				$("#sendForm input[name=ckViewService][value="+arr[i]+"]").prop("checked", true);
+	        			}
+	        		}
+	        		
+	        		//게시 선택처리
+	        		$("#sendForm input[name=status][value="+data.status+"]").prop("checked", true);
+	        	}
+	        },
+	        error: function(xhr, status, error) {
+	            alert("error : faq form data fail");
+	        }
+	    });
+	}
+});
+               
+function moveList(){
+	location.href = "/jaha/faq/list";
+}
+
+function removeItem(){
+   if (confirm('삭제하시겠습니까?')) {
+	   $.ajax({
+           url: '/jaha/faq/delete',
+           type: 'post',
+           async : false,
+           dataType: "html",
+           data: {
+               "id": $("#sendForm input[name=id]").val()
+           },
+           success: function(data) {
+               if(data > 0){
+            	   alert("삭제되었습니다.");
+               } else {
+            	   alert("삭제도중 오류가 발생했습니다.");
+               }
+               moveList();
+           },
+           error: function(xhr, status, error) {
+               alert("error : faq form data fail");
+           }
+       });
+   }
+};
+
+function save(){
+    var content = CKEDITOR.instances.content;
+    var contentData = content.getData();
+   
+    if($('#title').val() == ""){
+        alert('제목을 입력해주세요.');
+        $('#title').focus();
+        return;
+    }else if(contentData == ""){
+        alert('내용을 입력해주세요.');
+        $('#content').focus();
+        return;
+    };
+   
+    $("#hidden-content").val(contentData);
+   
+    var ckViewService = "";
+    $("input[name=ckViewService]:checked").each(function(idx){
+    	if(idx == 0){
+    		ckViewService += $(this).val();
+    	} else {
+    		ckViewService += ","+$(this).val();
+    	}
+    });
+    
+    $("#viewService").val(ckViewService);
+    
+    if(confirm('등록하시겠습니까?')){
+        $("#sendForm").prop("action", "/jaha/faq/save");
+        $("#sendForm").submit();
+    };
+};
+
+/*]]>*/
+</script>
+</body>
+</html>

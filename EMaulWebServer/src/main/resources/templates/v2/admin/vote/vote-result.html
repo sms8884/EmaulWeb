@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+
+<head>
+
+<style>
+        .ms-container {
+            margin-left: 100px;
+        }
+		.modal-body th {
+            width: 20%;
+		}
+        .modal-body {
+            word-break: break-all;
+        }
+</style>
+	<title>투표결과보기</title>
+</head>
+<body>
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">투표 결과</h1>
+
+				<!-- 투표 결과 메세지 -->
+				<div class="alert alert-danger" role="alert" id="hide-if-underway2" th:if="${not resultState and vote.enableSecurity ne 'Y'}" style="margin: 5% 0">
+					<p>
+						투표 완료 전에는 결과가 나타나지 않습니다. 투표가 완료되면 결과를 확인할 수 있습니다.
+					</p>
+				</div>
+				<div class="alert alert-danger" role="alert" id="hide-if-underway3" th:if="${vote.status eq 'done' and vote.enableSecurity eq 'Y' and vote.decYn eq 'N' }" style="margin: 5% 0">
+					<p>
+						보안투표 개표 대기 중입니다. 개표 처리 후에 결과를 확인할 수 있습니다.
+					</p>
+				</div>
+				<!--// 투표 결과 메세지 -->
+
+				<div id="content-container"  th:if="${resultState}">
+					<div id="table-container">
+						<div th:if="${resultState}" id="button-position" style="position: absolute; right: 30px; margin-top:-17px;">
+							<!-- 그래프 출력 안됨 / 이미지로 별도 저장기능은 제공 가능 -->
+							<!-- <input type="checkbox" id="graphPrint" value="Y" />그래프 출력 -->
+							<a class="btn btn-success" id="print-button">결과출력</a>
+							<a class="btn btn-success" id="print-list">목록</a>
+						</div>
+
+						<div style="display:inline-block;">
+							<!-- <h2 style="float:left" th:text="${vote.title}"></h2> -->
+							<h2 style="float:left;margin-left:10px;color:red;" th:text="[보안투표]" th:if="${vote.enableSecurity} eq 'Y' and ${vote.securityLevel}==null"></h2>
+							<h2 style="float:left;margin-left:10px;color:red;" th:text="'[보안투표 ' + ${vote.securityLevel} + '등급]'" th:if="${vote.enableSecurity} eq 'Y' and ${vote.securityLevel} !=null"></h2>
+						</div>
+
+						<div id="hide-if-underway1">
+							<!-- 인쇄영역 지정 -->
+							<div id="result-print-wrapper">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										투표결과보고서
+									</div><!--panel-heading-->
+									<div class="panel-body">
+										<h3 align="center" th:text="'투표명 : '+${vote.title}">투표제목 : "투표명 표기"</h3>
+										<br/>
+										<h3>투표내용</h3>
+										<table class="table table-bordered table-striped">
+											<tbody>
+												<tr>
+													<th>투표기간</th>
+													<td th:text="'투표기간 : ' + ${#dates.format(vote.startDate, 'yyyy-MM-dd HH:mm')} + ' ~ ' + ${#dates.format(vote.endDate, 'yyyy-MM-dd HH:mm')}">YYYY-MM-DD 24:00 ~ YYYY-MM-DD 24:00</td>
+												</tr>
+												<tr>
+													<th>질문</th>
+													<td th:text="${vote.question}">질문</td>
+												</tr>
+												<tr>
+													<th>투표율</th>
+													<td th:text="${voteRate}">00.0%</td>
+												</tr>
+												<tr>
+													<th>투표참여대상</th>
+													<td th:text="'총 ' + ${vote.votersCount}+'명'">총00명</td>
+												</tr>
+												<tr>
+													<!-- 전체 대상 -->
+													<td colspan="2" th:if="${#strings.isEmpty(vote.targetDong) and #strings.isEmpty(vote.jsonArrayTargetGroup)}" th:text="'아파트 전체'">투표참여대상</td>
+
+													<!-- 동 별 -->
+													<td colspan="2" th:if="${not #strings.isEmpty(vote.targetDong) and #strings.isEmpty(vote.jsonArrayTargetHo)}" th:text="${'투표 대상 : ' + vote.targetDong + '동'}">투표참여대상</td>
+
+													<!-- 동/호 별 -->
+													<td colspan="2" th:if="${not #strings.isEmpty(vote.targetDong) and not #strings.isEmpty(vote.jsonArrayTargetHo)}" >
+														<span th:text="${'투표 대상 : ' + vote.targetDong + '동'}"></span>
+														<span th:each="ho, status : ${voteHoList}" th:text="${ho} + '호' + ${status.last ? '':',' }">
+														</span>
+													</td>
+
+													<!-- 선거구 별 -->
+													<td colspan="2" th:if="${not #strings.isEmpty(vote.jsonArrayTargetGroup)}" >
+														선거구 :
+														<span th:each="voteGroup, status : ${voteGroupList}" th:text="${voteGroup.name} + ${status.last ? '':',' }">
+														</span>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+
+
+										<!-- 기본형 / 동의형 / 찬반형 -->
+										<table class="table table-bordered table-striped" th:if="${vote.typeId != 5 and vote.typeId != 2}">
+											<thead>
+												<tr>
+													<th style="width:50%; text-align:center">항목명</th>
+													<th style="width:50%; text-align:center">득표수 (득표율)</th>
+												</tr>
+											</thead>
+											<tbody>
+											 	<tr th:if="${#lists.isEmpty(voteItemList)}">
+											 		<td style="text-align:center" colspan="2">등록된 투표 항목이 없습니다.</td>
+											 	</tr>
+												<tr th:each="vItem : ${voteItemList}" th:if="${not #lists.isEmpty(voteItemList)}">
+													<td style="text-align:center" th:text="${vItem.title}" >제1선거구</td>
+													<td style="text-align:center" th:text="${vItem.onlineCount + vItem.offlineCount} + ' (' + ${vItem.voteRate} + ')'"></td>
+												</tr>
+											</tbody>
+										</table>
+										<!--// 기본형 / 동의형 / 찬반형 -->
+
+										<!-- 단일 후보형 (반대포함) -->
+										<table class="table table-bordered table-striped" th:if="${vote.typeId == 5}">
+											<thead>
+												<tr>
+													<th style="width:40%; text-align:center">사진</th>
+													<th style="width:30%; text-align:center">성명</th>
+													<th style="width:30%; text-align:center">득표수(득표율)</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="vItem, status : ${voteItemList}" th:if="${not #lists.isEmpty(voteItemList)}">
+													<td style="text-align:center" th:if="${status.index == 0}">
+														<img id="img-candidate_single-preview-1" class="img-candidate" src="../../static/img/anonymous.png"
+																th:src="|/api/vote/item-image/${vote.id}/${status.index}|" />
+													</td>
+													<td style="text-align:center" th:if="${status.index != 0}">-</td>
+
+													<td style="text-align:center" th:text="${vItem.title}" >성명</td>
+													<td style="text-align:center" th:text="${vItem.onlineCount + vItem.offlineCount} + ' (' + ${vItem.voteRate} + ')'">득표수 (득표율)</td>
+												</tr>
+											</tbody>
+										</table>
+										<!--// 단일 후보형 (반대포함) -->
+
+										<!-- 복수후보형 -->
+										<table class="table table-bordered table-striped" th:if="${vote.typeId == 2}">
+											<thead>
+												<tr>
+													<th style="width:40%; text-align:center">사진</th>
+													<th style="width:30%; text-align:center">성명</th>
+													<th style="width:30%; text-align:center">득표수(득표율)</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="vItem, status : ${voteItemList}" th:if="${not #lists.isEmpty(voteItemList)}">
+													<td style="text-align:center" th:if="${vItem.id != 0}">
+														<input type="button" id="" name="" class="btn btn-danger disabled btn-xs" value="당선" th:if="${vItem.isWinner}" />
+														<img id="img-candidate_single-preview-1" class="img-candidate" src="../../static/img/anonymous.png"
+																th:src="|/api/vote/item-image/${vote.id}/${status.index}|" />
+													</td>
+													<td th:if="${vItem.id == 0}">-</td>
+
+													<td style="text-align:center" th:text="${vItem.title}" >성명</td>
+													<td style="text-align:center" th:text="${vItem.onlineCount + vItem.offlineCount} + ' (' + ${vItem.voteRate} + ')'">득표수 (득표율)</td>
+												</tr>
+											</tbody>
+										</table>
+										<!--// 복수후보형 -->
+
+
+										<h3>투표 결과</h3>
+
+										<table class="table table-bordered table-striped">
+											<thead>
+												<tr>
+													<th style="width:20%; text-align:center">후보/선택지</th>
+													<th style="width:20%; text-align:center">전자투표 득표수</th>
+													<th style="width:20%; text-align:center" th:if="${vote.offlineAvailable}">오프라인 투표 득표수</th>
+													<th style="width:20%; text-align:center">계</th>
+													<th style="width:20%; text-align:center">득표비율</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:if="${#lists.isEmpty(voteItemList)}">
+											 		<td style="text-align:center" colspan="5">등록된 투표 항목이 없습니다.</td>
+											 	</tr>
+												<tr th:each="vItem : ${voteItemList}" th:if="${not #lists.isEmpty(voteItemList)}">
+													<td style="text-align:center">
+														<input type="button" id="" name="" class="btn btn-danger disabled btn-xs" value="당선" th:if="${vItem.isWinner}" />
+														<span  th:text="${vItem.title}">홍길동</span>
+													</td>
+													<td style="text-align:center" th:text="${vItem.onlineCount} +'명'">123</td>
+													<td style="text-align:center" th:text="${vItem.offlineCount} +'명'" th:if="${vote.offlineAvailable}">345</td>
+													<td style="text-align:center" th:text="${vItem.onlineCount + vItem.offlineCount} +'명'" >578</td>
+													<td style="text-align:center" th:text="${vItem.voteRate}">000(00.0%)</td>
+												</tr>
+												<tr th:if="${not #lists.isEmpty(voteItemList)}">
+													<td style="text-align:center">합계</td>
+													<td style="text-align:center" th:text="${onlineVoterCount} + '명'">246</td>
+													<td style="text-align:center" th:text="${offlineVoterCount} + '명'" th:if="${vote.offlineAvailable}"></td>
+													<td style="text-align:center" th:text="${totalVoterCount} + '명'"></td>
+													<td style="text-align:center"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div><!--panel-body-->
+								</div>
+							</div>
+
+
+							<!--차트 플러그인 쓰기-->
+							<div id="result-graph-print-wrapper">
+								<div>
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											투표결과 그래프
+										</div>
+										<div class="panel-body" style="margin-left:auto; margin-right:auto;">
+											<div id="chart1" class="" style="height:300px; width:30%; float:left; padding-right:10px;"></div>
+											<div id="chart2" class="" style="height:300px; width:30%; float:left; padding-right:10px;" ></div>
+											<div id="chart3" class="" style="height:300px; width:30%; float:left; padding-right:10px;" ></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--차트끝-->
+						</div>
+
+						<!-- 참여목록 tab -->
+						<div id="tab-container">
+							<ul class="nav nav-tabs">
+								<li role="presentation" class="active">
+									<a href="#basic" onclick="selectVoterList();"><span class="label label-info">1</span> 전자 투표 참여목록</a>
+								</li>
+								<li role="presentation" th:if="${vote.offlineAvailable}" >
+									<a href="#items" onclick="selectOfflineVoterList();"><span class="label label-info">2</span> 오프라인 투표 참여목록</a>
+								</li>
+							</ul>
+
+							<div id="my-tab-content" class="tab-content form-horizontal" style="padding: 10px">
+								<!-- 전자투표 참여목록 -->
+								<div class="tab-pane active" id="basic">
+									<!-- <h3>전자 투표 참여 목록</h3> -->
+
+										<!-- 검색영역 -->
+										<div id="" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+											<div class="row">
+												<div class="col-sm-6">
+						                            <label>총 <span id="onlineVoterCountText">0</span>명</label>
+					                          	</div>
+					                          	<div class="col-sm-6" align="right">
+					                          		<button type="button" id="onlineVote_print_btn" class="btn btn-success">전체 목록 인쇄<span></span></button>
+						                            <button type="button" id="onlineVote_download_btn" class="btn btn-success">엑셀 다운로드<span></span></button>
+													<select id="onlinePageSize" name="onlinePageSize" aria-controls="user-list-table" class="form-control input-sm" onchange="selectVoterList(1)">
+														<option value="10" th:selected="selected">목록 10개씩 보기</option>
+							                           	<option value="30">목록 30개씩 보기</option>
+							                            <option value="50">목록 50개씩 보기</option>
+							                            <option value="100">목록 100개씩 보기</option>
+							                            <option value="200">목록 200개씩 보기</option>
+						                           	</select>
+				                      				<!-- <input type="search" id="searchWord" name="searchWord" class="form-control input-sm" placeholder="" aria-controls="user-list-table" />
+				                              		<input type="hidden" id="_searchWord" name="_searchWord"  />
+				                              		<input type="button" class="btn btn-success" onclick="search(0);" value="검색" /> -->
+				                              		<!-- <input type="button" class="btn btn-normal" value="초기화" /> -->
+				                          		</div>
+		                        			</div>
+			                      		</div>
+			                      		<!--// 검색영역 -->
+
+				                        <table class="table table-striped table-hover">
+				                            <thead>
+					                            <tr>
+					                                <th>투표시각 <!-- <img id="img_sort_dong" th:src="@{/img/sort_asc.png}" onclick="search(0, 'house.dong');" style="cursor:pointer;" /> --></th>
+					                                <th width="15%">동</th>
+					                                <th width="15%">호</th>
+					                                <th>휴대폰</th>
+					                                <th>이름</th>
+					                                <th>서명</th>
+					                                <th th:if="${user.type.jaha and vote.securityLevel eq 'S'}">동영상</th>
+					                            </tr>
+				                            </thead>
+			                            	<tbody id="onlineVoterListTr">
+				                            </tbody>
+			                            </table>
+
+			                            <div id="onlineVoterListPaging"></div>
+
+
+								</div>
+								<!--// 전자투표 참여목록 -->
+
+								<!-- 오프라인 투표목록 -->
+								<div class="tab-pane" id="items" th:if="${vote.offlineAvailable}" >
+									<div>
+
+										<!-- 검색영역 -->
+										<div id="" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+											<div class="row">
+												<div class="col-sm-6">
+													<label>총 <span id="offlineVoterCountText">0</span>명</label>
+					                          	</div>
+					                          	<div class="col-sm-6" align="right">
+					                          		<button type="button" id="offlineVote_print_btn" class="btn btn-success">전체 목록 인쇄<span></span></button>
+						                            <button type="button" id="offlinelineVote_download_btn" class="btn btn-success">엑셀 다운로드<span></span></button>
+						                            <select id="offlinePageSize" name="offlinePageSize" aria-controls="user-list-table" class="form-control input-sm" onchange="selectOfflineVoterList(1)">
+														<option value="10" th:selected="selected">목록 10개씩 보기</option>
+							                           	<option value="30">목록 30개씩 보기</option>
+							                            <option value="50">목록 50개씩 보기</option>
+							                            <option value="100">목록 100개씩 보기</option>
+							                            <option value="200">목록 200개씩 보기</option>
+						                           	</select>
+				                      				<!-- <input type="search" id="searchWord" name="searchWord" class="form-control input-sm" placeholder="" aria-controls="user-list-table" />
+				                              		<input type="hidden" id="_searchWord" name="_searchWord"  />
+				                              		<input type="button" class="btn btn-success" onclick="search(0);" value="검색" /> -->
+				                              		<!-- <input type="button" class="btn btn-normal" value="초기화" /> -->
+				                          		</div>
+		                        			</div>
+			                      		</div>
+			                      		<!--// 검색영역 -->
+
+			                        	<table class="table table-striped table-hover">
+				                            <thead>
+					                            <tr>
+					                                <th>투표시각</th>
+					                                <th width="15%">동</th>
+					                                <th width="15%">호</th>
+					                                <th>이름</th>
+					                            </tr>
+				                            </thead>
+			                            	<tbody id="offlineVoterListTr">
+				                            </tbody>
+		                            	</table>
+
+		                            	<div id="offlineVoterListPaging"></div>
+
+									</div>
+								</div>
+								<!--// 오프라인 투표목록 -->
+
+							</div>
+						</div>
+						<!-- 참여목록 tab -->
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+<!--jqflot-->
+<script src="../../static/js/excanvas.min.js" th:src="@{/js/excanvas.min.js}"></script>
+<script src="../../static/js/jquery.jqplot.min.js" th:src="@{/js/jquery.jqplot.min.js}"></script><!--20160921추가-->
+<script src="../../static/js/jqplot.barRenderer.js" th:src="@{/js/jqplot.barRenderer.js}"></script><!--20160921추가-->
+<script src="../../static/js/jqplot.categoryAxisRenderer.js" th:src="@{/js/jqplot.categoryAxisRenderer.js}"></script><!--20160921추가-->
+<script src="../../static/js/jqplot.pointLabels.js" th:src="@{/js/jqplot.pointLabels.js}"></script><!--20160921추가-->
+<script src="../../static/js/jqplot.highlighter.js" th:src="@{/js/jqplot.highlighter.js}"></script><!--20160921추가-->
+<!-- print -->
+<script src="../../static/js/jQuery.print.js" th:src="@{/js/jQuery.print.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+	// 참여목록 탭
+	$('.nav-tabs li a').click(function (e) {
+        $('.nav-tabs li.active').removeClass('active');
+        var $parent = $(this).parent();
+        if (!$parent.hasClass('active')) {
+            $parent.addClass('active');
+        }
+        $('.tab-content div.active').removeClass('active');
+        var tabId = $(this).attr("href");
+        $(tabId).addClass('active');
+        e.preventDefault();
+    });
+
+	// 전자투표 참여목록 조회
+    var voteId = /*[[${vote.id}]]*/ voteId;
+	var isJaha = /*[[${user.type.jaha}]]*/ user.type.jaha;
+	var voteSecurityLevel = /*[[${vote.securityLevel}]]*/ vote.securityLevel;
+	var votersCount = /*[[${vote.votersCount}]]*/ vote.votersCount;
+	var totalVoterCount = /*[[${totalVoterCount}]]*/ totalVoterCount;
+	if (totalVoterCount < votersCount) {
+		totalVoterCount = votersCount;
+	}
+
+
+	console.log(">>> voteId : " + voteId);
+	console.log(">>> isJaha : " + isJaha);
+	console.log(">>> securityLevel : " + voteSecurityLevel);
+
+    $(document).ready(function (){
+
+		var result = /*[[${voteItemList}]]*/ 'voteItemList';
+
+		//jqplot 추가
+		$.jqplot.config.enablePlugins = true;
+
+		var onlineItems = [];
+        var offlineItems = [];
+        var totalItems = [];
+        var voteItemTitles = [];
+
+		$.each(result, function(index, obj) {
+		    onlineItems.push(obj.onlineCount);
+		    offlineItems.push(obj.offlineCount);
+		    totalItems.push(obj.offlineCount + (obj.onlineCount * 1));
+		    voteItemTitles.push(obj.title);
+		});
+
+        plot1 = $.jqplot('chart1', [onlineItems], {
+			title:'온라인 투표결과그래프',
+            // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
+            animate: !$.jqplot.use_excanvas,
+            /* seriesColors:['#00749F', '#73C774'], */
+			seriesDefaults:{
+                renderer:$.jqplot.BarRenderer,
+				rendererOptions: {
+                // Set varyBarColor to tru to use the custom colors on the bars.
+                varyBarColor: true,
+				showHighlight: false,
+				barWidth: 30,
+				barPadding: -15,
+                barMargin: 0,
+            },
+                pointLabels: { show: true },
+
+            },
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer
+                    ,ticks: voteItemTitles
+                },
+				yaxis: {
+					/* max:100,
+					tickOptions: {
+						formatString: "%g%"
+					}, */
+					min : 0
+					,max:totalVoterCount
+					,tickOptions: {
+						formatString: "%d"
+					},
+					rendererOptions: {
+						forceTickAt0: true
+					}
+				},
+            },
+            highlighter: { show: false }
+        });
+
+
+        plot2 = $.jqplot('chart2', [offlineItems], {
+			title:'온프라인 투표결과그래프',
+            // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
+            animate: !$.jqplot.use_excanvas,
+            /* seriesColors:['#00749F', '#73C774'], */
+			seriesDefaults:{
+                renderer:$.jqplot.BarRenderer,
+				rendererOptions: {
+                // Set varyBarColor to tru to use the custom colors on the bars.
+                varyBarColor: true,
+				showHighlight: true,
+				barWidth: 30,
+				barPadding: -15,
+                barMargin: 0,
+            },
+                pointLabels: { show: true },
+
+            },
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: voteItemTitles
+                },
+				yaxis: {
+					/* max:100,
+					tickOptions: {
+						formatString: "%g%"
+					}, */
+					min : 0
+					,max:totalVoterCount
+					,tickOptions: {
+						formatString: "%d"
+					},
+					rendererOptions: {
+						forceTickAt0: true
+					}
+				},
+            },
+            highlighter: { show: false }
+        });
+
+
+        plot3 = $.jqplot('chart3', [totalItems], {
+			title:'투표결과그래프',
+            // Only animate if we're not using excanvas (not in IE 7 or IE 8)..
+            animate: !$.jqplot.use_excanvas,
+            /* seriesColors:['#00749F', '#73C774'], */
+			seriesDefaults:{
+                renderer:$.jqplot.BarRenderer,
+				rendererOptions: {
+                // Set varyBarColor to tru to use the custom colors on the bars.
+                varyBarColor: true,
+				showHighlight: false,
+				barWidth: 30,
+				barPadding: -15,
+                barMargin: 0,
+            },
+                pointLabels: { show: true },
+
+            },
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: voteItemTitles
+                },
+				yaxis: {
+					/* max:100,
+					tickOptions: {
+						formatString: "%g%"
+					}, */
+					min : 0
+					,max:totalVoterCount
+					,tickOptions: {
+						formatString: "%d"
+					},
+					rendererOptions: {
+						forceTickAt0: true
+					}
+				},
+            },
+            highlighter: { show: false }
+        });
+
+
+        // 결과출력 버튼
+        $('#print-button').click(function (){
+
+            if ($('#graphPrint').is(":checked")) {
+            	// 그래프 영역
+            	$('#hide-if-underway1').print({
+                    mediaPrint: true
+                });
+            } else {
+            	// 투표결과 영역
+                $('#result-print-wrapper').print({
+                    mediaPrint: true
+                });
+            }
+        });
+
+        // 목록 버튼
+        $('#print-list').click(function (){
+        	document.location.href = '/v2/admin/vote/list';
+        });
+
+        // 온라인 전체목록 인쇄
+		$('#onlineVote_print_btn').click(function (){
+			//openWindow(url, name, width, height, left, top) {
+				openWindow('/v2/admin/vote/print/on/' + voteId, 'votePrint');
+        });
+
+        // 오프라인 전체목록 인쇄
+		$('#offlineVote_print_btn').click(function (){
+				openWindow('/v2/admin/vote/print/off/' + voteId, 'votePrint');
+        });
+
+        // 온라인 전체목록 엑셀저장
+        $('#onlineVote_download_btn, #offlinelineVote_download_btn').click(function (){
+			document.location.href = '/v2/admin/vote/excel/on/' + voteId;
+        });
+
+
+        selectVoterList(1);
+    });
+
+    // 온라인 투표자 목록 조회
+	function selectVoterList(pageNum) {
+
+		var reqData = {};
+	    reqData.voteId = voteId
+	    ,reqData.pageNum = pageNum
+	    ,reqData.pageSize = $('#onlinePageSize').val();
+
+		$.ajax({
+			type: 'post'
+			,url: '/v2/admin/vote/selectOnlineVoterList'
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+			, data: JSON.stringify(reqData)
+            , success: function (data) {
+
+				console.log("data.result : " + data.result);
+				console.log("data.voterList.length : " + data.voterList.length);
+
+            	if (data.result) {
+            		var onlineHtml = '';
+
+            		if(data.voterList.length > 0){
+
+            			$(data.voterList).each(function (i, obj) {
+            				  console.log(obj.voteId);
+            				  //$.format.date(obj.voteDate, "dd/MM/yyyy");
+            				  var voteDate = new Date(obj.voteDate);
+            				  onlineHtml += '<tr>'
+            					  + '<td>' + voteDate.getFullYear() + '-' + (((voteDate.getMonth() + 1) < 10 ? "0" : "") + (voteDate.getMonth() + 1))  + '-' + voteDate.getMinutes() + ' ' + ((voteDate.getHours() < 10 ? "0" : "") + voteDate.getHours()) + ':'
+           					  				+ ((voteDate.getMinutes() < 10 ? "0" : "") + voteDate.getMinutes()) + ':' + ((voteDate.getSeconds() < 10 ? "0" : "") + voteDate.getSeconds()) + '</td>'
+            					  + '<td>' + obj.dong + '동</td>'
+            					  + '<td>' + obj.ho + '호</td>'
+            					  + '<td class="phone">' + obj.phone + '</td>'
+            					  + '<td>' + obj.voterName + '</td>';
+
+            					  //if ('Y' == obj.enableSecurity) {
+            						  onlineHtml += '<td><img height="90" src="' + obj.signImageUri + '" /></td>';
+            					  //}
+
+            					  if (isJaha && isNotEmpty(voteSecurityLevel) && "S" == voteSecurityLevel) {
+            						  onlineHtml += '<td>' + '<input type="button" value="재생" onclick="openSignVideo(' + voteId +',' + obj.userId +');" />' + '</td>';
+            					  }
+
+           					  onlineHtml += '</ tr>'
+           				});
+
+            			// 온라인 투표자 페이징
+         				if (data.pagingHelper && data.pagingHelper.totalPageNum) {
+
+         					$('#onlineVoterCountText').html(data.pagingHelper.totalRecordCount);
+         					var onlinePagingHtml = makePaging(data.pagingHelper, 'voteOn');
+         					$('#onlineVoterListPaging').html(onlinePagingHtml);
+
+         				} else {
+         					$('#offlineVoterCountText').html('0');
+         					$('#onlineVoterListPaging').html('');
+         				}
+
+            		} else {
+
+           				onlineHtml += '<tr>'
+           					+ '<td colspan="7">온라인 참여목록이 없습니다.</td>'
+                    		+ '</tr>';
+            		}
+            		$('#onlineVoterListTr').html(onlineHtml);
+
+            		$('.phone').text(function(i, text) {
+        			    return text.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        			});
+
+            	} else {
+					alert(data.message);
+            	}
+
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+	}
+
+    // 오프라인 투표자 목록 조회
+	function selectOfflineVoterList(pageNum) {
+
+		var reqData = {};
+	    reqData.voteId = voteId
+	    ,reqData.pageNum = pageNum
+	    ,reqData.pageSize = $('#offlinePageSize').val();
+
+		$.ajax({
+			type: 'post'
+			,url: '/v2/admin/vote/selectOfflineVoterList'
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+			, data: JSON.stringify(reqData)
+            , success: function (data) {
+
+				console.log("data.result : " + data.result);
+				console.log("data.voterOfflineList.length : " + data.voterOfflineList.length);
+
+            	if (data.result) {
+            		var offlineHtml = '';
+
+            		if(data.voterOfflineList.length > 0){
+
+         				// 오프라인 투표자 목록
+            			$(data.voterOfflineList).each(function (i, obj) {
+            				  console.log(obj.voteId);
+            				  //$.format.date(obj.voteDate, "dd/MM/yyyy");
+            				  var voteDate = new Date(obj.regDate);
+            				  offlineHtml += '<tr>'
+            					  + '<td>' + voteDate.getFullYear() + '-' + (((voteDate.getMonth() + 1) < 10 ? "0" : "") + (voteDate.getMonth() + 1))  + '-' + voteDate.getMinutes() + ' ' + ((voteDate.getHours() < 10 ? "0" : "") + voteDate.getHours()) + ':'
+           					  				+ ((voteDate.getMinutes() < 10 ? "0" : "") + voteDate.getMinutes()) + ':' + ((voteDate.getSeconds() < 10 ? "0" : "") + voteDate.getSeconds()) + '</td>'
+            					  + '<td>' + obj.dong + '동</td>'
+            					  + '<td>' + obj.ho + '호</td>'
+            					  + '<td>' + obj.fullName + '</td>';
+
+           					  offlineHtml += '</ tr>'
+           				});
+         				// 오프라인 투표자 페이징
+         				if (data.pagingHelper && data.pagingHelper.totalPageNum) {
+
+         					$('#offlineVoterCountText').html(data.pagingHelper.totalRecordCount);
+         					var offlinePagingHtml = makePaging(data.pagingHelper, 'voteOff');
+         					$('#offlineVoterListPaging').html(offlinePagingHtml);
+
+         				} else {
+         					$('#offlineVoterCountText').html('0');
+         					$('#offlineVoterListPaging').html('');
+         				}
+
+            		} else {
+
+           				offlineHtml += '<tr>'
+           					+ '<td colspan="7">오프라인 참여목록이 없습니다.</td>'
+                    		+ '</tr>';
+            		}
+            		$('#offlineVoterListTr').html(offlineHtml);
+
+
+            	} else {
+					alert(data.message);
+            	}
+
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+	}
+
+    // 보안투표 촬용 동영상
+	function openSignVideo(url) {
+
+		$('#modal-vote').modal('show');
+		/* $("#movie_src").attr("src", url);
+		$("#votePlay").load(); */
+	}
+
+    function popupSignVideo(voteId, userId){
+    	var width = 700;
+        var height = 500;
+        var left = (screen.width-width)/2;
+        var top = (screen.height-height)/2;
+        window.open("/jaha/vote/sign-video-popup?voteId="+voteId+"&userId="+userId,"voteSecurityVideoPopup","width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+    }
+    /*]]>*/
+</script>
+
+
+
+		<!-- 투표 동영상 보기 -->
+        <div class="modal" id="modal-vote" >
+            <div class="modal-dialog modal-lg" style="width:500px;">
+                <div class="modal-content" >
+                    <div class="modal-header">
+                    	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+                        <h4 class="modal-title" id="myModalLabel">투표영상보기</h4>
+                    </div>
+                    <div class="modal-body">
+
+						<div style="text-align:center">
+							<video id="video1" style="width:600px;max-width:100%;" controls="controls">
+								<source src="http://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+							</video>
+						</div>
+
+                    </div>
+                    <div class="modal-footer">
+                    	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--// 투표 동영상 보기 -->
+
+
+	</div>
+
+</body>
+</html>

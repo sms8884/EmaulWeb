@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.CommonMapper">
+
+	<select id="selectCodeList" parameterType="String" resultType="com.jaha.web.emaul.model.CommonCode">
+		SELECT cc.code_group
+					,cc.code
+					,cc.name
+					,cc.depth
+					,cc.sort_order
+					,cc.use_yn
+					,cc.data_1
+					,cc.data_2
+					,cc.data_3
+					,cc.data_4
+					,cc.data_5
+					,cc.reg_date
+					,cc.reg_id
+					,u.nickname
+		FROM common_code cc
+			LEFT OUTER JOIN user u
+				ON u.id = reg_id
+		WHERE code_group = #{codeGroup}
+		AND use_yn ='Y'
+		order by sort_order asc
+	</select>
+
+	<!-- 코드그룹 목록 조회 -->
+	<select id="selectCodeGroupList" parameterType="String" resultType="com.jaha.web.emaul.model.CodeGroup">
+		SELECT
+			/* selectCodeGroupList  조영태(cyt@jahasmart.com) */
+			code_group
+			, name
+			, sort_order
+			, use_yn
+			, reg_id
+			, reg_date
+			, mod_id
+			, mod_date
+		FROM code_group
+		WHERE
+			use_yn = 'Y'
+			<if test="codeGroup != null and codeGroup != ''">
+				AND code_group = #{codeGroup}
+			</if>
+		order by sort_order asc
+	</select>
+
+	<!-- 코드 그룹 등록 -->
+	<insert id="insertCodeGroup" parameterType="com.jaha.web.emaul.model.CodeGroup">
+	INSERT INTO /* insertCodeGroup  조영태(cyt@jahasmart.com) */ jahacomm.comm_cd_grp (
+		cd_grp_id, cd_grp_nm, cd_grp_desc, sort_order, use_yn,
+		emaul_yn, advert_yn, evote_yn, eppoom_yn, reg_id,
+		reg_date
+	) VALUES (
+		#{codeGroup}, #{name}, #{description}, (SELECT A.id FROM (SELECT MAX(sort_order) + 1 AS id FROM jahacomm.comm_cd_grp WHERE 1=1) A), 'Y'
+		, 'Y', 'N', 'N', 'N', #{regId}
+		, now()
+	)
+	</insert>
+
+	<!-- 공통 코드 등록 -->
+	<insert id="insertCommonCode" parameterType="com.jaha.web.emaul.model.CommonCode">
+		INSERT INTO /* insertCommonCode  조영태(cyt@jahasmart.com) */  jahacomm.comm_cd (
+			cd_grp_id,  cd_id,  cd_nm, cd_desc, sort_order,
+			depth,  use_yn, emaul_yn, advert_yn, evote_yn, eppoom_yn, reg_id, reg_date
+		) VALUES (
+			#{codeGroup}, #{code}, #{name},'jaha code 등록', (SELECT A.id FROM (SELECT MAX(sort_order) + 1 AS id FROM jahacomm.comm_cd WHERE cd_grp_id = #{codeGroup}) A),
+			1, 'Y', 'Y', 'N', 'N', 'N', #{regId}, now()
+		)
+	</insert>
+
+
+
+	<select id="getGugunList" resultType="hashMap">
+		SELECT DISTINCT 시군구명 as gugun
+				, 시도명 as sido
+		FROM address
+	</select>
+
+	<select id="selectAddressAptList" parameterType="map" resultType="map">
+    /* selectAddressAptList */
+        SELECT A.*
+              ,concat( concat(sido_nm,' ',sgg_nm,' ',road_nm,' ',roadBuildingNo1,if(roadBuildingNo2 = null OR roadBuildingNo2 = 0, '', concat('-',roadBuildingNo2)),' (',emd_nm,')'), ' ', if(building_nm != apt_name, concat(apt_name, ' [',building_nm,']'), apt_name)) as building_address
+        FROM
+        (
+            SELECT 법정동코드 as bjd_cd
+                  ,시도명 as sido_nm
+                  ,시군구명 as sgg_nm
+                  ,법정읍면동명 as emd_nm
+                  ,도로명 as road_nm
+                  ,건물관리번호 as building_no
+                  ,시군구용건물명 as building_nm
+                  ,건물본번 as roadBuildingNo1
+                  ,건물부번 as roadBuildingNo2
+                  ,l2.id apt_id
+                  ,l2.name apt_name
+            FROM address l1, emaul.apt l2
+            WHERE l1.건물관리번호 = l2.address_code
+            AND ( l1.비고1 != 'virtual' OR l1.비고1 is null )
+            <if test="sidoNm != null and sidoNm != ''">
+                AND 시도명 = #{sidoNm}
+            </if>
+            <if test="sggNm != null and sggNm != ''">
+                AND 시군구명 = #{sggNm}
+            </if>
+            <if test="aptNm != null and aptNm != ''">
+                AND (l1.시군구용건물명 like concat('%',#{aptNm},'%') OR l2.name like concat('%',#{aptNm},'%'))
+            </if>
+            <if test="_aptId != null and _aptId != ''">
+                AND l2.id = #{_aptId}
+            </if>
+            <if test="registered != null and registered != ''">
+                AND l2.registered_apt = ${registered}
+            </if>
+            ORDER BY l1.시군구용건물명
+        ) A
+    </select>
+
+    <select id="selectUdsMsg" parameterType="map" resultType="map">
+    /* selectUdsMsg */
+        SELECT CMID
+        FROM uds_msg
+        WHERE ETC1 = #{code}
+        AND ETC2 = #{key}
+        AND DEST_PHONE = #{phone}
+    </select>
+
+    <delete id="deleteCode" parameterType="map">
+    /* deleteCode */
+        DELETE FROM jahacomm.comm_cd
+        <where>
+            <choose>
+                <when test="code != null and code != ''">
+                    AND cd_id = #{code}
+                </when>
+                <when test="codeGroup != null and codeGroup != ''">
+                    AND cd_grp_id = #{codeGroup}
+                </when>
+                <otherwise>
+                    AND cd_grp_id = -1
+                </otherwise>
+            </choose>
+        </where>
+    </delete>
+
+    <insert id="insertCode" parameterType="CommonCode">
+    /* insertCode */
+        INSERT INTO jahacomm.comm_cd
+        (
+            cd_grp_id
+           ,cd_id
+           ,cd_nm
+           ,data_1
+           ,data_2
+           ,sort_order
+           ,depth
+           ,use_yn
+           ,emaul_yn
+           ,reg_id
+           ,reg_date
+        )
+        VALUES
+        (
+            #{codeGroup}
+           ,#{code}
+           ,#{name}
+           ,#{data1}
+           ,#{data2}
+           ,#{sort_order}
+           ,#{depth}
+           ,#{use_yn}
+           ,'Y'
+           ,'SYSTEM'
+           ,now()
+        )
+
+    </insert>
+    
+    <select id="selectDate" resultType="java.util.Date">
+    /* selectDate */
+        SELECT now()
+    </select>
+
+</mapper>

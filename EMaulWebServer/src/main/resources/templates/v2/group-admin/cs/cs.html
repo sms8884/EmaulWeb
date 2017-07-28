@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/group-admin/template/layout">
+
+<head>
+
+	<title>고객센터 1:1 문의</title>
+
+	<script src="/ckeditor/ckeditor.js"></script>
+
+	<style>
+    .newsRight{
+        text-align:right;
+        margin:5px 5px;
+        vertical-align:middle
+    }
+    .nesessary{
+        color:red;
+        font-size:10px;
+    }
+    table th{
+        width:20%;
+        height:45px;
+    }
+    .noticeSignupbox{
+        margin-bottom:40px;
+        overflow:hidden;
+    }
+
+    /*인풋파일*/
+    .noticeFileTextbox{
+        float:left;
+        width:30%;
+    }
+
+    .noticeFileBox{
+        position:relative;
+        width:7%;
+        height:29px;
+        display:inline-block;
+    }
+
+    .noticeFileFakeBtn{
+        width:80px;
+        position:absolute;
+        top:0px;
+        margin-left:5px;
+    }
+
+    .noticeFileupload{
+        font-size:45px;
+        position:absolute;
+        right:0px;
+        top:0px;
+        opacity:0;
+        .filter:alpha(opacity=0);
+        -ms-filter:"alpha(opacity=0)";
+        -khtml-opactiy:0;
+        -moz-opacity:0;
+    }
+
+    .noticeFileLabel{
+        display:none;
+    }
+
+    .noticeFileAddBtn{
+        position:absolute;
+        top:0px;
+        left:90px;
+    }
+	.noticePassWord{
+			color:#aaa;
+			font-size:12px;
+	}
+	.warningPassWord, .warningEmail{
+		color:red;
+		font-size:12px;
+	}
+
+	.noticeFile{
+		color:#aaa;
+			font-size:12px;
+	}
+</style>
+</head>
+
+<body>
+
+    <!-- Page Content -->
+    <div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header" >고객센터 1:1 문의</h1>
+
+            <div id="content-container">
+
+				<form name="csForm" id="csForm" method="POST" enctype="multipart/form-data" action="/v2/group-admin/cs/sendProc">
+
+                    <div class="panel-body">
+                    	<span style="float:left;" >이마을 관리자 서비스 이용 시, 문제가 발생하신다면 아래의 정보와 함께 문의 부탁 드립니다.</span>
+                    	<p class="newsRight"><span class="fa fa-asterisk nesessary" style="font-size:8px;"></span>필수 입력 항목 입니다.</p>
+                        <div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+                            <table class="table table-responsive table" style="margin-bottom: 0">
+                                <tbody>
+                                    <tr >
+                                        <th class="info">아이디</th>
+                                        <td th:text="${user.getEmail()}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">이메일<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td>
+                                       		<input type="text" class="form-control" id="email" th:value="${groupAdmin.email}" name="email" onblur="checkEmail(this);" placeholder="이메일을 입력해주세요."  maxlength="50" style="width: 700px; height: 30px" />
+                                       		<span class="warningEmail"  id="warningEmail" style="display:none;">이메일 형식에 맞지 않습니다.</span>
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <th class="info">제목<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline"  >
+                          					<input class="form-control" type="text" id="title" name="title" placeholder="제목을 입력해주세요." maxlength="50" style="width: 700px; height: 30px" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">문의 내용<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline" >
+                       						<textarea class="form-control" placeholder="내용을 입력하세요" rows="30" id="content" name="content" style="resize: none"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info" rowspan="3">이미지 및 파일첨부</th>
+                                        <td class="form-inline" >
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                                	<input type="text" readonly="readonly" title="File Route" id="file_route1"  />
+				                                	<label>
+				                                    	파일선택
+				                                    	<input type="file" onchange="uploadFile(this, 1);" name="csfiles" id="file1" />
+				                                	</label>
+				                            	</div>
+				                        	</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="form-inline" >
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                                	<input type="text" readonly="readonly" title="File Route" id="file_route2" />
+				                                	<label>
+				                                    	파일선택
+				                                    	<input type="file" onchange="uploadFile(this, 2);" name="csfiles" id="file2" />
+				                                	</label>
+				                            	</div>
+				                        	</div>
+                                        </td>
+                                    </tr>
+									<tr>
+                                        <td class="form-inline" >
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                                	<input type="text" readonly="readonly" title="File Route" id="file_route3"  />
+				                                	<label>
+				                                    	파일선택
+				                                    	<input type="file" onchange="uploadFile(this, 3);" name="csfiles" id="file3" />
+				                                	</label>
+				                            	</div>
+				                        	</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info" rowspan="3">개인정보 수집동의<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline" >
+                                        작성해주시는 아이디 및 이메일 정보는 문의 접수 및 고객 불만 해결을 위해 수집하여 5년간 보관합니다.<br/>
+                                        <label>
+                                        	<input type="checkbox" id="agree" name="agree" value="Y" /> 동의합니다.
+                                        </label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="noticeSignupbox" style="margin:20px 0 0 0">
+                            <div class="noticeSignupRight" style="float:right;">
+                                <input type="button" class="btn btn-outline btn-info noticeSignupBtn" id="noticeSignupBtn" value="취소" name="noticeSignupBtn" data-toggle="modal" data-target="#cancelModal" />
+                                <input type="button" class="btn btn-outline btn-info noticeCancleBtn" id="noticeCancleBtn" value="문의 접수" name="noticeCancleBtn" onclick="checkReg()" />
+                            </div>
+                        </div>
+						<!-- 모달 영역 -->
+						<div>
+
+	<!-- 취소 모달 -->
+	<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm ">
+			<div class="modal-content">
+				<div class="modal-body">고객센터 1:1 문의 접수를<br/> 취소하시겠습니까?</div>
+				<div class="modal-footer" style="text-align: center">
+					<button type="button" class="btn btn-default" onclick="history.back()" style="width: 70px">예</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">아니오</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 벨리데이션 체크 모달 -->
+	<div class="modal fade" id="validationCheckModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; z-index: 1070;">
+		<div class="modal-dialog modal-sm ">
+			<div class="modal-content">
+				<div class="modal-body" style="text-align: center;" id="validationMent">이메이을 입력해주세요. (필수항목)</div>
+				<div class="modal-footer" style="text-align: center">
+					<button type="button" class="btn btn-default" id="validationBtn" >확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 글쓰기 완료 모달 팝업 -->
+	<div class="modal fade" id="writeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; z-index: 1070;">
+		<div class="modal-dialog modal-sm ">
+			<div class="modal-content">
+				<div class="modal-body" align="center">고객센터 1:1 문의를 접수하시겠습니까? </div>
+				<div class="modal-footer" style="text-align: center">
+					<button type="button" class="btn btn-default" onclick="regCs();" style="width: 70px">예</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">아니오</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 파일첨부 체크 모달 -->
+	<div class="modal fade" id="attachFileCheckModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; z-index: 1070;">
+		<div class="modal-dialog modal-mg">
+			<div class="modal-content">
+				<div class="modal-body" style="text-align: center;">파일은 pdf, hwp, doc, docx, ppt, pptx, xlsx, xlsm, xls, xml 파일만 업로드할 수 있습니다.</div>
+				<div class="modal-footer" style="text-align: center">
+					<button type="button" class="btn btn-default" onclick="closeModalAfterFocus('attachFile', false)">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</div>
+					</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+
+var result = /*[[${result}]]*/ '';
+$(document).ready(function() {
+	// 문의 접수 완료 후 메세지 처리
+	if ("Y" == result) {
+		alert("고객센터 1:1 문의가 접수되었습니다.");
+	} else if ("N" == result) {
+		alert("고객센터 1:1 문의가 접수 중 오류가 발생하였습니다.");
+	}
+});
+
+
+(function() {
+    'use strict';
+
+    CKEDITOR.replace('content', {
+        extraPlugins: 'youtube,image2,uploadimage',
+
+        removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+        'pagebreak,iframe,colorbutton,font,image',
+
+        // The toolbar groups arrangement, optimized for two toolbar rows.
+        toolbarGroups: [
+            { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+            { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+            { name: 'links' },
+            { name: 'insert' },
+            { name: 'forms' },
+            { name: 'tools' },
+            { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+            { name: 'others' },
+            '/',
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'colors', groups: [ 'colors' ] },
+            { name: 'about' }
+        ],
+
+        // Remove some buttons provided by the standard plugins, which are
+        // not needed in the Standard(s) toolbar.
+        removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+        uploadUrl: '/api/common/editor/image/temp/upload',
+
+        filebrowserImageUploadUrl: '/api/common/editor/image/temp/dialog-upload',
+
+        // Set the most common block elements.
+        format_tags: 'p;h1;h2;h3;pre',
+
+        // Simplify the dialog windows.
+        removeDialogTabs: 'link:advanced',
+
+        height: 400,
+
+        // Load the default contents.css file plus customizations for this sample.
+        contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+        stylesSet: [
+            { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+        ],
+
+        // Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+        // resizer (because image size is controlled by widget styles or the image takes maximum
+        // 100% of the editor width).
+		image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+		image2_disableResizer: true
+    });
+
+    CKEDITOR.on('dialogDefinition', function(ev) {
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        switch (dialogName) {
+            case 'image2': // Image Properties dialog
+                // dialogDefinition.removeContents('info');
+                dialogDefinition.removeContents('link');
+                dialogDefinition.removeContents('advanced');
+                break;
+        }
+    });
+})();
+
+/**
+ * 모달창을 닫고 포커스
+ */
+function closeModalAfterFocus(elementId, canFocus) {
+	if (!canFocus) {
+		canFocus = true;
+	}
+	//$("#" + elementId + "CheckModal").modal("hide");
+	$('#validationCheckModal').modal("hide");
+	if (!canFocus) {
+		return;
+	}
+	if (CKEDITOR && "content" == elementId) {
+		CKEDITOR.instances.content.focus();
+		return;
+	}
+	$("#" + elementId).focus();
+}
+
+/**
+ * 등록 유효성 체크
+ */
+function checkReg(gubun) {
+    var title = $('#title').val();
+    title = title.replace(/^\s*/, "");
+
+    var contentData = CKEDITOR.instances.content.getData();
+
+    if (isEmpty($('#email').val())) {
+    	$('#validationCheckModal').modal('show');
+    	$('#validationMent').html('이메일을 입력해 주세요.');
+    	$('#validationBtn').attr('onclick','closeModalAfterFocus("email")');
+        return;
+    } else {
+    	if(!regEmail.test($('#email').val())) {
+    		$('#validationCheckModal').modal('show');
+        	$('#validationMent').html('이메일을 확인해 주세요.');
+        	$('#validationBtn').attr('onclick','closeModalAfterFocus("email")');
+    		return;
+    	}
+    }
+
+    if (!title) {
+    	$('#validationCheckModal').modal('show');
+    	$('#validationMent').html('제목을 입력해 주세요.');
+    	$('#validationBtn').attr('onclick','closeModalAfterFocus("title")');
+        return;
+    }
+    if (!contentData) {
+    	$('#validationCheckModal').modal('show');
+    	$('#validationMent').html('문의 내용을 입력해 주세요.');
+    	$('#validationBtn').attr('onclick','closeModalAfterFocus("content")');
+    	return;
+    }
+
+    if (!$('#agree').is(":checked")) {
+   		$('#validationCheckModal').modal('show');
+       	$('#validationMent').html('개인정보 수집동의를 체크해 주세요.');
+       	$('#validationBtn').attr('onclick','closeModalAfterFocus("content")');
+       	return;
+    }
+
+	$('#writeModal').modal('show');
+}
+
+/**
+ * 게시글 등록
+ */
+function regCs() {
+    disabledButton();
+    $("form").submit();
+}
+
+/**
+ * [예] 버튼이 한번만 클릭되도록 비활성화
+ */
+function disabledButton() {
+    $('#writeModal').find('button').each(function () {
+        $(this).attr('disabled', true);
+    });
+}
+
+/**
+ *
+ */
+function uploadFile(el, id) {
+	var $this = $(el);
+	$("#file_route" + id).val($this.val());
+}
+
+$(function () {
+    $('#datetimepickerFrom, #datetimepickerTo').datetimepicker({
+        locale: 'ko',
+        format: 'YYYY.MM.DD HH시 mm분'
+    });
+});
+
+var regEmail = /([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+
+function checkEmail(obj) {
+	event.preventDefault();
+	if (isEmpty($('#email').val())) {
+		$('#warningEmail').html("이메일을 입력하세요.");
+		$('#warningEmail').show();
+		return;
+	} else if(!regEmail.test($('#email').val())) {
+		$('#warningEmail').html("이메일 형식에 맞지 않습니다.");
+		$('#warningEmail').show();
+		return;
+	} else {
+		$('#warningEmail').hide();
+	}
+}
+/*]]>*/
+</script>
+</div>
+
+
+</body>
+</html>

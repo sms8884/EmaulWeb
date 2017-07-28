@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>이용약관 | e마을</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+    <link href="/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link href="/css/animate.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/animate.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <style>
+
+        .cell {
+            max-width: 90%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .starter-template {
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .lead {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+    </style>
+</head>
+<body style="background-image: url('/img/bg-login.jpg'); background-size: cover;">
+<input type="hidden" name="provisionId" id="provisionId" th:value="${id}" />
+<div class="container">
+    <div class="panel" style="background-color: rgba(255, 255, 255, 1); margin-top: 5%; padding-bottom: 3%">
+        <div class="starter-template" style="color: #f46835">
+            <h1 id="title">
+                <small></small>
+            </h1>
+            <!--<p class="lead"><br/></p>-->
+        </div>
+
+        <div class="row">
+            <div class="cell">
+                <div>
+                    <div class="agreement-box2" id="content">
+                    </div>
+                    <div align="center" style="padding-top: 3%">
+                    <a class="btn btn-default" onclick="history.back()">닫기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script src="/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>-->
+<!--<script src="/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>-->
+<!--<script src="/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>-->
+<script src="/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+   $(function(){
+        $.ajax({
+            url: '/provision/view-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "id": $("#provisionId").val()
+            },
+            success: function(data) {
+                if(data != null){
+                    $("#title").html(data.title);
+                    $("#content").html(data.content);
+                }
+            },
+            error: function(xhr, status, error) {
+            	//data가 없으면 error로 빠짐. 미게시상태
+            }
+        });
+   });
+
+    /*]]>*/
+</script>
+
+
+</body>
+</html>

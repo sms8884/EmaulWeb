@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+<title>e마을</title>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+<meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}" />
+<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/ekko-lightbox.min.css" th:href="@{/css/ekko-lightbox.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/android.css" th:href="@{/css/android.css}"/>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../static/js/ekko-lightbox.min.js" th:src="@{/js/ekko-lightbox.min.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var storeUrl = "";
+
+$(document).ready(function() {
+	var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+	if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) ) {
+		storeUrl = APP_STORE_URL;
+		$("#ios-header").show();
+	} else if( userAgent.match( /Android/i ) ) {
+		storeUrl = GOOGLE_PLAY_URL;
+		$("#and-header").show();
+	}
+});
+
+function goStore() {
+	if (storeUrl) {
+		window.location.href = storeUrl;
+	}
+}
+
+/*]]>*/
+</script>
+</head>
+<body style="font-size:12px;">
+<!-- 구글분석 추가, 20160608, 전강욱 -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-77707904-1', 'auto');
+ga('send', 'pageview');
+/*]]>*/
+</script>
+
+<!--구글플레이 아이콘-->
+<header id="and-header" style="margin:0; padding:0; display: none;">
+    <div style="width:100%; height:50px; background-color:#612DB6; padding:3px 15px 0 15px; vertical-align:middle;">
+        <img src="/img/share_ico_logo.png" alt="e마을 로고" width="25px" height="25px"/>
+		<span style="color:#fff; margin:0 12px 0 6px; vertical-align:middle; font-size:1.56em">e마을</span>
+		<button style="border:1px solid #794DC2; border-radius:20px; width:79px; height:23px; background-color:#612DB7; color:#fff; vertical-align:middle; display: none;" id="_btn_open_emaulapp">앱에서 보기</button>
+    </div>
+
+	<div style="width:100%;background-color:#441F7F; padding:3px 15px 0 15px; overflow:hidden; height:45px;">
+       <div style="float:left; ">
+			<a href="javascript:goStore();" style="vertical-align:middle; margin:10px 0; display:inline-block;">
+				<img src="/img/share_ico_googleplay.png" width="75px" alt="google play 로고" style="vertical-align:middle; outline:none; margin:0;"/>
+				<span style="color:#fff;  vertical-align:middle; font-size:0.68em;">에서 무료로 다운로드 하세요.</span>
+			</a>
+		</div>
+		<button style="background-color:#DD5563; color:#fff; border-radius:3px; border:none; float:right; margin-top:9px; width:15%; height:20px;vertical-align:middle; line-height:1.2;" onclick="javascript:goStore();">받기</button>
+    </div>
+</header>
+
+<!--애플 앱스토어 아이콘-->
+<header id="ios-header" style="margin:0; padding:0; display: none;">
+    <div style="width:100%; height:50px; background-color:#612DB6; padding:3px 15px 0 15px; vertical-align:middle;">
+        <img src="/img/share_ico_logo.png" alt="e마을 로고" width="25px" height="25px" style=""/>
+		<span style="color:#fff; margin:0 12px 0 6px; vertical-align:middle; font-size:1.56em">e마을</span>
+		<button style="border:1px solid #794DC2; border-radius:20px; width:79px; height:23px; background-color:#612DB7; color:#fff; vertical-align:middle; display: none;">앱에서 보기</button>
+    </div>
+
+	<div style="width:100%;background-color:#441F7F; padding:3px 15px 0 15px; overflow:hidden; height:45px;">
+       <div style="float:left;">
+			<a href="javascript:goStore();" style="vertical-align:middle; margin:10px 0; display:inline-block;">
+				<img src="/img/share_ico_appstore.png" width="70px" alt=" 애플 앱스토어 로고" style="vertical-align:middle; outline:none;  margin:0;"/>
+				<span style="color:#fff;  vertical-align:middle;font-size:0.68em;">에서 무료로 다운로드 하세요.</span>
+			</a>
+		</div>
+		<button style="background-color:#DD5563; color:#fff; border-radius:3px; border:none; float:right; margin-top:9px; width:15%; height:20px;vertical-align:middle; line-height:1.2;" onclick="javascript:goStore();">받기</button>
+    </div>
+</header>
+
+<div>
+	<div layout:fragment="layout_content">Contents</div>
+</div>
+
+</body>
+</html>

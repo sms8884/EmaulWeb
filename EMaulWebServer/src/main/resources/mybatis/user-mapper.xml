@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.UserMapper">
+
+  <sql id = "monitroingTypeEmaul">
+    
+            SELECT DISTINCT id  ,  address_code, name
+                   FROM apt a
+                   WHERE a.id != #{testAptId}
+                   <if test="aptList != null and aptList.size>0">
+                     AND a.id in
+                <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+           </if> 
+    </sql>
+
+    <sql id = "monitroingTypeEdoor">
+                 SELECT DISTINCT a.apt_id as id , b.address_code , b.name
+                       from apt_ap a  , apt b
+                       where a.apt_id = b.id   AND apt_id != #{testAptId}
+                         <if test="aptList != null and aptList.size>0">
+                     AND a.apt_id in
+                <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+           </if> 
+           </sql>
+    <sql id="sql_selectUser">
+        SELECT l1.id
+		      ,l1.email
+		      ,l1.full_name
+		      ,l1.phone
+		      ,l1.birth_year
+		      ,l1.gender
+		      ,l1.kind
+		      ,DATE_FORMAT(l1.reg_date, '%Y-%m-%d %H:%i') reg_date
+		      ,DATE_FORMAT(l1.deactive_date, '%Y-%m-%d %H:%i') deactive_date
+		      ,l1.nickname
+		      ,l1.address_detail
+		      ,l2.dong
+		      ,l2.ho
+		      ,l2.apt_id
+		      ,l3.name apt_name
+		      ,l3.address_code
+		      ,concat_ws(','
+                  ,if(l5.jaha, 'jaha', null)
+                  ,if(l5.admin, 'admin', null)
+                  ,if(l5.user, 'user', null)
+                  ,if(l5.anonymous, 'anonymous', null)
+                  ,if(l5.gas_checker, 'gasChecker', null)
+                  ,if(l5.parcel_checker, 'parcelChecker', null)
+                  ,if(l5.house_host, 'houseHost', null)
+                  ,if(l5.building_guard, 'buildingGuard', null)
+                  ,if(l5.official, 'official', null)
+                  ,if(l5.community_master, 'communityMaster', null)
+                  ,if(l5.blocked, 'blocked', null)
+                  ,if(l5.deactivated, 'deactivated', null)
+                  ,if(l5.group_admin, 'groupAdmin', null)
+                  ,if(l5.owner, 'owner', null)
+              ) type_eng_text
+              ,concat_ws(','
+                  ,if(l5.jaha, '자하', null)
+                  ,if(l5.admin, '관리자', null)
+                  ,if(l5.user, '주민', null)
+                  ,if(l5.anonymous, '방문자', null)
+                  ,if(l5.gas_checker, '가스검침원', null)
+                  ,if(l5.parcel_checker, '택배', null)
+                  ,if(l5.house_host, '세대대표', null)
+                  ,if(l5.building_guard, '경비원', null)
+                  ,if(l5.official, '공무원', null)
+                  ,if(l5.community_master, '게시판지기', null)
+                  ,if(l5.blocked, '차단', null)
+                  ,if(l5.deactivated, '탈퇴', null)
+                  ,if(l5.group_admin, '단체관리자', null)
+                  ,if(l5.owner, '소유주', null)
+              ) type_ko_text
+		FROM user l1
+		    ,house l2
+		    ,(
+		  		 <choose>
+		    	<when test=' "Emaul".equals(monitoringType) '>	<include refid="monitroingTypeEmaul" /> </when>
+		    	<when test=' "Edoor".equals(monitoringType) '><include refid="monitroingTypeEdoor" /></when>
+		    	<otherwise>select * from apt</otherwise>
+		    </choose>
+		    
+		    ) AS  l3
+		    ,setting l4
+		    ,user_type l5
+		WHERE l1.house_id = l2.id
+		AND l2.apt_id = l3.id
+		AND l1.id = l4.user_id
+		AND l1.id = l5.user_id
+		<choose>
+		    	<when test=' "fullName".equals(searchType) '>AND l1.full_name = #{searchWord}</when>
+		    	<when test=' "email".equals(searchType) '>AND l1.email = #{searchWord}</when>
+		    	<when test=' "phone".equals(searchType) '>AND  l1.phone = #{searchWord}</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    
+		<if test="searchAuth != null and searchAuth != ''">
+            AND l5.${searchAuth}
+        </if>
+        <if test="id != null and id != ''">
+            AND l1.id = ${id}
+        </if>
+        <if test="aptId != null and aptId != ''">
+            AND l2.apt_id = ${aptId}
+        </if>
+        <if test="dong != null and dong != ''">
+            AND l2.dong = #{dong}
+        </if>
+        <if test="ho != null and ho != ''">
+            AND l2.ho = #{ho}
+        </if>
+        <if test="hoLine != null and hoLine != ''">
+            AND l2.ho LIKE CONCAT('%', #{hoLine})
+        </if>
+        <if test="userName != null and userName != ''">
+            AND l1.full_name = #{userName}
+        </if>
+        <if test="email != null and email != ''">
+            AND l1.email = #{email}
+        </if>
+        <if test="phone != null and phone != ''">
+            AND l1.phone = #{phone}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND ( l1.full_name = #{searchKeyword} OR l1.email = #{searchKeyword} OR l1.phone = #{searchKeyword} )
+        </if>
+        <if test="_notiEdoor == true">
+            AND l4.noti_edoor = true
+        </if>
+        <if test="_admin == true">
+            AND l5.admin = true
+        </if>
+        <if test="_gasChecker == true">
+            AND l5.gas_checker = true
+        </if>
+        <if test="_active == true">
+            AND l1.deactive_date is null
+        </if>
+        <if test="_active == false">
+            AND l1.deactive_date is not null
+        </if>
+        <if test="reg_date != null and reg_date != ''">
+        	<if test="user_type != null and user_type != '' and user_type == 'newUser' ">
+            AND l1.reg_date <![CDATA[>=]]> STR_TO_DATE(#{reg_date}, '%Y-%m-%d')  AND l1.reg_date <![CDATA[<]]>   ADDDATE(STR_TO_DATE(#{reg_date}, '%Y-%m-%d'), 1)
+		  		</if>
+				<if test="user_type != null and user_type != '' and user_type == 'deactiveUser' ">
+            AND l1.deactive_date <![CDATA[>=]]> STR_TO_DATE(#{reg_date}, '%Y-%m-%d')  AND l1.deactive_date <![CDATA[<]]>   ADDDATE(STR_TO_DATE(#{reg_date}, '%Y-%m-%d'), 1)
+		  		</if>
+        </if>
+        ORDER BY l1.reg_date DESC
+    </sql>
+
+    <select id="selectUser" parameterType="map" resultType="SimpleUser">
+        /* selectUser */
+        <include refid="sql_selectUser" />
+    </select>
+
+    <select id="selectUserList" parameterType="map" resultType="SimpleUser">
+        /* selectUserList */
+        <include refid="sql_selectUser" />
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+
+    <select id="selectUserListCount" parameterType="map" resultType="int">
+        /* selectUserListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sql_selectUser" />
+        ) A
+    </select>
+
+	<!-- 푸시발송 대상을 조회한다. -->
+	<select id="selectTargetUserListForPush" parameterType="map" resultType="SimpleUser">
+		SELECT /** selectTargetUserListForPush, 전강욱(realsnake@jahasmart.com) */ U.id
+		, U.email
+		, U.full_name
+		, U.phone
+		, U.birth_year
+		, U.gender
+		, DATE_FORMAT(U.reg_date, '%Y-%m-%d %H:%i') reg_date
+		, U.nickname
+		, H.dong
+		, H.ho
+		, H.apt_id
+		, A.name apt_name
+		, A.address_code
+		-- , AD.시도명
+		-- , AD.시군구명
+		FROM user U JOIN user_type UT ON U.id = UT.user_id
+					JOIN setting S ON U.id = S.user_id
+					JOIN house H ON U.house_id = H.id
+					JOIN apt A ON H.apt_id = A.id
+		            JOIN address AD ON A.address_code = AD.건물관리번호
+		<where>
+		    <choose>
+		    	<when test=' searchUserId != null and searchUserId > 0 '>U.id = #{searchUserId}</when>
+		    	<otherwise>U.id &gt; 0</otherwise>
+		    </choose>
+		    <!-- #{gender}, #{age} |로구분, 00, 10, 20, 30, 40, 50, 60, 70 birth_year -->
+		    <choose>
+		    	<when test=' "M".equals(searchGender) '>AND U.gender = 'male'</when>
+		    	<when test=' "F".equals(searchGender) '>AND U.gender = 'female'</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    <if test=' searchAges != null and searchAges.length > 0 '>
+				AND (U.birth_year IS NOT NULL AND <foreach collection="searchAges" item="searchAge" open="(" separator="OR" close=")" > getAge(U.birth_year) = #{searchAge} </foreach>)
+		    </if>
+		    <choose>
+		    	<when test=' "noti_alarm".equals(searchAlarm) '>AND S.noti_alarm = 1</when>
+		    	<when test=' "noti_post_reply".equals(searchAlarm) '>AND S.noti_post_reply = 1</when>
+		    	<when test=' "noti_parcel".equals(searchAlarm) '>AND S.noti_parcel = 1</when>
+		    	<when test=' "noti_post_comment_reply".equals(searchAlarm) '>AND S.noti_post_comment_reply = 1</when>
+		    	<when test=' "noti_fee_push".equals(searchAlarm) '>AND S.noti_fee_push = 1</when>
+		    	<when test=' "noti_air_pollution".equals(searchAlarm) '>AND S.noti_air_pollution = 1</when>
+		    	<when test=' "noti_visit".equals(searchAlarm) '>AND S.noti_visit = 1</when><!-- 누구냐 넌? -->
+		    	<!-- <when test=' "noti_edoor".equals(searchAlarm) '>AND S.noti_edoor = 1</when> -->
+		    	<otherwise>AND S.noti_alarm = 1</otherwise>
+		    </choose>
+			AND UT.anonymous = 0
+			AND UT.blocked = 0
+		    AND UT.deactivated = 0
+		    <if test=' searchHouseIdList != null and searchHouseIdList.size() > 0 '>
+				AND H.id IN <foreach collection="searchHouseIdList" item="searchHouseId" open="(" separator="," close=")" >#{searchHouseId}</foreach>
+		    </if>
+		    <if test=' searchAptIdList != null and searchAptIdList.size() > 0 '>
+				AND A.id IN <foreach collection="searchAptIdList" item="searchAptId" open="(" separator="," close=")" >#{searchAptId}</foreach>
+		    </if>
+		    <choose>
+		    	<when test=' searchSigungu == null or "".equals(searchSigungu) '>
+		    		<if test=' searchSido != null and !"".equals(searchSido) '>AND AD.시도명 = #{searchSido}</if>
+		    	</when>
+		    	<otherwise>
+		    		<if test=' searchSido != null and !"".equals(searchSido) '>AND (AD.시도명 = #{searchSido} AND AD.시군구명 = #{searchSigungu})</if>
+		    	</otherwise>
+		    </choose>
+		</where>
+    </select>
+
+
+	<!-- 외부기기 로그아웃 푸시 발송용 GCM_ID 조회 -->
+    <select id="selectUserGcmHistory" parameterType="Map" resultType="String">
+		SELECT /* selectUserGcmHistory  조영태(cyt@jahasmart.com) */
+	    	gcm_id
+	    FROM user_login_history
+	    WHERE user_id = #{userId}
+	    	AND gcm_id is not null
+	    	AND gcm_id != ''
+	    	<!-- 현재 기기는 로그아웃 하지 않는다. -->
+	    	<if test="gcmId != null and gcmId != ''">
+	    		AND gcm_id != #{gcmId}
+	    	</if>
+	   	GROUP BY gcm_id
+    </select>
+
+    <!-- 사용자 설정변경 히스토리 -->
+    <insert id="insertUserUpdateHistory" parameterType="UserUpdateHistoryVo">
+    INSERT INTO /* insertUserUpdateHistory  조영태(cyt@jahasmart.com) */ user_update_history (
+    	user_id, type, mod_id, mod_date, data, auth, user_name, email, phone, birth_year, gender, nickname, house_id
+    ) VALUES (
+    	#{userId}, #{type}, #{modId}, now(), #{data}, #{auth}, #{userName}, #{email}, #{phone}, #{birthYear}, #{gender}, #{nickname}, #{houseId}
+	)
+    </insert>
+    <!-- 사용자 비밀번호초기화  -->
+    <update id="updateInitUserInfo" parameterType="User">
+    UPDATE user /* updateInitUserInfo  송명섭(sms@jahasmart.com) */
+    <set>
+      <if test="passwordHash != null and passwordHash !='' ">
+        password_hash = #{passwordHash}
+      </if>
+      <if test="email != null and email !='' ">
+        email = #{email}
+        ,deactive_date = now()
+      </if>
+
+    </set>
+    where id = #{id}
+  </update>
+
+    <update id="updateUserDeactivated" parameterType="User">
+    UPDATE user_type /* updateUserDeactivated  송명섭(sms@jahasmart.com) */
+    SET deactivated = true
+    , anonymous = false
+    , user = false
+    , jaha = false
+    , admin = false
+    , gas_checker = false
+    , house_host = false
+    , owner = false
+    , group_admin = false
+    where user_id = #{id}
+  </update>
+  
+  
+  
+  
+  
+    <select id="selectUserListByRegDate" parameterType="map" resultType="SimpleUser">
+        /* selectUserList */
+        <include refid="sql_selectUser" />
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+
+    <select id="selectUserListByRegDateCount" parameterType="map" resultType="int">
+        /* selectUserListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sql_selectUser" />
+        ) A
+    </select>
+    
+    <sql id="sqlSelectUserHistory">
+        SELECT b.user_id
+              ,b.type
+              ,b.data
+              ,b.mod_id
+              ,date_format(b.mod_date, '%Y-%m-%d %H:%i:%s') mod_date
+              ,c.full_name mod_name
+              ,b.user_name full_name
+              ,b.auth
+              ,b.email
+              ,b.phone
+              ,b.birth_year
+              ,b.gender
+              ,d.apt_id
+              ,e.name apt_name
+              ,d.dong
+              ,d.ho
+		FROM user a, user_update_history b, user c, house d, apt e
+		WHERE a.id = b.user_id
+		AND b.mod_id = c.id
+		AND b.house_id = d.id
+		AND d.apt_id = e.id
+		<if test="@com.jaha.util.MyBatis@isNotEmpty( userId )">
+        AND a.id = #{userId}
+        </if>
+		ORDER BY mod_date DESC
+    </sql>
+    
+    <select id="selectUserHistory" parameterType="map" resultType="UserHistory" >
+    /* selectUserHistory */
+        <include refid="sqlSelectUserHistory" />
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+    
+    <select id="selectUserHistoryCount" parameterType="map" resultType="int">
+        /* selectUserHistoryCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectUserHistory" />
+        ) A
+    </select>
+  
+  
+
+</mapper>

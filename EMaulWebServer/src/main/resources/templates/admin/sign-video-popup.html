@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	
+        .signVideo {
+            width:100%;
+            height:400px;
+        }
+        
+    </style>
+
+    <title>투표참여정보</title>
+</head>
+
+<body>
+	<div class="defaultPopup">
+	    <h4 class="page-header">투표참여정보</h4>
+	
+	    <video class="signVideo" id="signVideo" autoplay="autoplay" controls="controls">
+            <source th:src="@{/api/vote/sign-video/} + ${voteId} + @{/} + ${userId}" type="video/mp4" />
+            Your browser does not support the video tag. 
+        </video>
+
+	    
+	    
+	</div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+      
+    /*]]>*/
+</script>
+
+</body>
+</html>

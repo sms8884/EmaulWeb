@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/public/template/layout">
+
+<head>
+	<title>e마을</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+<style type="text/css">
+<!--
+table{}
+table tr{}
+table th{
+    text-align:center;
+    background:#fff;
+}
+table td{}
+//-->
+</style>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryType = /*[[${category.type}]]*/ 'error';
+var categoryId = /*[[${category.id}]]*/ '0';
+
+$(document).ready(function() {
+	$(".board-detail-content").each(function() {
+		var tempContent = $(this).html();
+
+		if (tempContent) {
+			$(this).html(tempContent.replace(/\n/g, "<br />"));
+		}
+	});
+
+	// 썸네일 이미지뷰
+	$("#a-thumb-image").click(function (e) {
+		e.preventDefault();
+		$(this).ekkoLightbox();
+	});
+
+	var pageUrl = document.location.href;
+	var postId = pageUrl.substring(pageUrl.lastIndexOf("/")+1, pageUrl.length);
+	var appUri = EMAUL_APP_POST_URI.replace("%postId", postId);
+
+	moveStoreOrOpenApp(appUri);
+});
+
+/*]]>*/
+</script>
+</head>
+<body>
+
+<div layout:fragment="layout_content">
+
+    <div>
+    	<div style="padding: 20px">
+	        <p class="today-view-title">
+				<span th:if="${post.titleCategory != null}" th:text="'[' + ${post.titleCategory} + ']'">제목 카테고리</span>
+				<span th:if="${post.titleBoldYn == 'Y'}" th:text="${post.title}" th:style="'font-size:15px; color:#' + ${post.titleColor} + ';font-weight:bold'">제목</span>
+				<span th:if="${post.titleBoldYn == 'N'}" th:text="${post.title}" th:style="'font-size:15px; color:#' + ${post.titleColor}">제목</span>
+	        </p>
+    	</div>
+
+        <div style="padding-left: 20px">
+            <span style="font-size:15px;">이벤트 기간</span>
+            <span class="label label-success" style="font-size:15px;" th:text="${#strings.substring(post.startDate, 0, 4) + '.' + #strings.substring(post.startDate, 4, 6) + '.' + #strings.substring(post.startDate, 6, 8) + ' ' + #strings.substring(post.startDate, 8, 10) + '시 ' + #strings.substring(post.startDate, 10, 12) + '분'}">시작일</span>
+			~ <span class="label label-success" style="font-size:15px;" th:text="${#strings.substring(post.endDate, 0, 4) + '.' + #strings.substring(post.endDate, 4, 6) + '.' + #strings.substring(post.endDate, 6, 8) + ' ' + #strings.substring(post.endDate, 8, 10) + '시 ' + #strings.substring(post.endDate, 10, 12) + '분'}">종료일</span>
+		</div>
+
+        <div style="border-bottom:1px solid #bce8f1; font-size: 14pt; margin-top: 30px" th:if="${post.fileInfoList != null and post.fileInfoList.empty == false}">
+			<p th:each="fileInfo,iterStat : ${post.fileInfoList}">
+				<span th:text="${iterStat.count}">1</span>. 썸네일 이미지 보기 : <a id="a-thumb-image" th:href="'/v2/board/common/post/file/' + ${post.id} + '/' + ${fileInfo.fileName}" th:text="${fileInfo.fileOriginName}">파일명</a>
+			</p>
+		</div>
+
+        <!-- /.panel-heading -->
+        <div class="board-border board-detail-content" id="content" th:utext="${post.contentOnlyBody}"></div>
+    </div>
+</div>
+
+</body>
+</html>

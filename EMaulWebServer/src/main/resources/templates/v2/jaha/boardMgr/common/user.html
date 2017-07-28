@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/jaha/boardMgr/template/layout_popup">
+
+<head>
+	<title>회원정보</title>
+</head>
+
+<body style="background:none;">
+	<div class="panel-body"  layout:fragment="layout_popup_content">
+		<div class="border-round memberTable">
+			<table class="table table-responsive" style="margin-bottom:0;">
+				<colgroup>
+					<col style="width:30%"/>
+					<col style="width:30%"/>
+					<col style="width:30%"/>
+				</colgroup>
+				<tbody>
+					<tr>
+						<td colspan="3">
+							<div class="disIn">
+								<div class="fl"><img src="/img/anonymous.png" alt="사용자이미지"/></div>
+								<div class="fr">
+									<!-- <p class="bold" th:text="${userInfo.fullName + ' (' + userInfo.nickname.name + ')' }">홍길동 (활빈당)</p> -->
+									<p class="bold" th:text="${userInfo.fullName + ' (' + userInfo.house.apt.name + ')' }">홍길동 (활빈당)</p>
+									<div th:if="${userInfo.house.apt.aptInfo != null and userInfo.house.apt.aptInfo.displayAddress != null and userInfo.house.apt.aptInfo.displayAddress ne ''}">
+               							<p th:text="'주소 : '+${userInfo.house.apt.aptInfo.displayAddress}" ></p>
+                					</div>
+                					<div th:unless="${userInfo.house.apt.aptInfo != null and userInfo.house.apt.aptInfo.displayAddress != null and userInfo.house.apt.aptInfo.displayAddress ne ''}">
+                						<p th:text="'주소 : '+${userInfo.house.apt.strAddress == null?'-': userInfo.house.apt.strAddress}" ></p>
+                					</div>
+
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="info">상태</td>
+						<td class="info">게시글</td>
+						<td class="info">댓글</td>
+					</tr>
+					<tr>
+						<!-- <td id="type" ></td> -->
+						<td class="bold">
+							<div th:if="${userInfo.type.deactivated or userInfo.type.blocked}">
+								이용중지
+							</div>
+							<div th:unless="${userInfo.type.deactivated or userInfo.type.blocked}">
+								정상
+							</div>
+							 (<span id="type" th:text="${userInfo.type.getTrueTypes()}"></span>)
+						</td>
+						<td class="bold"><a th:href="${'javascript:pu_writeBoard(' + userInfo.id + ');'}" href="" th:text="${postCount}">167</a></td>
+						<td class="bold"><a th:href="${'javascript:pu_writeCommentBoard(' + userInfo.id + ');'}" href="" th:text="${commentCount}">127</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="bottomBtnBox">
+			<input type="button" class="btn btn-outline btn-info"  value="닫기" name="" onclick="javascript:window.close();"/>
+	    </div>
+	</div>
+</body>
+</html>

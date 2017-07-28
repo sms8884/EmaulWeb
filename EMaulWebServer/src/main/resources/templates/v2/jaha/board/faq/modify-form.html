@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+<script src="../../static/ckeditor/ckeditor.js" th:src="@{/ckeditor/ckeditor.js}"></script>
+
+<style>
+    .newsRight{
+        text-align:right;
+        margin:5px 5px;
+        vertical-align:middle
+    }
+    .nesessary{
+        color:red;
+        font-size:10px;
+    }
+    table th{
+        width:20%;
+    }
+    .noticeSignupbox{
+        margin-bottom:40px;
+        overflow:hidden;
+    }
+
+    /*인풋파일*/
+    .noticeFileTextbox{
+        float:left;
+        width:30%;
+    }
+
+    .noticeFileBox{
+        position:relative;
+        width:7%;
+        height:29px;
+        display:inline-block;
+    }
+
+    .noticeFileFakeBtn{
+        width:80px;
+        position:absolute;
+        top:0px;
+        margin-left:5px;
+    }
+
+    .noticeFileupload{
+        font-size:45px;
+        position:absolute;
+        right:0px;
+        top:0px;
+        opacity:0;
+        .filter:alpha(opacity=0);
+        -ms-filter:"alpha(opacity=0)";
+        -khtml-opactiy:0;
+        -moz-opacity:0;
+    }
+
+    .noticeFileLabel{
+        display:none;
+    }
+
+    .noticeFileAddBtn{
+        position:absolute;
+        top:0px;
+        left:90px;
+    }
+	.noticePassWord{
+			color:#aaa;
+			font-size:12px;
+	}
+	.warningPassWord, .warningEmail{
+		color:red;
+		font-size:12px;
+	}
+
+	.noticeFile{
+		color:#aaa;
+			font-size:12px;
+	}
+</style>
+
+<title th:text="${category.name} + ' | 글쓰기'">공지사항 | 글쓰기</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header" th:text="${category.name}"></h1>
+
+            <div id="content-container">
+
+                <form enctype="multipart/form-data" method="post" th:action="'/v2/jaha/board/faq/modify/' + ${post.id}">
+                    <input type="hidden" id="categoryId" name="categoryId" th:value="${category.id}" value="0" />
+                    <input type="hidden" id="rangeAll" name="rangeAll" value="0" />
+                    <input type="hidden" id="imageCount" name="imageCount" value="0" />
+                    <input type="hidden" id="topFix" name="topFix" value="0" />
+
+                    <div class="panel-body">
+                    	<p class="newsRight"><span class="fa fa-asterisk nesessary" style="font-size:8px;"></span>필수 입력 항목 입니다.</p>
+                        <div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+                            <table class="table table-responsive table" style="margin-bottom: 0">
+                                <tbody>
+                                    <tr>
+                                        <th class="info">카테고리<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline">
+					                       	<select id="subCategory" name="subCategory" class="form-control">
+					                       		<option value="" >선택</option>
+												<option th:each="subCategory : ${subCategoryList}" th:value="${subCategory.code}" th:text="${subCategory.name}" th:selected="${post.subCategory == subCategory.code}">카테고리 선택</option>
+					                       	</select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">서비스 노출<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td>
+                                       		<input type="hidden" name="displayPlatform" id="displayPlatform" value="" />
+                                             <label class="checkbox-inline">
+                                                 <input type="checkbox" name="_display_platform" id="_display_platform_all" value="all" onclick="changeDisplayPlatform(this)" th:checked="${#strings.contains(post.displayPlatform, 'all')}" /> 전체
+                                             </label>
+                                             <label class="checkbox-inline">
+                                                 <input type="checkbox" name="_display_platform" id="_display_platform_ios" value="ios" onclick="changeDisplayPlatform(this)" th:checked="${#strings.contains(post.displayPlatform, 'ios')}" /> iOS
+                                             </label>
+                                             <label class="checkbox-inline">
+                                                 <input type="checkbox" name="_display_platform" id="_display_platform_android" value="android" onclick="changeDisplayPlatform(this)" th:checked="${#strings.contains(post.displayPlatform, 'android')}" /> Android
+                                             </label>
+                                             <label class="checkbox-inline">
+                                                 <input type="checkbox" name="_display_platform" id="_display_platform_web" value="web" onclick="changeDisplayPlatform(this)" th:checked="${#strings.contains(post.displayPlatform, 'web')}" /> Web
+                                             </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">제목<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline">
+                          					<input class="form-control" type="text" id="title" name="title"  placeholder="최대 30자 입력 가능" maxlength="30" style="width: 600px; height: 30px" th:value="${post.title}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">내용<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline">
+                       						<textarea class="form-control" placeholder="내용을 입력하세요" rows="30" id="content" name="content" style="resize: none"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">파일 첨부<span class="badge">0</span></th>
+                                        <td class="form-inline">
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                                	<input type="text" readonly="readonly" title="File Route" id="file_route1" />
+				                                	<label>
+				                                    	파일선택
+				                                    	<input type="file" onchange="uploadFile(this);" name="attachFile" id="attachFile" />
+				                                	</label>
+				                                	<span class="noticeFile">5MB 이하의 파일 1개까지 첨부하실 수 있습니다.</span>
+
+													<div class="progress">
+														<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+													</div>
+
+													<ul id="_ul_uploaded_files_area" th:style="((${post.fileInfoList != null and post.fileInfoList.empty}) ? 'display:none' : '')">
+														<li style="padding-top: 5px;" th:each="fileInfo,iterStat : ${post.fileInfoList}">
+															<span th:id="'span_file_name_' + ${fileInfo.fileKey}" th:text="${fileInfo.fileOriginName}">파일명</span>
+															<span th:text="'(' + ${fileInfo.size} + 'KB)'">파일사이즈</span> &nbsp;
+															<button class="btn btn-xs btn-danger" th:onclick="'deleteUploadedFile(this, ' + ${fileInfo.fileKey} + ')'" type="button">삭제</button>
+														</li>
+													</ul>
+				                            	</div>
+				                        	</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">게시여부<span class="fa fa-asterisk nesessary"></span></th>
+                                        <td class="form-inline">
+					                    	<label class="radio-inline"><input type="radio" id="_display_y" name="_display_yn" value="Y" th:checked="${post.displayYn == 'Y'}" /> 게시</label>
+					                    	<label class="radio-inline"><input type="radio" id="_display_n" name="_display_yn" value="N" th:checked="${post.displayYn == 'N'}" /> 미게시</label>
+											<input type="hidden" id="displayYn" name="displayYn" value="" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="noticeSignupbox" style="margin:20px 0 0 0">
+                            <div class="noticeSignupRight" style="float:right;">
+								<!--<input type="button" class="btn btn-outline btn-info noticeSignupBtn" value="미리보기" onclick="checkReg('preview')" />-->
+                                <input type="button" class="btn btn-outline btn-info noticeSignupBtn" id="noticeSignupBtn" value="취소" name="noticeSignupBtn" data-toggle="modal" data-target="#cancelModal" />
+                                <input type="button" class="btn btn-outline btn-info noticeCancleBtn" id="noticeCancleBtn" value="완료" name="noticeCancleBtn" onclick="checkReg()" />
+                            </div>
+                        </div>
+						<!-- 모달 영역 -->
+						<div th:replace="v2/jaha/board/board-modal :: board-modal"></div>
+					</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var postId = /*[[${post.id}]]*/ 0;
+var attachFileCount = 0;
+
+(function() {
+    'use strict';
+
+    CKEDITOR.replace('content', {
+        extraPlugins: 'youtube,image2,uploadimage',
+
+        removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+        'pagebreak,iframe,colorbutton,font,image',
+
+        // The toolbar groups arrangement, optimized for two toolbar rows.
+        toolbarGroups: [
+            { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+            { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+            { name: 'links' },
+            { name: 'insert' },
+            { name: 'forms' },
+            { name: 'tools' },
+            { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+            { name: 'others' },
+            '/',
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'colors', groups: [ 'colors' ] },
+            { name: 'about' }
+        ],
+
+        // Remove some buttons provided by the standard plugins, which are
+        // not needed in the Standard(s) toolbar.
+        removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+        uploadUrl: '/api/common/editor/image/temp/upload',
+
+        filebrowserImageUploadUrl: '/api/common/editor/image/temp/dialog-upload',
+
+        // Set the most common block elements.
+        format_tags: 'p;h1;h2;h3;pre',
+
+        // Simplify the dialog windows.
+        removeDialogTabs: 'link:advanced',
+
+        height: 400,
+
+        // Load the default contents.css file plus customizations for this sample.
+        contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+        stylesSet: [
+            { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+        ],
+
+        // Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+        // resizer (because image size is controlled by widget styles or the image takes maximum
+        // 100% of the editor width).
+		image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+		image2_disableResizer: true
+    });
+
+    CKEDITOR.on('dialogDefinition', function(ev) {
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+
+        switch (dialogName) {
+            case 'image2': // Image Properties dialog
+                // dialogDefinition.removeContents('info');
+                dialogDefinition.removeContents('link');
+                dialogDefinition.removeContents('advanced');
+                break;
+        }
+    });
+})();
+
+/**
+ * 모달창을 닫고 포커스
+ */
+function closeModalAfterFocus(elementId, canFocus) {
+	if (!canFocus) {
+		canFocus = true;
+	}
+
+	$("#" + elementId + "CheckModal").modal("hide");
+
+	if (!canFocus) {
+		return;
+	}
+
+	if (CKEDITOR && "content" == elementId) {
+		CKEDITOR.instances.content.focus();
+		return;
+	}
+
+	$("#" + elementId).focus();
+}
+
+/**
+ * 등록 유효성 체크
+ */
+function checkReg(gubun) {
+    if (!$("#subCategory").val()) {
+        $('#subCategoryCheckModal').modal('show');
+        return;
+    }
+
+	var displayPlatform = "";
+
+	if ($("#_display_platform_ios").prop("checked"))  {
+		displayPlatform += "ios";
+	}
+	if ($("#_display_platform_android").prop("checked"))  {
+		if (displayPlatform) {
+			displayPlatform += ",";
+		}
+		displayPlatform += "android";
+	}
+	if ($("#_display_platform_web").prop("checked"))  {
+		if (displayPlatform) {
+			displayPlatform += ",";
+		}
+		displayPlatform += "web";
+	}
+	if ($("#_display_platform_all").prop("checked"))  {
+		displayPlatform = "all";
+	}
+
+	if (!displayPlatform)  {
+        $('#displayPlatformCheckModal').modal('show');
+        return;
+	}
+
+	$("#displayPlatform").val(displayPlatform);
+
+    var title = $('#title').val();
+    title = title.replace(/^\s*/, "");
+
+    var contentData = CKEDITOR.instances.content.getData();
+
+    if (!title) {
+        $('#titleCheckModal').modal('show');
+        return;
+    }
+    if (!contentData) {
+    	$('#contentCheckModal').modal('show');
+    	return;
+    }
+
+    // 게시(노출)여부 선택
+    if ($("#_display_y").prop("checked")) {
+    	$("#displayYn").val("Y");
+    }
+    if ($("#_display_n").prop("checked")) {
+    	$("#displayYn").val("N");
+    }
+
+	if ("preview" === gubun) {
+        putPreviewData();
+        $('#previewModal').modal('show');
+	}
+	else {
+        $('#writeModal').modal('show');
+	}
+}
+
+/**
+ * 게시글 등록
+ */
+function regPost() {
+    disabledButton();
+    $("form").submit();
+}
+
+/**
+ * 미리보기(현재 미사용)
+ */
+function putPreviewData() {
+	// var content = $("#content").val();
+	var title = $("#title").val();
+	$("#previewTitle").text(title);
+	$("#previewContent").html(CKEDITOR.instances.content.getData().replace(/\n/g, ''));
+	$("#_preview_regDate").text(new Date().yyyymmdd());
+}
+
+/**
+ * [예] 버튼이 한번만 클릭되도록 비활성화
+ */
+function disabledButton() {
+    $('#writeModal').find('button').each(function () {
+        $(this).attr('disabled', true);
+    });
+}
+
+/**
+ * 서비스 노출 여부 체크
+ */
+function changeDisplayPlatform(el) {
+	var $this = $(el);
+	// alert($this.val());
+
+	if ($this.val() == "all") {
+		$("#_display_platform_ios").prop("checked", false);
+		$("#_display_platform_android").prop("checked", false);
+		$("#_display_platform_web").prop("checked", false);
+	}
+	else if ($this.val() == "ios") {
+		$("#_display_platform_all").prop("checked", false);
+	}
+	else if ($this.val() == "android") {
+		$("#_display_platform_all").prop("checked", false);
+	}
+	else if ($this.val() == "web") {
+		$("#_display_platform_all").prop("checked", false);
+	}
+
+	if ($("#_display_platform_ios").prop("checked") && $("#_display_platform_android").prop("checked") && $("#_display_platform_web").prop("checked"))  {
+		$("#_display_platform_all").prop("checked", true);
+		$("#_display_platform_ios").prop("checked", false);
+		$("#_display_platform_android").prop("checked", false);
+		$("#_display_platform_web").prop("checked", false);
+	}
+}
+
+/**
+ * 파일 업로드
+ */
+function uploadFile(el) {
+	var $badge = $(".badge");
+	var uploadedFileCount = parseInt($badge.text(), 10);
+
+	if (uploadedFileCount >= 1) {
+		alert(" 파일 첨부는 1개까지 가능합니다! ");
+		return;
+	}
+
+	var $this = $(el);
+	$("#file_route1").val($this.val());
+
+	var browserVersion = getBrowserVersion();
+	// alert(getBrowserVersion());
+
+	var $progress = $(".progress");
+	var $progressBar = $(".progress-bar");
+
+	// $progress.show();
+
+    // ajaxSubmit Option
+    var options = {
+        beforeSubmit : function() {
+            var percentVal = "0%";
+            $progressBar.css("width", percentVal);
+            $progressBar.text(percentVal);
+
+            $("#_ul_uploaded_files_area").show();
+        }
+	    , uploadProgress: function(event, position, total, percentComplete) {
+	    	if (browserVersion > 9) {
+		        var percentVal = percentComplete + '%';
+	            $progressBar.css("width", percentVal);
+	            $progressBar.text(percentVal);
+	    	}
+	    }
+        , success : function(fileInfoJson, statusText, xhr, $form) {
+        	if ("success" != statusText) {
+        		alert(" 첨부파일 업로드에 실패하였습니다! ");
+        		return;
+        	}
+
+			var fileSize = fileInfoJson.size;
+			var fileSizeCheck = fileSize / 1024;
+
+			if (fileSizeCheck > 5) {
+				alert(" 5MB 이하의 파일만 업로드 가능합니다. ");
+				return;
+			}
+
+        	var filePath = fileInfoJson.filePath;
+			var fileName = fileInfoJson.fileName;
+			var fileOriginName = fileInfoJson.fileOriginName;
+			var fileExt = fileInfoJson.ext;
+
+        	uploadedFileCount++;
+        	attachFileCount++;
+
+        	var tempHtml = $("#_ul_uploaded_files_area").html();
+			tempHtml += "<li style=\"padding-top:5px;\">";
+			/**
+			tempHtml += "<span id=\"_span_file_name" + uploadedFileCount "\">" + fileName + "</span>";
+			tempHtml += "<span id=\"_span_file_size" + uploadedFileCount + "\">(사이즈)</span>";
+			*/
+			tempHtml += "<span>" + fileOriginName + "</span> ";
+			tempHtml += "<span>(" + numberWithCommas(fileSize) + "KB)</span> &nbsp; ";
+			tempHtml += "<button type=\"button\" class=\"btn btn-xs btn-danger\" onclick=\"deleteUploadedTempFile(this);\">삭제</button>";
+			tempHtml += "<input type=\"hidden\" id=\"uploadedFile" + attachFileCount + "\" name=\"uploadedFiles[" + (attachFileCount-1) + "]\" value=\"" + filePath + "/" + fileName + "\" />";
+			tempHtml += "</li>";
+
+        	$("#_ul_uploaded_files_area").html(tempHtml);
+
+        	$badge.text(uploadedFileCount);
+        }
+        , error : function(e) {
+        	// alert(e);
+        }
+        , complete : function(xhr) {
+        	// alert(xhr.responseText);
+        	$progress.hide();
+        }
+        , dataType : "json" // 응답타입 json이 아니라 text(IE9에서 JSON 데이타를 다운로드함)
+        , url : "/v2/board/common/file/temp/upload"
+        // , target : ""
+        // , resetForm : false
+    };
+
+	var orgAction = $("form").attr("action");
+    $("form").ajaxSubmit(options);
+	$("form").attr("action", orgAction);
+	$("#file_route1").clearFields();
+}
+/**
+ * 임시 업로드 파일 삭제(화면상에서)
+ */
+function deleteUploadedTempFile(el) {
+	var $this = $(el);
+	var $parentNode = $this.parent();
+
+	$parentNode.remove();
+
+	var $badge = $(".badge");
+	var uploadedFileCount = parseInt($badge.text(), 10);
+	uploadedFileCount--;
+
+	$badge.text(uploadedFileCount);
+
+	if (uploadedFileCount == 0) {
+        $("#_ul_uploaded_files_area").hide();
+	}
+}
+/**
+ * 첨부 파일 삭제
+ */
+function deleteUploadedFile(el, fileKey) {
+    if (confirm(" 선택한 첨부파일을 삭제하시겠습니까? ")) {
+        $.ajax({
+            type: "POST",
+            url: "/v2/board/common/post/file-info/remove/" + postId + "/" + fileKey,
+            contentType: "text/html; charset=utf-8",
+            success: function(data) {
+				if ("1" === data) {
+					var $this = $(el);
+					var $parentNode = $this.parent();
+
+					$parentNode.remove();
+
+					var $badge = $(".badge");
+					var uploadedFileCount = parseInt($badge.text(), 10);
+					uploadedFileCount--;
+
+					$badge.text(uploadedFileCount);
+
+					if (uploadedFileCount == 0) {
+				        $("#_ul_uploaded_files_area").hide();
+					}
+				}
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            	alert(" 첨부파일 삭제 중 오류가 발생하였습니다! ");
+
+            	if (window.console && console.log) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+            	}
+            }
+        });
+    }
+}
+
+$(document).ready(function() {
+	var content = /*[[${post.contentOnlyBody}]]*/ 'error';
+
+	CKEDITOR.instances.content.setData(content);
+	// $("#content").val(content);
+
+	$(".progress").hide();
+
+	var $badge = $(".badge");
+
+    var $fileInfoLi = $("#_ul_uploaded_files_area li");
+	$badge.text($fileInfoLi.length);
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+User-agent:*
+Disallow:/jaha
+Disallow:/admin
+Disallow:/js
+Disallow:/css

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css"
+          th:href="@{/css/user.css}"/>
+
+    <style>
+
+        th:after {
+            color : #ff6100;
+        }
+
+
+        #tr-border > td:first-child,
+        #tr-border > td:first-child + td {
+            border-right: 1px solid #ddd;
+        }
+
+        #tr-border > td:last-child {
+            border-left: 1px solid #ddd;
+        }
+
+
+    </style>
+
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>전월비교</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="#">홈</a></li>
+                    <li><a href="#">관리비조회</a></li>
+                    <li class="active">전월비교</li>
+                </ol>
+            </div>
+
+            <div th:if="!${user.type.user} and !${user.type.jaha} and !${user.type.houseHost} and !${user.type.admin}">
+                <p>현재 방문자 권한으로 접속중입니다. <br/>
+                    주민 권한이 있어야 관리비를 볼 수 있습니다. <br/>
+                    거주중인 주민은 관리사무소에 권한 변경을 요청해주세요.</p>
+            </div>
+
+            <div th:if="${user.type.user} or ${user.type.jaha} or ${user.type.houseHost} or ${user.type.admin}">
+
+                <div id="chart-wrap">
+                    <p style="margin-bottom: 20px"><img src="/img/userHome/fee-comparison.png" style="width: 20px; height: 17px; margin-right: 10px"/>최근 5개월 사용요금</p>
+                    <div id="chart" style="width: 840px;height:300px"></div>
+
+                </div>
+
+                <div id="select-wrap" style="margin-top: 20px">
+                    이번 달과 비교할 달 선택
+                    <select>
+                        <option th:each="l,iterStat : ${list}" th:value="${iterStat.index}" th:text="${l.date}"></option>
+                    </select>
+                    <span id="info"></span>
+
+                </div>
+
+
+                <p style="font-size: 15px; font-weight: 600; margin-top: 20px"><img src="/img/userHome/fee-default.png" style="margin-right: 10px"/>상세내역</p>
+                <table id="detail" class="table">
+                    <thead style="text-align: center">
+                    <tr style="background-color: #ffdfcc">
+                        <th width="25%">항목</th>
+                        <th width="25%">이번 달</th>
+                        <th width="25%">선택한 달</th>
+                        <th width="25%">전체가구평균</th>
+                    </tr>
+                    </thead>
+
+                    <tbody th:if="!${list}">
+                    <tr>
+                        <td colspan="3">정보가 없습니다.</td>
+                    </tr>
+                    </tbody>
+
+                    <tbody th:if="${list}">
+                    <!--<tr th:each="contact,iterStat : ${user.house.apt.aptInfo.contacts}">-->
+                    <!--<td> <p th:text="${iterStat.count}">222222</p></td>-->
+                    <!--<td> <p th:text="${contact.name}"></p> </td>-->
+                    <!--<td> <p th:text="${contact.phoneNumber}"></p> </td>-->
+                    <!--</tr>-->
+
+
+                    <tr id="tr-border" th:each="key : ${keySet}">
+                        <td th:id="${key}"> <p th:text="${key}"></p></td>
+                        <td th:id="'1'+${key}"></td>
+                        <td th:id="'2'+${key}"></td>
+                        <td th:id="'3'+${key}"></td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="user/user :: footer"></div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js"
+        th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"
+        th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+<!--flot-->
+<script src="../../static/js/excanvas.min.js" th:src="@{/js/excanvas.min.js}"></script>
+<script src="../../static/js/jquery.flot.js" th:src="@{/js/jquery.flot.js}"></script>
+<script src="../../static/js/jquery.flot.categories.js" th:src="@{/js/jquery.flot.categories.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    var selectedMonth = 0;
+
+
+    var thisMonth = $('#wrapper option:first-child').text();;
+    var dateInfo = $('#wrapper option:selected').text();;
+    var dong = /*[[${user.house.dong}]]*/;
+    var ho = /*[[${user.house.ho}]]*/;
+
+    var list = /*[[${jsonList}]]*/;
+    var avrList = /*[[${jsonAvrList}]]*/;
+    var forChart = /*[[${forChart}]]*/;
+
+    $(document).ready(function(){
+
+        if(list != null) {
+            var jsonThisMonth = JSON.parse(list[selectedMonth]);
+
+            $.each(jsonThisMonth, function (key, value) {
+                $('#1' + key).text(numberWithCommas(value));
+            });
+
+            showData();
+        }else{
+            $('#chart-wrap').attr('style','display: none');
+            $('#select-wrap').attr('style','display: none');
+        }
+        $('#detail').dataTable({
+            "paging" : false,
+            "info" : false,
+            "searching" : false,
+            "language": {
+                "emptyTable": "자료가 없습니다. 관리소에 자료 등록을 문의해주세요."
+            }
+        });
+    });
+
+
+    $('select').change(function(){
+        selectedMonth = Number($('select').val());
+        dateInfo = $('#wrapper option:selected').text();
+        showData();
+    });
+
+    function showData(){
+
+        $('#info').text('이번 달('+ thisMonth +')관리비와 '+ dateInfo +' 비교 / ' + dong + '동 ' + ho + '호');
+
+        var jsonSelectedMonth = JSON.parse(list[selectedMonth]);
+        var jsonAvr = JSON.parse(avrList[selectedMonth]);
+
+        $.each(jsonSelectedMonth, function(key, value){
+            $('#2'+key).text(numberWithCommas(value));
+        });
+
+        $.each(jsonAvr, function(key, value){
+            $('#3'+key).text(numberWithCommas(value));
+        });
+
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    $(function () {
+
+        var chartJson = JSON.parse(forChart);
+
+        var data = [];
+        for(var i=0; i<5; i++) {
+            data.push([chartJson[i].label , Number(chartJson[i].data)]);
+        }
+
+        var data1 = [ ["February", 8], ["March", 4], ["April", 13], ["May", 17] ];
+
+        $.plot("#chart", [ data ] , {
+            series: {
+                bars: {
+                    show: true,
+                    barWidth: 0.6,
+                    align: "center"
+                }
+            },
+            xaxis: {
+                mode: "categories",
+                tickLength: 0
+            }
+        });
+
+    });
+
+
+    /*]]>*/
+
+</script>
+</body>
+</html>

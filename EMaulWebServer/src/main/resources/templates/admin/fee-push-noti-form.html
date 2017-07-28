@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/jquery.fileupload.css" th:href="@{/css/jquery.fileupload.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<link type="text/css" rel="stylesheet" href="../../static/js/jquery-ui/jquery-ui.min.css" th:href="@{/js/jquery-ui/jquery-ui.min.css}" />
+	<link type="text/css" rel="stylesheet" href="../../static/sbgrid/css/managementExpense.css" th:href="@{/sbgrid/css/managementExpense.css}" />
+
+    <title>e마을 | 관리</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <h1 class="page-header">관리비 푸시알림</h1>
+
+				<div class="content">
+					<form id="theForm" name="theForm" method="post" action="">
+
+					<input type="hidden" id="id" name="id" th:value="${id}" />
+					<input type="hidden" id="gubun" name="gubun" value="" />
+					<input type="hidden" id="bookYn" name="bookYn" value="" />
+					<input type="hidden" id="sendYn" name="sendYn" value="" />
+					<input type="hidden" id="sendDate" name="sendDate" value="" />
+					<input type="hidden" id="contents" name="contents" value="" />
+
+					<fieldset>
+						<legend class="hide"></legend>
+						<table class="me_PAtable">
+							<caption class="hide">구분,발송일시,내용을 확인할 수 있는 표입니다.</caption>
+							<colgroup>
+								<col style="width:20%"/>
+								<col style="width:80%"/>
+							</colgroup>
+							<tbody>
+								<tr>
+									<th style="text-align:center">구분</th>
+									<td>
+										<label><input type="radio" class="me_PAimpose" id="me_PAimpose" value="1" name="_gubun" checked="checked"/>부과</label>
+										<label><input type="radio" class="me_PAideadline" id="me_PAideadline" value="2" name="_gubun"/>마감</label>
+									</td>
+								</tr>
+								<tr>
+									<th style="text-align:center">발송일시</th>
+									<td>
+										<label><input type="radio" class="me_PAimmediately" id="me_PAimmediately" value="N" name="_bookYn" checked="checked" />즉시</label>
+<!--<span id="spn_temp" style="display:none;">-->
+										<label><input type="radio" class="me_PAreserve" id="me_PAreserve" value="Y" name="_bookYn" />예약</label>
+
+										<input type="text" class="me_PAselectDate" id="_sendDate" value="" name="_sendDate" readonly="true" />
+										<!--<i class="fa fa-calendar calendar" aria-hidden="true"></i>-->
+
+										<select id="_sendTime" name="_sendTime">
+											<option value="01" selected="selected">1시</option>
+											<option value="02">2시</option>
+											<option value="03">3시</option>
+											<option value="04">4시</option>
+											<option value="05">5시</option>
+											<option value="06">6시</option>
+											<option value="07">7시</option>
+											<option value="08">8시</option>
+											<option value="09">9시</option>
+											<option value="10">10시</option>
+											<option value="11">11시</option>
+											<option value="12">12시</option>
+											<option value="13">13시</option>
+											<option value="14">14시</option>
+											<option value="15">15시</option>
+											<option value="16">16시</option>
+											<option value="17">17시</option>
+											<option value="18">18시</option>
+											<option value="19">19시</option>
+											<option value="20">20시</option>
+											<option value="21">21시</option>
+											<option value="22">22시</option>
+											<option value="23">23시</option>
+											<option value="24">24시</option>
+										</select>
+<!--</span>-->
+									</td>
+								</tr>
+								<tr>
+									<th style="text-align:center">내용</th>
+									<td>
+										<input type="text" maxlength="100" id="_contents" value="관리비가 부과되었습니다." name="_contents" placeholder="관리비가 부과되었습니다." class="me_PAtxtarea" />
+										<p class="txtLength">(<span id="spn_contents_count">0</span>/100자)</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="me_PAsingup1boxWrap">
+							<input th:if="${id != null}" type="button" class="btn btn-fail" id="me_PAdeleteBtn" value="삭제" name="me_PAdeleteBtn" onclick="removeFeePushNoti();"/>
+							<div class="me_PAsignup2Box">
+								<input th:if="${id != null}" type="button" class="btn btn-success" id="me_PAchangeBtn" value="수정" name="me_PAchangeBtn" onclick="modifyFeePushNoti();" />
+								<input th:if="${id == null}" type="button" class="btn btn-success" id="me_PAregBtn" value="등록" name="me_PAregBtn" onclick="addFeePushNoti();" />
+								<input type="button" class="btn btn-primary" id="me_PAcancleBtn" value="취소" name="me_PAcancleBtn" onclick="history.back();" />
+							</div>
+						</div>
+
+					</fieldset>
+					</form>
+				</div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/js/jquery-ui/jquery-ui.min.js" th:src="@{/js/jquery-ui/jquery-ui.min.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script>
+/*<![CDATA[*/
+
+/**
+ * 관리비 푸시알림 추가
+ */
+function addFeePushNoti(){
+	if(!preSubmit()) {
+		return;
+	}
+
+	var result = confirm(' 등록하시겠습니까? ');
+
+	if(result) {
+		var addUrl = "/admin/fee/push-noti/add";
+
+	    $.ajax({
+	        url: addUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: $("#theForm").serialize()
+	        , success: function(jsonData) {
+	        	//if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if (jsonData && jsonData.id) {
+	        		if (jsonData.bookYn === "N") { // 발송일시가 즉시일 경우 푸시 발송
+		        		var json = {};
+		        	    json.type = "action";
+		        	    json.action = "emaul://aptfee";
+		        	    json.title = "관리비 푸시알림";
+		        	    json.message = jsonData.contents;
+		        	    json.isTargetAll = false;
+
+		        		sendGcm("/common/gcm/aptfee-send", json);
+	        		}
+
+	        		location.href = "/admin/fee/push-noti-list";
+	        	}
+	        	else {
+	        		// 실패
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+
+	} else {
+
+	}
+};
+/**
+ * 관리비 푸시알림 수정
+ */
+function modifyFeePushNoti(){
+	var idVal = $("#id").val();
+	var sendYnVal = $("#sendYn").val();
+
+	if (!idVal) {
+		return;
+	}
+
+	if (sendYnVal === "Y") {
+		alert(" 발송 전 푸시알림만 수정 가능합니다. ");
+		return;
+	}
+
+	if(!preSubmit()) {
+		return;
+	}
+
+	var result = confirm(' 수정하시겠습니까? ');
+
+	if(result) {
+		var modifyUrl = "/admin/fee/push-noti/modify";
+
+	    $.ajax({
+	        url: modifyUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: $("#theForm").serialize()
+	        , success: function(jsonData) {
+	        	//if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if (jsonData && jsonData.id) {
+	        		if (jsonData.bookYn === "N") { // 발송일시가 즉시일 경우 푸시 발송
+		        		var json = {};
+		        	    json.type = "action";
+		        	    json.action = "emaul://aptfee";
+		        	    json.title = "관리비 푸시알림";
+		        	    json.message = jsonData.contents;
+		        	    json.isTargetAll = false;
+
+		        		sendGcm("/common/gcm/aptfee-send", json);
+	        		}
+
+	        		location.href = "/admin/fee/push-noti-list";
+	        	}
+	        	else {
+	        		// 실패
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	} else {
+
+	}
+};
+/**
+ * 관리비 푸시알림 삭제
+ */
+function removeFeePushNoti() {
+	var idVal = $("#id").val();
+	var sendYnVal = $("#sendYn").val();
+
+	if (!idVal) {
+		return;
+	}
+
+	if (sendYnVal === "Y") {
+		alert(" 발송 전 푸시알림만 삭제 가능합니다. ");
+		return;
+	}
+
+	var result = confirm(' 삭제하시겠습니까? ');
+
+	if(result) {
+		var removeUrl = "/admin/fee/push-noti/remove";
+
+	    $.ajax({
+	        url: removeUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: { "id":idVal }
+	        , success: function(jsonData) {
+	        	//if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if (jsonData && jsonData.id) {
+	        		location.href = "/admin/fee/push-noti-list";
+	        	}
+	        	else {
+	        		// 실패
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	} else {
+
+	}
+};
+/**
+ * 등록 또는 수정 폼 전송 전 체크
+ */
+function preSubmit() {
+	var gubunVal = $("input:radio[name='_gubun']:checked").val();
+	var bookYnVal = $("input:radio[name='_bookYn']:checked").val();
+	var sendDateVal = $("#_sendDate").val();
+	var sendTimeVal = $("select[name='_sendTime']").val();
+	var contentsVal = $("#_contents").val();
+
+	if (bookYnVal === "Y" && !sendDateVal) {
+		alert(" 예약 발송일시를 선택해주세요. ");
+		return false;
+	}
+	if (!contentsVal) {
+		alert(" 내용을 입력해주세요. ");
+		$("#_contents").focus();
+		return false;
+	}
+	if (contentsVal.length > 100) {
+		alert(" 내용은 100자 이하로 입력해주세요. ");
+		$("#_contents").select();
+		return false;
+	}
+
+	$("#gubun").val(gubunVal);
+	$("#bookYn").val(bookYnVal);
+
+	var sendDatetimeVal = removeSpecialChars(sendDateVal) + sendTimeVal;
+	var nowDatetimeVal = getNowDate();
+
+	if (bookYnVal === "Y") {
+		if (sendDatetimeVal < nowDatetimeVal.substring(0, 10)) {
+			alert(" 예약 발송일시는 현재 시간보다 큰 시간을 선택해주세요. ");
+			return false;
+		}
+
+		$("#sendDate").val(sendDatetimeVal);
+	}
+	else {
+		$("#sendDate").val(nowDatetimeVal);
+	}
+
+	$("#contents").val(contentsVal);
+
+	return true;
+};
+/**
+ * 관리비 푸시알림 JSON 데이타 세팅
+ */
+function postLoad(jsonData) {
+	$("input:radio[name='_gubun']").removeAttr("checked");
+	$("input:radio[name='_bookYn']").removeAttr("checked");
+
+	$("input:radio[name='_gubun']:radio[value='" + jsonData.gubun + "']").prop("checked", true);
+	$("input:radio[name='_bookYn']:radio[value='" + jsonData.bookYn + "']").prop("checked", true);
+
+	if (jsonData.bookYn === "Y") {
+		var sendYear = jsonData.sendDate.substring(0, 4);
+		var sendMonth = jsonData.sendDate.substring(4, 6);
+		var sendDay = jsonData.sendDate.substring(6, 8);
+		var sendTime = jsonData.sendDate.substring(8, 10);
+
+		$("#_sendDate").val(sendYear + "-" + sendMonth + "-" + sendDay);
+		$("select[name='_sendTime']").val(sendTime);
+	}
+
+	if (jsonData.sendYn === "Y") {
+		$("#me_PAdeleteBtn").hide();
+		$("#me_PAchangeBtn").hide();
+	}
+
+	$("#sendYn").val(jsonData.sendYn);
+	$("#_contents").val(jsonData.contents);
+
+	$("#spn_contents_count").text(jsonData.contents.length);
+};
+/**
+ * 관리비 푸시알림 상세정보 JSON 조회
+ */
+function searchFormJson() {
+	var searchUrl = "/admin/fee/push-noti-form-json";
+	var id = $("#id").val();
+
+	if (!id || id === "0") {
+		return;
+	}
+
+	// alert(id);
+
+	// {"id":30,"gubun":"2","bookYn":"N","sendDate":"20160510160000","sendYn":"Y","contents":"관리비가 부과되었습니다. 마감일을 준수해주세요.","regDate":1462871223000,"regUserInfo":null}
+
+    $.ajax({
+        url: searchUrl
+        , type: 'post'
+        , async: true
+        , dataType: "json"
+        , data: { "id":id }
+        , success: function(jsonData) {
+        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+        	postLoad(jsonData);
+        }
+        , error: function(xhr, status, error) {
+        	if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+};
+
+
+
+$.datepicker.regional['ko'] = {
+		closeText: '닫기'
+		, prevText: '이전달'
+		, nextText: '다음달'
+		, currentText: '오늘'
+		, monthNames: ['1월(JAN)','2월(FEB)','3월(MAR)','4월(APR)','5월(MAY)','6월(JUN)','7월(JUL)','8월(AUG)','9월(SEP)','10월(OCT)','11월(NOV)','12월(DEC)']
+		, monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+		, dayNames: ['일','월','화','수','목','금','토']
+		, dayNamesShort: ['일','월','화','수','목','금','토']
+		, dayNamesMin: ['일','월','화','수','목','금','토']
+		, weekHeader: 'Wk'
+		, dateFormat: 'yymmdd'
+		, firstDay: 0
+		, isRTL: false
+		, showMonthAfterYear: true
+		, yearSuffix: ''
+};
+$.datepicker.setDefaults($.datepicker.regional['ko']);
+
+$(document).ready(function() {
+	$("input:radio[name='_gubun']").change(function() {
+		if ($(this).is(":checked") && !$("#id").val()) { // 등록일 경우
+			var val = $(this).val();
+
+			if (val === "1") {
+				$("input:text[name='_contents']").val("관리비가 부과되었습니다.");
+			}
+			else {
+				$("input:text[name='_contents']").val("오늘은 관리비 납부 마감일입니다.");
+			}
+		}
+	});
+
+	$("#_contents").keyup(function() {
+		var text = $(this).val();
+		var textLength = text.length;
+
+		if (textLength > 100) {
+			// alert(" 내용은 100자까지 입력 가능합니다. ");
+			return false;
+		}
+
+		$("#spn_contents_count").text(textLength);
+	});
+
+	$("#spn_contents_count").text($("#_contents").val().length);
+
+	searchFormJson();
+
+	$("#_sendDate").datepicker({
+		showOn: 'button',
+		buttonImage: "/img/calendar.png",
+		//changeMonth : true,
+		changeYear : true,
+		hideIfNoPrevNext : true,
+		monthNames : ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+		monthNamesShort : ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+		dateFormat: 'yy-mm-dd',
+		showMonthAfterYear: true,
+		onSelect: function( selectedDate ) {
+			/**
+		    var option = this.id == "searchStartDate" ? "minDate" : "maxDate",
+		    instance = $( this ).data( "datepicker" ),
+		    date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat,selectedDate, instance.settings );
+		    dates.not( this ).datepicker( "option", option, date );
+		    */
+	    }
+	});
+
+	$(".ui-datepicker").css('font-size', 15);
+	// 달력 아이콘 정렬
+	$("button.ui-datepicker-trigger img").attr("style", "width:20px; margin-left:5px; vertical-align:middle; cursor:pointer;").click(function() {
+		var bookYnVal = $("input:radio[name='_bookYn']:checked").val();
+		if (bookYnVal === "N") {
+			alert(" 발송일시가 [예약]일 경우에만 선택할 수 있습니다!  ");
+			return false;
+		}
+	});
+});
+
+/*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+    /*추가*/
+        input[type=text]{
+            height:30px;
+        }
+        ._btnLeft{
+            float:left;
+            margin-right: 5px;
+        }
+        .hand {
+            cursor: pointer;
+        }
+        ._link{
+            text-decoration: underline;
+        }
+        ._link:hover{
+            font-weight: bold;
+        }
+        .bottomBtnBox {
+            text-align:right;
+            margin-top:5px;
+            margin-bottom:5px;
+        }
+        
+        /* search table */
+        .searchTable th {
+            width:80px;
+        }
+        .searchTable tr {
+            height: 35px;
+        }
+        .searchTable .aptName {
+            width:500px;
+        }
+        .searchTable .searchKeyword {
+            width: 250px;
+            margin-right:10px;
+        }
+        
+        /* listTable */
+        ._listArea{
+            width: 100%;
+        }
+        .listTableScroll{
+            overflow-y:auto;
+            height: 400px;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable thead td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        ._defaultTable tr{
+            border-bottom : 1px solid #F6F6F6;           
+        }
+        ._defaultModalTable{
+            width:100%;
+        }
+        ._defaultModalTable th {
+            width:150px;
+        }
+        ._defaultModalTable tr {
+            height: 30px;
+        }
+        
+        .areas {
+            width: 100%;
+        }
+        .area1 {
+            width:55%;
+            float: left;
+        }
+        .area2 {
+            width:2%;
+            float: left;
+        }
+        .area3 {
+            width:43%;
+            float: left;
+        }
+        
+        /* 말줄임 css */
+        .ellipsis{ 
+            white-space:nowrap; 
+            text-overflow:ellipsis;
+            overflow:hidden; 
+        } 
+        
+        .modalDataLimitTableScroll{
+            overflow-y:auto;
+            height: 170px;
+        }
+    </style>
+
+    <title>AP Monitoring</title>
+</head>
+
+<body>
+
+<input type="hidden" name="nextToken1" id="nextToken1" />
+<input type="hidden" name="nextToken2" id="nextToken2" />
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:if="${user.type.jaha}"><div th:replace="admin/admin :: top-nav"></div></div>
+    <div th:if="${!user.type.jaha}"><div th:replace="partner/gntel/nav :: top-nav"></div></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-header">AP Monitoring</h4>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <table class="table-responsive searchTable">
+                                <tr>
+                                    <th>아파트</th>
+                                    <td class="form-inline" colspan="3">
+                                        <input type="hidden" name="aptId" id="aptId" />
+                                        <input type="text" class="form-control aptName" id="aptNm" name="aptNm" readonly="readonly" />
+                                        <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="fnSelectAptPopup()"/>
+                                        <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="fnCancelApt()"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>기간</th>
+                                    <td class="form-inline" colspan="3">
+                                        <div id="baseDateWrap" class='input-group date'>
+                                            <input type="text" class="form-control" id="baseDate" name="baseDate" placeholder="YYYY-MM-DD" />
+                                            <span class="input-group-addon" style="cursor: pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        부터 이전
+                                        <select class="form-control" name="baseDays" id="baseDays" style="height:30px;"></select>
+                                        일간
+                                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="bottomBtnBox" th:if="${user.type.jaha}">
+                        <input type="button" class="btn btn-sm btn-default" value="설정" name="settingBtn" onclick="fnSetting()" />
+                    </div>
+                    
+                    <div class="areas">
+                    
+	                    <div class="area1">
+	                        <h5><b>AP Daily Data Apt</b></h5>
+	                       
+		                    <div style="margin-bottom:10px; height:30px;">
+		                        <span style="float:left;" id="totalCountText1" >0</span>건의 데이터가 조회되었습니다.
+		                        <select class="form-control" name="limit1" id="limit1" style="height:30px;width:120px;float:right;" >
+		                            <option value="100">100개씩</option>
+		                            <option value="500">500개씩</option>
+		                            <option value="1000">1000개씩</option>
+		                        </select>
+		                    </div>
+		                    
+		                    <div class="_listArea panel panel-default panel-body" id="_listArea1">
+		                        <div class="scrollTableHeader">
+		                            <table class="table-hover _listTable" >
+		                                <thead>
+		                                    <tr>
+		                                        <td style="width:8%;">No.</td>
+		                                        <td style="width:40%;">아파트</td>
+		                                        <td style="width:26%;">미수신</td>
+		                                        <td style="width:26%;">데이터 사용량 경고</td>
+		                                    </tr>
+		                                </thead>
+		                            </table>
+		                        </div>
+		                        <div class="listTableScroll" >
+		                            <table class="table table-hover _listTable">
+		                                <tbody id="_listTable1">
+		                                    <tr><td style="width:100%;" colspan="10">검색해주세요.</td></tr>
+		                                </tbody>
+		                            </table>
+		                        </div>
+		                    </div>
+		                    
+		                    <div class="bottomBtnBox">
+		                        <input type="button" class="btn btn-info" value="미수신 상세검색" name="inspectionBtn" onclick="fnPopupDailyEmpty()" />
+		                        <input type="button" class="btn btn-info" value="데이터 사용량 경고 상세검색" name="inspectionBtn" onclick="fnPopupDataLimit()" />
+		                    </div>
+	                    </div>
+	                    
+	                    <div class="area2">&nbsp;</div>
+	                    
+	                    <div class="area3">
+	                        <h5><b>AP Noti Data Apt</b></h5>
+	                    
+	                        <div style="margin-bottom:10px; height:30px;">
+	                            <span style="float:left;" id="totalCountText2" >0</span>건의 데이터가 조회되었습니다.
+	                            <select class="form-control" name="limit2" id="limit2" style="height:30px;width:120px;float:right;" >
+	                                <option value="100">100개씩</option>
+	                                <option value="500">500개씩</option>
+	                                <option value="1000">1000개씩</option>
+	                            </select>
+	                        </div>
+	                        
+	                        <div class="_listArea panel panel-default panel-body" id="_listArea2">
+	                            <div class="scrollTableHeader">
+	                                <table class="table-hover _listTable" >
+	                                    <thead>
+	                                        <tr>
+	                                            <td style="width:10%;">No.</td>
+	                                            <td style="width:60%;">아파트</td>
+                                                <td style="width:30%;">Noti Count</td>
+	                                        </tr>
+	                                    </thead>
+	                                </table>
+	                            </div>
+	                            <div class="listTableScroll" >
+	                                <table class="table table-hover _listTable">
+	                                    <tbody id="_listTable2">
+	                                        <tr><td style="width:100%;" colspan="10">검색해주세요.</td></tr>
+	                                    </tbody>
+	                                </table>
+	                            </div>
+	                        </div>
+	                        
+	                        <div class="bottomBtnBox">
+		                        <input type="button" class="btn btn-info" value="Noti 상세검색" name="inspectionBtn" onclick="fnPopupNoti()" />
+		                    </div>
+	                    </div>
+                    
+                    </div>
+                    
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<!-- Noti 세부 리스트 modal -->
+<div class="modal fade" id="modal-setting" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Setting</h4>
+            </div>
+            <div class="modal-body">
+                <h5><b>Telecom Data Limit Setting</b></h5>
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:30%;">Modem</td>
+                                    <td style="width:40%;">데이터용량(byte)</td>
+                                    <td style="width:20%;">경고%</td>
+                                    <td style="width:10%;"></td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modalDataLimitTableScroll" >
+                        <form name="dataLimitFrm" id="dataLimitFrm" method="post">
+                        <table class="table table-hover _listTable">
+                            <tbody id="modalDataLimitTable">
+                                <tr><td style="width:100%;" colspan="10">데이터가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                        </form>
+                    </div>
+                </div>
+                <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-sm btn-info" value="추가" name="settingAddBtn" onclick="fnSettingDataLimitAdd()" />
+                    <input type="button" class="btn btn-sm btn-info" value="저장" name="settingSaveBtn" onclick="fnSettingDataLimitSave()" />
+                </div>
+                
+                <h5><b>Send Mail User Setting</b></h5>
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:25%;">이름</td>
+                                    <td style="width:25%;">닉네임</td>
+                                    <td style="width:40%;">이메일</td>
+                                    <td style="width:10%;"></td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modalDataLimitTableScroll" >
+                        <form name="sendMailUserFrm" id="sendMailUserFrm" method="post">
+                        <table class="table table-hover _listTable">
+                            <tbody id="modalMailUserTable">
+                                <tr><td style="width:100%;" colspan="10">데이터가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                        </form>
+                    </div>
+                </div>
+                <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-sm btn-info" value="추가" name="selectUserBtn" onclick="fnSelectUserPopup()"/>
+                    <input type="button" class="btn btn-sm btn-info" value="저장" name="settingSendMailUserSaveBtn" onclick="fnSettingSendMailUserSave()" />
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    $(document).ready(function(){
+        
+    	$("#searchBtn").bind("click", function(){
+            tokenResetAndSearch();
+        });
+        
+        
+        $('#baseDateWrap').datetimepicker({
+            format : "YYYY-MM-DD"
+        });
+        
+        for(var i=1; i <= 7; i++){
+            $("#baseDays").append('<option value="'+i+'" >'+i+'</option>');
+        }
+        
+        var d = new Date();
+        $("#baseDate").val(d.format("yyyy-MM-dd"));
+        
+    });
+    
+    function tokenResetAndSearch(){
+        
+        if($("#baseDate").val() == ""){
+        	alert("기간을 선택해주세요");
+        	return;
+        }
+        
+        var d = new Date();
+        var toDay = d.format("yyyy-MM-dd");
+        
+        if($("#baseDate").val() > toDay){
+            alert("이전 기록만 검색할 수 있습니다.");
+            return;
+        }
+        
+        $("#nextToken1").val("");// 상단 검색에서 검색시는 nextToken및 테이블데이터 모두 초기화해서 처음검색으로 셋팅
+        $("#nextToken2").val("");
+        $("#totalCountText1").text("0");
+        $("#totalCountText2").text("0");
+        $("#_listTable1").empty();
+        $("#_listTable2").empty();
+        fnSearch();
+    }
+    
+    function fnSearch(){
+    	fnSearchDailyData();
+    	fnSearchNotiData();
+    }
+    
+    function fnSelectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+    }
+    
+    function fnCancelApt(){
+        $("#aptNm").val("");
+        $("#aptId").val("");
+    }
+    
+    var param1 = {};
+    var dailyListCount = 0;
+    function fnSearchDailyData(){
+        if($("#nextToken1").val() == ""){
+            // nextToken이 없으면 처음검색
+            param1 = {};
+            param1.aptId = $("#aptId").val();
+            param1.nextToken = $("#nextToken1").val();
+            param1.limit = $("#limit1").val();
+            param1.baseDate = $("#baseDate").val();
+            param1.baseDays = $("#baseDays").val();
+            
+        } else {
+            // nextToken이 있으면 더보기검색
+            param1.nextToken = $("#nextToken1").val();
+            param1.limit = $("#limit1").val();
+        }
+        
+        gfnLoadingImage();
+        
+        $.ajax({
+            url: '/apt/ap/inspection/daily/list-data',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            data: param1,
+            success: function(data) {
+                
+            	var dataList = data.dataList;
+            	
+                if(dataList != null && dataList.length > 0){
+                    
+                    if(data.totalCount != null){
+                        // nextToken이 없는 첫번째에 호출에만 totalCount가 있음.
+                        $("#totalCountText1").text(data.totalCount);
+                        dailyListCount = data.totalCount;
+                    }
+                    
+                    var _html = '';
+                    for(var i=0;i<dataList.length;i++){
+                        var aptId = gfnNvl(dataList[i].aptId);
+                        var aptName = gfnNvl(dataList[i].aptName);
+                        var dailyEmptyApCnt = gfnNvl(dataList[i].dailyEmptyApCnt);
+                        var dataWarningApCnt = dataList[i].dataWarningApCnt;
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:8%">'+(dailyListCount--)+'</td>';
+                        _html += '<td style="width:40%">'+aptName+'</td>';
+                        _html += '<td style="width:26%" class="hand _link" onclick="fnPopupDailyEmpty('+aptId+')">'+dailyEmptyApCnt+'</td>';
+                        _html += '<td style="width:26%" class="hand _link" onclick="fnPopupDataLimit('+aptId+')">'+dataWarningApCnt+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                        
+                        if($("#limit1").val() == dataList.length){
+                            
+                            $("#nextToken1").val(dataList[dataList.length - 1].rownum);
+                            
+                            _html += '<tr>';
+                            _html += '<td colspan="10"><input type="button" class="btn btn-default btn-sm" value="더보기" name="moreBtn" onclick="fnMoreSearchDailyData(this)"/></td>';
+                            _html += '</tr>';
+                        }
+                        
+                        $(_html).appendTo("#_listTable1");
+                    }
+                    
+                } else {
+                    if( $("#_listTable1 tr").length == 0 ){
+                        $('<tr><td style="text-align:center" colspan="10">조회결과가 없습니다.</td></tr>').appendTo("#_listTable1");
+                    }
+                }
+                
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSearchDailyData fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+        
+    }
+    
+    function fnMoreSearchDailyData(obj){
+    	$(obj).parent().parent().remove();
+    	fnSearchDailyData();
+    }
+    
+    var param2 = {};
+    var notiListCount = 0;
+    function fnSearchNotiData(){
+        if($("#nextToken2").val() == ""){
+            // nextToken이 없으면 처음검색
+            param2 = {};
+            param2.aptId = $("#aptId").val();
+            param2.nextToken = $("#nextToken2").val();
+            param2.limit = $("#limit2").val();
+            param2.baseDate = $("#baseDate").val();
+            param2.baseDays = $("#baseDays").val();
+            
+        } else {
+            // nextToken이 있으면 더보기검색
+            param2.nextToken = $("#nextToken2").val();
+            param2.limit = $("#limit2").val();
+        }
+        
+        gfnLoadingImage();
+        
+        $.ajax({
+            url: '/apt/ap/inspection/noti/list-data',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            data: param2,
+            success: function(data) {
+                
+                var dataList = data.dataList;
+                
+                if(dataList != null && dataList.length > 0){
+                    
+                	if(data.totalCount != null){
+                        // nextToken이 없는 첫번째에 호출에만 totalCount가 있음.
+                        $("#totalCountText2").text(data.totalCount);
+                        notiListCount = data.totalCount;
+                    }
+                    
+                    var _html = '';
+                    for(var i=0;i<dataList.length;i++){
+                        var aptId = gfnNvl(dataList[i].aptId);
+                        var aptName = gfnNvl(dataList[i].aptName);
+                        var totalCnt = gfnNvl(dataList[i].totalCnt);
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:10%">'+(notiListCount--)+'</td>';
+                        _html += '<td style="width:60%">'+aptName+'</td>';
+                        _html += '<td style="width:30%" class="hand _link" onclick="fnPopupNoti('+aptId+')">'+totalCnt+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                        
+                        if($("#limit2").val() == dataList.length){
+                            
+                            $("#nextToken2").val(dataList[dataList.length - 1].rownum);
+                            
+                            _html += '<tr>';
+                            _html += '<td colspan="10"><input type="button" class="btn btn-default btn-sm" value="더보기" name="moreBtn" onclick="fnMoreSearchNotiData(this)"/></td>';
+                            _html += '</tr>';
+                        }
+                        
+                        $(_html).appendTo("#_listTable2");
+                    }
+                    
+                } else {
+                    if( $("#_listTable2 tr").length == 0 ){
+                        $('<tr><td style="text-align:center" colspan="10">조회결과가 없습니다.</td></tr>').appendTo("#_listTable2");
+                    }
+                }
+                
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSearchNotiData fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+        
+    }
+    
+    function fnMoreSearchNotiData(obj){
+        $(obj).parent().parent().remove();
+        fnSearchNotiData();
+    }
+    
+    function fnPopupDailyEmpty(aptId){
+    	var params = "";
+    	if(!gfnIsEmpty(aptId)){
+    		params += "?baseDate="+param1.baseDate+"&baseDays="+param1.baseDays+"&aptId="+aptId;
+    	}
+    	
+    	var percent = 0.8;
+        var width = screen.width * percent;
+        var height = 800;
+        openWindow("/apt/ap/inspection/daily/popup"+params,"aptApDailyEmptyPopup"+gfnNvl(aptId), width, height);
+    }
+    
+    function fnPopupDataLimit(aptId){
+        var params = "";
+        if(!gfnIsEmpty(aptId)){
+            params += "?baseDate="+param1.baseDate+"&baseDays="+param1.baseDays+"&aptId="+aptId;
+        }
+        
+        var percent = 0.9;
+        var width = screen.width * percent;
+        var height = 800;
+        openWindow("/apt/ap/inspection/data-limit/popup"+params,"aptApDailyDataLimitPopup"+gfnNvl(aptId), width, height);
+    }
+    
+    function fnPopupNoti(aptId){
+        var params = "";
+        if(!gfnIsEmpty(aptId)){
+            params += "?baseDate="+param1.baseDate+"&baseDays="+param1.baseDays+"&aptId="+aptId;
+        }
+        
+        var percent = 0.8;
+        var width = screen.width * percent;
+        var height = 800;
+        openWindow("/apt/ap/inspection/noti/popup"+params,"aptApNotiPopup"+gfnNvl(aptId), width, height);
+    }
+    
+    function fnSetting(){
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/inspection/setting/data-limit/list',
+            type: 'post',
+            dataType: "json",
+            success: function(data) {
+            	if(data != null && data.length > 0){
+            		
+            		$("#modalDataLimitTable").empty();
+            		var _html = '';
+            		
+            		for(var i=0;i<data.length;i++){
+                        var code = gfnNvl(data[i].code);
+                        var name = gfnNvl(data[i].name);
+                        var dataLimit = gfnNvl(data[i].data1);
+                        var warningPercent = gfnNvl(data[i].data2);
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:30%"><input type="text" class="form-control" maxlength="30" name="code" value="'+code+'" /></td>';
+                        _html += '<td style="width:40%"><input type="text" class="form-control" name="dataLimit" value="'+dataLimit+'" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" /></td>';
+                        _html += '<td style="width:20%"><input type="text" class="form-control" name="warningPercent" value="'+warningPercent+'" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" /></td>';
+                        _html += '<td style="width:10%"><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelSettingDataLimitItem(this)" /></td>';
+                        _html += '</tr>';
+                    }
+            		
+            		$(_html).appendTo("#modalDataLimitTable");
+            	}
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSetting data-limit fail");
+            }
+        });
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/inspection/setting/send-mail-user/list',
+            type: 'post',
+            dataType: "json",
+            success: function(data) {
+                if(data != null && data.length > 0){
+                    
+                    $("#modalMailUserTable").empty();
+                    var _html = '';
+                    
+                    for(var i=0;i<data.length;i++){
+                    	var userId = gfnNvl(data[i].id);
+                        var fullName = gfnNvl(data[i].fullName);
+                        var nickname = gfnNvl(data[i].nickname);
+                        var email = gfnNvl(data[i].email);
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:25%">'+fullName+'<input type="hidden" name="userId" value="'+userId+'" /></td>';
+                        _html += '<td style="width:25%">'+nickname+'</td>';
+                        _html += '<td style="width:40%">'+email+'</td>';
+                        _html += '<td style="width:10%"><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelSettingSendMailUserItem(this)" /></td>';
+                        _html += '</tr>';
+                    }
+                    
+                    $(_html).appendTo("#modalMailUserTable");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSetting send-mail-user fail");
+            }
+        });
+    	
+    	$("#modal-setting").centerModal({backdrop:"static",keyboard: false});
+    }
+    
+    function fnDelSettingDataLimitItem(obj){
+        $(obj).parent().parent().remove();
+    }
+    
+    function fnDelSettingSendMailUserItem(obj){
+        $(obj).parent().parent().remove();
+    }
+    
+    function fnSettingDataLimitAdd(){
+    	var _html = '<tr>';
+        _html += '<td style="width:30%"><input type="text" class="form-control" maxlength="30" name="code" /></td>';
+        _html += '<td style="width:40%"><input type="text" class="form-control" name="dataLimit" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" /></td>';
+        _html += '<td style="width:20%"><input type="text" class="form-control" name="warningPercent" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" /></td>';
+        _html += '<td style="width:10%"><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelSettingDataLimitItem(this)" /></td>';
+        _html += '</tr>';
+        $(_html).appendTo("#modalDataLimitTable");
+        $('.modalDataLimitTableScroll').scrollTop($('.modalDataLimitTableScroll').prop('scrollHeight'));
+    }
+    
+    function fnSettingDataLimitSave(){
+    	
+    	var vd = false;
+    	$("input[name=code]").each(function(){
+    		if(gfnIsEmpty($(this).val())){
+    			alert("Modem은 필수값입니다.");
+    			vd = true;
+    			return false;
+    		}
+    	});
+    	
+    	if(vd == true){
+    		return;
+    	}
+    	
+    	if(!confirm("Telecom Data Limit Setting 데이터를 저장하시겠습니까?")){
+    		return;
+    	}
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/inspection/setting/data-limit/save',
+            type: 'post',
+            dataType: "html",
+            data: $("#dataLimitFrm").serialize(),
+            success: function(data) {
+                if(data == "Y"){
+                	alert("저장하였습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSettingDataLimitSave fail");
+            }
+        });
+    }
+    
+    /* user 검색 */
+    function fnSelectUserPopup(){
+        var width = 1000;
+        var height = 720;
+        openWindow("/jaha/user/search/popup","userSearchPopup", width, height);
+    }
+    
+    function _searchUserCallback(userDataList){
+        var _html = '';
+        $(userDataList).each(function(idx){
+            var userId = gfnNvl(userDataList[idx].id);
+            var fullName = gfnNvl(userDataList[idx].fullName);
+            var nickname = gfnNvl(userDataList[idx].nickname);
+            var email = gfnNvl(userDataList[idx].email);
+            
+            _html += '<tr>';
+            _html += '<td style="width:25%">'+fullName+'<input type="hidden" name="userId" value="'+userId+'" /></td>';
+            _html += '<td style="width:25%">'+nickname+'</td>';
+            _html += '<td style="width:40%">'+email+'</td>';
+            _html += '<td style="width:10%"><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelSettingSendMailUserItem(this)" /></td>';
+            _html += '</tr>';
+        });
+        if(_html.length > 0){
+        	$(_html).appendTo("#modalMailUserTable");
+            
+        }
+    }
+    
+    function fnSettingSendMailUserSave(){
+    	
+    	if(!confirm("Send Mail User Setting 데이터를 저장하시겠습니까?")){
+            return;
+        }
+        
+        $.ajax({
+            url: '/jaha/apt/ap/inspection/setting/send-mail-user/save',
+            type: 'post',
+            dataType: "html",
+            data: $("#sendMailUserFrm").serialize(),
+            success: function(data) {
+                if(data == "Y"){
+                    alert("저장하였습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSettingSendMailUserSave fail");
+            }
+        });
+    	
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.AptApMapper">
+
+    <sql id="sql_selectAptAp">
+        SELECT l1.id
+		      ,l1.apt_id
+		      ,l1.ap_uuid
+		      ,l1.ap_beacon_uuid
+		      ,l1.ap_beacon_major
+		      ,l1.ap_beacon_minor
+		      ,l1.ap_id
+		      ,l1.ap_name
+		      ,l1.ap_password
+		      ,l1.ssh_password
+              ,l1.reg_id
+              ,l1.reg_date
+              ,l1.mod_id
+              ,l1.mod_date
+              ,l1.deactive_date
+              ,l1.skip_auth
+              ,l2.full_name reg_name
+              ,l1.exp_ip
+              ,l1.modem
+              ,l1.firmware_version
+              ,l1.rssi
+              ,l1.keepon
+              ,l1.rssi_app
+              ,l1.gpiodelay
+              ,l1.operation_mode
+              ,l1.status
+              ,l1.memo
+              ,l1.wifi_mac
+              ,l3.building_address
+              ,l3.apt_name
+        FROM apt_ap l1
+        LEFT OUTER JOIN user l2
+        ON l1.reg_id = l2.id
+        LEFT OUTER JOIN
+        (
+            SELECT A.*
+              ,concat(sido_nm,' ',sgg_nm,' ',emd_nm,' ', if(building_nm != apt_name, concat(building_nm, ' [',apt_name,']'), building_nm)) as building_address
+            FROM
+            (
+                SELECT 법정동코드 as bjd_cd
+                      ,시도명 as sido_nm
+                      ,시군구명 as sgg_nm
+                      ,법정읍면동명 as emd_nm
+                      ,도로명 as road_nm
+                      ,건물관리번호 as building_no
+                      ,시군구용건물명 as building_nm
+                      ,l2.id apt_id
+                      ,l2.name apt_name
+                FROM address l1, emaul.apt l2
+                WHERE l1.건물관리번호 = l2.address_code
+                ORDER BY l1.시군구용건물명
+            ) A
+        ) l3
+        ON l1.apt_id = l3.apt_id
+		<where>
+	        <if test="aptId != null and aptId != ''">
+	            AND l1.apt_id = #{aptId}
+	        </if>
+	        <if test="aptSearchType == 'empty'">
+                AND l1.apt_id is null
+            </if>
+            <if test="aptSearchType == 'assign'">
+                AND l1.apt_id is not null
+            </if>
+            <if test="aptSearchType == 'emptyNtestApt'">
+                AND (l1.apt_id is null OR l1.apt_id = #{testAptId} )
+            </if>
+            <if test="aptSearchType == 'testApt'">
+                AND l1.apt_id = #{testAptId}
+            </if>
+            <if test="aptSearchType == 'notTestApt'">
+                AND l1.apt_id != #{testAptId}
+            </if>
+            <if test="excludeAptId != null and excludeAptId.size() > 0">
+                AND l1.apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+            </if>
+            <if test='existExpIp == "Y"'>
+                AND l1.exp_ip is not null
+            </if>
+            <if test="ids != null">
+                <foreach collection="ids" item="item" separator="OR" open="AND ("  close=")" >
+                    <if test="item.type == 'one'">
+                        l1.id = #{item.id1}
+                    </if>
+                    <if test="item.type == 'two'">
+                        l1.id BETWEEN #{item.id1} AND #{item.id2}
+                    </if>
+                </foreach>
+            </if>
+            <if test="apIds != null">
+                <foreach collection="apIds" item="item" separator="OR" open="AND ("  close=")" >
+                    <if test="item.type == 'one'">
+                        l1.ap_id = #{item.id1}
+                    </if>
+                    <if test="item.type == 'two'">
+                        convert(l1.ap_id, unsigned) BETWEEN #{item.id1} AND #{item.id2}
+                    </if>
+                </foreach>
+            </if>
+            <if test="inIds != null and inIds.size > 0">
+                AND l1.id in
+                <foreach collection="inIds" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="inApBeaconUuids != null and inApBeaconUuids.size > 0">
+                AND l1.ap_beacon_uuid in
+                <foreach collection="inApBeaconUuids" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+	        <if test="searchKeyword != null and searchKeyword != ''">
+                AND (
+                      l1.ap_name LIKE CONCAT('%', #{searchKeyword}, '%') OR
+                      l1.ap_beacon_uuid LIKE CONCAT('%', #{searchKeyword}, '%')
+                )
+            </if>
+            <if test="apId != null and apId != ''">
+                AND l1.ap_id = #{apId}
+            </if>
+            <if test="_apBeaconUuid != null and _apBeaconUuid != ''">
+                AND l1.ap_beacon_uuid = #{_apBeaconUuid}
+            </if>
+            <if test="id != null and id != ''">
+                AND l1.id = #{id}
+            </if>
+            <if test="aptApIdList != null">
+                AND l1.id in
+                <foreach collection="aptApIdList" item="item" separator="," open="(" close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="operationMode != null and operationMode != ''">
+                AND operation_mode = #{operationMode}
+            </if>
+            <if test="firmwareVersion != null and firmwareVersion != ''">
+                AND firmware_version LIKE concat('%', #{firmwareVersion}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="_active == true">
+                AND l1.deactive_date is null
+            </if>
+            <if test="_active == false">
+                AND l1.deactive_date is not null
+            </if>
+        </where>
+        ORDER BY l1.reg_date DESC, l1.id DESC
+    </sql>
+
+	<select id="selectAptApList" parameterType="map" resultType="AptAp">
+		/* selectAptApList */
+		<include refid="sql_selectAptAp" />
+		LIMIT #{startNum}, #{pageSize}
+	</select>
+
+	<select id="selectAptApListCount" parameterType="map" resultType="int">
+        /* selectAptApListCount */
+        SELECT COUNT(*) FROM (
+        <include refid="sql_selectAptAp" />
+        ) A
+    </select>
+
+    <select id="selectAptAp" parameterType="map" resultType="AptAp">
+        /* selectAptAp */
+        <include refid="sql_selectAptAp" />
+    </select>
+
+    <select id="selectAptApAllList" parameterType="map" resultType="AptAp">
+        /* selectAptApAllList */
+        <include refid="sql_selectAptAp" />
+    </select>
+
+    <update id="updateAptAp" parameterType="AptAp" >
+    /* updateAptAp */
+        UPDATE apt_ap
+        SET rssi = #{rssi}
+           ,keepon = #{keepon}
+           ,gpiodelay = #{gpiodelay}
+           ,firmware_version = #{firmwareVersion}
+           ,ap_uuid = #{apUuid}
+           ,ap_beacon_uuid = #{apBeaconUuid}
+           ,ap_beacon_major = #{apBeaconMajor}
+           ,ap_beacon_minor = #{apBeaconMinor}
+           ,ap_id = #{apId}
+           ,ap_password = #{apPassword}
+           ,ssh_password = #{sshPassword}
+           ,ap_name = #{apName}
+           ,operation_mode = #{operationMode}
+           ,status = #{status}
+           ,memo = #{memo}
+           ,wifi_mac = #{wifiMac}
+           ,mod_id = #{modId}
+           ,mod_date = now()
+        WHERE id = #{id}
+        AND deactive_date is null
+    </update>
+    
+    <update id="updateAptApFirmwareVersion" parameterType="AptAp" >
+    /* updateAptAp */
+        UPDATE apt_ap
+        SET firmware_version = #{firmwareVersion}
+           ,mod_id = #{modId}
+           ,mod_date = now()
+        WHERE id = #{id}
+        AND deactive_date is null
+    </update>
+
+    <!-- ap 셋팅 테스트 로그 성공 여부 -->
+    <select id="selectAptApAccessLogInspectionList" parameterType="map" resultType="map">
+        /* selectAptApAccessLogInspectionList */
+        SELECT aaaa.id
+		      ,aaaa.apt_id aptId
+		      ,aaaa.ap_id apId
+		      ,aaaa.ap_name apName
+		      ,ifnull(bbbb.total, 0) total
+		      ,ifnull(bbbb.successCnt, 0) successCnt
+		      ,ifnull(bbbb.qcCnt, 0) qcCnt
+		      ,ifnull(bbbb.qcSuccessCnt, 0) qcSuccessCnt
+		      ,ifnull(bbbb.fieldCnt, 0) fieldCnt
+		      ,ifnull(bbbb.fieldSuccessCnt, 0) fieldSuccessCnt
+		FROM
+		(
+		    SELECT *
+		    FROM apt_ap
+		    WHERE deactive_date is null
+		    <if test="aptId != null and aptId != ''">
+                AND apt_id = #{aptId}
+            </if>
+            <if test="ids != null">
+                <foreach collection="ids" item="item" separator="OR" open="AND ("  close=")" >
+                    <if test="item.type == 'one'">
+                        id = #{item.id1}
+                    </if>
+                    <if test="item.type == 'two'">
+                        id BETWEEN #{item.id1} AND #{item.id2}
+                    </if>
+                </foreach>
+            </if>
+            <if test="apId != null and apId != ''">
+                AND ap_id = #{apId}
+            </if>
+            <if test="apName != null and apName != ''">
+                AND ap_name = #{apName}
+            </if>
+		) aaaa
+		LEFT OUTER JOIN
+		(
+		    SELECT ap_id
+		          ,ap_beacon_uuid
+		          ,count(id) total
+		          ,sum( if(success = 'Y', 1, 0) ) successCnt
+		          ,sum( if( <foreach collection="qcUserList" item="item" separator="OR" open="("  close=")">user_id = #{item}</foreach> , 1, 0) ) qcCnt
+		          ,sum( if( <foreach collection="qcUserList" item="item" separator="OR" open="("  close=")">user_id = #{item}</foreach> and success = 'Y', 1, 0) ) qcSuccessCnt
+		          ,sum( if( <foreach collection="fieldUserList" item="item" separator="OR" open="("  close=")">user_id = #{item}</foreach> , 1, 0) ) fieldCnt
+		          ,sum( if( <foreach collection="fieldUserList" item="item" separator="OR" open="("  close=")">user_id = #{item}</foreach> and success = 'Y', 1, 0) ) fieldSuccessCnt
+		    FROM
+		    (
+		        SELECT aa.*
+		              ,bb.ap_beacon_uuid
+		        FROM apt_ap_access_log aa,
+		        (
+		            SELECT max(a.id) id, a.apt_id, a.ap_beacon_uuid
+		            FROM apt_ap a,
+		            (
+		                SELECT ap_beacon_uuid
+		                FROM apt_ap
+		                WHERE deactive_date is null
+		                <if test="aptId != null and aptId != ''">
+				            AND apt_id = #{aptId}
+				        </if>
+				        <if test="ids != null">
+				            <foreach collection="ids" item="item" separator="OR" open="AND ("  close=")" >
+				                <if test="item.type == 'one'">
+				                    id = #{item.id1}
+				                </if>
+				                <if test="item.type == 'two'">
+				                    id BETWEEN #{item.id1} AND #{item.id2}
+				                </if>
+				            </foreach>
+				        </if>
+				        <if test="apId != null and apId != ''">
+				            AND ap_id = #{apId}
+				        </if>
+				        <if test="apName != null and apName != ''">
+				            AND ap_name = #{apName}
+				        </if>
+		            ) b
+		            WHERE a.ap_beacon_uuid = b.ap_beacon_uuid
+		            AND a.apt_id = #{testAptId}
+		            AND a.deactive_date is not null
+		            GROUP BY apt_id, ap_beacon_uuid
+		        ) bb
+		        WHERE aa.ap_id = bb.id
+		    ) aaa
+		    GROUP BY ap_id, ap_beacon_uuid
+		) bbbb
+		ON aaaa.ap_beacon_uuid = bbbb.ap_beacon_uuid
+		<where>
+		    <if test="nextToken != null and nextToken != ''">
+	            AND aaaa.id <![CDATA[<]]> #{nextToken}
+	        </if>
+		</where>
+        ORDER BY aaaa.id desc
+		<if test="limit != null and limit != ''">
+		LIMIT ${limit}
+		</if>
+    </select>
+
+    <!-- ap 셋팅 테스트 로그 List  -->
+    <select id="selectAptApAccessLogInspectionDetailList" parameterType="map" resultType="AptApAccessLog">
+        /* selectAptApAccessLogInspectionDetailList */
+        SELECT aa.*
+              ,cc.full_name
+              ,bb.ap_beacon_uuid
+        FROM apt_ap_access_log aa
+        LEFT OUTER JOIN user cc
+        ON aa.user_id = cc.id
+        ,
+        (
+            SELECT max(a.id) id, a.apt_id, a.ap_beacon_uuid
+            FROM apt_ap a,
+            (
+                SELECT ap_beacon_uuid
+                FROM apt_ap
+                WHERE deactive_date is null
+                AND id = #{id}
+            ) b
+            WHERE a.ap_beacon_uuid = b.ap_beacon_uuid
+            AND a.apt_id = #{testAptId}
+            AND a.deactive_date is not null
+            GROUP BY apt_id, ap_beacon_uuid
+        ) bb
+        WHERE aa.ap_id = bb.id
+        <if test='type == "1"'>
+            AND aa.success = 'Y'
+        </if>
+        <if test='type == "2"'>
+            AND aa.user_id in <foreach collection="qcUserList" item="item" separator="," open="("  close=")">#{item}</foreach>
+        </if>
+        <if test='type == "3"'>
+            AND aa.user_id in <foreach collection="qcUserList" item="item" separator="," open="("  close=")">#{item}</foreach>
+            AND aa.success = 'Y'
+        </if>
+        <if test='type == "4"'>
+            AND aa.user_id in <foreach collection="fieldUserList" item="item" separator="," open="("  close=")">#{item}</foreach>
+        </if>
+        <if test='type == "5"'>
+            AND aa.user_id in <foreach collection="fieldUserList" item="item" separator="," open="("  close=")">#{item}</foreach>
+            AND aa.success = 'Y'
+        </if>
+        <if test="nextToken != null and nextToken != ''">
+            AND aa.id <![CDATA[<]]> #{nextToken}
+        </if>
+        ORDER BY aa.id DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </select>
+
+    <!-- ap log list -->
+    <sql id="sqlSelectAptApAccessLogListWhere">
+        <where>
+            <if test="aptId != null and aptId != ''">
+                AND b.apt_id = #{aptId}
+            </if>
+            <if test="ids != null">
+                <foreach collection="ids" item="item" separator="OR" open="AND ("  close=")" >
+                    <if test="item.type == 'one'">
+                        b.id = #{item.id1}
+                    </if>
+                    <if test="item.type == 'two'">
+                        b.id BETWEEN #{item.id1} AND #{item.id2}
+                    </if>
+                </foreach>
+            </if>
+            <if test="inIds != null and inIds.size > 0">
+                AND b.id in
+                <foreach collection="inIds" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="inApBeaconUuids != null and inApBeaconUuids.size > 0">
+                AND b.ap_beacon_uuid in
+                <foreach collection="inApBeaconUuids" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="inUserIds != null and inUserIds.size > 0">
+                AND a.user_id in
+                <foreach collection="inUserIds" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (
+                      b.ap_name LIKE CONCAT('%', #{searchKeyword}, '%') OR
+                      b.ap_beacon_uuid LIKE CONCAT('%', #{searchKeyword}, '%')
+                )
+            </if>
+            <if test="apId != null and apId != ''">
+                AND b.ap_id = #{apId}
+            </if>
+            <if test="sDateTime != null and sDateTime != '' and eDateTime != null and eDateTime != ''">
+                AND (a.access_date <![CDATA[>=]]> str_to_date(#{sDateTime}, '%Y-%m-%d %H') AND a.access_date <![CDATA[<]]> adddate(str_to_date(#{eDateTime}, '%Y-%m-%d %H'), interval 1 hour) )
+            </if>
+            <if test="sDate != null and sDate != '' and eDate != null and eDate != ''">
+                AND (a.access_date <![CDATA[>=]]> str_to_date(#{sDate}, '%Y-%m-%d') AND a.access_date <![CDATA[<]]> adddate(str_to_date(#{eDate}, '%Y-%m-%d'), interval 1 day) )
+            </if>
+            <if test="nextToken != null and nextToken != ''">
+                AND a.id <![CDATA[<]]> #{nextToken}
+            </if>
+            <if test="_active == true">
+                AND b.deactive_date is null
+            </if>
+            <if test="_active == false">
+                AND b.deactive_date is not null
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectAptApAccessLogList" parameterType="map" resultType="AptApAccessLog">
+        /* selectAptApAccessLogList */
+        SELECT a.id
+		       ,a.user_id
+		       ,a.access_device_id
+		       ,a.access_date
+		       ,a.mobile_device_model
+		       ,a.mobile_device_os
+		       ,a.delay_time
+		       ,a.success
+		       ,a.exp_ip
+		       ,a.memo
+		       ,a.waiting_yn
+		       ,a.in_out
+		       ,b.id ap_id
+		       ,b.ap_id apt_ap_id
+		       ,b.ap_beacon_uuid
+		       ,b.ap_name
+		       ,c.full_name
+		       ,c.nickname
+		       ,e.name apt_name
+		       ,f.second_user
+        FROM apt_ap_access_log a
+        LEFT OUTER JOIN apt_ap b
+        ON a.ap_id = b.id
+        LEFT OUTER JOIN user c
+        ON a.user_id = c.id
+        LEFT OUTER JOIN apt e
+        ON b.apt_id = e.id
+        LEFT OUTER JOIN apt_ap_access_device f
+        ON a.access_device_id = f.id
+        <include refid="sqlSelectAptApAccessLogListWhere" />
+        ORDER BY a.id DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+
+    <select id="selectAptApAccessLogListCount" parameterType="map" resultType="int">
+        /* selectAptApAccessLogListCount */
+        SELECT COUNT(*)
+        FROM apt_ap_access_log a
+        LEFT OUTER JOIN apt_ap b
+        ON a.ap_id = b.id
+        <include refid="sqlSelectAptApAccessLogListWhere" />
+    </select>
+
+    <select id="selectAptApInspAccountList" parameterType="string" resultType="SimpleUser">
+        /* selectAptApInspaAccountList */
+        SELECT b.*
+        FROM apt_ap_insp_user a
+            ,user b
+        WHERE a.user_id = b.id
+        AND a.type = #{type}
+        ORDER BY a.reg_date DESC
+    </select>
+
+    <update id="saveInspAccount" parameterType="map" >
+    /* saveInspAccount */
+        INSERT INTO apt_ap_insp_user
+        (
+	        type
+	        ,user_id
+	        ,reg_id
+	        ,reg_date
+	    )
+	    VALUES
+	    (
+	        #{type}
+	        ,#{userId}
+	        ,#{regId}
+	        ,now()
+	    )
+	    ON DUPLICATE KEY UPDATE reg_date = now(), reg_id = #{regId}
+    </update>
+
+    <delete id="deleteInspAccount" parameterType="string" >
+        DELETE FROM apt_ap_insp_user
+        WHERE type = #{type}
+    </delete>
+
+    <sql id="sqlAptApInspDailyList">
+        SELECT *
+        FROM
+        (
+            SELECT *
+			      ,@dailyRnum := @dailyRnum + 1 rownum
+			FROM
+			(
+				SELECT bb.name aptName
+				      ,aa.*
+				      ,concat(<foreach collection="baseDateList" item="idx" separator=","> day${idx} </foreach>) days
+				FROM
+				(
+				    SELECT a.id
+				          ,a.ap_beacon_uuid apBeaconUuid
+				          ,a.apt_id aptId
+				          ,a.ap_id apId
+				          ,a.ap_name apName
+				          ,date_format(a.reg_date, '%Y-%m-%d') apRegDate
+				          <foreach collection="baseDateList" item="idx" >
+				          ,if(date_format(a.reg_date, '%Y-%m-%d')  >  adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 'X', ifnull(b.day${idx},'N') ) day${idx}
+				          </foreach>
+				    FROM
+				    (
+				        SELECT *
+	                    FROM apt_ap
+	                    WHERE deactive_date is null
+	                    AND ap_beacon_uuid is not null
+	                    AND ap_beacon_uuid != ''
+	                    <if test="aptId != null and aptId != ''">
+	                    AND apt_id = #{aptId}
+	                    </if>
+	                    <if test="testAptId != null and testAptId != ''">
+	                    AND apt_id != #{testAptId}
+	                    </if>
+	                    <if test="excludeAptId != null and excludeAptId.size() > 0">
+                        AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+                        </if>
+				    ) a
+				    LEFT OUTER JOIN
+				    (
+				        SELECT ap_id
+				              <foreach collection="baseDateList" item="idx" >
+		                      ,max(if( date_format(reg_date, '%Y-%m-%d') = adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}) , 'Y', 'N')) day${idx}
+		                      </foreach>
+				        FROM apt_ap_monitoring
+				        WHERE ( str_to_date(#{baseDate}, '%Y-%m-%d') <![CDATA[>]]> reg_date AND adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${baseDays}) <![CDATA[<=]]> reg_date )
+				        GROUP BY ap_id
+				    ) b
+				    ON a.id = b.ap_id
+				) aa,
+				apt bb
+				WHERE aa.aptId = bb.id
+				ORDER BY bb.name DESC, aa.id ASC
+			) aaa, (SELECT @dailyRnum := 0) r
+			WHERE aaa.days LIKE '%N%'
+        ) A
+    </sql>
+    
+    <sql id="sqlSelectAptApInspDailyList">
+        <include refid="sqlAptApInspDailyList" />
+        <where>
+            <if test="nextToken != null and nextToken != ''">
+                AND rownum <![CDATA[<]]> #{nextToken}
+            </if>
+        </where>
+        ORDER BY rownum DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </sql>
+
+    <select id="selectAptApInspDailyList" parameterType="map" resultType="map">
+        /* selectAptApInspDailyList */
+        <include refid="sqlSelectAptApInspDailyList" />
+    </select>
+    
+    <select id="selectAptApInspDailyListCount" parameterType="map" resultType="int">
+        /* selectAptApInspDailyListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptApInspDailyList" />
+        ) A
+    </select>
+
+    <sql id="sqlAptApInspDataLimitList">
+        SELECT *
+        FROM
+        (
+            SELECT aaaaa.*
+                  ,@dataLimitRnum := @dataLimitRnum + 1 rownum
+            FROM
+            (
+            
+		        SELECT *
+				FROM
+				(
+				    SELECT aaa.*
+				          <foreach collection="baseDateList" item="idx" >
+				          ,round( if( round(aaa.dayTotalBytes${idx} / aaa.limitData, 3) <![CDATA[>]]> 0, round(aaa.dayTotalBytes${idx} / aaa.limitData, 3), 0 ) * 100, 2) dataTotalBytesPer${idx}
+				          </foreach>
+				    FROM
+				    (
+					    SELECT aa.*
+					           <foreach collection="baseDateList" item="idx" >
+					           ,aa.dayTotalTxBytes${idx} + aa.dayTotalRxBytes${idx} dayTotalBytes${idx}
+					           </foreach>
+					          ,ifnull(bb.data_1, 52428800) limitData
+		                      ,ifnull(bb.data_2, 99) dataWarningPer
+					          ,cc.name aptName
+					    FROM
+					    (
+					        SELECT a.id
+							      ,a.ap_beacon_uuid apBeaconUuid
+							      ,a.apt_id aptId
+							      ,a.ap_id apId
+							      ,a.ap_name apName
+							      ,a.modem
+							      ,date_format(a.reg_date, '%Y-%m-%d') apRegDate
+							      <foreach collection="baseDateList" item="idx" >
+                                  ,if(date_format(a.reg_date, '%Y-%m-%d') <![CDATA[>]]> adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 0, dayTotalTxBytes${idx}) dayTotalTxBytes${idx}
+                                  ,if(date_format(a.reg_date, '%Y-%m-%d') <![CDATA[>]]> adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 0, dayTotalRxBytes${idx}) dayTotalRxBytes${idx}							      
+							      </foreach>
+							FROM
+							(
+							    SELECT *
+				                FROM apt_ap
+				                WHERE deactive_date is null
+				                AND ap_beacon_uuid is not null
+				                AND ap_beacon_uuid != ''
+				                <if test="aptId != null and aptId != ''">
+				                AND apt_id = #{aptId}
+				                </if>
+				                <if test="testAptId != null and testAptId != ''">
+				                AND apt_id != #{testAptId}
+				                </if>
+				                <if test="excludeAptId != null and excludeAptId.size() > 0">
+					            AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+					            </if>
+							) a,
+							(
+							    SELECT ap_id monitoring_ap_id
+							          <foreach collection="baseDateList" item="idx" >
+							          ,sum(if( date_format(reg_date, '%Y-%m-%d') = adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}) , total_tx_bytes, 0)) dayTotalTxBytes${idx}
+                                      ,sum(if( date_format(reg_date, '%Y-%m-%d') = adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}) , total_rx_bytes, 0)) dayTotalRxBytes${idx}
+							          </foreach>
+							    FROM apt_ap_monitoring
+							    WHERE ( str_to_date(#{baseDate}, '%Y-%m-%d') <![CDATA[>]]> reg_date AND adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${baseDays}) <![CDATA[<=]]> reg_date )
+							    GROUP BY ap_id
+							) b
+							WHERE a.id = b.monitoring_ap_id
+					    ) aa
+					    LEFT OUTER JOIN
+					    (
+					        SELECT * FROM common_code
+					        WHERE code_group = 'DATA_LIMIT'
+					    ) bb
+					    ON aa.modem = bb.code
+					    LEFT OUTER JOIN apt cc
+			            ON aa.aptId = cc.id
+				    ) aaa
+				) aaaa
+				<where>
+				<foreach collection="baseDateList" item="idx" open="(" close=")" separator="OR">
+				aaaa.dataTotalBytesPer${idx} <![CDATA[>=]]> aaaa.dataWarningPer
+				</foreach>
+				</where>
+				ORDER BY aaaa.aptName DESC , aaaa.id ASC
+            ) aaaaa, (SELECT @dataLimitRnum := 0) r
+        ) A
+    </sql>
+
+    <sql id="sqlSelectAptApInspDataLimitList">
+        <include refid="sqlAptApInspDataLimitList" />
+        <where>
+	        <if test="nextToken != null and nextToken != ''">
+	            AND rownum <![CDATA[<]]> #{nextToken}
+	        </if>
+        </where>
+        ORDER BY rownum DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </sql>
+
+    <select id="selectAptApInspDataLimitList" parameterType="map" resultType="map">
+        /* selectAptApInspDataLimitList */
+        <include refid="sqlSelectAptApInspDataLimitList" />
+    </select>
+    
+    <select id="selectAptApInspDataLimitListCount" parameterType="map" resultType="int">
+        /* selectAptApInspDataLimitListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptApInspDataLimitList" />
+        ) A
+    </select>
+
+
+    <sql id="sqlSelectAptApInspWarningAptList">
+        SELECT aa.aptId
+              ,bb.name aptName
+              ,sum(dailyEmptyApCnt) dailyEmptyApCnt
+              ,sum(dataWarningApCnt) dataWarningApCnt
+              ,bb.rownum
+        FROM
+        (
+            SELECT a.apt_id aptId
+                  ,a.ap_name apName
+                  ,ifnull(length(b.days) - length(replace(b.days, 'N', '')), 0) dailyEmptyApCnt
+                  <foreach collection="baseDateList" item="idx" open="," close=" dataWarningApCnt" separator="+" >
+                      if(c.dataTotalBytesPer${idx} >= c.dataWarningPer, 1, 0)
+                  </foreach>
+            FROM
+            (
+                SELECT *
+                FROM apt_ap
+                WHERE deactive_date is null
+                AND ap_beacon_uuid is not null
+                AND ap_beacon_uuid != ''
+                <if test="aptId != null and aptId != ''">
+                AND apt_id = #{aptId}
+                </if>
+                <if test="testAptId != null and testAptId != ''">
+                AND apt_id != #{testAptId}
+                </if>
+                <if test="excludeAptId != null and excludeAptId.size() > 0">
+	            AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+	            </if>
+            ) a
+            LEFT OUTER JOIN
+            (
+                <include refid="sqlAptApInspDailyList" />
+            ) b
+            ON a.id = b.id
+            LEFT OUTER JOIN
+            (
+                <include refid="sqlAptApInspDataLimitList" />
+            ) c
+            ON a.id = c.id
+        ) aa
+        LEFT OUTER JOIN
+        (
+            SELECT aa.*
+                  ,@rnum := @rnum + 1 rownum
+            FROM apt aa, (SELECT @rnum := 0) r
+            ORDER BY aa.name DESC
+        ) bb
+        ON aa.aptId = bb.id
+        WHERE (aa.dailyEmptyApCnt > 0 OR aa.dataWarningApCnt > 0)
+        <if test="nextToken != null and nextToken != ''">
+            AND bb.rownum <![CDATA[<]]> #{nextToken}
+        </if>
+        GROUP BY aa.aptId, bb.name
+        ORDER BY bb.rownum DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </sql>
+    
+    <select id="selectAptApInspWarningAptList" parameterType="map" resultType="map">
+        /* selectAptApInspWarningAptList */
+        <include refid="sqlSelectAptApInspWarningAptList" />
+    </select>
+    
+    <select id="selectAptApInspWarningAptListCount" parameterType="map" resultType="int">
+        /* selectAptApInspWarningAptListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptApInspWarningAptList" />
+        ) A
+    </select>
+
+    <sql id="sqlAptApInspNotiList">
+        SELECT a.id
+              ,a.ap_beacon_uuid apBeaconUuid
+		      ,a.apt_id aptId
+		      ,a.ap_id apId
+		      ,a.ap_name apName
+		      ,date_format(a.reg_date, '%Y-%m-%d') apRegDate
+		      <foreach collection="baseDateList" item="idx" >
+              ,if(date_format(a.reg_date, '%Y-%m-%d') <![CDATA[>]]> adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 'X','Y') thisDayExistAp${idx}
+              ,if(date_format(a.reg_date, '%Y-%m-%d') <![CDATA[>]]> adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 0, sum(if( date_format(b.reg_date, '%Y-%m-%d') = adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}) , 1, 0))) notiCnt${idx}
+              ,if(date_format(a.reg_date, '%Y-%m-%d') <![CDATA[>]]> adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}), 0, min(if( date_format(b.reg_date, '%Y-%m-%d') = adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${idx}) , b.lte_rsrp, 0))) notiMin${idx}
+		      </foreach>
+		FROM
+		(
+		    SELECT *
+		    FROM apt_ap
+		    WHERE deactive_date is null
+		    AND ap_beacon_uuid is not null
+		    AND ap_beacon_uuid != ''
+		    <if test="aptId != null and aptId != ''">
+            AND apt_id = #{aptId}
+            </if>
+            <if test="testAptId != null and testAptId != ''">
+            AND apt_id != #{testAptId}
+            </if>
+            <if test="excludeAptId != null and excludeAptId.size() > 0">
+            AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+            </if>
+		) a,
+		(
+		    SELECT *
+		    FROM emaul.apt_ap_monitoring_noti
+		    WHERE ( str_to_date(#{baseDate}, '%Y-%m-%d') <![CDATA[>]]> reg_date AND adddate(str_to_date(#{baseDate}, '%Y-%m-%d'), -${baseDays}) <![CDATA[<=]]> reg_date )
+		) b
+		WHERE a.id = b.ap_id
+		GROUP BY a.id, a.ap_beacon_uuid, a.apt_id, a.ap_id, a.ap_name, a.reg_date
+    </sql>
+
+    <sql id="sqlSelectAptApInspNotiList">
+        SELECT *
+        FROM
+        (
+	        SELECT aaa.*
+	              ,@notiRnum := @notiRnum + 1 rownum
+			FROM
+			(
+		        SELECT aa.*
+		              ,bb.name aptName
+		        FROM
+		        (
+		            <include refid="sqlAptApInspNotiList" />
+		        ) aa
+		        LEFT OUTER JOIN apt bb
+		        ON aa.aptId = bb.id
+		        ORDER BY bb.name DESC, aa.id ASC
+	        ) aaa, (SELECT @notiRnum := 0) r
+	    ) A
+        <where>
+        <if test="nextToken != null and nextToken != ''">
+            AND rownum <![CDATA[<]]> #{nextToken}
+        </if>
+        </where>
+        ORDER BY rownum DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </sql>
+
+    <select id="selectAptApInspNotiList" parameterType="map" resultType="map">
+    /* selectAptApInspNotiList */
+        <include refid="sqlSelectAptApInspNotiList" />
+    </select>
+    
+    <select id="selectAptApInspNotiListCount" parameterType="map" resultType="int">
+    /* selectAptApInspNotiListCount */
+	    SELECT COUNT(*)
+	    FROM
+	    (
+	        <include refid="sqlSelectAptApInspNotiList" />
+	    ) A
+    </select>
+    
+    <sql id="sqlSelectAptApInspNotiWarningAptList">
+        SELECT aa.aptId
+              ,bb.name aptName
+              <foreach collection="baseDateList" item="idx" open="," close=" totalCnt" separator="+" >
+                  sum(notiCnt${idx})
+              </foreach>
+              ,bb.rownum
+        FROM
+        (
+            <include refid="sqlAptApInspNotiList" />
+        ) aa
+        LEFT OUTER JOIN
+        (
+            SELECT aa.*
+                  ,@rnum := @rnum + 1 rownum
+            FROM apt aa, (SELECT @rnum := 0) r
+            ORDER BY aa.name DESC
+        ) bb
+        ON aa.aptId = bb.id
+        <where>
+        <if test="nextToken != null and nextToken != ''">
+            AND bb.rownum <![CDATA[<]]> #{nextToken}
+        </if>
+        </where>
+        GROUP BY aa.aptId, bb.name
+        ORDER BY bb.rownum DESC
+        <if test="limit != null and limit != ''">
+        LIMIT ${limit}
+        </if>
+    </sql>
+    
+    <select id="selectAptApInspNotiWarningAptList" parameterType="map" resultType="map">
+    /* selectAptApInspNotiWarningAptList */
+	    <include refid="sqlSelectAptApInspNotiWarningAptList" />
+    </select>
+    
+    <select id="selectAptApInspNotiWarningAptListCount" parameterType="map" resultType="int">
+    /* selectAptApInspNotiWarningAptListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptApInspNotiWarningAptList" />
+        ) A
+    </select>
+
+    <select id="selectAptApMonitoringNotiList" parameterType="map" resultType="AptApMonitoringNoti">
+    /* selectAptApMonitoringNotiList */
+        SELECT b.*
+              ,a.ap_beacon_uuid
+		FROM apt_ap a
+		    ,apt_ap_monitoring_noti b
+		WHERE a.id = b.ap_id
+		AND a.apt_id = #{aptId}
+		AND a.id = #{id}
+		AND date_format(b.reg_date, '%Y-%m-%d') = #{date}
+    </select>
+
+    <update id="insertApMonitoringAlive" parameterType="AptApMonitoringAlive" >
+    /* insertApMonitoringAlive */
+        INSERT INTO apt_ap_monitoring_alive
+        (
+            type
+            ,ap_id
+            ,exp_ip
+            ,success
+            ,reg_id
+            ,reg_date
+            ,memo
+        )
+        VALUES
+        (
+            #{type}
+            ,#{apId}
+            ,#{expIp}
+            ,#{success}
+            ,#{regId}
+            ,#{regDate}
+            ,#{memo}
+        )
+    </update>
+    
+
+    <delete id="deleteApMonitoringAlive" parameterType="Integer">
+    /* deleteApMonitoringAlive */
+        DELETE FROM apt_ap_monitoring_alive
+        WHERE reg_date <![CDATA[<=]]> str_to_date(date_format(str_to_date(date_format(date_add(now(), interval -(#{storagePeriod}-1) DAY), '%Y-%m-%d'), '%Y-%m-%d'), '%Y-%m-%d'), '%Y-%m-%d')
+    </delete>
+    
+    <sql id="sqlSelectApMonitoringAlive">
+        SELECT ccc.name aptName
+              ,aaa.id
+		      ,aaa.ap_beacon_uuid apBeaconUuid
+		      ,aaa.apt_id aptId
+		      ,aaa.ap_id apId
+		      ,aaa.ap_name apName
+		      ,date_format(aaa.reg_date, '%Y-%m-%d') apRegDate
+		      <foreach collection="baseDateList" item="item" index="idx" >
+              ,if(date_format(aaa.reg_date, '%Y-%m-%d') <![CDATA[>]]> str_to_date(#{item}, '%Y-%m-%d'), 'X', bbb.day${idx+1} ) day${idx+1}
+              </foreach>
+		      ,bbb.days
+		FROM
+		(
+		    SELECT *
+            FROM apt_ap
+            WHERE deactive_date is null
+            AND ap_beacon_uuid is not null
+            AND ap_beacon_uuid != ''
+            <if test="aptId != null and aptId != ''">
+            AND apt_id = #{aptId}
+            </if>
+            <if test="testAptId != null and testAptId != ''">
+            AND apt_id != #{testAptId}
+            </if>
+            <if test="excludeAptId != null and excludeAptId.size() > 0">
+            AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+            </if>
+            <if test="inIds != null and inIds.size > 0">
+                AND id in
+                <foreach collection="inIds" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            </if>
+		) aaa,
+		(
+		    SELECT ap_id monitoring_ap_id
+		          <foreach collection="baseDateList" item="item" index="idx" >
+		          ,max(if( date_format(reg_date, '%Y-%m-%d') = str_to_date(#{item}, '%Y-%m-%d') , check_data, '')) day${idx+1}
+		          </foreach>
+		          ,group_concat( periodSuccess separator '' ) days
+		    FROM
+		    (
+		        SELECT ap_id
+		              ,reg_date
+		              ,group_concat( success,'(',reg_time,')' ORDER BY reg_time DESC separator ',') check_data
+		              ,group_concat( success separator '' ) periodSuccess
+		        FROM
+		        (
+		            SELECT id
+		                  ,type
+		                  ,ap_id
+		                  ,exp_ip
+		                  ,success
+		                  ,date_format(reg_date, '%Y-%m-%d') reg_date
+		                  ,date_format(reg_date, '%H:%i') reg_time
+		                  ,memo
+		            FROM apt_ap_monitoring_alive
+		            WHERE ( str_to_date(#{sDate}, '%Y-%m-%d') <![CDATA[<=]]> reg_date AND adddate(str_to_date(#{eDate}, '%Y-%m-%d'), interval 1 day) <![CDATA[>]]> reg_date )
+		            <if test="_type != null and _type != ''">
+		            AND type = #{_type}
+		            </if>
+		
+		        ) a
+		        GROUP BY a.ap_id, reg_date
+		    ) aa
+		    GROUP BY aa.ap_id
+		) bbb,
+		apt ccc
+		WHERE aaa.id = bbb.monitoring_ap_id
+		AND aaa.apt_id = ccc.id
+        <if test='status == "1"'>
+            AND bbb.days LIKE '%N%'
+        </if>
+        <if test='status == "2"'>
+            AND length(bbb.days) = length(replace(bbb.days, 'N', ''))
+        </if>
+        /* ORDER BY ccc.name, aaa.id DESC */
+        ORDER BY ( length(bbb.days) - length(replace(bbb.days, 'N', '')) ) DESC
+    </sql>
+    
+    <select id="selectAptApHealthCheckList" parameterType="map" resultType="map">
+    /* selectAptApHealthCheckList */
+        <include refid="sqlSelectApMonitoringAlive" />
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+    
+    <select id="selectAptApHealthCheckListCount" parameterType="map" resultType="int">
+    /* selectAptApHealthCheckListCount */
+	    SELECT COUNT(*)
+	    FROM
+	    (
+	        <include refid="sqlSelectApMonitoringAlive" />
+	    ) A
+    </select>
+    
+    
+    
+    <select id="selectAptApMonitoringTotalUser" parameterType="map" resultType="int">
+    /* selectAptApMonitoringTotalUser */
+         SELECT 
+			        COUNT(DISTINCT b.user_id) uniqueUser 
+			    FROM
+			        apt_ap a, apt_ap_access_log b
+			    WHERE
+			        a.id = b.ap_id
+                    and  a.apt_id = #{apt_id}
+			     
+			    GROUP BY a.apt_id;
+    </select>
+    
+    <sql id="sqlSelectPeriodApAccessLogUserList">
+        SELECT a.*
+        FROM user a,
+        (
+            SELECT user_id FROM apt_ap_access_log WHERE ap_id = #{apId}
+            AND ( access_date <![CDATA[>=]]> str_to_date(date_format(date_add(now(), interval -(#{periodDay}-1) DAY), '%Y-%m-%d'), '%Y-%m-%d') and access_date <![CDATA[<]]> date_add(now(), interval 1 DAY) )
+            GROUP BY user_id
+        ) b
+        WHERE a.id = b.user_id
+    </sql>
+    
+    <select id="selectPeriodApAccessLogUserList" parameterType="map" resultType="SimpleUser" >
+    /* selectPeriodApAccessLogUserList */
+        <include refid="sqlSelectPeriodApAccessLogUserList" />
+    </select>
+    
+    <sql id="sqlSelectApAccessAuthUserList">
+	    SELECT distinct l3.*
+		FROM (
+		        SELECT * 
+		        FROM apt_ap
+		        WHERE deactive_date is null
+		        <if test="testAptId != null and testAptId != ''">
+	            AND apt_id != #{testAptId}
+	            </if>
+	            <if test="excludeAptId != null and excludeAptId.size() > 0">
+	            AND apt_id not in ( <foreach collection="excludeAptId" item="item" separator=",">${item}</foreach> )
+	            </if>
+		    ) l1
+		    ,apt_ap_access_auth l2
+		    ,(
+		        SELECT a.*
+		              ,b.apt_id
+		              ,b.dong
+		              ,b.ho
+		              ,c.*
+		        FROM user a
+		            ,house b
+		            ,user_type c
+		        WHERE a.house_id = b.id
+		        AND a.type_id = c.user_id
+		    ) l3
+		WHERE l1.id = l2.apt_ap_id
+		AND l1.id = #{apId}
+		AND l1.apt_id = l3.apt_id
+		AND 
+		(
+			( l2.dong = l3.dong AND l2.ho = l3.ho )
+			OR ( l2.dong = l3.dong AND l2.ho = 'All' )
+			OR ( l2.dong = 'All' ) 
+			OR ( l2.user_id = l3.id ) 
+			OR ( l2.ho_type = '1' AND l2.dong = l3.dong AND substring(l3.ho, length(l3.ho) - (l2.ho_line_digit-1) , l2.ho_line_digit) = l2.ho )
+			OR ( find_in_set( if(l3.admin = true, 'admin', '') ,l1.skip_auth) != 0 )
+			OR ( find_in_set( if(l3.gas_checker = true, 'gasChecker', '') ,l1.skip_auth) != 0 )
+		)
+    </sql>
+    
+    <select id="selectApAccessAuthUserList" parameterType="map" resultType="SimpleUser" >
+    /* selectApAccessAuthUserList */
+        <include refid="sqlSelectApAccessAuthUserList" />
+    </select>
+    
+    <select id="selectPeriodApAccessLogUserNApAccessAuthUserList" parameterType="map" resultType="SimpleUser">
+    /* selectPeriodApAccessLogUserNApAccessAuthUserList */
+        SELECT b.*
+		FROM
+		(
+		    <include refid="sqlSelectPeriodApAccessLogUserList" />
+		) a,
+		(
+		    <include refid="sqlSelectApAccessAuthUserList" />
+		) b
+		WHERE a.id = b.id
+    </select>
+    
+
+</mapper>

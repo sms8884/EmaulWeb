@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap-datetimepicker.css}" />
+<style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+        .modal-body th {
+            width: 20%;
+        }
+        .modal-body {
+            word-break: break-all;
+        }
+</style>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<title>JAHA-Admin</title>
+</head>
+<body>
+<div id="wrapper">
+	<!-- /#wrapper -->
+	<div th:replace="admin/admin :: top-nav"></div>
+	<div th:replace="admin/admin :: vert-nav-admin"></div>
+	<div id="page-wrapper">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">투표</h1>
+				<div class="panel panel-info">
+					<div class="panel-heading" style="font-weight:900"></div>
+					<div class="panel-body">
+						<form id="search">
+						<input type="hidden" name="page" id="page" th:value="${page.number}" />
+
+							<table class="table table-bordered" style="margin:0;">
+								<tr>
+									<th style="background-color: #f3f3f3">상태 / 종류</th>
+									<td>
+										<div class="col-sm-6" style="padding:0">
+											<select class="form-control" name="status" id="vote-status">
+												<option value="all" th:selected="${searchForm.status eq 'all'}">전체</option>
+												<option value="ready" th:selected="${searchForm.status eq 'ready'}">준비</option>
+												<option value="active" th:selected="${searchForm.status eq 'active'}">진행중</option>
+												<option value="done" th:selected="${searchForm.status eq 'done'}">완료</option>
+											</select>
+										</div>
+										<div class="col-sm-6" style="padding:0">
+											<select class="form-control" name="type" id="vote-type">
+												<option value="all" th:selected="${searchForm.type eq 'all'}">전체</option>
+												<option value="default" th:selected="${searchForm.type eq 'default'}">기본형</option>
+												<option value="y" th:selected="${searchForm.type eq 'y'}">동의형</option>
+												<option value="yn" th:selected="${searchForm.type eq 'yn'}">찬반형</option>
+												<option value="candidate_single" th:selected="${searchForm.type eq 'candidate_single'}">단일후보형</option>
+												<option value="candidate" th:selected="${searchForm.type eq 'candidate'}">후보형</option>
+											</select>
+										</div>
+									</td>
+									<th style="background-color: #f3f3f3">등록일</th>
+									<td class="form-inline" width="45%">
+										<div class="input-group date sc_aspickdate" id="datetimepickerFrom" style="margin:0;">
+											<input data-format="yyyy-MM-dd" type="text" class="form-control datetimepicker" id="startDate" name="startDate" placeholder="YYYY-MM-DD" readonly="readonly" style="background:#fff"
+												   th:value="${searchForm.startDate != null ? #dates.format(searchForm.startDate, 'yyyy-MM-dd') : ''}" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+										<div class="input-group date sc_aspickdate " id="datetimepickerTo"  style="margin:0;">
+											<input data-format="yyyy-MM-dd" type="text" class="form-control datetimepicker" id="endDate" name="endDate" placeholder="YYYY-MM-DD" readonly="readonly" style="background:#fff"
+												   th:value="${searchForm.endDate != null ? #dates.format(searchForm.endDate, 'yyyy-MM-dd') : ''}" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th style="background-color: #f3f3f3">제목</th>
+									<td >
+										<input type="text" class="form-control" name="title" id="vote-title" th:value="${searchForm.title}" />
+									</td>
+
+									<th style="background-color: #f3f3f3">아파트명</th>
+									<td >
+										<input type="text" class="form-control" name="targetAptName" id="target-apt-name" th:value="${searchForm.targetAptName}" />
+									</td>
+								</tr>
+							</table>
+							<div style="text-align:center; margin:20px 0;">
+								<input type="button" class="btn btn-default btn-info" id="btn-search" value="검색"/>
+								<input type="button" class="btn btn-default btn-success" id="btn-reset" value="초기화" />
+							</div>
+						</form>
+					</div>
+				</div>
+				<div id="content-container">
+					<div id="table-container">
+						<input type="button" class="btn btn-outline btn-info btn-sm" id="" name="" value="투표 서식 다운로드" style="float:right; margin:15px 0;" onclick="wpopup3();"/>
+						<table class="table table-striped">
+							<thead>
+								<tr th:if="${type}==@{vote}">
+									<th width="5%" style="text-align:center;">번호</th>
+									<th width="7%" style="text-align:center;">아파트</th>
+									<th style="text-align:center;">제목</th>
+									<th width="8%" style="text-align:center;" th:if="${user.type.jaha}==true">보안등급</th>
+									<th width="8%" style="text-align:center;">종류</th>
+									<th width="8%" style="text-align:center;">상태</th>
+									<th width="8%" style="text-align:center;">등록자</th>
+									<th width="11%" style="text-align:center;">등록일</th>
+									<th width="18%" style="text-align:center;"></th>
+								</tr>
+							</thead>
+							<tbody id="table-body" data-bind="visible: activeStatusPollingXhr() !=null">
+								<tr th:if="${page.content.empty}">
+									<td colspan="9">투표 목록이 없습니다.</td>
+								</tr>
+								<tr th:each="vote : ${page.content}" th:style="${vote.visible}==false ? 'color:#AAAAAA;'">
+									<td style="text-align:center;" th:text="${vote.id}">1</td>
+									<td style="text-align:center;"
+										th:if="${user.type.jaha}==true and ${type}==@{vote}"
+										th:text="${vote.targetApt.name}">가나다라</td>
+									<td style="text-align:center;">
+										<a href="#" th:text="${vote.title}" th:onclick="'lookVoteDetail(' + ${vote.id} +')'">제 2기 자하아파트 106동 동대표 선거[제6선거구]</a>
+									</td>
+									<td style="text-align:center;"
+										th:if="${user.type.jaha}==true and ${type}==@{vote}"
+										th:text="${vote.securityLevel}">s등급</td>
+									<td style="text-align:center;" th:if="${type}==@{vote}">일반
+										<div th:text="${vote.enableSecurity}=='Y'? '보안투표' : '일반투표'"></div>
+										<div th:if="${vote.enableSecurity}=='Y' and ${vote.voteKey.keyGrantYn}=='Y'" th:text="${vote.voteResultAvailable} ? '(개표완료)' :'(개표승인)'"></div>
+									</td>
+									<td style="text-align:center;">
+										<span th:text="${vote.statusKor}"></span><br/>
+										<div th:if="${vote.securityCheckState}" style="color:red;">(비정상투표)</div>
+									</td>
+									<td style="text-align:center;">등록자</td>
+									<td style="text-align:center;" th:text="${#dates.format(vote.regDate, 'yyyy-MM-dd HH:mm')}">2016-08-18 16:46</td>
+									<td style="text-align:center;">
+										<button type="button" class="btn btn-default" th:onclick="'goRealtime(' + ${vote.id} + ')'">집계완료</button>
+										<button type="button" class="btn btn-default" th:onclick="'geResult(' + ${vote.id} + ')'">결과</button>
+										<button type="button" class="btn btn-default"
+												th:if="${vote.status == 'active'}"
+												onclick="alert('진행중인 투표는 삭제할 수 없습니다. 개발사에 문의해 주세요')">삭제</button>
+										<button type="button" class="btn btn-default"
+												th:if="${vote.status != 'active'}"
+												th:onclick="'javascript:deleteVote(' + ${vote.id} + ')'">삭제</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div th:fragment='paginationbar'>
+						<ul class='pagination' th:if="${not page.content.empty}">
+							<li th:class="${page.firstPage}? 'disabled' : ''">
+								<span th:if="${page.firstPage}">처음</span>
+								<a th:if="${not page.firstPage}" th:href="'javascript:search(0);'">맨처음</a>
+							</li>
+							<li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+								<span th:if="${not page.hasPreviousPage}">«</span>
+								<a th:if="${page.hasPreviousPage}" th:href="'javascript:search(' + ${page.number - 2} + ');'">«</a>
+							</li>
+							<li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+								<span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+								<a th:if="${not item.current}" th:href="'javascript:search(' + ${item.number} + ');'"><span th:text="${item.number + 1}">1</span></a>
+							</li>
+							<li th:class="${page.hasNextPage}? '' : 'disabled'">
+								<span th:if="${not page.hasNextPage}">»</span>
+								<a th:if="${page.hasNextPage}" th:href="'javascript:search(' + ${page.number} + ');'">»</a>
+							</li>
+							<li th:class="${page.lastPage}? 'disabled' : ''">
+								<span th:if="${page.lastPage}">마지막</span>
+								<a th:if="${not page.lastPage}" th:href="'javascript:search(' + ${page.totalPages - 1} + ');'">끝</a>
+							</li>
+						</ul>
+						<a class="btn btn-success" th:if="${type}==@{vote}" href="/admin/vote/create" style="float: right;">새로운 투표 만들기</a>
+					</div>
+				</div>
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+		<!-- Modal -->
+        <div class="modal" id="modal-info">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close"><span
+                              >&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">투표상세보기</h4>
+						<p style="font-size:13px; color:red; margin:5px 0;">※ 투표가 진행중, 완료 상태일경우엔 수정이 불가능합니다.<br />수정을 원하시는 경우 새로운 투표를 생성바랍니다.</p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>id</th>
+                                    <td id="vote-de-id">157</td>
+                                </tr>
+                                <tr>
+                                    <th>투표제목</th>
+                                    <td id="vote-de-title">제2기 자하아파트 106동 동대표 선거[제6선거구]</td>
+                                </tr>
+                                <tr>
+                                    <th>설명</th>
+                                    <td id="vote-de-description">제2기 자하아파트 106동 동대표를 선출하고자 합니다. 임기는 2016.1.1 ~ 2018.1.1 까지이며, 선출된 동대표는 임기동안 자하아파트 106동의 살림을 책임지는 입주자대표회의를 구성하게 됩니다.</td>
+                                </tr>
+                                <tr>
+                                    <th>시작날짜</th>
+                                    <td id="vote-de-startdate">2016년 01월 01일 13:53</td>
+                                </tr>
+                                <tr>
+                                    <th>종료날짜</th>
+                                    <td id="vote-de-enddate">2016년 01월 05일 13:53</td>
+                                </tr>
+                                <tr>
+                                    <th>투표대상</th>
+                                    <td id="vote-de-target">전체 또는<br/>101동 [1라인, 2라인]<br/>102동</td>
+                                </tr>
+                                <tr>
+                                    <th>유권자 수</th>
+                                    <td id="vote-de-voterCnt">100</td>
+                                </tr>
+                                <tr>
+                                    <th>중복제한</th>
+                                    <td id="vote-de-dupl">[세대별 한 표만 투표 가능] | [세대별 복수 투표 가능]</td>
+                                </tr>
+                                <tr>
+                                    <th>상태</th>
+                                    <td id="vote-de-status">완료</td>
+                                </tr>
+                                <tr>
+                                    <th>투표종류</th>
+                                    <td id="vote-de-security">보안투표</td>
+                                </tr>
+                                <tr  id="tr-admin-name">
+                                    <th>선거관리위원장</th>
+                                    <td id="vote-de-admin-name">홍길동</td>
+                                </tr>
+                            </table>
+                        </div>
+						<div style="text-align:center;">
+							<button id="vote-de-goto-result" class="btn btn-success" >확인</button>
+                        <button id="vote-de-send-noti" class="btn btn-success">투표 독려하기</button>
+						</div>
+                        <p id="modal-content" style="word-wrap: break-word"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal-noti-send" tabindex="-1" role="dialog" aria-labelledby="modal-noti-send"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+                        <h4 class="modal-title" id="notiModalLabel" th:text="${type}==@{vote}? '투표참여 독려하기' : ''">투표 독려 메세지</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+							<input type="text" class="form-control" id="" value="" name="" placeholder="확인버튼을 누르시면 투표 미참여자에게 투표를 참여하라는 알림 메시지를 전송합니다."/>
+
+                            <p style="font-size:13px; color:red; margin:5px 0;">※ 투표 독려 메시지는 투표를 안한 주민에게만 발송이 되며,하루 1번만 발송 가능합니다.</p>
+                        </div>
+						<div style="text-align:center;">
+							<button id="vote-noti-cancel" class="btn btn-default" data-dismiss="modal">취소</button>
+							<button id="vote-noti-send" class="btn btn-success" >보내기</button>
+						</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+<script th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script th:src="@{/js/sb-admin-2.js}"></script>
+<script th:src="@{/js/moment-with-locales.js}"></script>
+<script th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+	function goRealtime(voteId){
+		window.open('/jaha/vote/realtime/' + voteId, '','width=540, height=460');
+	}
+
+	function wpopup2(){ window.open("vote-result-Popup2.html","","width=540, height=450")};
+	function wpopup3(){ window.open("vote-download-popup.html","","width=540, height=450")};
+
+
+	function geResult(voteId){
+		var windowOpenUrl = "/admin/vote/list/" + voteId + "/result";
+		location.href = windowOpenUrl;
+	}
+
+	function search(page) {
+		$('#page').val(page);
+		$('#search').submit();
+	}
+
+	$(function () {
+        $('#datetimepickerFrom, #datetimepickerTo').datetimepicker({
+            locale: 'ko',
+            format: 'YYYY-MM-DD'
+        });
+
+		$('#btn-reset').click(function (e) {
+			e.preventDefault();
+
+			$('#vote-status').val('all');
+			$('#vote-type').val('all');
+
+			$('#startDate').val('');
+			$('#endDate').val('');
+
+			$('#vote-title').val('');
+			$('#target-apt-name').val('');
+		});
+
+		$('#btn-search').click(function (e) {
+			e.preventDefault();
+			search(0);
+		});
+    });
+
+    $('ul.pagination > li > a').click(function (e) {
+        currentPage = $(this).attr("href");
+        switchMainContent(currentPage);
+        e.preventDefault();
+    });
+
+    function deleteVote(voteId) {
+		alert(1);
+        var type = /*[[${type}]]*/ 'type';
+        var path = '/admin/vote/delete/' + type + '/' + voteId;
+        if (confirm("삭제하시겠습니까??")) {
+            $.ajax({
+                url: path,
+                type: 'delete',
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    Date.prototype.yyyymmdd = function () {
+        var yyyy = this.getFullYear().toString();
+        var MM = (this.getMonth() + 1).toString(); // getMonth() is zero-based
+        var dd = this.getDate().toString();
+        var hh = this.getHours().toString();
+        var mm = this.getMinutes().toString();
+        return yyyy + '년 ' + (MM[1] ? MM : "0" + MM[0]) + '월 ' + (dd[1] ? dd : "0" + dd[0]) + '일 ' + (hh[1] ? hh : "0" + hh[0]) + ':' + (mm[1] ? mm : "0" + mm[0]); // padding
+    };
+    var noti_data = "";
+
+    function lookVoteDetail(voteId) {
+
+        var url = "/admin/vote/detail/" + voteId;
+        $.ajax({
+            type: 'GET',
+            url: url,
+			async:false,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                // console.log(data);
+                var vote_type = "투표"
+                if(data.type.main == "poll"){
+                    vote_type = "설문"
+                }
+                $('#vote-de-send-noti').hide();
+                $('#vote-de-id').text(data.id);
+                $('#vote-de-title').text(data.title);
+                $('#vote-de-description').text(data.description);
+                $('#vote-de-target').text(data.targetDong+' '+data.jsonArrayTargetHo);
+                if(data.targetDong == ""){
+                    $('#vote-de-target').text("전체");
+                }
+                if(data.houseLimited){
+                    $('#vote-de-dupl').text("세대별 한 표만 "+vote_type+" 가능");
+                }else{
+                    $('#vote-de-dupl').text("세대별 복수 "+vote_type+" 가능");
+                }
+                if(data.type.main == "vote"){
+                    if(data.enableSecurity == "Y"){
+                        $('#vote-de-security').text("보안투표");
+                        $('#tr-admin-name').show();
+                        $('#vote-de-admin-name').text(data.voteKey.adminName + " (" + data.voteKey.adminEmail + ")");
+                    }else{
+                        $('#vote-de-security').text("일반투표");
+                        $('#tr-admin-name').hide();
+                    }
+                    if(data.status == "active"){
+                        $('#vote-de-send-noti').show();
+                        if(data.notVoteUserCnt > 0){
+                            noti_data = data
+                            $('#vote-de-send-noti').attr("onclick", "showNotiModal();");
+                        }else{
+                            $('#vote-de-send-noti').attr("onclick", "alert('알림 대상 회원이 없습니다.')");
+                        }
+                    }
+                }
+                var startDate = data.startDate;
+                $('#vote-de-startdate').text(new Date(startDate).yyyymmdd());
+                $('#vote-de-enddate').text(new Date(data.endDate).yyyymmdd());
+                $('#vote-de-status').text(data.statusText);
+                $('#vote-de-voterCnt').text(data.votersCount);
+                var windowOpenUrl = "'/admin/vote/list/" + voteId + "/result'";
+                $('#vote-de-goto-result').attr("onclick", "window.open(" + windowOpenUrl + ",'pop')");
+                $('#modal-info').modal('show');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+        $('#modal-info').modal('show');
+    }
+
+    function showNotiModal(){
+        $('#vote-noti-time').text(new Date().yyyymmdd());
+        $('#vote-noti-cnt').text(noti_data.notVoteUserCnt);
+        $('#vote-noti-send').attr("onclick", "sendNoti()");
+        $('#modal-info').modal('hide');
+        $('#modal-noti-send').modal('show');
+    }
+
+    function sendNoti(){
+        var url = "/admin/vote/sendNoti/" + noti_data.id;
+        // console.log('noti_send');
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                // console.log(data);
+                alert(data.sendCnt + "명에게 알림을 보냈습니다");
+                $('#modal-noti-send').modal('hide');
+                noti_data = "";
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+    function setVoteVisibility(voteId, visible) {
+        var confirmString = visible ? '현재 상태는 \'숨기기\'입니다. \'보이기\'로 바꾸시겠습니까?' : '현재 상태는 \'보이기\'입니다. \'숨기기\'로 바꾸시겠습니까?';
+        if(confirm(confirmString)){
+            var url = '/admin/vote/visible/' + voteId + '/' + (visible ? '1' : '0');
+            $.ajax({
+                type: 'PUT',
+                url: url ,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    function showRealTime(voteId){
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

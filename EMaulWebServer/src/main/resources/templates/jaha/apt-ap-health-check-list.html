@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+    /*추가*/
+        input[type=text]{
+            height:30px;
+        }
+        ._btnLeft{
+            float:left;
+            margin-right: 5px;
+        }
+        .hand {
+            cursor: pointer;
+        }
+        ._link{
+            text-decoration: underline;
+        }
+        ._link:hover{
+            font-weight: bold;
+        }
+        .bottomBtnBox {
+            text-align:right;
+            margin-top:5px;margin-bottom:5px;
+        }
+        ._chk{
+            width: 17px;
+            height: 17px;
+        }
+
+        /* search table */
+        .searchTable th {
+            width:80px;
+        }
+        .searchTable tr {
+            height: 35px;
+        }
+        .searchTable .aptName {
+            width:500px;
+        }
+        .searchTable .searchKeyword {
+            width: 250px;
+            margin-right:10px;
+        }
+
+        /* listTable */
+        ._listArea{
+            width: 100%;
+        }
+        .listTableScroll{
+            overflow-y:auto;
+            height: 350px;
+        }
+        .listTableScroll2{
+            overflow-y:auto;
+            height: 350px;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable thead td{
+            border-bottom:2px solid #EAEAEA;
+        }
+        ._listTable tbody td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        ._defaultTable tr{
+            border-bottom : 1px solid #F6F6F6;
+        }
+        ._defaultModalTable{
+            width:100%;
+        }
+        ._defaultModalTable th {
+            width:150px;
+        }
+        ._defaultModalTable tr {
+            height: 30px;
+        }
+
+        /* 말줄임 css */
+        .ellipsis{
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            overflow:hidden;
+        }
+    </style>
+
+    <title>AP 출입 Log</title>
+</head>
+
+<body>
+
+<input type="hidden" name="nextToken" id="nextToken" />
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-header">AP Health Check Monitoring</h4>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-weight:900"></div>
+                        <div class="panel-body">
+                            <table class="table-responsive searchTable">
+                                <tr>
+                                    <th>TYPE</th>
+                                    <td class="form-inline" colspan="3">
+                                        <label><input type="radio" name="_type" value="schedule" checked="checked" />시스템 스케쥴 이력</label>
+                                        <label><input type="radio" name="_type" value="user" />사용자가 실행한 이력</label>
+                                        <label><input type="radio" name="_type" value=""  />전체</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>아파트</th>
+                                    <td class="form-inline" colspan="3">
+                                        <input type="hidden" name="aptId" id="aptId" />
+                                        <input type="text" class="form-control aptName" id="aptNm" name="aptNm" readonly="readonly" />
+                                        <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="fnSelectAptPopup()"/>
+                                        <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="fnCancelApt()"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>AP 검색</th>
+                                    <td class="form-inline">
+                                        <input type="button" class="btn btn-info btn-sm" value="AP검색" name="selectApBtn" onclick="fnSelectApPopup()"/>
+                                        <input type="button" class="btn btn-default btn-sm" id="selectApBtn" value="선택한AP(0개)보기" name="selectApBtn" onclick="fnViewSelectedAp()"/>
+                                        <input type="button" class="btn btn-default btn-sm" value="AP선택취소" name="cancelAptBtn" onclick="fnCancelAp()"/>
+                                    </td>
+                                    <th>상태</th>
+                                    <td class="form-inline">
+                                        <select class="form-control" name="status" id="status" style="height:31px;width:120px;" >
+                                            <option value="1">장애</option>
+                                            <option value="2">정상</option>
+                                            <option value="">전체</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>기간</th>
+                                    <td class="form-inline" colspan="3">
+                                        <div id="startDateWrap" class='input-group date'>
+                                            <input type="text" class="form-control" id="sDate" name="sDate" placeholder="YYYY-MM-DD" />
+                                            <span class="input-group-addon" style="cursor: pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        ~
+                                        <div id="endDateWrap" class='input-group date'>
+                                            <input type="text" class="form-control" id="eDate" name="eDate" placeholder="YYYY-MM-DD" />
+                                            <span class="input-group-addon" style="cursor: pointer;">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                                        <input type="button" class="btn btn-sm btn-outline btn-info" id="excelDownBtn" name="excelDownBtn" value="엑셀다운로드" />
+                                        <input type="button" class="btn btn-sm btn-info" id="realTimeMonitoringBtn" name="realTimeMonitoringBtn" value="실시간조회" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel-default" style="margin-bottom:10px; height:30px;">
+                        <span style="float:left;" id="totalCountText" >0</span>건의 데이터가 검색되었습니다.
+                        <select class="form-control" name="pageSize" id="pageSize" style="height:30px;width:120px;float:right;" >
+                            <option value="10">10개씩</option>
+                            <option value="20">20개씩</option>
+                            <option value="30">30개씩</option>
+                            <option value="50">50개씩</option>
+                        </select>
+                    </div>
+
+                    <div class="_listArea panel" id="_listArea">
+                        <table class="table _listTable" >
+                            <thead id="_dataTableHeader" >
+                                <tr>
+                                    <td style="width:5%;"><input type="checkbox" name="allChk" id="allChk" class="_chk" /></td>
+                                    <td style="width:5%;">No.</td>
+                                    <td style="width:15%;">아파트<br />(출입로그확인)</td>
+                                    <td style="width:5%;">ID</td>
+                                    <td style="width:8%;">AP ID</td>
+                                    <td style="width:8%;">AP 이름</td>
+                                    <td>Days</td>
+                                </tr>
+                            </thead>
+                            <tbody id="_listTable">
+                                <tr><td style="width:100%;" colspan="15">검색해주세요.</td></tr>
+                            </tbody>
+                        </table>
+                        
+                        <div id="pagingArea" align="center"></div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<!-- AP 선택목록 modal -->
+<div class="modal fade" id="modal-ap-list" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">AP 검색 목록</h4>
+            </div>
+            <div class="modal-body">
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:20%;">ID</td>
+                                    <td style="width:20%;">AP ID</td>
+                                    <td style="width:30%;">AP 이름</td>
+                                    <td style="width:30%;">AP BEACON UUID</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="listTableScroll2" >
+                        <table class="table table-hover _listTable">
+                            <tbody id="_listTable2">
+                                <tr><td style="width:100%;" colspan="10">데이터가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-default" value="AP선택취소" name="cancelApSelectBtn" onclick="fnCancelAp()" />
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+
+    	$("#searchBtn").on("click", function(){
+    		fnInitSearch();
+        });
+    	
+    	$("#pageSize").on("change", function(){
+    		param.pageSize = $("#pageSize").val();
+    		fnSearch();
+    	});
+    	
+    	$("#realTimeMonitoringBtn").on("click", function(){
+    		fnRealTimeMonitoring();
+    	});
+    	
+    	$("#excelDownBtn").on("click", function(){
+    		fnSearch4ExcelDownload();
+    	});
+
+        $('#startDateWrap, #endDateWrap').datetimepicker({
+            format : "YYYY-MM-DD"
+        });
+
+        var d = new Date();
+        $('#endDateWrap').data("DateTimePicker").date(d);
+        
+        d.setDate(d.getDate()-6);//일주일전. 오늘포함해야해서 6일을 빼준다.
+        $('#startDateWrap').data("DateTimePicker").date(d);
+        
+        fnInitSearch();//처음 기본 호출
+        
+    });
+
+    var param = {};// 현재 검색되어진 데이터의 검색조건을 유지
+    function fnInitSearch(){
+    	
+    	var sDate = $('#startDateWrap').data("DateTimePicker").date();
+    	var eDate = $('#endDateWrap').data("DateTimePicker").date();
+    	
+    	if(sDate > eDate){
+            alert("기간검색을 다시 설정해주세요.");
+            return;
+        }
+    	
+    	var periodDay = (eDate - sDate) /1000/60/60/24;
+    	if(periodDay > 6 || periodDay < 0){
+    		alert("검색기간은 7일을 초과할 수 없습니다.");
+    		return;
+    	}
+        param.periodDay = periodDay+1;// table 헤더 부분및 조회데이터 TD의 생성개수로 사용 ( javascript 내에서만 사용 )
+    	
+        param._type = $("input[name=_type]:checked").val();
+    	param.aptId = $("#aptId").val();
+        param.status = $("#status").val();
+        param.sDate = $("#sDate").val();
+        param.eDate = $("#eDate").val();
+        param.pageSize = $("#pageSize").val();
+        
+        var searchApList = new Array();
+        $("input[name=apList]").each(function(){
+            searchApList.push($(this).val());
+        });
+        param.apList = searchApList;
+        
+        fnSearch();
+    	
+    }
+    
+    function fnSetListHeader(){
+        var periodSize = param.periodDay;
+        
+        var _html = '';
+        _html += '<tr>';
+        _html += '<td style="width:5%;"><input type="checkbox" name="allChk" id="allChk" class="_chk" /></td>';
+        _html += '<td style="width:5%;">No.</td>';
+        _html += '<td style="width:15%;">아파트<br />(출입로그확인)</td>';
+        _html += '<td style="width:5%;">ID</td>';
+        _html += '<td style="width:8%;">AP ID</td>';
+        _html += '<td style="width:8%;">AP 이름</td>';
+        
+        for(var i=0;i<periodSize;i++){
+            var endDate = moment(param.eDate);
+            _html += '<td>'+endDate.add(-i, "days").format("YYYY-MM-DD")+'</td>';
+        }
+        
+        _html += '</tr>';
+        if(_html.length > 0){
+            $("#_dataTableHeader").html(_html);
+        }
+    }
+    
+    function fnSearch(pageNum){
+
+    	param.pageNum = gfnNvl(pageNum, "1");
+    	
+        gfnLoadingImage();
+
+        $.ajax({
+            url: '/jaha/apt/ap/monitoring/health/check/list-data',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            traditional: true , // parameter 직렬화를 느슨하게 처리. ( ajax parameter에 array 변수를 전송 할때 적용함. )
+            data: param,
+            success: function(data) {
+            	
+            	$("#_listTable").empty();
+            	
+            	var dataList = data.dataList;
+            	
+            	var onlinePagingHtml = makePaging(data.pagingHelper, "fnMovePaging");
+                $('#pagingArea').html(onlinePagingHtml);
+            	
+                if(dataList != null && dataList.length > 0){
+                	
+                    $("#totalCountText").text(data.pagingHelper.totalRecordCount);
+
+                    var no = data.pagingHelper.totalRecordCount - ( data.pagingHelper.startNum );
+                    var periodSize = param.periodDay;
+                    
+                    fnSetListHeader();
+                    
+                    var _html = '';
+                    for(var i=0;i<dataList.length;i++){
+                    	
+                    	var id = gfnNvl(dataList[i].id);
+                        var apId = gfnNvl(dataList[i].apId);
+                        var apName = gfnNvl(dataList[i].apName);
+                        var aptName = gfnNvl(dataList[i].aptName);
+                        var aptId = gfnNvl(dataList[i].aptId);
+                    	
+                    	_html += '<tr>';
+                        _html += '<td style="width:5%"><input type="checkbox" name="_chk" value="'+id+'" class="_chk" /></td>';
+                        _html += '<td style="width:5%">'+( no-- )+'</td>';
+                        _html += '<td style="width:15%" class="hand _link" onclick="fnEdoorLogPop('+aptId+','+id+')" >'+aptName+'</td>';
+                        _html += '<td style="width:5%">'+id+'</td>';
+                        _html += '<td style="width:8%">'+apId+'</td>';
+                        _html += '<td style="width:8%">'+apName+'</td>';
+                        
+                        for(var j=1;j<=periodSize;j++){
+                        	var day = gfnNvl(eval("dataList[i].day"+j));
+                        	var times = day.split(",");
+                        	if(times.length > 0){
+                        		var timesHtml = "";
+                        		for(var k=0;k<times.length;k++){
+                        			if(times[k].indexOf("N") == -1){
+                        				timesHtml += times[k] + '<br />';	
+                        			} else {
+                        				timesHtml += '<span style="color:red;">' + times[k] + '</span>'  + '<br />';                        				
+                        			}
+                        		}
+                        		_html += '<td>'+timesHtml+'</td>';                     		
+                        	} else {
+                        		_html += '<td></td>';
+                        	}
+                        }
+                        
+                        _html += '</tr>';
+                    }
+
+                    if(_html.length > 0){
+                        $(_html).appendTo("#_listTable");
+                        
+                        //header html도 변경되므로 check box 이벤트는 html생성후 bind
+                        $("#allChk").on("click", function(){
+                            $("input[name=_chk]").prop("checked",  $(this).prop("checked"));
+                        });
+                        
+                        $("input[name=_chk]").on("click", function(){
+                            if($(this).prop("checked") == true){
+                                if($("input[name=_chk]").length == $("input[name=_chk]:checked").length){
+                                    $("#allChk").prop("checked", true);   
+                                }
+                            } else {
+                                $("#allChk").prop("checked", false);
+                            }
+                        });
+                        
+                        $(window).scrollTop(0);//검색하면 스크롤은 항상 맨위로
+                    }
+
+                } else {
+                	$("#totalCountText").text("0");
+                	
+                	fnSetListHeader();
+                    $('<tr><td style="text-align:center" colspan="15">검색결과가 없습니다.</td></tr>').appendTo("#_listTable");
+                }
+
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSearch fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+
+    }
+    
+    function fnMovePaging(pageNum){
+    	fnSearch(pageNum);
+    }
+    
+    function fnEdoorLogPop(aptId, apId){
+    	
+    	var popupParam = "?aptId="+gfnNvl(aptId);
+    	popupParam += "&apId="+gfnNvl(apId);
+    	popupParam += "&sDate="+gfnNvl(param.sDate);
+    	popupParam += "&eDate="+gfnNvl(param.eDate);
+    	
+    	var width = 1600;
+        var height = 850;
+        openWindow("/jaha/apt/ap/access/log/list/popup"+popupParam,"aptApAccessLogPopup"+gfnNvl(aptId), width, height);
+    }
+    
+    function fnSelectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+    }
+
+    function fnCancelApt(){
+        $("#aptNm").val("");
+        $("#aptId").val("");
+    }
+
+    /* AP검색 */
+    function fnSelectApPopup(){
+        var width = 800;
+        var height = 720;
+
+        var param = "";
+        if($("#aptId").val() != ""){
+        	param = "?_aptId="+$("#aptId").val();
+        }
+        openWindow("/jaha/ap/search/popup"+param,"apSearchPopup", width, height);
+    }
+
+    function fnViewSelectedAp(){
+        $("#modal-ap-list").centerModal();
+    }
+
+    function fnCancelAp(){
+        $("#_listTable2").empty();
+        $("#selectApBtn").val("선택한AP(0개)보기");
+        $("#modal-ap-list").modal("hide");
+    }
+
+    function _searchApCallback(apDataList){
+        $("#_listTable2").empty();
+        var _html = '';
+        $(apDataList).each(function(idx){
+            var id = gfnNvl(apDataList[idx].id);
+            var apId = gfnNvl(apDataList[idx].apId);
+            var apBeaconUuid = gfnNvl(apDataList[idx].apBeaconUuid);
+            var apName = gfnNvl(apDataList[idx].apName);
+             _html += '<tr>';
+             _html += '<td style="width:20%">'+id+'<input type="hidden" name="apList" value="'+id+'" /></td>';
+             _html += '<td style="width:20%">'+apId+'</td>';
+             _html += '<td style="width:30%">'+apName+'</td>';
+             _html += '<td style="width:30%">'+apBeaconUuid+'</td>';
+             _html += '</tr>';
+        });
+        if(_html.length > 0){
+            $("#selectApBtn").val("선택한AP("+apDataList.length+"개)보기");
+            $("#_listTable2").html(_html);
+        }
+    }
+    
+    function fnRealTimeMonitoring(){
+    	$("#frm").empty();
+        if($("input[name=_chk]:checked").length > 0){
+        	$("input[name=_chk]:checked").each(function(){
+        		$("#frm").append('<input type="hidden" name="apList" value="'+$(this).val()+'" />');	
+        	});
+        }
+        
+        var width = 1200;
+        var height = 850;
+        
+        openWindow("_black","realTimeMonitoringPopup", width, height);
+        
+        $("#frm").prop("action", "/jaha/apt/ap/health/check/popup").prop("target", "realTimeMonitoringPopup").submit();
+    }
+
+    function fnSearch4ExcelDownload(){
+    	
+    	if(Object.keys(param).length == 0){
+    		alert("검색후 다운로드하실 수 있습니다.");
+    		return;
+    	}
+    	
+        // gfnLoadingImage();
+        var parameter = decodeURIComponent($.param(param, true));
+        $.download('/jaha/apt/ap/monitoring/health/check/list/excel-download', parameter, 'post');
+    }
+    /*]]>*/
+</script>
+<div id="gggg">하하하하</div>
+</body>
+</html>

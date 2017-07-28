@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.app.AppAdminMapper">
+
+	<!-- 관련 테이블 : app_version_v2 -->
+
+	<!-- OS별 App버전 리스트 조회 -->
+	<select id="selectAppVersionV2List" parameterType="AppVersionV2Vo" resultType="AppVersionV2Vo">
+	    SELECT /* selectAppVersionV2List  조영태(cyt@jahasmart.com) */
+			id
+			, os
+			, version_code
+			, version_name
+			, force_yn
+			, message
+			, url
+			, user_id
+			, reg_date
+			, use_yn
+			, mod_id
+			, mod_date
+	    FROM
+	    	app_version_v2
+	    WHERE
+	    	use_yn = 'Y'
+	    	AND os = #{os}
+    	ORDER BY reg_date desc
+	</select>
+
+
+	<insert id="insertAppVersionV2" parameterType="AppVersionV2Vo" >
+	INSERT INTO  /* insertAppVersionV2  조영태(cyt@jahasmart.com) */ app_version_v2
+	(
+		os, version_code, version_name,
+		force_yn, message, url, user_id,
+		reg_date,	use_yn
+	) VALUES (
+		#{os}, #{versionCode}, #{versionName},
+		#{forceYn}, #{message}, #{url}, #{userId},
+		now(), 'Y'
+	)
+	</insert>
+
+	<update id="updateAppVersionV2" parameterType="AppVersionV2Vo" >
+	UPDATE /* updateAppVersionV2  조영태(cyt@jahasmart.com) */  app_version_v2
+	SET
+		use_yn = 'N',
+		mod_id = #{modId},
+		mod_date = now()
+	WHERE id = #{id}
+	</update>
+
+
+
+</mapper>

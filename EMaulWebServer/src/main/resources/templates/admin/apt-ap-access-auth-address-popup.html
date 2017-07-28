@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	
+	    .apAddBtnBox {
+	        text-align:left;
+	        margin-bottom:15px;
+	    }
+	
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:5px;margin-bottom:5px;
+	    }
+	    
+	    .addTable th {
+	        width:80px;
+	    }
+	    .addTable td {
+	    }
+	    .addTable .hoLine {
+            width:180px;
+        }
+	    .addTable #hoLine {
+	        width:60px;
+	    }
+	    .addTable select {
+	       width:90px;
+	    }
+        
+    </style>
+
+    <title>AP 출입권한 동/호수</title>
+</head>
+
+<body>
+	<div class="defaultPopup">
+	    <h4 class="page-header">AP 출입권한 동/호수</h4>
+	
+	    <table class="table addTable">
+	        <tr>
+	            <th>동</th>
+	            <td class="form-inline">
+	                <select class="form-control " name="dong" id="dong" onchange="changeDong(this)">
+	                    <option value="All" >전체</option>
+	                    <option value="" th:each="dong : ${dongs}" th:value="${dong}" th:text="${dong}" >동 선택</option>
+	                </select>
+	            </td>
+	            <th><label><input type="radio" name="hoType" value="1" checked="checked" /> 호 라인</label></th>
+                <td class="form-inline hoLine">
+                    <select class="form-control hoType1" name="hoLineDigit" id="hoLineDigit">
+                        <option value="1" >한자리</option>
+                        <option value="2" >두자리</option>
+                    </select>
+                    <input type="text" name="hoLine" id="hoLine" class="form-control hoType1" maxlength="1" />
+                </td>
+	            <th><label><input type="radio" name="hoType" value="2" /> 호</label></th>
+	            <td class="form-inline">
+	                <select class="form-control hoType2" name="ho" id="ho" >
+	                    <option value="All" >전체</option>
+	                </select>
+	            </td>
+	            <td>
+	                <input type="button" class="btn btn-sm btn-primary" id="addBtn" value="추가" name="addBtn" onclick="addData()"/>
+	            </td>
+	        </tr>
+	    </table>
+	    <div class="apAddBtnBox">
+	        <input type="button" class="btn btn-sm btn-primary" id="deleteBtn" value="삭제" name="deleteBtn" onclick="deleteData()"/>
+	    </div>
+	    <div class="sbGridArea" id="sbGridArea"></div>
+	    
+	    <div class="bottomBtnBox">
+	        <input type="button" class="btn btn-info sc_asSignup" id="sc_asSignup" value="저장" name="sc_asSignup" onclick="save()"/>
+	        <input type="button" class="btn btn-info sc_asSignup" id="cancelBtn" value="취소" name="cancelBtn" onclick="closePopup()"/>
+	    </div>
+	</div>
+
+<form name="frm" id="frm" method="post">
+    <input type="hidden" name="aptApId" id="aptApId" th:value="${aptApId}" />
+    <input type="hidden" name="aptId" id="aptId" th:value="${aptId}" />
+</form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid;
+    var gridJsonData;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+    $(document).ready(function(){
+    	
+    	$(".hoType2").prop("disabled", true);
+    	$("input[name=hoType]").bind("click",function(){
+            $(".hoType"+$(this).val()).prop("disabled", false);
+            $(".hoType"+$("input[name=hoType]").not(this).val()).prop("disabled", true);
+        });
+    	
+    	$("#hoLineDigit").bind("change", function(){
+    		$("#hoLine").val("");
+    		$("#hoLine").prop("maxLength", $(this).val());
+    	});
+    	
+    	gridJsonData = new Array();
+    	createDataGrid();
+    });
+    
+    function createDataGrid(){
+        var strCaption, 
+            strWidth,
+            gridAttr, 
+            objJson;
+    
+        strCaption = "^동^호";
+        strWidth = "10%,45%,45%";
+        
+        gridAttr = {
+            "strParentId"                   : 'sbGridArea',
+            "strId"                         : 'datagrid',
+            "strCaption"                    : strCaption,
+            "strColWidth"                   : strWidth,
+            "strJsonRef"                    : "gridJsonData",
+            "strStyle"                      : "width:100%; height:200px; font-family:dotum, arial; font-size:14px;",
+            "strExplorerbar"            : "sortshowmove",
+            "strRowHeight"              : "50px",
+            "strDataHeight"              : "38px",
+            "strFocusColor"         :   "#E8E8E8",
+            "strSelectFontColorStyle":  "none",
+            "fixedcol"                       :"1",
+            "bUseMultiSorting"       : false,
+            "bDataSearching"             : true,
+            "bDragMode" : false,
+            "bIsShowLoadingImage"   :   true,
+            "strExtendLastCol"       : "scroll"
+            };
+    
+        datagrid = createSBDataGrid(gridAttr);
+        
+        objJson = [
+                     {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+                     {"id" : "dongText" , "type" : "output" , "ref" : "dongText" , "style":"text-align:center;"},
+                     {"id" : "hoText" , "type" : "output" , "ref" : "hoText" , "style":"text-align:center;"}
+                  ];
+                  
+        datagrid.createColumns(objJson);
+        
+        datagrid.setFixedcellcheckbox(0, 0, true);
+        
+        datagrid.addEventListener("ondblclick","grid1DbClick()","","");
+        
+    }
+    
+    function changeDong(obj){
+        var dong = $(obj).val();
+        $.ajax({
+            type: 'GET',
+            url: "/admin/apt/hos",
+            dataType: 'json',
+            data: {
+                "aptId" : $("#aptId").val(),
+                "dong" : dong
+            },
+            success: function (data) {
+                 $("#ho").empty();
+                 $("#ho").append('<option value="All">전체</option>');
+                for (i in data) {
+                    $("#ho").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+            }
+        });
+    }
+    
+    function addData(){
+    	
+    	if(gridJsonData.length > 0 && gridJsonData[0].dong == "All"){
+    		//동 전체가 이미있으면 입력불가.
+    		return;
+    	}
+    	
+    	if($("#dong").val() == "All"){
+    		//동전체 선택이면 grid 데이터 전체 삭제. 전체하나만 입력가능하게 처리.
+    		gridJsonData.length = 0;
+    		fnSetGridHoData();
+    		return;
+    	}
+    	
+    	if(gridJsonData.length > 0){
+            //동의 호가 전체인항목이 이미있으면 해당동의 호는 입력불가.
+            var existAll = false;
+            for(var i=0;i<gridJsonData.length;i++){
+                var rowData = gridJsonData[i];
+                if( rowData.dong == $("#dong").val() && rowData.ho == "All" ){
+                    existAll = true;
+                    break;
+                }
+            }
+            if(existAll == true){
+                return;
+            }
+        }
+    	
+    	var hoType = $("input[name=hoType]:checked").val();
+    	
+    	if(hoType == "1"){
+    		if($.trim($("#hoLineDigit").val()) == "2" && $.trim($("#hoLine").val()).length < 2 ){
+    			alert("호 라인을 두자리선택시 두자리를 입력해주세요.");
+    			return;
+    		}
+    		
+    		//호를 라인단위로 선택
+    		
+    		if($.trim($("#hoLine").val()) == ""){
+    			alert("호 라인을 입력해주세요.");
+    			return;
+    		}
+    		
+    		for(var i=0;i<gridJsonData.length;i++){
+                var rowData = gridJsonData[i];
+                if( rowData.dong == $("#dong").val() && rowData.hoType == hoType && rowData.ho == $.trim($("#hoLine").val()) ){
+                    return;
+                }
+            }
+    		
+    		// hoLine이 입력되면 해당 라인의 단독 호를 입력한 항목은 삭제
+    		for(var i=gridJsonData.length-1;i>=0;i--){
+                var rowData = gridJsonData[i];
+                
+                if(rowData.dong == $("#dong").val() && rowData.hoType == "2"){
+                	var hoData = rowData.ho;
+                	var digit = $("#hoLineDigit").val();
+                	var rowDataHoLine = hoData.substr(hoData.length - digit, digit);
+                	if(rowDataHoLine == $.trim($("#hoLine").val())){
+                		gridJsonData.splice(i,1);                		
+                	}
+                }
+            }
+    		
+    		fnSetGridHoLineData();
+    		
+    	} else {
+    		
+    		//호를 전체또는 단일호로 선택
+    		
+    		var duplicate = false;
+            for(var i=0;i<gridJsonData.length;i++){
+                var rowData = gridJsonData[i];
+                if(rowData.dong == $("#dong").val() && rowData.ho == $("#ho").val()) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            
+            if(duplicate == true){
+                //alert("중복입력 할 수 없습니다.");
+                return;
+            }
+            
+            // 입력된 호가 호라인에 포함되면 skip
+            for(var i=gridJsonData.length-1;i>=0;i--){
+                var rowData = gridJsonData[i];
+                
+                if(rowData.dong == $("#dong").val() && rowData.hoType == "1"){
+                    var hoData = $("#ho").val();
+                    var digit = rowData.hoLineDigit;
+                    var dataHoLine = hoData.substr(hoData.length - digit, digit);
+                    if(dataHoLine == rowData.ho){
+                    	duplicate = true;
+                    	break;
+                    }
+                }
+            }
+            
+            if(duplicate == true){
+                //alert("중복입력 할 수 없습니다.");
+                return;
+            }
+            
+            if($("#dong").val() != "All" && $("#ho").val() == "All"){
+                //호전체 선택이면 grid 같은동만 모두 삭제. 해당동의 호를 전체하나만 입력가능하게 처리.
+                for(var i=gridJsonData.length-1;i>=0;i--){
+                    var rowData = gridJsonData[i];
+                    if(rowData.dong == $("#dong").val()){
+                        gridJsonData.splice(i,1);
+                    }
+                } 
+            }
+            
+            fnSetGridHoData();
+            
+    	}
+    	
+    }
+    
+    function fnSetGridHoData(){
+    	datagrid.addRow();
+    	var tempData = {};
+        tempData._chk = "false";
+        tempData.dong = $("#dong").val();
+        tempData.hoType = $("input[name=hoType]:checked").val();
+        tempData.ho = $("#ho").val();
+        tempData.dongText = $("#dong :selected").text();
+        tempData.hoText = $("#ho :selected").text();
+    	
+    	var idx = datagrid.getRow();
+        datagrid.setRowData(idx, tempData, true);
+        datagrid.setTopRow(gridJsonData.length);// scroll을 가장 아래로
+    }
+    
+    function fnSetGridHoLineData(){
+    	datagrid.addRow();
+    	var tempData = {};
+        tempData._chk = "false";
+        tempData.dong = $("#dong").val();
+        tempData.hoType = $("input[name=hoType]:checked").val();
+        tempData.ho = $.trim($("#hoLine").val());
+        tempData.hoLineDigit = $("#hoLineDigit").val();
+        tempData.dongText = $("#dong :selected").text();
+        tempData.hoText = $.trim($("#hoLine").val()) + " 라인";
+        
+        var idx = datagrid.getRow();
+        datagrid.setRowData(idx, tempData, true);
+        datagrid.setTopRow(gridJsonData.length);// scroll을 가장 아래로
+    }
+    
+    function grid1DbClick(){
+    	//이벤트가 헤더클릭시 0으로 나옴.
+        if(datagrid.getRow() > 0){
+        	gridJsonData.splice( datagrid.getRow()-1 ,1);
+            datagrid.rebuild();        	
+        }
+    }
+    
+    function deleteData(){
+    	if(gridJsonData != null && gridJsonData.length > 0){
+    		for(var i=gridJsonData.length-1;i>=0;i--){
+    			var rowData = gridJsonData[i];
+    			if(rowData._chk == "true"){
+    				gridJsonData.splice(i,1);
+    			}
+            } 
+    		datagrid.rebuild();
+    	}
+    }
+    
+    function closePopup(){
+    	self.close();
+    }
+    
+    function save(){
+    	
+    	if(gridJsonData.length > 0){
+    		if(confirm("저장하시겠습니까?")){
+                $.ajax({
+                    url: '/admin/apt/ap/access-auth-save',
+                    type: 'post',
+                    async : false,
+                    dataType: "html",
+                    traditional: true , // parameter 직렬화를 느슨하게 처리.
+                    data: {
+                        "jsonParam" : JSON.stringify(gridJsonData),
+                        "aptApId" : $("#aptApId").val(),
+                        "type" : "1"
+                    },
+                    success: function(data) {
+                        if(data == 1){
+                        	alert("저장되었습니다.");
+                            openerDataRefreshAndclose();
+                        } else if(data == 2){
+                        	alert("현재 ‘전체’ 권한으로 설정되어 있습니다.\n상세 권한을 추가하시려면 ‘전체’ 권한을 삭제하신 후,\n설정해 주시기 바랍니다.");
+                        } else if(data == 3){
+                            alert("기 등록된 권한과 중복된 권한을 제외하고 저장되었습니다.");
+                            openerDataRefreshAndclose();
+                        } else {
+                        	alert("저장된 항목이 없습니다.");
+                        	openerDataRefreshAndclose();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert("error : access-auth-save ajax fail !! ");
+                    }
+                }); 
+            }
+    	}
+    	
+    }
+    
+    function openerDataRefreshAndclose(){
+        try{ opener.getData1nRebuild(); }catch(e){}
+        closePopup();
+    }
+      
+    /*]]>*/
+</script>
+
+</body>
+</html>

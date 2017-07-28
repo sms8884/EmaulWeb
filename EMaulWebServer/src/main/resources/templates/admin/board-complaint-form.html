@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" th:href="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-responsive/css/dataTables.responsive.css" th:href="@{/datatables-responsive/css/dataTables.responsive.css}"/>
+
+    <style>
+		.ttsBdBox{
+			float:right;
+		}
+		.panel-body{
+			overflow:hidden;
+		}
+		.ttsBdTxtbox{
+			text-align:right;
+		}
+		.ttsBdcommentBtn{
+			margin:5px 0 0 0;
+		}
+		.ttsBoardCommentTitle{
+			font-size:13px;
+		}
+		.ttsBoardCommentDel{
+			float:right;
+		}
+		.ttsBdListtBtn{
+			float:right;
+		}
+	</style>
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12" style="margin-bottom: 20px">
+                <h1 class="page-header">민원확인</h1>
+                <div id="content-container">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">작성자 : 홍길동(103동)<span class="ttsBdBox">2016.04.30 18:00:00</span></div>
+						<div class="panel-body">
+							<label class="control-label sr-only"></label>
+							<textarea class="form-control ttsBdTxtboxs" name="ttsBdTxtbox" id="ttsBdTxtbox" rows="10" style="resize: none;" placeholder="아파트 분리수거일이 궁금합니다." value="">
+							</textarea>
+						</div>
+                    </div>
+					<form action="" method="">
+						<div class="well well-sm">
+							<p>답변등록</p>
+							<textarea class="form-control ttsBdComment" name="ttsBdComment" id="ttsBdComment" rows="5" style="resize: none;" placeholder="답변전입니다. 답변을 달아주세요.">
+							</textarea>
+							<div class="button-position">
+								<input type="button" class="btn btn-sm btn-outline btn-danger ttsBdcommentBtn" id="ttsBdcommentBtn" value="등록" name="ttsBdcommentBtn" onclick="addBoardComplaintComment();"/>
+							</div>
+						</div>
+
+						<div class="well well-sm" id="comments-container">
+							<p class="ttsBoardCommentTitle">관리자 (101동) 2016.04.30 19:00:01:33</p>
+							<input type="button" class="form-inline ttsBoardCommentDel" id="ttsBoardCommentDel" value="삭제" name="ttsBoardCommentDel" onclick="removeComment();"/>
+							<p class="ttsBoardCommentBox">분리수거일은 매주 토요일 18시 입니다.</p>
+						</div>
+					</form>
+                     
+					<div class="tts_bdBtnBox">
+						<input type="button" class="btn btn-outline btn-info ttsBdListtBtn" id="ttsBdListtBtn" value="목록" name="ttsBdListtBtn" onclick="moveBoardComplaint()"/>
+					</div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js" th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+function addBoardComplaintComment(){
+	alert('등록이 완료되었습니다.');
+};
+function moveBoardComplaint(){
+	location.href = "";
+};
+function removeComment(){
+	if(confirm('삭제하시겠습니까?')){
+	
+	}else{
+	
+	}
+};
+
+/*]]>*/
+</script>
+</body>
+</html>

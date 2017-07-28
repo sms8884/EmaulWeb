@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.HouseMapper">
+
+    <select id="selectAddressAptList" parameterType="map" resultType="map">
+    /* selectAddressAptList */
+        
+        SELECT addressCode
+              ,sidoNm
+              ,sggNm
+              ,emdNm
+              ,roadNm
+              ,roadBuildingNo1
+              ,roadBuildingNo2
+              ,jibunNo1
+              ,jibunNo2
+              ,ifnull(aptId,'') aptId
+              ,registeredApt
+              ,ifnull(aptNm, buildingNm) aptNm
+              ,concat(ifnull(aptNm, buildingNm),if(registeredApt = 1, ' [계약]',if(aptId is null, '','[사용]'))) aptNmRegApt
+              ,concat(sidoNm,' ',sggNm,' ',roadNm,' ',roadBuildingNo1,if(roadBuildingNo2 = null OR roadBuildingNo2 = 0, '', concat('-',roadBuildingNo2)),' (',emdNm,', ',buildingNm,')') as roadAddress
+              ,concat(sidoNm,' ',sggNm,' ',emdNm,' ',jibunNo1,if(jibunNo2 = null OR jibunNo2 = 0, '', concat('-',jibunNo2))) as jibunAddress
+        FROM
+        (
+            SELECT 법정동코드 as bjdCd
+                  ,시도명 as sidoNm
+                  ,시군구명 as sggNm
+                  ,법정읍면동명 as emdNm
+                  ,도로명 as roadNm
+                  ,건물본번 as roadBuildingNo1
+                  ,건물부번 as roadBuildingNo2
+                  ,건물관리번호 as addressCode
+                  ,지번본번 as jibunNo1
+                  ,지번부번 as jibunNo2
+                  ,시군구용건물명 as buildingNm
+                  ,l2.id aptId
+                  ,l2.name aptNm
+                  ,l2.registered_apt registeredApt
+            FROM address l1
+            LEFT OUTER JOIN emaul.apt l2
+            ON l1.건물관리번호 = l2.address_code
+            WHERE l1.비고1 != 'virtual'
+            AND l1.시도명 = #{sidoNm}
+            AND l1.시군구명 = #{sggNm}
+            <if test="emdNm != null and emdNm != ''">
+                AND l1.법정읍면동명 = #{emdNm}
+            </if>
+			<if test="aptNm != null and aptNm != ''">
+                AND (l1.시군구용건물명 like concat('%',#{aptNm},'%') OR l2.name like concat('%',#{aptNm},'%'))
+            </if>
+			<if test="_aptId != null and _aptId != ''">
+                AND l2.id = #{_aptId}
+            </if>
+		     <if test="exceptAptList != null and exceptAptList.size>0">
+            		  AND l2.id not in
+                <foreach collection="exceptAptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+           </if>
+            
+            GROUP BY l1.건물본번, l1.건물부번
+            ORDER BY l2.registered_apt DESC, l1.시군구용건물명
+        ) A
+        
+    </select>
+    
+    <sql id="sqlSelectApt">
+        SELECT * 
+        FROM apt
+        <where>
+            <if test="addressCode != null and addressCode != ''">
+                AND address_code = #{addressCode}
+            </if>
+            <if test="aptId != null and aptId != ''">
+                AND id = #{aptId}
+            </if>      
+        </where>
+    </sql>
+    
+    <select id="selectApt" parameterType="map" resultType="Apt" >
+    /* selectApt */
+        <include refid="sqlSelectApt" />
+    </select>
+    
+    <insert id="insertApt" parameterType="Apt" keyProperty="id" useGeneratedKeys="true" >
+    /* insertApt */
+        INSERT INTO apt
+        (
+            name
+           ,address_code
+           ,registered_apt
+           ,latitude
+           ,longitude
+           ,virtual
+        )
+        VALUES
+        (
+            #{name}
+           ,#{address.건물관리번호}
+           ,#{registeredApt}
+           ,#{latitude}
+           ,#{longitude}
+           ,#{virtual}
+        )
+    </insert>
+    
+    <insert id="insertHouse" parameterType="House" keyProperty="id" useGeneratedKeys="true" >
+    /* insertApt */
+        INSERT INTO house
+        (
+            apt_id
+           ,dong
+           ,ho
+        )
+        VALUES
+        (
+            #{apt.id}
+           ,#{dong}
+           ,#{ho}
+        )
+    </insert>
+    
+    <sql id="sqlSelectHouse">
+        SELECT *
+        FROM house
+        <where>
+            <if test="aptId != null and aptId != ''">
+                AND apt_id = #{aptId}
+            </if>
+            <if test="dong != null and dong != ''">
+                AND dong = #{dong}
+            </if>
+            <if test="ho != null and ho != ''">
+                AND ho = #{ho}
+            </if>
+        </where>
+    </sql>
+    
+    <select id="selectHouse" parameterType="map" resultType="House">
+    /* selectHouse */
+        <include refid="sqlSelectHouse" />
+    </select>
+    
+
+</mapper>

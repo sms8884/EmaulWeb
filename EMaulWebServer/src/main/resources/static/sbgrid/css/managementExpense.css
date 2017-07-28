@@ -1,0 +1,149 @@
+@charset "utf-8";
+
+@import url(base.css);
+@import url(layout.css);
+@import url(header.css);
+@import url(left.css);
+@import url(footer.css);
+
+/*contents공통부분*/
+
+.contents{
+	position:relative;
+}
+.contents_head{
+	overflow:hidden;
+	padding:10px 0;
+	vertical-align:middle;
+	border-bottom:1px solid #000;
+	margin-bottom:20px;
+}
+
+.contents_head h3{
+	font-size:22px;
+	font-weight:bold; 
+	display:inline-block;
+	float:left;
+}
+
+
+
+/*management(pushalert)---------------------------------------------------------------------------------*/
+
+.me_PAsignupBox{
+	text-align:right;
+}
+.me_PAsignupBtn{
+	width:70px;
+	height:30px;
+	font-size:15px;
+	font-weight:bold;
+	background:#87A0BB;
+	color:#fff;
+}
+
+/*management(pushalert)1---------------------------------------------------------------------------------*/
+
+
+.me_PAcancleBtn{
+	width:70px;
+	height:30px;
+	font-size:15px;
+	font-weight:bold;
+	background:#404040;
+	color:#fff;
+}
+
+.me_PAtable{
+	width:100%;
+}
+
+.me_PAtable tr{
+	height:50px;
+}
+.me_PAtable th{
+	background:#EAEFF3;
+	border:1px solid #D0D0D0;
+}
+.me_PAtable td{
+	border:1px solid #D0D0D0;
+	padding-left:10px;
+}
+
+.me_PAtable td label{
+	margin:0 15px;	
+}
+
+.me_PAtable input[type="radio"]{
+	margin:0 5px;
+}
+
+.me_PAtable input[type="text"]{
+	height:30px;
+	width:150px;
+}
+
+.calendar{
+	font-size:25px;
+	vertical-align:middle;
+	display:inline-block;
+	margin-right:15px;
+}
+
+.me_PAtable select{
+	width:150px;
+	height:30px;
+}
+
+.me_PAtxtarea{
+	width:99% !important;
+	height:120px !important;
+	margin:10px 0 0 0;
+}
+
+.txtLength{
+	margin:10px 0;
+}
+
+.me_PAsignup1Box{
+	margin:20px 0 0 0;
+	text-align:right;
+}
+
+/*management(pushalert)2---------------------------------------------------------------------------------*/
+
+.me_PAsingup1boxWrap{
+	overflow:hidden;
+	margin-top:20px;
+}
+.me_PAdeleteBtn{float:left;
+	width:70px;
+	height:30px;
+	font-size:15px;
+	font-weight:bold;
+	background:#404040;
+	color:#fff;
+	
+}
+.me_PAsignup2Box{
+	float:right;
+}
+
+.me_PAcancleBtn{
+	width:70px;
+	height:30px;
+	font-size:15px;
+	font-weight:bold;
+	background:#404040;
+	color:#fff;
+}
+
+.me_PAchangeBtn{
+	width:70px;
+	height:30px;
+	font-size:15px;
+	font-weight:bold;
+	background:#87A0BB;
+	color:#fff;
+}
+

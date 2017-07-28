@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout_popup">
+<head>
+
+    <title th:if="${not on eq 'on'}">오프라인 투표 참여한 전체목록</title>
+    <title th:if="${on eq 'on'}">전자 투표 참여한 전체목록</title>
+
+    <style>
+        body, div, a, ul, li, img, h1, h2, h3, h4, p, address, span, dl, dt, dd, form,
+        fieldset, legend, label, input, table, tr, td, thead, tbody, caption, colgroup {
+            padding: 0;
+            margin: 0;
+        }
+
+        header, footer, section, aside, article, time, nav, figure, figcaption, video {
+            display: block;
+        }
+
+        body,
+        input {
+            font-size: 12px;
+            color: #333;
+            font-family: Malgun Gothic, dotum, Arial, Helvetica, sans-serif;
+        }
+
+        .popup_container {
+            border: 1px solid #c3c3c3;
+            margin: 0 auto;
+            padding: 0px 15px 0px 15px;
+            vertical-align: middle;
+            background: #FFFFFF;
+        }
+
+        .bottomBtnBox {
+            text-align: right;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        ._addTable th {
+            font-weight: normal;
+            width: 140px;
+        }
+
+        ._addTable td {
+            width: 260px;
+        }
+		#people_num{height:10%;}
+		#people_num p{display:inline-block; width:10%; height:100%; margin-top:15px;}
+		#people_num input{border:none; width:20px; text-align:center;}
+		#people_num button{float:right; margin:5px 0;}
+		tr td{text-align:center;}
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="popup_container" layout:fragment="layout_cpopup_ontent">
+	<h4 class="page-header" th:if="${on eq 'on'}">전자 투표 참여한 전체목록</h4>
+    <h4 class="page-header" th:if="${on eq 'off'}">오프라인 투표 참여한 전체목록</h4>
+
+	<div id="people_num">
+		<p>총 <span th:text="${pagingHelper.totalRecordCount} + '명'">명</span></p>
+		<button type="button" id="print_btn" class="btn btn-success">인쇄하기</button>
+	</div>
+
+    <table class="table table-bordered ">
+		<thead>
+			<tr>
+				<td width="5%">No</td>
+				<td>투표시각</td>
+				<td width="8%">동</td>
+				<td width="8%">호</td>
+				<td width="15%" th:if="${on eq 'on'}">휴대폰</td>
+				<td width="10%">이름</td>
+				<td width="20%">서명</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:if="${#lists.isEmpty(voterList)}">
+				<td colspan="6">투표 참여 목록이 없습니다.</td>
+			</tr>
+			<tr th:each="voter, status : ${voterList}" >
+				<td th:text="${status.size - status.index}"></td>
+				<td th:if="${on eq 'on'}" th:text="${#dates.format(voter.voteDate, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:if="${on eq 'off'}" th:text="${#dates.format(voter.regDate, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:text="${voter.dong} + '동'"></td>
+				<td th:text="${voter.ho} + '호'"></td>
+				<td th:if="${on eq 'on' and #strings.length(voter.phone) > 7}" th:text="${#strings.substring(voter.phone,0,3)} + '-****-' + ${#strings.substring(voter.phone,7)}"></td>
+				<td th:if="${on eq 'on' and not (#strings.length(voter.phone) > 7)}" >-</td>
+				<td th:if="${on eq 'on'}" th:text="${voter.voterName}"></td>
+				<td th:if="${on eq 'off'}" th:text="${voter.fullName}"></td>
+				<td th:if="${on eq 'on'}" ><img height="30px" th:src="${voter.signImageUri}" /></td>
+			</tr>
+		</tbody>
+    </table>
+
+   	<script th:inline="javascript">
+		$(document).ready(function () {
+			$('#print_btn').click(function (){
+				window.print();
+				return false;
+			});
+		});
+	</script>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" th:href="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-responsive/css/dataTables.responsive.css" th:href="@{/datatables-responsive/css/dataTables.responsive.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        th:after {
+            display: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>Jaha admin | 고객 아파트 등록</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">고객 아파트</h1>
+            <div class="panel panel-info">
+                <div class="panel-heading">등록된 아파트 조회</div>
+                <div class="dataTables_wrapper" style="padding: 5px 5px;">
+                 <!-- <div align="right">
+                	<input type="checkbox" >등록된 아파트만 보기</input>
+                	<input type="checkbox">등록된 아파트만 보기</input>
+                </div>  -->
+                <table id="apt-list-table" class="table table-responsive">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>아파트이름</th>
+                        <th>주소</th>
+                        <th>관리</th>
+                    </tr>
+
+                    </thead>
+                    <tbody >
+                    <tr th:if="${list.empty}">
+                        <td colspan="3">조회 결과가 없습니다.</td>
+                    </tr>
+                    <tr th:each="apt : ${list}">
+                        <td th:text="${apt.id}"></td>
+                        <td th:text="${apt.name}"></td>
+                        <td th:text="${apt.strAddress}"></td>
+                        <td th:id="@{td-}+${apt.id}">
+                            <button type="button" class="btn btn-sm btn-outline btn-info" th:if="${apt.registeredApt} == false" th:id="@{apt-register-}+${apt.id}" th:onclick="'register('+${apt.id}+')'">등록</button>
+                            <button type="button" class="btn btn-sm btn-outline btn-info" th:if="${apt.registeredApt}" th:id="@{apt-deregister-}+${apt.id}" th:onclick="'deregister('+${apt.id}+')'">해제</button>
+                            <button type="button" class="btn btn-sm btn-outline btn-info" th:id="@{apt-switch-}+${apt.id}" th:onclick="'switchApt('+${apt.id}+')'">전환</button><!--일단 놔둠-->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div id="loading" style="display: none">
+                               <img src="/img/ajax-loader.gif" alt="loading"/>
+                     </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-red">
+                <div class="panel-heading">아파트 등록</div>
+                <table class="table table-hover">
+                    <tr>
+                        <th width="20%">시도명</th>
+                        <td>
+                            <select class="form-control" id="sido" onchange="sidoToSigungu()">
+                                <option value="10">시/도 선택</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>시군구명</th>
+                        <td>
+                            <select class="form-control" id="sigungu">
+                                <option value="11">시군구 선택</option>
+                                <option value="12">시/도를 먼저 선택하세요</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>건물검색</th>
+                        <td>
+                            <div class="form-inline">
+                                <input type="text" id="buildingName" class="form-control" name="" onkeypress="if(event.keyCode == 13){findBuildingIf();}" placeholder="예)"/>
+                                <button type="button" class="btn btn-default" onclick="findBuildingIf()">찾기</button>
+                            </div>
+                            <div id="loading" style="display: none">
+                                <img src="../../static/img/ajax-loader.gif" th:src="@{/img/ajax-loader.gif}" alt="loading"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <form id="apt-up" name="apt-up" action="/jaha/apt/create" method="post">
+                    <input type="hidden" name="addressCode" id="addressCode"/>
+                </form>
+                <button id="create-apt" class="btn btn-success" style="margin-left: 45%; margin-bottom: 5px" onclick="submitAddressIf()">아파트 등록</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js" th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+
+<script  th:inline="javascript" type="text/javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ready(function() {
+        $('#apt-list-table').dataTable( {
+            "orderClasses": false
+        } );
+
+        $(document).ajaxStart(function() {
+            $('#loading').css('position','absolute');
+            $('#loading').css('z-index','10000');
+            $('#loading').css('top','80%');
+            $('#loading').css('left','50%');
+
+            $('#loading').show();
+        }).ajaxStop(function() {
+            $('#loading').attr('style','');
+            $('#loading').hide();
+        });
+
+       getAddressCode();
+
+       setTimeout('setCheckBox()', 100);
+
+       var search = gfnNvl([[${search}]]);
+       if(!gfnIsEmpty(search)){
+    	   $('#apt-list-table').DataTable().search(search).draw();
+       }
+    });
+
+ window.addEventListener('load', function(){
+     // console.log('load');
+ });
+ window.addEventListener('DOMContentLoaded', function(){
+     // console.log('DOMContentLoaded');
+ });
+
+    // registered 0 이면 등록아파트 check 0이면 미등록
+    function setCheckBox(){
+    	/* var addHtml = "<div align='right'> <input type='checkbox' name = 'registApt' id='registApt' checked = 'checked' >등록된 아파트만 보기</input>";
+    	     addHtml += "<input type='checkbox' id='unRegisApt' name = 'unRegisApt'>미등록된 아파트만 보기</input> </div>";  */
+
+    	var addHtml = '<div align="right">';
+    	addHtml += '<label><input type="radio" name="registApt" value="0" />등록된 아파트</label>';
+    	addHtml += '<label><input type="radio" name="registApt" value="1" />미등록된 아파트</label>';
+    	addHtml += '<label><input type="radio" name="registApt" value="all" />전체</label>';
+    	addHtml += '</div>';
+        $("#apt-list-table_filter").append(addHtml);
+        var registered = gfnNvl([[${registered}]]);
+        $("input[name=registApt][value='"+registered+"']").prop("checked", true);
+
+        $("input[name=registApt]").on("click", function(){
+        	//검색조건을 물고 가려면 이 페이지에 input type=search는 하나여야만함. ( jquery dataTable에서 자동 생성이라 임의로 id를 지정할수없음. )
+        	location.href = "/jaha/apt?registered="+$("input[name=registApt]:checked").val()+"&search="+$("input[type=search]").val();
+        });
+    }
+
+    function register(id) {
+
+        var value = {
+            id : id,
+            register : true
+        }
+
+//        console.log(value);
+
+        var data = JSON.stringify(value);
+
+        $.ajax({
+            type: 'PUT',
+            url: '/jaha/apt/register',
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            timeout: 10000,
+
+            success: function (data) {
+                $('#apt-register-'+id).remove();
+                $('#apt-deregister-'+id).remove();
+                $('#apt-switch-'+id).before('<button type="button" style="margin-right: 4px" class="btn btn-sm btn-outline btn-info" id="apt-deregister-'+id+'" onclick="deregister('+id+')">해제</button>');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+                // console.log(errorThrown);
+                // console.log(textStatus);
+            },
+            complete: function (xhr, status) {
+                // console.log(xhr);
+                // console.log(status);
+            }
+        });
+
+    }
+
+    function deregister(id) {
+
+        var value = {
+            id : id,
+            register : false
+        }
+
+//        console.log(value);
+
+        var data = JSON.stringify(value);
+
+        $.ajax({
+            type: 'PUT',
+            url: '/jaha/apt/register',
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            timeout: 10000,
+
+            success: function (data) {
+                $('#apt-register-'+id).remove();
+                $('#apt-deregister-'+id).remove();
+                $('#apt-switch-'+id).before('<button type="button" class="btn btn-sm btn-outline btn-info" id="apt-register-'+id+'" onclick="register('+id+')">등록</button>');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+                // console.log(errorThrown);
+                // console.log(textStatus);
+            },
+
+            complete: function (xhr, status) {
+                // console.log(xhr);
+                // console.log(status);
+            }
+        });
+    }
+
+    function getAddressCode() {
+
+        $('#buildingChosen').remove();
+        $('#sido').empty();
+        $('#sido').append('<option value="10">시/도 선택</option>');
+
+        $('#sigungu').empty();
+        $('#sigungu').append('<option value="11">시군구 선택</option>');
+        $('#sigungu').append('<option value="12">시/도를 먼저 선택하세요</option>');
+
+        $('#buildingName').val("");
+        var url = "/api/public/address/sido-names";
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                for (i in data) {
+                    $('#sido').append('<option>' + data[i] + '</option>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                //console.log(textStatus);
+                //console.log(errorThrown);
+            }
+        });
+        $('#modal-info').modal('show');
+    }
+
+    function sidoToSigungu() {
+
+        $('#sigungu').empty();
+        $('#sigungu').append('<option value="11">시군구 선택</option>');
+
+
+        var sidoName=$('#sido option:selected').text();
+
+        var url = "/api/public/address/sigungu-names/"+sidoName;
+
+        if($('#sido option:selected').val()==10){
+            $('#sigungu').empty();
+            $('#sigungu').append('<option value="11">시군구 선택</option>');
+            $('#sigungu').append('<option value="12">시/도를 먼저 선택하세요</option>');
+        }else {
+            $.ajax({
+                type: 'GET',
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (data) {
+                    for (i in data) {
+                        $('#sigungu').append('<option>' + data[i] + '</option>');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("ajax fail");
+                    //console.log(errorThrown);
+                    //console.log(textStatus);
+                }
+            });
+        }
+    }
+
+    var buildingSearchResults;
+
+    function findBuildingIf(){
+        if($('#sido').val()==10 || $('#sigungu').val()==11 || $('#sigungu').val()==12 || $('#buildingName').val()=="" || $('#buildingName').val()==null){
+            alert('시/도와 시군구를 선택한 후 검색할 단어를 입력해주세요');
+        }else{
+            findBuilding();
+        }
+    }
+
+    function findBuilding() {
+
+        $('#buildingChosen').remove();
+
+        var sidoName=$('#sido option:selected').text();
+        var sigunguName=$('#sigungu option:selected').text();
+        var buildingName = $('#buildingName').val();
+
+        var htmlText='<select class="form-control" id="buildingChosen" size="5"></select>';
+        var url = '/api/public/address/search-building?sidoName='+sidoName+'&sigunguName='+sigunguName+'&buildingName='+buildingName;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                $('#buildingChosen').remove();
+                buildingSearchResults = data;
+                $('td:last').append(htmlText);
+                for (i in data) {
+                    $('#buildingChosen').append('<option>'+ data[i].address+'<br>\r\n'+data[i].name+'</option>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+            }
+        });
+    }
+
+    function submitAddressIf(){
+        if($('#sido').val()==10 || $('#sigungu').val()==11 || $('#sigungu').val()==12 || $('#buildingName').val()=="" || $('#buildingName').val()==null){
+
+            alert('시/도와 시군구를 선택한 후 검색할 단어를 입력해주세요');
+        }else{
+            submitAddress();
+        }
+    }
+
+    function submitAddress(){
+        var buildingSel = $('#buildingChosen option:selected').text();
+        var indexOfBuilding = $('#buildingChosen option').index($('#buildingChosen option:selected'));
+
+//        console.log(buildingSearchResults[indexOfBuilding].code);
+
+        $('#addressCode').val(buildingSearchResults[indexOfBuilding].code);
+//        console.log($('#addressCode').val());
+
+        $.ajax({
+            type: 'POST',
+            url: '/jaha/apt/create',
+            data: 'addressCode='+ $('#addressCode').val(),
+            success : function(resp){
+                if(resp=="EXIST"){
+                    alert('이미 등록된 아파트입니다.');
+                }else{
+                //    window.location.reload();
+                	location.href = "/jaha/apt";
+                }
+            }
+        });
+    }
+
+    function switchApt(aptId){
+    	/**
+        $.ajax({
+            type: 'PUT',
+            url: '/jaha/user/switch-apt/'+aptId,
+            success : function(result){
+                window.location.reload();
+            }
+        });
+    	*/
+
+    	location.href = "/jaha/user/switch-apt/" + aptId;
+    }
+
+    /*]]>*/
+
+</script>
+
+</body>
+</html>

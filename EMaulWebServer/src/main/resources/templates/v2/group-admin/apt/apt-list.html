@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/group-admin/template/layout">
+<head>
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title>아파트 목록</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">아파트 목록</h1>
+
+<form name="aptForm" id="aptForm" method="get">
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+                    <div class="panel panel-info" th:fragment='board-search-form'>
+					    <div class="panel-heading" style="font-weight:900"></div>
+					    <div class="panel-body">
+					        <table class="table table-responsive" style="margin:0;">
+					            <tr>
+					                <th>등록여부</th>
+					                <td>
+					                    <label><input type="radio" name="registered" value="" checked="checked" />전체</label>
+					                    <label><input type="radio" name="registered" value="1" />등록</label>
+					                    <label><input type="radio" name="registered" value="0" />미등록</label>
+					                </td>
+					                <th>키워드검색</th>
+					                <td class="form-inline">
+					                    <input type="text" class="form-control faqSearchtxt" id="searchApt" name="searchApt" th:value="${aptDto.searchApt}" placeholder="검색 키워드를 입력하세요." />
+					                    <span class="faqSearchBox">
+					                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+					                    </span>
+					                </td>
+					            </tr>
+					        </table>
+					    </div>
+					</div>
+
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="40%" style="text-align:center;">아파트이름</th>
+                            <th width="50%" style="text-align:center;">주소</th>
+                            <th width="10%" style="text-align:center;">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${aptList.empty}">
+                            <td colspan="10" style="text-align:center;">검색결과가 없습니다.</td>
+                        </tr>
+                        <tr th:each="aptVo,iterStat : ${aptList}">
+                        	<td th:text="${aptVo.name}" ></td>
+                        	<td th:text="${aptVo.roadAddress}" style="text-align:left;" ></td>
+                        	<td><input type="button" class="btn btn-sm btn-default" value="전환" th:onclick="'switchApt('+${aptVo.id}+')'" /> </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+			<!-- paging -->
+			<div th:replace="v2/group-admin/template/paging :: paginationbar"></div>
+</form>
+
+        </div>
+	</div>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+$(document).ready(function() {
+
+    var registered = /*[[${aptDto.registered}]]*/;
+    if(isNotEmpty(registered)){
+        $("input[name=registered][value="+registered+"]").prop("checked", true);    
+    }
+    
+    // 검색 버튼 클릭 시
+    $("#searchBtn").on("click", function() {
+        paging();
+    });
+    
+    $("#searchApt").setEnter(paging);
+
+});
+           
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum) {
+	var _pageNum = gfnNvl(movePageNum, 1);
+	$("#pageNum").val(_pageNum);
+	$("#aptForm").prop("action", "/v2/group-admin/apt/list").submit();
+}
+
+/**
+ * 아파트 전환
+ */
+function switchApt(aptId){
+	if(confirm("아파트를 전환 하시겠습니까?")){
+		if(gfnIsEmpty(aptId)){
+			alert("아파트 정보 오류");	                
+	    } else {
+	        location.href = "/v2/group-admin/apt/switch?aptId="+aptId;
+	    }		
+	}
+}
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

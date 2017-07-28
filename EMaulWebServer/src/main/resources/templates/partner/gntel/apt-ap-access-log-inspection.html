@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+    /*추가*/
+    
+        input[type=text]{
+            height:30px;
+        }
+        .bottomBtnBox {
+            text-align:right;
+            margin-top:10px;
+        }
+        .hand {
+            cursor: pointer;
+        }
+        
+        /* search table */
+        .searchTable th {
+            width:80px;
+        }
+        .searchTable tr {
+            height: 35px;
+        }
+        .searchTable .aptName {
+            width:500px;
+        }
+        .searchTable .searchKeyword {
+            width: 250px;
+            margin-right:10px;
+        }
+        
+        /* listTable */
+        ._listArea{
+            width: 100%;
+        }
+        .listTableScroll{
+            overflow-y:auto;
+            height: 500px;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable thead td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        
+        .listTableScroll2{
+            overflow-y:auto;
+            height: 250px;
+        }
+        
+        ._logDetail{
+            text-decoration: underline;
+        }
+        ._logDetail:hover{
+            font-weight: bold;
+        }
+        
+        /* 말줄임 css */
+		.ellipsis{ 
+		    white-space:nowrap; 
+		    text-overflow:ellipsis;
+		    overflow:hidden; 
+		}         
+            
+    </style>
+
+    <title>AP 테스트검색 및 출입 Log 확인</title>
+</head>
+
+<body>
+    
+    <input type="hidden" name="nextToken" id="nextToken" />
+    <input type="hidden" name="detailNextToken" id="detailNextToken" />
+
+    <div th:replace="partner/gntel/nav :: top-nav"></div>
+
+    <div id="wrapper">
+        <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">AP 테스트검색 및 출입 Log 확인</h3>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-weight:900"></div>
+                        <div class="panel-body">
+                            <table class="table-responsive searchTable">
+	                            <tr>
+	                                <th>아파트</th>
+	                                <td class="form-inline" colspan="3">
+	                                    <input type="hidden" name="aptId" id="aptId" />
+	                                    <input type="text" class="form-control aptName" id="aptNm" name="aptNm" readonly="readonly" />
+	                                    <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="fnSelectAptPopup()"/>
+	                                    <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="fnCancelApt()"/>
+	                                </td>
+	                            </tr>
+	                            <tr>
+	                                <th>AP ID</th>
+	                                <td class="form-inline">
+	                                    <input type="text" class="form-control ids" id="apId" name="apId" style="width:250px;" /> 
+	                                </td>
+	                                <th>AP 이름</th>
+	                                <td class="form-inline">
+	                                    <input type="text" class="form-control ids" id="apName" name="apName" style="width:250px;" />
+	                                </td>
+	                            </tr>
+	                            <tr>
+                                    <th>ID</th>
+                                    <td class="form-inline">
+                                        <input type="text" class="form-control ids" id="ids" name="ids" placeholder="ex) 34, 51-60" style="width:250px;" />
+                                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                                    </td>
+                                </tr>
+	                        </table>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-default" style="margin-bottom:10px; height:30px;">
+                        <span style="float:left;" id="totalCountText" >0</span>건의 데이터가 조회되었습니다.
+                        <select class="form-control" name="limit" id="limit" style="height:30px;width:120px;float:right;" >
+                            <option value="100">100개씩</option>
+                            <option value="500">500개씩</option>
+                            <option value="1000">1000개씩</option>
+                        </select>
+                    </div>
+                    
+                    <div class="_listArea panel panel-default panel-body" id="_listArea1">
+	                    <div class="scrollTableHeader">
+	                        <table class="table-hover _listTable" >
+	                            <thead>
+	                                <tr>
+	                                    <td style="width:10%;">ID</td>
+	                                    <td style="width:15%;">AP ID</td>
+	                                    <td style="width:15%;">AP 이름</td>
+	                                    <td style="width:10%;">Total Count</td>
+	                                    <td style="width:10%;">Total Success</td>
+	                                    <td style="width:10%;">QC Count</td>
+	                                    <td style="width:10%;">QC Success</td>
+                                        <td style="width:10%;">Field Count</td>
+                                        <td style="width:10%;">Field Success</td>
+	                                </tr>
+	                            </thead>
+	                        </table>
+	                    </div>
+	                    <div class="listTableScroll" >
+	                        <table class="table table-hover _listTable" >
+	                            <tbody id="_listTable1">
+	                                <tr><td style="width:100%;" colspan="10">검색해주세요.</td></tr>
+	                            </tbody>
+	                        </table>
+	                    </div>
+	                </div>
+                </div>
+
+            </div>
+        </div>
+        </div>
+    </div>
+
+<!-- AP Access Log 상세 list modal -->
+<div class="modal fade" id="modal-ap-access-log-list" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">선택한 AP의 Log 목록</h4>
+            </div>
+            <div class="modal-body">
+                <div><b>ID : </b><span id="id-modal"></span></div>
+                <div><b>AP ID : </b><span id="apId-modal"></span></div>
+                <div><b>AP 이름 : </b><span id="apName-modal"></span></div>
+                <div class="panel-default" style="margin-top:10px; margin-bottom:10px; height:30px;">
+                    <span style="float:left;" id="detailTotalCountText" >0</span>건의 데이터가 조회되었습니다.
+                    <select class="form-control" name="modal_limit" id="modal_limit" style="height:30px;width:120px;float:right;" >
+                        <option value="100">100개씩</option>
+                        <option value="500">500개씩</option>
+                        <option value="1000">1000개씩</option>
+                    </select>
+                </div>
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:15%;">사용자</td>
+                                    <td style="width:15%;">비콘기기 사용자</td>
+                                    <td style="width:20%;">출입시간</td>
+                                    <td style="width:10%;">출입완료여부</td>
+                                    <td style="width:40%;">메모</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="listTableScroll" >
+                        <table class="table table-hover _listTable">
+                            <tbody id="_listTable4">
+                                <tr><td style="width:100%;" colspan="10">데이터가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    $(document).ready(function(){
+        $("#searchBtn").bind("click", function(){
+        	tokenResetAndSearch();
+        });
+        
+        $("#searchKeyword, #ids, #apId, #apName").setEnter(tokenResetAndSearch);
+    });
+    
+    function tokenResetAndSearch(){
+    	
+    	if($("#aptId").val() == ""){
+    		alert("아파트를 선택해주세요.");
+    		return;
+    	}
+    	
+    	$("#nextToken").val("");// 상단 검색에서 검색시는 nextToken및 테이블데이터 모두 초기화해서 처음검색으로 셋팅
+    	$("#totalCountText").text("0");
+    	$("#_listTable1").empty();
+    	fnSearch();
+    }
+    
+    var param = {};
+    function fnSearch(){
+    	
+    	if($("#nextToken").val() == ""){
+    		// nextToken이 없으면 처음검색
+    		param = {};
+            param.aptId = $("#aptId").val();
+            param.nextToken = $("#nextToken").val();
+            param.ids = $("#ids").val();
+            param.apId = $("#apId").val();
+            param.apName = $("#apName").val();
+            param.limit = $("#limit").val();
+            
+    	} else {
+    		// nextToken이 있으면 더보기검색
+    		param.nextToken = $("#nextToken").val();
+    		param.limit = $("#limit").val();
+    	}
+    	
+    	gfnLoadingImage();
+    	
+    	$.ajax({
+            url: '/partner/apt/ap/access/log/inspection/list-data',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            traditional: true , // parameter 직렬화를 느슨하게 처리. ( ajax parameter에 array 변수를 전송 할때 적용함. )
+            data: param,
+            success: function(data) {
+            	
+            	if(data != null && data.length > 0){
+            		
+            		//총데이터 카운트는 누적으로 적용함.
+            		var cumulativeCount = $("#totalCountText").text();
+            		cumulativeCount = parseInt(gfnNvl(cumulativeCount, "0"));
+            		$("#totalCountText").text(cumulativeCount + data.length);
+            		
+        			var _html = '';
+                    for(var i=0;i<data.length;i++){
+                        var id = data[i].id;
+                        var apId = gfnNvl(data[i].apId);
+                        var apName = gfnNvl(data[i].apName);
+                        
+                        var total = data[i].total;
+                        var successCnt = data[i].successCnt;
+                        var qcCnt = data[i].qcCnt;
+                        var qcSuccessCnt = data[i].qcSuccessCnt;
+                        var fieldCnt = data[i].fieldCnt;
+                        var fieldSuccessCnt = data[i].fieldSuccessCnt;
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:10%">'+id+'</td>';
+                        _html += '<td style="width:15%">'+apId+'</td>';
+                        _html += '<td style="width:15%">'+apName+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 0)">'+total+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 1)">'+successCnt+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 2)">'+qcCnt+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 3)">'+qcSuccessCnt+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 4)">'+fieldCnt+'</td>';
+                        _html += '<td style="width:10%" class="hand _logDetail" onclick="fnApTestDetail('+id+', \''+apId+'\', \''+apName+'\', 5)">'+fieldSuccessCnt+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                    	
+                    	if($("#limit").val() == data.length){
+                    		
+                    		$("#nextToken").val(data[data.length - 1].id); // ap의 마지막 id
+                    		
+                    		_html += '<tr>';
+                            _html += '<td colspan="10"><input type="button" class="btn btn-default btn-sm" value="더보기" name="moreBtn" onclick="fnMoreSearch(this)"/></td>';
+                            _html += '</tr>';
+                    	}
+                    	
+                        $(_html).appendTo("#_listTable1");
+                    }
+                    
+                } else {
+                	if( $("#_listTable1 tr").length == 0 ){
+                		$('<tr><td style="text-align:center" colspan="10">조회결과가 없습니다.</td></tr>').appendTo("#_listTable1");
+                	}
+                }
+            	
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSearch fail");
+            },complete : function(){
+            	gfnUnLoadingImage();
+            }
+        });
+    	
+    }
+    
+    function fnMoreSearch(obj){
+    	$(obj).parent().parent().remove();
+    	fnSearch();
+    }
+    
+    function fnSelectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+    }
+    
+    function fnCancelApt(){
+        $("#aptNm").val("");
+        $("#aptId").val("");
+    }
+    
+    function fnApTestDetail(id, apId, apName, type){
+    	
+    	$("#detailNextToken").val("");// 상단 검색에서 검색시는 nextToken및 테이블데이터 모두 초기화해서 처음검색으로 셋팅
+        $("#detailTotalCountText").text("0");
+    	$("#_listTable4").empty();
+    	
+    	$("#id-modal").text(id);
+    	$("#apId-modal").text(apId);
+        $("#apName-modal").text(apName);
+        
+        gfnLoadingImage();
+        fnDetailSearch(id, type);
+        
+        $("#modal-ap-access-log-list").centerModal({backdrop:"static",keyboard: false});
+        
+    }
+    
+    function fnDetailSearch(id, type){
+    	$.ajax({
+            url: '/partner/apt/ap/access/log/inspection/detail/list',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            data: {
+                "id" : id,
+                "type" : type,
+                "limit" : $("#modal_limit").val(),
+                "nextToken" : $("#detailNextToken").val()
+            },
+            success: function(data) {
+                
+                if(data != null && data.length > 0){
+                    
+                    //총데이터 카운트는 누적으로 적용함.
+                    var cumulativeCount = $("#detailTotalCountText").text();
+                    cumulativeCount = parseInt(gfnNvl(cumulativeCount, "0"));
+                    $("#detailTotalCountText").text(cumulativeCount + data.length);
+                    
+                    var _html = '';
+                    for(var i=0;i<data.length;i++){
+                        var apName = gfnNvl(data[i].apName);
+                        var fullName = data[i].fullName;
+                        var secondUser = gfnNvl(data[i].secondUser);
+                        var accessDate = data[i].accessDateText;
+                        var success = gfnNvl(data[i].success);
+                        var memo = gfnNvl(data[i].memo);
+                        
+                        _html += '<tr>';
+                        _html += '<td style="width:15%">'+fullName+'</td>';
+                        _html += '<td style="width:15%">'+secondUser+'</td>';
+                        _html += '<td style="width:20%">'+accessDate+'</td>';
+                        _html += '<td style="width:10%">'+success+'</td>';
+                        _html += '<td style="width:40%;" data-toggle="tooltip" title="'+memo+'"><div style="width:300px;" class="ellipsis">'+memo+'</div></td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                        
+                        if($("#modal_limit").val() == data.length){
+                            
+                            $("#detailNextToken").val(data[data.length - 1].id); // log의 마지막 id
+                            
+                            _html += '<tr>';
+                            _html += '<td colspan="10"><input type="button" class="btn btn-default btn-sm" value="더보기" name="moreBtn" onclick="fnDetailMoreSearch(this, '+id+', \''+type+'\')"/></td>';
+                            _html += '</tr>';
+                        }
+                        
+                        $(_html).appendTo("#_listTable4");
+                    }
+                        
+                    
+                } else {
+                	if( $("#_listTable4 tr").length == 0 ){
+                        $("#_listTable4").html('<tr><td style="text-align:center" colspan="10">조회결과가 없습니다.</td></tr>');
+                	}
+                }
+                
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnDetailSearch fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+    }
+    
+    function fnDetailMoreSearch(obj, id, type){
+    	$(obj).parent().parent().remove();
+    	fnDetailSearch(id, type);
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

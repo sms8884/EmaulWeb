@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>JAHA-게시판-검색폼</title>
+</head>
+
+<body>
+
+<div class="panel panel-info" th:fragment='board-search-form'>
+    <div class="panel-heading" style="font-weight:900"></div>
+    <div class="panel-body">
+        <table class="table table-responsive" style="margin:0;">
+            <tr>
+                <th>검색</th>
+                <td class="form-inline">
+                    <select name="searchItem" id="searchItem" class="form-control">
+                        <option value="title" th:selected="${searchItem eq 'title'}">제목</option>
+                        <option value="content" th:selected="${searchItem eq 'content'}">내용</option>
+                        <option value="nickname" th:selected="${searchItem eq 'nickname'}">닉네임</option>
+                    </select>
+                    <input type="text" class="form-control faqSearchtxt" id="searchKeyword" name="searchKeyword" th:value="${searchKeyword}" placeholder="검색 키워드를 입력하세요." />
+                    <span class="faqSearchBox">
+                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" onclick="search(0);" value="검색" />
+                        <input type="button" class="btn btn-sm btn-outline btn-success" id="resetBtn" name="resetBtn" value="초기화" />
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

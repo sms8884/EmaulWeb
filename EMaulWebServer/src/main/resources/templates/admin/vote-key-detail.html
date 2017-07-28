@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+        border-top-style: none;
+        border-bottom-style: none;
+        }
+
+        .ms-container {
+        margin-left: 100px;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" >개표 상세</h1>
+                <div id="content-container">
+                    <table class="table table-responsive table-hover">
+                        <tr>
+                            <th>선거 기간</th>
+                            <td>
+                                <div><span th:text="${voteKey.keyName}"></span> (<span th:text="${voteKey.openStatus} == 1 ? '개표 완료' : '개표 승인'"></span>)</div>
+                                <div><span th:text="${#dates.format(voteKey.startDt, 'yyyy-MM-dd HH:mm')}"></span> ~
+                                    <span th:text="${#dates.format(voteKey.endDt, 'yyyy-MM-dd HH:mm')}"></span></div>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>등록일</th>
+                            <td>
+                                <span th:text="${voteKey.regDt}"></span> <span th:text="${voteKey.regTm}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${voteKey.openStatus} == 1">
+                            <th>개표일</th>
+                            <td>
+                                <span th:text="${#dates.format(voteKey.uptDt, 'yyyy-MM-dd HH:mm')}"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>선거관리위원장</th>
+                            <td>
+                                <div><span th:text="${voteKey.adminName}"></span></div>
+                                <div><span th:text="${voteKey.adminEmail}"></span></div>
+                                <div><img th:src="'/api/vote-key/image/' + ${voteKey.createSignFname}" width="200" />
+                                    <img th:if="${voteKey.keyGrantYn} == 'Y'" th:src="'/api/vote-key/image/' + ${voteKey.grantSignFname}" width="200"  />
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>선거관리위원</th>
+                            <td>
+                                <div><span th:text="${voteKey.keyBase1Uname}"></span></div>
+                                <div><span th:text="${voteKey.keyBase2Uname}"></span></div>
+                                <div><span th:text="${voteKey.keyBase3Uname}"></span></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>선거 목록</th>
+                            <td>
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th width="10%">ID</th>
+                                        <th >투표명</th>
+                                        <th width="20%">개표상태</th>
+                                    </tr>
+                                    </thead>
+                                    <tr th:each="vote:${voteList}">
+                                        <td th:text="${vote.id}"></td>
+                                        <td>
+                                            <a th:href="${'/admin/vote/list/'+vote.id+'/result'}" th:text="${vote.title}"></a>
+                                        </td>
+                                        <td th:text="${vote.decYn} == 'Y' ? '개표 완료' : '개표 대기'"></td>
+                                    </tr>
+                                </table>
+
+                                <button th:if="${voteKey.openStatus} == 0" type="button" class="btn btn-sm btn-info" onclick="reqVoteOpen()">개표</button>
+                            </td>
+                        </tr>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-info" onclick="location.href='/admin/vote_key/list'">목록</button>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/multiselect/js/jquery.multi-select.js" th:src="@{/multiselect/js/jquery.multi-select.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    // <![CDATA[
+
+    function reqVoteOpen(){
+        var url = '/admin/vote_key/ajax/open/';
+        var voteKeyId = /*[[${voteKey.vkId}]]*/ '';
+        url = url + voteKeyId;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                // console.log(data);
+                alert(data.encCnt + '개의 투표 중 ' + data.decCnt + '개가 정상적으로 개표되었습니다.');
+                location.reload();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    // ]]>
+</script>
+</body>
+</html>

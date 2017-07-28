@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css"
+          th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>회원탈퇴</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="/user">홈</a></li>
+                    <li><a href="/user/mypage">마이페이지</a></li>
+                    <li class="active">회원정보수정</li>
+                </ol>
+            </div>
+
+            <div style="margin: 60px">
+                <p style="margin-left: 200px">회원탈퇴를 하시면 회원님의 모든 정보가 삭제됩니다.</p>
+
+                <div style="margin-left: 290px;margin-top: 30px">
+                <button type="button" class="btn2" onclick="deactivate()" style="color: #ff6100">회원탈퇴</button>
+                <button type="button" class="btn2" onclick="history.back()">취소</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div th:replace="user/user :: footer"></div>
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    function deactivate () {
+
+        if(confirm('정말로 탈퇴하시겠습니까?')){
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/user/deactivate',
+                success: function (data) {
+                    alert('탈퇴되었습니다.');
+                    window.location = '/';
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("문제가 발생했습니다.");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+
+
+
+    /*]]>*/
+</script>
+</body>
+</html>

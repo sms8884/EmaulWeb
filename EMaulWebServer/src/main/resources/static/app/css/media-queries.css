@@ -1,0 +1,96 @@
+/* 스마트폰 가로+세로 */
+@media only screen and (max-width : 320px) {
+	section.join .inbox{
+		width: 100%;
+		margin:0 auto;
+	}
+	section.join .inbox > form > fieldset{
+		padding:20px 5px;
+	}
+	section.join .inbox > form > fieldset > table tr th{
+		font-size: 12px;
+		letter-spacing: -0.5px;
+		padding: 5px;
+	}
+	section.join .inbox > form > fieldset > table tr th span{
+		display: block;
+	}
+	section.join .inbox > form > fieldset > table tr td{
+		padding: 5px;
+	}
+	section.join .inbox > form > fieldset > table tr td.mo_size label{
+		display: block;
+	}
+	section.join .inbox > form > fieldset > table tr td select,
+	section.join .inbox > form > fieldset > table tr td input.w50{
+		width: 65%;
+	}
+	section.join .inbox > form > fieldset > table tr td div p{
+		font-size: 12px;
+		letter-spacing: -0.5px;
+		padding: 10px;
+	}
+	section.join .inbox .pop{
+		width: 100%;
+		margin-left: -50%;
+	}
+	section.join .inbox .popup1 form fieldset table tr th{
+		font-size: 12px;
+		letter-spacing:-0.5px;
+	}
+	section.join .inbox .pop form fieldset .w70{
+		width: 65%;
+	}
+}
+ /* 스마트폰 가로 */
+@media only screen and (min-width : 321px) and (max-width : 480px) {
+	section.join .inbox{
+		width: 100%;
+		margin:0 auto;
+	}
+	section.join .inbox > form > fieldset{
+		padding:20px 5px;
+	}
+	section.join .inbox > form > fieldset > table tr th{
+		font-size: 12px;
+		letter-spacing: -0.5px;
+		padding: 5px;
+	}
+	section.join .inbox > form > fieldset > table tr th span{
+		display: block;
+	}
+	section.join .inbox > form > fieldset > table tr td{
+		padding: 5px;
+	}
+	section.join .inbox > form > fieldset > table tr td.mo_size label{
+		display: block;
+	}
+	section.join .inbox > form > fieldset > table tr td select,
+	section.join .inbox > form > fieldset > table tr td input.w50{
+		width: 65%;
+	}
+	section.join .inbox > form > fieldset > table tr td div p{
+		font-size: 12px;
+		letter-spacing: -0.5px;
+		padding: 10px;
+	}
+
+	section.join .inbox .pop{
+		width: 100%;
+		margin-left: -50%;
+	}
+	section.join .inbox .popup1 form fieldset table tr th{
+		font-size: 12px;
+	}
+	section.join .inbox .pop form fieldset .w70{
+		width: 70%;
+	}
+
+
+}
+
+@media only screen and (min-width:481px) and (max-width: 719px) {
+	section.join .inbox{
+		width: 96%;
+	}
+}

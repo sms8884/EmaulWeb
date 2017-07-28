@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardPostAirMapper">
+
+	<insert id="insertBoardPostAir" parameterType="BoardPostAirVo">
+	    INSERT /* insertBoardPostAir, 전강욱(realsnake@jahasmart.com) */ INTO board_post_air (
+	        post_id
+	        , voice_gubun
+	        , voice_volume
+	        , push_send_yn
+	        , air_send_date
+	        , air_reserve_yn
+	        , air_reserve_date
+	        , air_reserve_cancel_yn
+	    ) VALUES (
+	        #{postId}
+	        , #{voiceGubun}
+	        , #{voiceVolume}
+	        , #{pushSendYn}
+	        , #{airSendDate}
+	        , #{airReserveYn}
+	        , #{airReserveDate}
+	        , #{airReserveCancelYn}
+	    )
+	</insert>
+
+	<update id="updateBoardPostAir" parameterType="BoardPostAirVo">
+	    UPDATE /* updateBoardPostAir, 전강욱(realsnake@jahasmart.com) */ board_post_air
+	    <set>
+		    <if test='voiceGubun != null and !voiceGubun.equals("")'>voice_gubun=#{voiceGubun},</if>
+		    <if test='voiceVolume != null and !voiceVolume.equals("")'>voice_volume=#{voiceVolume},</if>
+		    <if test='pushSendYn != null and !pushSendYn.equals("")'>push_send_yn=#{pushSendYn},</if>
+		    <if test='airSendDate != null and !airSendDate.equals("")'>air_send_date=#{airSendDate},</if>
+		    <if test='airReserveYn != null and !airReserveYn.equals("")'>air_reserve_yn=#{airReserveYn},</if>
+		    <if test='airReserveDate != null and !airReserveDate.equals("")'>air_reserve_date=#{airReserveDate},</if>
+		    <if test='airReserveCancelYn != null and !airReserveCancelYn.equals("")'>air_reserve_cancel_yn=#{airReserveCancelYn},</if>
+	    </set>
+	    WHERE post_id=#{postId}
+	</update>
+
+	<delete id="deleteBoardPostAir" parameterType="long">
+	    DELETE /* deleteBoardPostAir, 전강욱(realsnake@jahasmart.com) */ FROM board_post_air
+	    WHERE post_id=#{postId}
+	</delete>
+
+	<select id="selectBoardPostAir" parameterType="long" resultType="BoardPostAirVo">
+	    SELECT /* selectBoardPostAir, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , voice_gubun
+	    , voice_volume
+	    , push_send_yn
+	    , air_send_date
+	    , air_reserve_yn
+	    , air_reserve_date
+	    , air_reserve_cancel_yn
+	    FROM board_post_air
+	    WHERE post_id=#{postId}
+	</select>
+
+	<sql id="whereClauseOfBoardPostAir">
+	    <where>
+		    <if test='voiceGubun != null and !voiceGubun.equals("")'> AND voice_gubun=#{voiceGubun}</if>
+		    <if test='voiceVolume != null and !voiceVolume.equals("")'> AND voice_volume=#{voiceVolume}</if>
+		    <if test='pushSendYn != null and !pushSendYn.equals("")'> AND push_send_yn=#{pushSendYn}</if>
+		    <if test='airSendDate != null and !airSendDate.equals("")'> AND air_send_date=#{airSendDate}</if>
+		    <if test='airReserveYn != null and !airReserveYn.equals("")'> AND air_reserve_yn=#{airReserveYn}</if>
+		    <if test='airReserveDate != null and !airReserveDate.equals("")'> AND air_reserve_date=#{airReserveDate}</if>
+		    <if test='airReserveCancelYn != null and !airReserveCancelYn.equals("")'> AND air_reserve_cancel_yn=#{airReserveCancelYn}</if>
+	    </where>
+	</sql>
+
+	<select id="selectBoardPostAirListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardPostAirListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_post_air
+	    <include refid="whereClauseOfBoardPostAir" />
+	</select>
+
+	<select id="selectBoardPostAirList" parameterType="BoardDto" resultType="BoardPostAirVo">
+	    SELECT /* selectBoardPostAirList, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , voice_gubun
+	    , voice_volume
+	    , push_send_yn
+	    , air_send_date
+	    , air_reserve_yn
+	    , air_reserve_date
+	    , air_reserve_cancel_yn
+	    FROM board_post_air
+	    <include refid="whereClauseOfBoardPostAir" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+</mapper>

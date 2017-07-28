@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/jaha/boardMgr/template/layout_popup">
+
+<head>
+</head>
+<body>
+	<div class="panel-body" layout:fragment="layout_popup_content">
+		<div class="panel panel-info">
+			<table class="table writeSerchTable" >
+				<colgroup>
+					<col style="width:70px"/>
+					<col style="width:*"/>
+				</colgroup>
+				<tbody>
+					<tr>
+			            <td class="bold">검색</td>
+			            <td class="form-inline">
+			                <select name="" id="searchItem" class="form-control">
+			                    <option value="content">댓글내용</option>
+			                </select>
+
+			                <input type="text" class="form-control" id="searchKeyword" name="" placeholder="검색 키워드를 입력하세요." value="" />
+			                <span class="searchBox">
+			                    <input type="button" class="btn btn-sm btn-outline btn-info" id="" name="" value="검색" onclick="searchData();" />
+			                    <input type="button" class="btn btn-sm btn-outline btn-success" id="" name="" value="상세검색" onclick="showDetailBox();"/>
+			                </span>
+			                <div class="detailBox" style="display:none; margin:5px 0;">
+			                	<div style="margin:5px 0 0 0;">
+			                		<select name="" id="selectDate" class="form-control" style="width:112px; padding:6px 12px;">
+					                    <option value="0">전체기간</option>
+					                    <option value="1">1일</option>
+					                    <option value="7">1주</option>
+					                    <option value="30">1개월</option>
+					                    <option value="180">6개월</option>
+					                    <option value="366">1년</option>
+					                </select>
+					                <div id="startDateWrap" class="input-group sc_aspickdate">
+                                         <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="startDate" name="startDate" placeholder="YYYY-MM-DD" />
+                                         <span class="input-group-addon">
+                                             <span class="glyphicon glyphicon-calendar"></span>
+                                         </span>
+                                    </div>
+                                    <div id="endDateWrap" class="input-group sc_aspickdate">
+	                                    <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="endDate" name="endDate" placeholder="YYYY-MM-DD" />
+	                                    <span class="input-group-addon">
+	                                        <span class="glyphicon glyphicon-calendar"></span>
+	                                    </span>
+                                    </div>
+<!-- 			                		<input type="button" class="btn btn-sm btn-outline btn-info" id="" name="" value="검색" /> -->
+			                	</div>
+			                </div>
+			            </td>
+			        </tr>
+				</tbody>
+		    </table>
+		</div>
+		<div style="display:inline-block; width:100%; margin:10px 0; padding:0;">
+			<input type="button" class="btn btn-sm btn-outline btn-success" id="" name="" value="숨김" onclick="hideConfirmComment();"/>
+		</div>
+
+		<table class="table monitoringTable" style="text-align:center;">
+			<colgroup>
+				<col style="width:70px"/>
+				<col style="width:*"/>
+			</colgroup>
+			<thead>
+				<tr class="info">
+					<th  style="text-align:center;">
+						<label><input type="checkbox" id="checkall" /></label>
+					</th>
+					<th style="text-align:center; width: 300px; " >댓글</th>
+					<!-- <th style="text-align:center;">
+						댓글
+					</th> -->
+					<th style="text-align:center; width:160px;">
+						등록일시
+					</th>
+				</tr>
+			</thead>
+			<tbody id="postList">
+				<!-- <tr>
+					<td>
+						<label><input type="checkbox" name="check" /></label>
+					</td>
+					<td>
+						<a href="#" data-toggle="popover-top" class="popover-top" title="선거관리위원회 회의 공고" data-content="선거관리위원회 회의 공고 내용내용내용">선거관리위원회 회의 공고</a>
+					</td>
+					<td>
+						<a href="#" data-toggle="popover-top" class="popover-top" title="선거관리위원회 회의 공고" data-content="선거관리위원회 회의 공고 댓글댓글댓글">댓글댓글댓글</a>
+					</td>
+					<td>
+						2016.12.08 14:50
+					</td>
+				</tr> -->
+			</tbody>
+		</table>
+		<!-- paging -->
+		<div align="center" id="hiddenListPaging"></div>
+
+		<div class="bottomBtnBox">
+			<input type="button" class="btn btn-outline btn-info"  value="닫기" name="" onclick="javascript:window.close();"/>
+	    </div>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var searchUserId = /*[[${searchUserId}]]*/ 'searchUserId';
+console.log(">>> searchUserId : " + searchUserId);
+
+$(document).ready(function(){
+	$('#startDateWrap, #endDateWrap').datetimepicker({
+		format : "YYYY-MM-DD"
+	});
+	$("#startDateWrap").on("dp.change", function (e) {
+		$('#endDateWrap').data("DateTimePicker").minDate(e.date);
+	});
+	$("#endDateWrap").on("dp.change", function (e) {
+		$('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+	});
+
+	// 작성글 리스트 조회
+    selectPostList(1);
+});
+
+// 작성글 목록 조회
+function selectPostList(pageNum) {
+
+	$.ajax({
+	 	 url: '/v2/jaha/board-mgr/common/comment/select-list/' + searchUserId,
+	     type: 'post',
+	     dataType: "json",
+	     data : {
+	    	 pageNum : pageNum,
+	    	 pageSize : 10,
+	    	 searchKeyword : $("#searchKeyword").val(),
+	    	 searchItem : $("#searchItem").val(),
+	         searchStartDate : $("#startDate").val(),
+	         searchEndDate : $("#endDate").val()
+
+
+	     },
+	     success: function (data) {
+	     	console.log(">>> data.length : " + data.length);
+	     	console.log(data);
+
+	 		var postHtml = "";
+	 		$('#postList').empty();
+
+	     	if (data) {
+	     		if (data.postList.length > 0) {
+
+	     			$(data.postList).each(function (i, obj) {
+	     				postHtml += '<tr>';
+	         			postHtml += '<td style="text-align:center;">';
+	         			postHtml += '<label><input type="checkbox" name="ids" value="' + obj.id + '" /></label>';
+	         			postHtml += '</td>';
+	         			postHtml += '<td class = "board-list-contents" style="width:510px;">';
+	         			//postHtml += '<a onclick="read(this);" href="javascript:pu_content();"  data-toggle="popover-top" class="popover-top"  title="' + obj.title + '" data-content="' + obj.contentOnlyBody + '">' + obj.title + '</a>';
+	         			postHtml += '<a id='+obj.id +' onclick="readComment('+obj.postId+','+obj.id+')"  class="popover-top ' + ((obj.readId != null && obj.readId > 0)?'read':'') + '" href="javascript:pu_content(' + obj.postId + ');"  data-toggle="popover-top"  data-content="' + obj.content + '">' + obj.content + '</a>';
+	         			postHtml += '</td>';
+	         			postHtml += '<td>' + new Date(obj.regDate).format('yyyy-MM-dd HH:mm:ss') + '</td>';
+	         			postHtml += '</tr>';
+
+	     			});
+
+	     		} else {
+	     			postHtml += '<tr>';
+	     			postHtml += '<td colspan="3">작성글이 없습니다.</td>';
+	     			postHtml += '</tr>';
+	     		}
+	     			if (data.pagingHelper && data.pagingHelper.totalPageNum) {
+	 					$('#hiddenListPaging').html(makePaging(data.pagingHelper, 'selectPostList'));
+	 				} else {
+	 					$('#hiddenListPaging').html('');
+	 				}
+
+	     		$('#postList').html(postHtml);
+
+	     		/*제목,댓글 미리보기 팝오버*/
+	     		$(".popover-top").popover({trigger: 'hover click','placement': 'top'});
+
+	     	} else {
+	     		alert("작성글 리스트 조회 중 오류가 발생하였습니다.");
+	     		return;
+	     	}
+	     },
+	     error: function (jqXHR, textStatus, errorThrown) {
+	         console.log(errorThrown);
+	         console.log(textStatus);
+	     }
+	 });
+}
+
+/*]]>*/
+</script>
+
+	</div>
+
+</body>
+</html>

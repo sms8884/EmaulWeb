@@ -1,0 +1,46 @@
+@charset "utf-8";
+
+
+
+/*header*/
+
+
+
+header{
+	overflow:hidden;
+}
+
+header h1{
+	float:left;
+	display:inline-block;
+	text-align:center;
+}
+
+.header_mypage{
+	float:right;
+}
+
+.header_mypage h2{
+	display:inline-block;
+	vertical-align:middle;
+	margin-right:10px;
+	color:#87A0BB;
+	font-size:20px;
+}
+
+.header_mypage h2 a{
+	text-decoration:underline;
+	color:#87A0BB;
+
+}
+
+
+.logout{
+	background:#fff;
+	height:30px;
+	width:80px;
+	border:1px solid #BABABA;
+	font-weight:bold;
+	vertical-align:middle;
+}
+

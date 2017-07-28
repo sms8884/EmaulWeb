@@ -1,0 +1,31 @@
+@charset "utf-8";
+@import url(./common2.css);
+
+body {background-color:#FFFFFF;}
+#wrapper {width:120px;margin:0 auto;background:url("../imgs/sub/bg_lnb_2043.gif") no-repeat;}
+#header .logo {position:absolute;}
+#header .nav_wrap {width:968px;padding-left:312px;}
+#header .nav_wrap .nav li {display:inline;margin-right:-4px;}
+#header .slogan {clear:both;margin-top:16px;margin-left:437px;}
+
+#container {overflow:hidden;padding-top:61px;}
+#container .sub_wrap {float:left;height:767px;width:258px;margin-top:5px;padding-left:54px;}
+
+#container .sub_wrap ul {margin-top:17px;}
+#container .sub_wrap ul li {margin-top:6px;}
+#container .sub_wrap ul li a {background:url("../imgs/sub/mnuL01-01-o.jpg") no-repeat;}
+#container #contents {position:relative;float:left;width:1000px;}
+
+#container #contents .location {position:absolute;right:26px;top:56px;}
+#container #contents .location a {padding-right:18px;font-size:11px;text-align:left;color:#595858;background:url("../imgs/common/bul_greater.png") no-repeat right top;}
+#container #contents .location strong {color:#595858;}
+#container #contents .contents_inner {width:745px;margin-left:51px;background:url("../imgs/sub/bg_round.bak.png") no-repeat;}
+#container #contents .contents_inner .page_title {margin-left:24px;margin-right:26px;padding:25px 0px 8px 0px;border-bottom:1px solid #b5b4b4;}
+#container #contents .contents_inner .contents_area {padding-bottom:165px;background:url("../imgs/sub/bg_round.bak.png") no-repeat left bottom;}
+
+#container .quick {float:right;width:149px;padding-left:23px;}
+
+#footer {clear:both;position:relative;height:82px;margin-top:131px;margin-left:51px;border-top:1px solid #908f8f;}
+#footer .footer_logo {position:absolute;left:0;top:0;}
+#footer address {padding-top:22px;padding-left:115px;}
+#footer address span {padding-right:5px;} 

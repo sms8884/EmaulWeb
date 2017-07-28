@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/android.css" th:href="@{/css/android.css}"/>
+</head>
+<body style="font-size:12px;">
+
+<!--구글플레이 아이콘-->
+<header id="and-header" style="margin:0; padding:0; display: none;">
+    <div style="width:100%; height:50px; background-color:#612DB6; padding:3px 15px 0 15px; vertical-align:middle;">
+        <img src="/img/share_ico_logo.png" alt="e마을 로고" width="25px" height="25px"/>
+		<span style="color:#fff; margin:0 12px 0 6px; vertical-align:middle; font-size:1.56em">e마을</span>
+		<button style="border:1px solid #794DC2; border-radius:20px; width:79px; height:23px; background-color:#612DB7; color:#fff; vertical-align:middle; display: none;" id="_btn_open_emaulapp">앱에서 보기</button>
+    </div>
+
+	<div style="width:100%;background-color:#441F7F; padding:3px 15px 0 15px; overflow:hidden; height:45px;">
+       <div style="float:left; ">
+			<a href="javascript:goStore();" style="vertical-align:middle; margin:10px 0; display:inline-block;">
+				<img src="/img/share_ico_googleplay.png" width="75px" alt="google play 로고" style="vertical-align:middle; outline:none; margin:0;"/>
+				<span style="color:#fff;  vertical-align:middle; font-size:0.68em;">에서 무료로 다운로드 하세요.</span>
+			</a>
+		</div>
+		<button style="background-color:#DD5563; color:#fff; border-radius:3px; border:none; float:right; margin-top:9px; width:15%; height:20px;vertical-align:middle; line-height:1.2;" onclick="javascript:goStore();">받기</button>
+    </div>
+</header>
+
+<!--애플 앱스토어 아이콘-->
+<header id="ios-header" style="margin:0; padding:0; display: none;">
+    <div style="width:100%; height:50px; background-color:#612DB6; padding:3px 15px 0 15px; vertical-align:middle;">
+        <img src="/img/share_ico_logo.png" alt="e마을 로고" width="25px" height="25px" style=""/>
+		<span style="color:#fff; margin:0 12px 0 6px; vertical-align:middle; font-size:1.56em">e마을</span>
+		<button style="border:1px solid #794DC2; border-radius:20px; width:79px; height:23px; background-color:#612DB7; color:#fff; vertical-align:middle; display: none;">앱에서 보기</button>
+    </div>
+
+	<div style="width:100%;background-color:#441F7F; padding:3px 15px 0 15px; overflow:hidden; height:45px;">
+       <div style="float:left;">
+			<a href="javascript:goStore();" style="vertical-align:middle; margin:10px 0; display:inline-block;">
+				<img src="/img/share_ico_appstore.png" width="70px" alt=" 애플 앱스토어 로고" style="vertical-align:middle; outline:none;  margin:0;"/>
+				<span style="color:#fff;  vertical-align:middle;font-size:0.68em;">에서 무료로 다운로드 하세요.</span>
+			</a>
+		</div>
+		<button style="background-color:#DD5563; color:#fff; border-radius:3px; border:none; float:right; margin-top:9px; width:15%; height:20px;vertical-align:middle; line-height:1.2;" onclick="javascript:goStore();">받기</button>
+    </div>
+</header>
+
+<div>
+    <div style="padding: 20px">
+        <p class="today-view-title" th:text="${post.title}"></p>
+        <div>
+            <span class="today-view-regDate" th:text="${post.regDate}"></span>
+        </div>
+    </div>
+
+    <div th:utext="${post.contentOnlyBody}" style="font-size: 14pt; margin-top: 30px"></div>
+</div>
+
+<!--<div th:replace="user/user :: footer"></div>-->
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    var newsCategory = /*[[${post.newsCategory}]]*/ 'error';
+
+    $('#content-iframe').load(function () {
+        $(this).height($(this).contents().find('body')[0].scrollHeight + 30);
+    });
+
+    var storeUrl = "";
+
+    $(document).ready(function() {
+    	var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    	if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) ) {
+    		storeUrl = APP_STORE_URL;
+    		$("#ios-header").show();
+    	} else if( userAgent.match( /Android/i ) ) {
+    		storeUrl = GOOGLE_PLAY_URL;
+    		$("#and-header").show();
+    	}
+
+    	var pageUrl = document.location.href;
+    	var postId = pageUrl.substring(pageUrl.lastIndexOf("/")+1, pageUrl.length);
+    	var appUri = EMAUL_APP_MAULNEWS_URI.replace("%postId", postId);
+    	appUri.replace("%newsCategory", newsCategory);
+
+    	moveStoreOrOpenApp(appUri);
+    });
+
+    function goStore() {
+    	if (storeUrl) {
+    		window.location.href = storeUrl;
+    	}
+    }
+
+/*]]>*/
+</script>
+</body>
+</html>

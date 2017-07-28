@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- configuration file for LogBack (slf4J implementation)
+See here for more details: http://gordondickens.com/wordpress/2013/03/27/sawing-through-the-java-loggers/ -->
+<configuration scan="true" scanPeriod="600 seconds">
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <!-- To enable JMX Management -->
+    <jmxConfigurator />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>C:/nas/logs/emaulweb.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>C:/nas/logs/backup/emaulweb.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+ 
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+	<logger name="org.apache" level="info" />
+	<logger name="org.springframework" level="info" />
+	<logger name="org.hibernate" level="info" />
+	<logger name="org.mybatis" level="info" />
+	<logger name="org.jboss" level="info" />
+	<logger name="org.thymeleaf" level="info" additivity="false" />
+	<logger name="javax.activation" level="info" additivity="false" />
+	<logger name="sun" level="info" />
+	<logger name="com.jaha.web.emaul" level="debug" />
+	
+	<!-- log4jdbc-remix elements -->
+    <logger name="jdbc.connection" level="warn" additivity="false" />
+    <logger name="jdbc.audit" level="warn" additivity="false" />
+    <logger name="jdbc.sqltiming" level="warn" additivity="false" />
+    <logger name="jdbc.resultset" level="warn" additivity="false" />
+    <logger name="jdbc.resultsettable" level="warn" additivity="false" />
+    <logger name="log4jdbc.debug" level="warn" additivity="false" />
+ 
+    <logger name="jdbc.sqlonly" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="console"/>
+    </logger>
+	
+    <root level="debug">
+        <appender-ref ref="console"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

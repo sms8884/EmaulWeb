@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        .ms-container {
+            width: 100%
+        }
+
+        .form-group {
+            overflow: hidden;
+
+        }
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>문자 발송</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">알림/문자</h1>
+
+                <div role="tabpanel">
+
+                    <ul class="nav nav-tabs" role="tablist" id="myTab"
+                        style="margin-bottom: 20px;border-bottom: 1px solid #e5e5e5;">
+                        <li role="presentation" class="active"><a href="#push" aria-controls="push" role="tab"
+                                                                  data-toggle="tab">알림(푸시)</a></li>
+                        <li role="presentation"><a href="#sms" aria-controls="sms" role="tab" data-toggle="tab">문자</a>
+                        </li>
+                        <li role="presentation"><a href="#sms-vote" aria-controls="sms" role="tab" data-toggle="tab">투표문자</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="push">
+
+                            <div class="form-group">
+                                <label for="push-type" class="col-sm-2 control-label">전송 대상</label>
+
+                                <div class="col-sm-10">
+                                    <p id="text-push-target" th:text="${user.house.apt.name} + ' 에 등록된 모든 사용자에게 전송합니다.'"></p>
+                                        <label for="push-target">
+                                            <input type="checkbox" id="push-target"/> 모든 사용자
+                                        </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="push-type" class="col-sm-2 control-label">Type</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="push-type" placeholder="50자 제한"
+                                           maxlength="50"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="push-action" class="col-sm-2 control-label">Action</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" id="push-action" class="form-control"
+                                              placeholder="100자 제한" maxlength="100"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="push-title" class="col-sm-2 control-label">Title</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="push-title" placeholder="100자 제한"
+                                           maxlength="100"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="push-message" class="col-sm-2 control-label">Message</label>
+
+                                <div class="col-sm-10">
+                                    <textarea id="push-message" class="form-control" rows="10" cols="10"
+                                              style="resize: none" placeholder="500자 제한" maxlength="500"></textarea>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center">
+                                <button class="btn btn-outline btn-warning" onclick="sendGcm()">발송</button>
+                            </div>
+
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane" id="sms">
+
+
+                            <div class="form-group">
+                                <label for="sms-sender" class="col-sm-2 control-label">발신자 번호</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="sms-sender" placeholder="20자 제한"
+                                           maxlength="20"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="chk-mms" class="col-sm-2 control-label">
+                                    <input type="checkbox" id="chk-mms2"/>
+                                    MMS
+                                </label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="mms-title2" placeholder="제목 (20글자)"
+                                           maxlength="20" disabled="disabled"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sms-message" class="col-sm-2 control-label">메시지</label>
+
+                                <div class="col-sm-10">
+                                    <textarea id="sms-message" class="form-control" rows="10" cols="10"
+                                              style="resize: none" placeholder="SMS는 80자 제한"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sms-receiver" class="col-sm-2 control-label">수신자 선택
+
+                                    <a class="btn btn-sm btn-primary" href="#" id="select-all"
+                                       style="margin: 3px 3px 3px 0">전체선택</a>
+                                    <a class="btn btn-sm btn-primary" href="#" id="deselect-all"
+                                       style="margin: 3px 3px 3px 0">전체선택해제</a>
+
+                                </label>
+
+                                <div class="col-sm-10">
+
+                                    <select multiple="multiple" id="sms-receiver" class="form-control">
+                                        <option th:each="u : ${u}" th:value="${u.phone}"
+                                                th:text="${u.dong}+'동 '+${u.ho}+'호 '+${u.fullName} + ' ' +${u.phone}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline btn-warning"  onclick="sendMessageToPrepassUsers()">발송</button>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane" id="sms-vote">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">이마을 링크</label>
+
+                                <div class="col-sm-10 form-inline">
+                                    <p>e마을 스토어 단축링크 주소는 <a href="https://goo.gl/iyyLTO">https://goo.gl/iyyLTO</a> 입니다.</p>
+                                    <p>e마을 스토어 풀링크 주소는 <a href="https://play.google.com/store/apps/details?id=com.jaha.app.emaul">https://play.google.com/store/apps/details?id=com.jaha.app.emaul</a> 입니다.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sms-vote-id" class="col-sm-2 control-label">투표 아이디</label>
+
+                                <div class="col-sm-10 form-inline">
+                                    <input type="text" class="form-control" id="sms-vote-id"/>&nbsp;
+                                    <button class="btn btn-primary" type="button" onclick="queryVoteId()">조회</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sms-vote-sender" class="col-sm-2 control-label">발신자 번호</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="sms-vote-sender" placeholder="20자 제한"
+                                           maxlength="20"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="chk-mms" class="col-sm-2 control-label">
+                                    <input type="checkbox" id="chk-mms"/>
+                                    MMS
+                                </label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="mms-title" placeholder="제목 (20글자)"
+                                           maxlength="20" disabled="disabled"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label id="label-msg" for="sms-vote-message" class="col-sm-2 control-label">메시지 (0)</label>
+
+                                <div class="col-sm-10">
+                                    <textarea id="sms-vote-message" class="form-control" rows="10" cols="10"
+                                              style="resize: none" maxlength="1000"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sms-vote-receiver" class="col-sm-2 control-label">수신자 선택
+
+                                </label>
+
+                                <div class="col-sm-10">
+
+                                    <select multiple="multiple" id="sms-vote-receiver" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline btn-warning" onclick="sendVoteSms()">발송</button>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/multiselect/js/jquery.multi-select.js"
+        th:src="@{/multiselect/js/jquery.multi-select.js}"></script>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    $('#myTab a').click(function (e) {
+        e.preventDefault()
+        $(this).tab('show')
+    });
+
+    $(document).ready(function () {
+
+        $('#sms-receiver').multiSelect();
+        $('#select-all').click(function () {
+            $('#sms-receiver').multiSelect('select_all');
+            return false;
+        });
+        $('#deselect-all').click(function () {
+            $('#sms-receiver').multiSelect('deselect_all');
+            return false;
+        });
+
+    });
+
+    $(document).ready(function () {
+
+        $('#sms-vote-receiver').multiSelect();
+        $('#vote-select-all').click(function () {
+            $('#vote-sms-receiver').multiSelect('select_all');
+            return false;
+        });
+        $('#vote-deselect-all').click(function () {
+            $('#vote-sms-receiver').multiSelect('deselect_all');
+            return false;
+        });
+
+    });
+
+    function sendGcm(){
+
+        var url = "/jaha/gcm/send";
+
+        var reqData = {};
+        reqData.type = $('#push-type').val();
+        reqData.action = $('#push-action').val();
+        reqData.title = $('#push-title').val();
+        reqData.message = $('#push-message').val();
+        reqData.isTargetAll = $('#push-target').is(':checked');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(reqData),
+            success: function (data) {
+                // console.log(data);
+                if(data.result == 'success'){
+                    alert('전송되었습니다!');
+                }else if(data.result == 'empty-target'){
+                    alert('전송 대상이 없습니다.');
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('전송실패!');
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    function queryVoteId() {
+        var voteId = $('#sms-vote-id').val();
+
+        var url = '/jaha/user/vote-sms-target?voteId=' + voteId;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                // console.log(data);
+                var allList = data.all;
+                var notVotedList = data.not_voted;
+
+                $('#sms-vote-receiver').empty();
+                for (i in allList) {
+                    $('#sms-vote-receiver').append('<option value="' + allList[i] + '"' + ($.inArray(allList[i], notVotedList) == -1 ? '' : 'selected') + '>' + allList[i] + '</option>');
+                }
+                $('#ms-sms-vote-receiver').empty();
+                $('#ms-sms-vote-receiver').remove();
+
+                $('#sms-vote-receiver').multiSelect();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    function sendVoteSms() {
+        var smsSender = $('#sms-vote-sender').val();
+        var msg = $('#sms-vote-message').val();
+        var title = $('#mms-title').val();
+        var isMms = $('#chk-mms').is(':checked');
+
+        if (smsSender == '' || msg == '') {
+            alert('발신자 번호화 메시지를 확인해주세요');
+            return;
+        }
+
+        if(isMms){
+            if(!confirm('발신자 번호 : ' + smsSender + '\n제목 : ' + title + '\n메시지 : ' + msg + '\n\n위 내용으로 전송하시겠습니까?')){
+                return;
+            }
+        }else{
+            if(!confirm('발신자 번호 : ' + smsSender + '\n메시지 : ' + msg + '\n\n위 내용으로 전송하시겠습니까?')){
+                return;
+            }
+        }
+
+
+        var receiverList = [];
+        $('#ms-sms-vote-receiver').find('li[class*="ms-selected"]').find('span').each(function () {
+            receiverList.push($(this).text());
+        });
+
+        var url = "/jaha/sms/send";
+        if(isMms){
+            url = '/jaha/mms/send';
+        }else{
+            if(msg.length > 80){
+                alert('메시지 길이가 80자를 넘었습니다. MMS를 선택하여 전송해주세요.');
+                return;
+            }
+        }
+
+        var postData = {
+            list: receiverList,
+            sender: smsSender,
+            msg: msg,
+            title: title
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(postData),
+            success: function (data) {
+                // console.log(data);
+                if(data.result == 'success'){
+                    alert('전송되었습니다!');
+                }else if(data.result == 'empty-target'){
+                    alert('전송 대상이 없습니다.');
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('전송실패!');
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    $('#sms-vote-message').keyup(function(){
+        var length = $(this).val().length;
+        $('#label-msg').text('메시지 (' + length + ')');
+    });
+
+    $("#chk-mms").click( function(){
+        if( $(this).is(':checked') ){
+            $('#mms-title').removeAttr('disabled');
+        }else{
+            $('#mms-title').attr('disabled', 'disabled');
+        }
+    });
+
+    $("#chk-mms2").click( function(){
+        if( $(this).is(':checked') ){
+            $('#mms-title2').removeAttr('disabled');
+        }else{
+            $('#mms-title2').attr('disabled', 'disabled');
+        }
+    });
+
+    $('#push-target').click(function(){
+        var targetText = $('#text-push-target');
+        var currentAptName = /*[[${user.house.apt.name}]]*/ '';
+        if( $(this).is(':checked') ){
+            targetText.text('모든 사용자에게 전송합니다.');
+        }else{
+            targetText.text(currentAptName + ' 에 등록된 모든 사용자에게 전송합니다.');
+        }
+    });
+
+
+    function sendMessageToPrepassUsers() {
+        var smsSender = $('#sms-sender').val();
+        var msg = $('#sms-message').val();
+        var title = $('#mms-title2').val();
+        var isMms = $('#chk-mms2').is(':checked');
+
+        if (smsSender == '' || msg == '') {
+            alert('발신자 번호화 메시지를 확인해주세요');
+            return;
+        }
+
+        if(isMms){
+            if(!confirm('발신자 번호 : ' + smsSender + '\n제목 : ' + title + '\n메시지 : ' + msg + '\n\n위 내용으로 전송하시겠습니까?')){
+                return;
+            }
+        }else{
+            if(!confirm('발신자 번호 : ' + smsSender + '\n메시지 : ' + msg + '\n\n위 내용으로 전송하시겠습니까?')){
+                return;
+            }
+        }
+
+        var receiverList = [];
+        $('#sms-receiver option:selected').each(function () {
+            receiverList.push($(this).val());
+        });
+
+        var url = "/jaha/sms/prepass/send";
+        if(isMms){
+            url = '/jaha/mms/prepass/send';
+        }else{
+            if(msg.length > 80){
+                alert('메시지 길이가 80자를 넘었습니다. MMS를 선택하여 전송해주세요.');
+                return;
+            }
+        }
+
+        var postData = {
+            list: receiverList,
+            sender: smsSender,
+            msg: msg,
+            title: title
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(postData),
+            success: function (data) {
+                // console.log(data);
+                if(data.result == 'success'){
+                    alert('전송되었습니다!');
+                }else if(data.result == 'empty-target'){
+                    alert('전송 대상이 없습니다.');
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('전송실패!');
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    /*]]>*/
+
+
+
+</script>
+
+</body>
+</html>

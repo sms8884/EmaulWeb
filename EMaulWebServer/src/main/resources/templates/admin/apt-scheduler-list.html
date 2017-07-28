@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+	      th:href="@{/css/bootstrap.min.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+	      th:href="@{/font-awesome/css/font-awesome.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+	      th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+	      th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	/*추가*/
+	    .sc_asMonthselect{
+	        float:right;
+	    }
+	    .sc_aspickdate{
+	        width:250px;
+	    }
+	    .sc_asSearchtxt{
+	        width:505px !important;
+	    }
+	    .sc_asResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .sc_asSignupBox{
+	        text-align:right;
+	    }
+	</style>
+
+    <title>아파트 일정</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">아파트 일정</h1>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-weight:900"></div>
+                        <div class="panel-body">
+                            <table class="table table-responsive table">
+                                <tr>
+                                    <th>기간</th>
+                                    <td>
+                                        <div class="form-inline">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="type-check sc_asCheckbox" id="chkPeriod" name="chkPeriod" value="" />전체기간
+                                            </label>
+                                            <div id="startDateWrap"  class='input-group sc_aspickdate'>
+                                                <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="startDate" name="startDate" placeholder="YYYY-MM-DD" />
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            <div id="endDateWrap"  class='input-group sc_aspickdate'>
+                                                <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="endDate" name="endDate" placeholder="YYYY-MM-DD" />
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            <span class="sc_asMonthselect" style="float:right;">
+                                                <input type="button" value="1주일" class="btn btn-default sc_asWeek" id="sc_asWeek" name="sc_asWeek" onclick="setPeriod(1)"/>
+                                                <input type="button"  value="15일" class="btn btn-default sc_asHalfweek" id="sc_asHalfweek" name="sc_asHalfweek" onclick="setPeriod(2)"/>
+                                                <input type="button"  value="1개월" class="btn btn-default sc_as1Month" id="sc_as1Month" name="sc_as1Month" onclick="setPeriod(3)"/>
+                                                <input type="button" value="3개월" class="btn btn-default sc_as3Month" id="sc_as3Month" name="sc_as3Month" onclick="setPeriod(4)"/>
+                                                <input type="button" value="6개월" class="btn btn-default sc_as6Month" id="sc_as6Month" name="sc_as6Month" onclick="setPeriod(5)"/>
+                                                <input type="button" value="12개월" class="btn btn-default sc_as12Month" id="sc_as12Month" name="sc_as12Month" onclick="setPeriod(6)"/>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>검색</th>
+                                    <td class="form-inline">
+                                        <select  class="form-control" id="searchItem" name="searchItem">
+                                            <option value="title">제목</option>
+                                            <option value="content">내용</option>
+                                        </select>
+                                        <input type="text" class="form-control sc_asSearchtxt" id="searchKeyWord" name="searchKeyWord" value="" placeholder="검색 키워드를 입력하세요."/>
+                                        <span>
+                                            <input type="button" class="btn btn-sm btn-outline btn-info sc_asReset" id="searchResetBtn" name="searchResetBtn" value="초기화" />
+                                            <input type="button" class="btn btn-sm btn-outline btn-info sc_asSearch" id="searchBtn" name="searchBtn" value="검색" />
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="sc_asResultTxt" id="totalCountText" >00건의 일정이 있습니다.</p>
+                    <div class="sc_asGridArea" id="sc_asGridArea"></div>
+                    <div id="sbGridPaging" class="pagenate" ></div>
+        
+                    <div class="sc_asSignupBox">
+                        <input type="button" class="btn btn-info sc_asSignup" id="sc_asSignup" value="등록" name="sc_asSignup" onclick="moveForm()"/>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+	$(document).ready(function(){
+	    
+	    $('#startDateWrap, #endDateWrap').datetimepicker({
+            format : "YYYY-MM-DD"
+        });
+	    
+	    $("#startDateWrap").on("dp.change", function (e) {
+            $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+        });
+        $("#endDateWrap").on("dp.change", function (e) {
+            $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+        });
+	    
+        setPeriod(4);//기본날짜설정
+        
+	    $("#chkPeriod").bind("click", function(){
+	    	onOffPeriodSearch();	
+	    });
+	    
+	    $("#searchResetBtn").bind("click", function(){
+	    	$("#searchItem :first").prop("selected", true);
+	    	$("#searchKeyWord").val("");
+	    	setPeriod(4);
+	    });
+	    $("#searchBtn").bind("click", function(){
+	    	SBGrid_pagingInit(1);
+        });
+	    
+	    SBGrid_pagingInit(1);
+	    
+	});
+	
+	var gridJsonData;
+	function SBGrid_pagingInit(pageNumber){
+	    
+	    createDataGrid();
+	    
+	    var nCount,        //총건수
+	        nPageNum,      //현재 페이지번호
+	        nPageSize      //페이지 사이즈
+	    
+	    //현제 페이지 구함
+	    if(pageNumber != null){
+	        nPageNum =  parseInt(pageNumber);
+	        if(nPageNum < 1) {
+	            nPageNum = 1;
+	        }
+	    }else{
+	        nPageNum = 1;
+	    }
+	
+	    var sDate = null;
+	    var eDate = null;
+	    
+	    
+	    if($("#chkPeriod").prop("checked") == false){
+	        sDate = $("#startDate").val();
+	        eDate = $("#endDate").val();
+	    } 
+	    
+	    datagrid.showWait(true);
+	    
+	    //페이지당 레코드 갯수 설정
+	    nPageSize = 10;
+	    
+	    $.ajax({
+	        url: '/admin/apt/scheduler/listData',
+	        type: 'post',
+	        async : false,
+	        dataType: "json",
+	        data: {
+	            "pageNum": nPageNum,
+	            "startDate": sDate,
+	            "endDate": eDate,
+	            "searchItem": $("#searchItem").val(),
+	            "searchKeyWord": $("#searchKeyWord").val()
+	        },
+	        success: function(jsonData) {
+	            //var jo = JSON.parse(data);
+	            gridJsonData = jsonData.dataList;
+	            nCount = jsonData.totalCount;
+	            $("#totalCountText").text(nCount+"건의 일정이 있습니다.");
+	            datagrid.rebuild();
+	        },
+	        error: function(xhr, status, error) {
+	            alert("error : apt scheduler list data fail");
+	        }
+	    });
+	    
+	    datagrid.showWait(false);
+	    
+	    //ajax를 sync로 해놔서 순차적실행됨. style등은 datagrid가 rebuild되면 초기화되어서 rebuild후에 설정.
+	    datagrid.addEventListener("onclick","rowClick","","");
+	    
+	    datagrid.setColStyles(datagrid.getColRef("title"), "color:blue; text-decoration: underline; cursor:pointer;", "data");
+	    
+	    var rowSize = datagrid.getRows();
+	    for(var i=1;i<=rowSize;i++){
+	        //datagrid.setCellFormat(i, datagrid.getColRef("view_cnt"), "#,###");
+	    }
+	    
+	    gfnPagingRander("sbGridPaging", nPageNum, nPageSize, nCount);
+	}
+	
+	function createDataGrid(){
+	    var strCaption, 
+	        strWidth,
+	        gridAttr, 
+	        objJson;
+	
+	    strCaption = "일정^제목^등록일^등록자^공지종류";
+	    strWidth = "20%,30%,20%,10%,20%";
+	    
+	    gridAttr = {
+	        "strParentId"                   : 'sc_asGridArea',
+	        "strId"                         : 'datagrid',
+	        "strCaption"                    : strCaption,
+	        "strColWidth"                   : strWidth,
+	        "strJsonRef"                    : "gridJsonData",
+	        "strStyle"                      : "width:100%; height:433px; font-family:dotum, arial; font-size:14px;",
+	        "strExplorerbar"            : "sortshowmove",
+	        "strRowHeight"              : "50px",
+	        "strDataHeight"              : "38px",
+	        "strFocusColor"         :   "#E8E8E8",
+	        "strSelectFontColorStyle":  "none",
+	        "fixedcol"                       :"1",
+	        "bUseMultiSorting"       : true,
+	        "bDataSearching"             : true,
+	        "bDragMode" : false,
+	        "bIsShowLoadingImage"   :   true,
+	        "strExtendLastCol"       : "scroll",
+	        "strEmptyRecords"   :   "조회결과가 없습니다."
+	        };
+	
+	    datagrid = createSBDataGrid(gridAttr);
+	    
+	    objJson = [
+	                 {"id" : "period" , "type" : "output" , "ref" : "period" , "style":"text-align:center;"},
+	                 {"id" : "title" , "type" : "output" , "ref" : "title" , "style":"text-align:center;"},
+	                 {"id" : "regDateStr" , "type" : "output" , "ref" : "regDateStr" , "style":"text-align:center;"},
+	                 {"id" : "fullName" , "type" : "output" , "ref" : "fullName" , "style":"text-align:center;"},
+	                 {"id" : "noticeTargetName" , "type" : "output" , "ref" : "noticeTargetName" , "style":"text-align:center;"}
+	              ];
+	              
+	    datagrid.createColumns(objJson);
+	    
+	}
+	
+	function rowClick(){
+        var rowData = datagrid.getRowData(datagrid.getRow());
+        
+        if(datagrid.getCol() == datagrid.getColRef("title")){
+            moveForm(rowData.id);
+        } 
+	}
+	
+    function setPeriod(flag){
+        //전체기간이 체크되어있으면 기간버튼은 작동하지않게 처리.
+        if($("#chkPeriod").prop("checked") == true){
+            return;
+        }
+        
+        var date = new Date();
+
+        $('#endDateWrap').data("DateTimePicker").date(date);
+        
+        switch(flag){
+           case 1 : date.setDate(date.getDate() - 7); break;
+           case 2 : date.setDate(date.getDate() - 15); break;
+           case 3 : date.setMonth(date.getMonth()-1); break;
+           case 4 : date.setMonth(date.getMonth()-3); break;
+           case 5 : date.setMonth(date.getMonth()-6); break;
+           case 6 : date.setYear(date.getFullYear()-1); break;
+           default : "";
+        }
+        
+        $('#startDateWrap').data("DateTimePicker").date(date);
+    }
+	
+	function onOffPeriodSearch(){
+	    $("#startDate, #endDate").prop("disabled", $("#chkPeriod").prop("checked"));
+	}
+	
+	function moveForm(id){
+		var url = "/admin/apt/scheduler/form";
+		if(id != null){
+			url += "?id="+id
+		}
+		location.href = url;
+	}
+    
+               
+    /*]]>*/
+</script>
+
+</body>
+</html>

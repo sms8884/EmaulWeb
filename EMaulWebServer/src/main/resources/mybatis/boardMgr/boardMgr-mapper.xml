@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.boardMgr.BoardMgrMapper">
+
+	<!-- 숨김글 목록 갯수 조회 -->
+	<select id="selectBoardBlindPostListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardBlindPostListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM board_post bp
+	    	LEFT JOIN board_category bc
+	    		ON bp.category_id = bc.id
+	    WHERE
+	    	bp.blind_yn = 'Y'
+	    	AND bp.display_yn = 'Y'
+	    	AND bp.blocked = 0
+	    	AND bc.del_yn = 'N'
+	    	<include refid="whereClauseOfCommonList" />
+	</select>
+
+	<!-- 숨김글 목록 조회 -->
+	<select id="selectBoardBlindPostList" parameterType="BoardDto" resultType="BoardMgrPostVo">
+	    SELECT /* selectBoardBlindPostList, 조영태(cyt@jahasmart.com) */
+	    bp.id
+	    , bp.category_id
+	    , bp.sub_category
+	    , bp.title
+	    , bp.content
+	    , bp.image_count
+	    , bp.range_all
+	    , bp.file1
+	    , bp.file2
+	    , bp.view_count
+	    , bp.count_empathy
+	    , bp.comment_count
+	    , bp.comment_display_yn
+	    , bp.blocked
+	    , bp.display_yn
+	    , bp.top_fix
+	    , bp.file_group_key
+	    , bp.display_platform
+	    , bp.push_send_yn
+	    , bp.blind_yn
+	    , bp.first_editor_image_thumb_url
+	    , bp.user_id
+	    , bp.reg_date
+	    , bp.mod_id
+	    , bp.mod_date
+	    , IFNULL(bpr.id, 0) AS postReadId
+<!--
+		,CASE
+			WHEN bc.comment_display_yn = 'Y' THEN
+				IFNULL((SELECT IFNULL(content, '-') FROM board_comment WHERE post_id = bp.id AND blocked = 0 AND display_yn = 'Y' ORDER BY reg_date DESC LIMIT 1),'-')
+			ELSE '-' END AS commentContent
+
+		,CASE
+			WHEN bc.comment_display_yn = 'Y' THEN
+				IFNULL((SELECT IFNULL(id, -1) FROM board_comment WHERE post_id = bp.id AND blocked = 0 AND display_yn = 'Y' ORDER BY reg_date DESC LIMIT 1), -1)
+			ELSE 0 END AS commentId
+ -->
+	    , bc.name AS categoryName
+	    FROM board_post bp
+	    	LEFT JOIN board_category bc
+	    		ON bp.category_id = bc.id
+    		LEFT OUTER JOIN board_post_read bpr
+    			ON bpr.category_id = bp.category_id AND bpr.post_id = bp.id AND bpr.user_id = #{readUserId}
+	    WHERE
+	    	bp.blind_yn = 'Y'
+	    	AND bp.display_yn = 'Y'
+	    	AND bp.blocked = 0
+	    	AND bc.del_yn = 'N'
+	    	<include refid="whereClauseOfCommonList" />
+	    	ORDER BY
+                bp.reg_date DESC
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+
+	<!-- 스펨글 목록 갯수 조회 -->
+	<select id="selectBoardSpamPostListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardSpamPostListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM board_post bp
+	    	LEFT JOIN board_category bc
+	    		ON bp.category_id = bc.id
+	    WHERE
+	    	bp.blind_yn = 'N'
+	    	AND bp.display_yn = 'Y'
+	    	AND bp.blocked = 0
+	    	AND bc.del_yn = 'N'
+
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( codeList )'>
+	    		AND
+				<foreach collection="codeList" item="item" index="index" open="(" close=")">
+					<if test="index gt 0">
+						OR
+					</if>
+					 bp.content LIKE CONCAT('%', #{item.name}, '%') OR bp.title LIKE CONCAT('%', #{item.name}, '%')
+				</foreach>
+			</if>
+			<include refid="whereClauseOfCommonList" />
+			
+	</select>
+
+	<!-- 스펨글 목록 조회 -->
+	<select id="selectBoardSpamPostList" parameterType="BoardDto" resultType="BoardMgrPostVo">
+	    SELECT /* selectBoardSpamPostList, 조영태(cyt@jahasmart.com) */
+	    bp.id
+	    , bp.category_id
+	    , bp.sub_category
+	    , bp.title
+	    , bp.content
+	    , bp.image_count
+	    , bp.range_all
+	    , bp.file1
+	    , bp.file2
+	    , bp.view_count
+	    , bp.count_empathy
+	    , bp.comment_count
+	    , bp.comment_display_yn
+	    , bp.blocked
+	    , bp.display_yn
+	    , bp.top_fix
+	    , bp.file_group_key
+	    , bp.display_platform
+	    , bp.push_send_yn
+	    , bp.blind_yn
+	    , bp.first_editor_image_thumb_url
+	    , bp.user_id
+	    , bp.reg_date
+	    , bp.mod_id
+	    , bp.mod_date
+	    , IFNULL(bpr.id, 0) AS postReadId
+	    , bc.name AS categoryName
+	    FROM board_post bp
+	    	LEFT JOIN board_category bc
+	    		ON bp.category_id = bc.id
+    		LEFT OUTER JOIN board_post_read bpr
+    			ON bpr.category_id = bp.category_id AND bpr.post_id = bp.id AND bpr.user_id = #{readUserId}
+	    WHERE
+	    	bp.blind_yn = 'N'
+	    	AND bp.display_yn = 'Y'
+	    	AND bp.blocked = 0
+	    	AND bc.del_yn = 'N'
+    		<if test='@com.jaha.util.MyBatis@isNotEmpty( codeList )'>
+	    		AND
+				<foreach collection="codeList" item="item" index="index" open="(" close=")">
+					<if test="index gt 0">
+						OR
+					</if>
+					 bp.content LIKE CONCAT('%', #{item.name}, '%') OR bp.title LIKE CONCAT('%', #{item.name}, '%')
+				</foreach>
+			</if>
+			<include refid="whereClauseOfCommonList" />
+			ORDER BY
+                bp.reg_date DESC
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+	
+	
+	
+	
+
+	<sql id="whereClauseOfCommonList">
+	 <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND bp.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  bp.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  bp.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND  bp.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND  bp.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("categoryNm")'>
+						AND  bc.name LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND ( bp.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR  bp.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+	    	<if test=' searchUserId != null and !"".equals(searchUserId) '>AND bp.user_id = #{searchUserId}</if>
+	</sql>
+
+
+	<sql id="whereClauseOfBoardMgrPost">
+	    <where>
+
+			<if test=' searchUserId != null and !"".equals(searchUserId) '>AND bp.user_id = #{searchUserId}</if>
+
+	    	<if test=' searchCategoryId != null and !"".equals(searchCategoryId) '>AND bp.category_id = #{searchCategoryId}</if>
+
+		    <if test=' searchSubCategory != null and !"".equals(searchSubCategory) '>AND bp.sub_category = #{searchSubCategory}</if>
+
+		    AND bp.blocked = b'0'
+		    AND bp.blind_yn = 'N'
+		    <choose>
+		    	<when test=' "Y".equals(searchDisplayYn) '>AND bp.display_yn = 'Y'</when>
+		    	<when test=' "N".equals(searchDisplayYn) '>AND bp.display_yn = 'N'</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    <if test=' searchTopFix != null '>AND bp.top_fix = #{searchTopFix}</if>
+		    <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND bp.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND bp.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND bp.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND bp.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND bp.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND (bp.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR bp.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+	    </where>
+	</sql>
+
+	<sql id="orderClauseOfBoardMgrPost">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<select id="selectBoardMgrPostListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardMgrPostListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM board_post bp
+	    <include refid="whereClauseOfBoardMgrPost" />
+	</select>
+
+	<select id="selectBoardMgrPostList" parameterType="BoardDto" resultType="BoardMgrPostVo">
+	    SELECT /* selectBoardMgrPostList, 조영태(cyt@jahasmart.com) */
+			bp.id
+			, bp.category_id
+			, bp.sub_category
+			, bp.title
+			, bp.content
+			, bp.image_count
+			, bp.range_all
+			, bp.file1
+			, bp.file2
+			, bp.view_count
+			, bp.count_empathy
+			, bp.comment_count
+			, bp.comment_display_yn
+			, bp.blocked
+			, bp.display_yn
+			, bp.top_fix
+			, bp.file_group_key
+			, bp.display_platform
+			, bp.push_send_yn
+			, bp.blind_yn
+			, bp.first_editor_image_thumb_url
+			, bp.user_id
+			, bp.reg_date
+			, bp.mod_id
+			, bp.mod_date
+			, bc.name AS categoryName
+			, IFNULL(bpr.id, 0) AS postReadId
+      FROM board_post bp
+       	LEFT JOIN board_category bc
+          ON bp.category_id = bc.id
+		LEFT OUTER JOIN board_post_read bpr
+    			ON bpr.category_id = bp.category_id AND bpr.post_id = bp.id AND bpr.user_id = #{readUserId}
+	    <include refid="whereClauseOfBoardMgrPost" />
+	    <include refid="orderClauseOfBoardMgrPost" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+
+
+	<!-- 사용자 작성 게시글 갯수 조회 -->
+	<select id="selectBoardPostCountByUserId" parameterType="long" resultType="int">
+	    SELECT /* selectBoardPostCountByUserId, 조영태(cyt@jahasmart.com) */
+	    	IFNULL(COUNT(1), 0)
+    	FROM board_post bp
+    		LEFT JOIN board_category bc
+	    		ON bp.category_id = bc.id
+	    WHERE
+	    	bp.blind_yn = 'N'
+	    	AND bp.display_yn = 'Y'
+	    	AND bp.blocked = 0
+	    	AND bc.del_yn = 'N'
+	    	AND bp.user_id = #{userId}
+	</select>
+
+		<!-- 사용자 작성 댓글 갯수 조회 -->
+	<select id="selectBoardCommentCountByUserId" parameterType="long" resultType="int">
+	    SELECT /* selectBoardCommentCountByUserId, 조영태(cyt@jahasmart.com) */
+	    	IFNULL(COUNT(1), 0)
+		FROM
+			board_comment bcc
+				LEFT JOIN board_post bp
+					ON bcc.post_id = bp.id
+				LEFT JOIN board_category bc
+					ON bp.category_id = bc.id
+		WHERE
+   			bp.blind_yn = 'N'
+  			AND bp.display_yn = 'Y'
+   			AND bp.blocked = 0
+   			AND bc.del_yn = 'N'
+   			AND bcc.user_id = #{userId}
+	</select>
+
+	<!-- 게시물 첨부파일 그룹 조회 -->
+	<select id="getFileGroup" parameterType="String" resultType="FileInfoVo">
+	    SELECT /* getFileGroup, 조영태(cyt@jahasmart.com) */
+	    	file_key
+	    	, category
+	    	, file_group_key
+	    	, type
+	    	, file_path
+	    	, file_name
+	    	, file_origiin_name
+	    	, size
+	    	, ext
+	    	, reg_id
+	    	, reg_date
+		FROM
+			file_info
+		WHERE
+   			file_group_key = #{fileGroupKey}
+	</select>
+
+	<sql id="whereClauseOfBoardComment">
+	    WHERE BC.post_id = #{searchPostId}
+			<!-- AND BC.blocked = b'0' -->
+			AND BC.display_yn = 'Y'
+	</sql>
+
+	<sql id="orderClauseOfBoardComment">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<select id="selectBoardCommentListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardCommentListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    <include refid="whereClauseOfBoardComment" />
+	</select>
+
+	<select id="selectBoardCommentList" parameterType="BoardDto" resultType="BoardCommentVo">
+	    SELECT /* selectBoardCommentList, 전강욱(realsnake@jahasmart.com) */ BC.id
+	    , BC.post_id
+	    , BC.content
+	    , BC.blocked
+	    , BC.reply_count
+	    , BC.user_id
+	    , BC.reg_date
+		, IFNULL(U.full_name, '탈퇴회원') AS full_name /* 암호화된 사용자명 */
+		, IFNULL(U.nickname, '익명') AS nickname
+		, IFNULL(H.dong, '0') AS dong
+		, IFNULL(H.ho, '0') AS ho
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    <include refid="whereClauseOfBoardComment" />
+		<include refid="orderClauseOfBoardComment" />
+	    <!-- LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum} -->
+	</select>
+
+	<!-- 댓글 숨김상태 수정 -->
+	<update id="boardCommentDisplayUpdate" parameterType="BoardCommentVo">
+		<!-- UPDATE  /* boardCommentDisplayUpdate, 조영태(cyt@jahasmart.com) */ board_comment SET display_yn = #{displayYn} WHERE id = #{id} -->
+		UPDATE  /* boardCommentDisplayUpdate, 조영태(cyt@jahasmart.com) */ board_comment SET blocked = #{blocked} 
+		WHERE
+		<if test='@com.jaha.util.MyBatis@isNotEmpty( id )'>
+			id = #{id}
+		</if>
+		<if test='@com.jaha.util.MyBatis@isNotEmpty( ids )'>
+			id IN
+			<foreach collection="ids" item="item" index="index" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+		</if>
+		
+	</update>
+
+	<!-- 게시글 블라인드 상태 수정 -->
+	<update id="boardPostBlindYnUpdate" parameterType="BoardPostVo">
+		UPDATE  /* boardPostBlindYnUpdate, 조영태(cyt@jahasmart.com) */ board_post SET blind_yn = #{blindYn}
+		WHERE
+		<if test='@com.jaha.util.MyBatis@isNotEmpty( id )'>
+			id = #{id}
+		</if>
+		<if test='@com.jaha.util.MyBatis@isNotEmpty( ids )'>
+			id IN
+			<foreach collection="ids" item="item" index="index" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+		</if>
+	</update>
+
+   <!-- 게시글(공지사항,커뮤니티) 목록 조회 -->
+  <select id="selectBoardPostList" parameterType="BoardDto" resultType="BoardMgrPostVo">
+      SELECT /* selectBoardPostList,송명섭(sms@jahasmart.com) */
+      bp.id
+      , bp.category_id
+      , bp.sub_category
+      , bp.title
+      , bp.content
+      , bp.image_count
+      , bp.range_all
+      , bp.file1
+      , bp.file2
+      , bp.view_count
+      , bp.count_empathy
+      , bp.comment_count
+      , bp.comment_display_yn
+      , bp.blocked
+      , bp.display_yn
+      , bp.top_fix
+      , bp.file_group_key
+      , bp.display_platform
+      , bp.push_send_yn
+      , bp.blind_yn
+      , bp.first_editor_image_thumb_url
+      , bp.user_id
+      , bp.reg_date
+      , bp.mod_id
+      , bp.mod_date
+
+      , bc.name AS categoryName
+
+      , IFNULL(bpr.id, 0) AS postReadId
+      FROM board_post bp
+       	LEFT JOIN board_category bc
+          ON bp.category_id = bc.id
+		LEFT OUTER JOIN board_post_read bpr
+    			ON bpr.category_id = bp.category_id AND bpr.post_id = bp.id AND bpr.user_id = #{readUserId}
+      WHERE
+        (bc.type='notice' OR bc.type = 'community')
+        AND bp.blind_yn = 'N'
+        AND bp.display_yn = 'Y'
+	    AND bp.blocked = 0
+	    AND bc.del_yn = 'N'
+	<include refid="whereClauseOfCommonList" />
+	ORDER BY
+                bp.reg_date DESC
+      LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+  </select>
+
+    <!-- 게시글(공지사항,커뮤니티)목록 갯수 조회 -->
+  <select id="selectBoardPostListCount" parameterType="BoardDto" resultType="int">
+      SELECT /* selectBoardPostListCount, 송명섭(sms@jahasmart.com) */ COUNT(*)
+      FROM board_post bp
+        LEFT JOIN board_category bc
+          ON bp.category_id = bc.id
+      WHERE
+        (bc.type='notice' OR bc.type = 'community')
+        AND bp.blind_yn = 'N'
+        AND bp.display_yn = 'Y'
+	    AND bp.blocked = 0
+	    AND bc.del_yn = 'N'
+	    <include refid="whereClauseOfCommonList" />
+  </select>
+
+
+	<!-- 게시글 읽음처리 조회 -->
+	<select id="getPostRead" parameterType="BoardPostReadVo" resultType="BoardPostReadVo">
+		SELECT /* getPostRead, 조영태(cyt@jahasmart.com) */
+			id
+			, category_id
+			, post_id
+			, comment_id
+			, user_id
+			, read_date
+		FROM board_post_read
+		WHERE
+			category_id = #{categoryId}
+			AND post_id = #{postId}
+			AND user_id = #{userId}
+		<if test='commentId != null and !commentId.equals("")'>
+		    AND  comment_id  = #{commentId}
+		</if>
+	</select>
+
+	<!-- 게시글 읽음처리 등록 -->
+	<insert id="setPostRead" parameterType="BoardPostReadVo" >
+	INSERT INTO board_post_read  /* setPostRead, 조영태(cyt@jahasmart.com) */
+		(
+			category_id, post_id, comment_id, user_id, read_date
+		) VALUES (
+			#{categoryId}, #{postId},#{commentId}, #{userId}, now()
+		)
+	</insert>
+
+
+	<!-- 금칙어 상태 수정 -->
+	<update id="boardWordUseYnUpdate" parameterType="list">
+		UPDATE  /* boardWordUseYnUpdate, 조영태(cyt@jahasmart.com) */ jahacomm.comm_cd
+		SET use_yn = 'N'
+		WHERE
+			cd_grp_id = 'POST_WORD'
+			AND cd_id IN
+			<foreach collection="array" item="item" index="index" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+	</update>
+
+</mapper>

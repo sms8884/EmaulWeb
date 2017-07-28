@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:15px;
+	        margin-bottom:15px;
+	    }
+	    .search-table {
+	        width:100%;
+	    }
+	    .search-table th{
+            width:80px;
+        }
+	    .search-table tr {
+	        height: 40px;
+	    }
+        .search-table .aptNm {
+            width:550px;
+        }
+        .search-table .dong {
+            width:150px;
+        }
+        .search-table .ho {
+            width:150px;
+        }
+        .search-table .searchBtn {
+            margin-top: 2px;
+        }
+        .search-table .searchKeyword {
+            width:300px;
+        }
+	    ._listArea {
+            width:100%;
+	    }
+	    .hand {
+	        cursor: pointer;
+	    }
+	    .listTableScroll{
+            overflow-y:auto;
+            height: 280px;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable thead td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        .chkUser{
+            width: 15px;
+            height: 15px;
+        }
+
+    </style>
+
+    <title>사용자 검색</title>
+</head>
+
+<body>
+
+    <input type="hidden" name="_type" id="_type" th:value="${_type}" />
+ 
+    <div class="defaultPopup">
+        <h4 class="page-header"><b>사용자 검색</b></h4>
+        
+        <div class="panel panel-info panel-body">
+            <table class="table-responsive search-table">
+                <tr>
+                    <th>아파트</th>
+                    <td class="form-inline" colspan="3">
+                        <input type="hidden" name="aptId" id="aptId" th:value="${apt?.apt_id}" />
+                        <input type="text" style="font-size: 9pt;" class="form-control aptNm" id="aptNm" name="aptNm" th:value="${apt?.building_address}" readonly="readonly" />
+                        <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="fnSelectAptPopup()"/>
+                        <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="fnCancelApt()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>동</th>
+                    <td class="form-inline" style="width:220px;">
+                        <select class="form-control dong" name="dong" id="dong" onchange="changeDong(this)">
+	                        <option value="" >전체</option>
+	                    </select> 
+                    </td>
+                    <th>호</th>
+                    <td class="form-inline" >
+                        <select class="form-control ho" name="ho" id="ho" >
+	                        <option value="" >전체</option>
+	                    </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>키워드검색</th>
+                    <td class="form-inline" colspan="3">
+                        <input type="text" class="form-control searchKeyword" id="searchKeyword" name="searchKeyword" placeholder="이름, 전화번호, 이메일"/>
+                        <input type="button" class="btn btn-sm btn-outline btn-info sc_asSearch" id="searchBtn" name="searchBtn" value="검색" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="panel-default" style="height:30px;">
+            <span style="float:left;" id="totalCountText" >0</span>건의 데이터가 조회되었습니다.
+        </div>
+        
+        <div class="_listArea panel panel-default panel-body">
+            <div class="scrollTableHeader">
+                <table class="table-hover _listTable" >
+                    <thead>
+                        <tr>
+                            <td style="width:10%;"><input type="checkbox" name="_all" id="_all" class="chkUser" /></td>
+                            <td style="width:20%;">아파트</td>
+                            <td style="width:10%;">동</td>
+                            <td style="width:10%;">호</td>
+                            <td style="width:15%;">이름</td>
+                            <td style="width:15%;">닉네임</td>
+                            <td style="width:20%;">이메일</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="listTableScroll" >
+                <table class="table table-hover _listTable" >
+                    <tbody id="_dataTable">
+                        <tr><td style="width:100%;" colspan="10">검색해주세요.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info" value="선택" name="selectBtn" onclick="fnSelectItem()" />
+        </div>
+    </div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    $(document).ready(function(){
+        $("#searchKeyword, #ids, #apId").setEnter(fnSearch);
+        $("#searchBtn").on("click", fnSearch);
+        
+        $("#_all").on("click", function(){
+        	$("input[name=itemList]").prop("checked",  $(this).prop("checked"));
+        });
+    });
+    
+    var dataList;
+    function fnSearch(){
+    	
+    	//키워드로 직접 검색아니면 아파트 선택 필수
+    	if($("#searchKeyword").val() == "" && $("#aptId").val() == ""){
+            alert("아파트를 선택또는 키워드검색을 입력후 검색해주세요");
+            return;
+    	}
+    	
+    	$("#_all").prop("checked", false);
+    	
+    	$.ajax({
+            url: '/jaha/user/search/list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "aptId": $("#aptId").val(),
+                "dong": $("#dong").val(),
+                "ho": $("#ho").val(),
+                "searchKeyword": $("#searchKeyword").val(),
+                "_type" : $("#_type").val()
+            },
+            success: function(data) {
+            	if(data != null && data.length > 0){
+            		$("#totalCountText").text(data.length);
+            		
+            		dataList = data;
+            		$("#_dataTable").empty();
+            		var _html = '';
+                    for(var i=0;i<data.length;i++){
+                    	var id = gfnNvl(data[i].id);
+                    	var email = gfnNvl(data[i].email);
+                        var aptName = gfnNvl(data[i].aptName);
+                        var dong = gfnNvl(data[i].dong);
+                        var ho = gfnNvl(data[i].ho);
+                        var fullName = gfnNvl(data[i].fullName);
+                        var nickname = gfnNvl(data[i].nickname);
+                        var regDate = gfnNvl(data[i].regDate);
+                    	
+                        _html += '<tr class="hand">';
+                        _html += '<td style="width:10%;cursor:default;"><input type="checkbox" name="itemList" class="chkUser" value="'+id+'" /></td>';
+                        _html += '<td style="width:20%;" class="td-data">'+aptName+'</td>';
+                        _html += '<td style="width:10%;" class="td-data">'+dong+'</td>';
+                        _html += '<td style="width:10%;" class="td-data">'+ho+'</td>';
+                        _html += '<td style="width:15%;" class="td-data">'+fullName+'</td>';
+                        _html += '<td style="width:15%;" class="td-data">'+nickname+'</td>';
+                        _html += '<td style="width:20%;" class="td-data">'+email+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                    	$(_html).appendTo("#_dataTable");
+                    	
+                    	$("input[name=itemList]").on("click", function(){
+                    		if($(this).prop("checked") == true){
+                    			if($("input[name=itemList]").length == $("input[name=itemList]:checked").length){
+                    				$("#_all").prop("checked", true);	
+                    			}
+                    		} else {
+                    			$("#_all").prop("checked", false);
+                    		}
+                    	});
+                    	
+                    	$(".td-data").on("dblclick", fnDblClickItem);
+                    }
+                    
+            	} else {
+            		$("#_dataTable").empty();
+            		$("#totalCountText").text("0");
+            		$('<tr><td style="text-align:center" colspan="4">조회결과가 없습니다.</td></tr>').appendTo("#_dataTable");
+            	}
+            },
+            error: function(xhr, status, error) {
+                alert("error : function fnSearch fail");
+            }
+        });
+    }
+    
+    function clickApt(aptId){
+    	$("input[type=radio][name=aptId][value="+aptId+"]").prop("checked", true);
+    }
+    
+    function fnSelectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+        
+        $.ajax({
+            type: 'GET',
+            url: "/admin/apt/dongs",
+            dataType: 'json',
+            data: {
+                "aptId" : $("#aptId").val()
+            },
+            success: function (data) {
+                 $("#dong").empty();
+                 $("#dong").append('<option value="">전체</option>');
+                for (i in data) {
+                    $("#dong").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+            }
+        });
+    }
+    
+    function changeDong(obj){
+        var dong = $(obj).val();
+        $.ajax({
+            type: 'GET',
+            url: "/admin/apt/hos",
+            dataType: 'json',
+            data: {
+                "aptId" : $("#aptId").val(),
+                "dong" : dong
+            },
+            success: function (data) {
+                 $("#ho").empty();
+                 $("#ho").append('<option value="">전체</option>');
+                for (i in data) {
+                    $("#ho").append('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+            }
+        });
+    }
+    
+    function fnCancelApt(){
+        $("#aptNm").val("");
+        $("#aptId").val("");
+        
+        $("#dong").empty();
+        $("#dong").append('<option value="">전체</option>');
+        
+        $("#ho").empty();
+        $("#ho").append('<option value="">전체</option>');
+    }
+    
+    /**
+    * 이 팝업에서 선택하면 팝업띄운 부모창에서 function  _searchUserCallback(Array) 를 구현해야함. 
+    **/
+    function fnSelectItem(){
+    	var resultList = new Array();
+    	$("input[name=itemList]").each(function(idx){
+    		if($(this).prop("checked") == true){
+    			var returnData = {};
+    			returnData.id = dataList[idx].id;
+    			returnData.email = dataList[idx].email;
+    			returnData.phone = dataList[idx].phone;
+    			returnData.birthYear = dataList[idx].birthYear;
+    			returnData.gender = dataList[idx].gender;
+                returnData.aptName = dataList[idx].aptName;
+                returnData.dong = dataList[idx].dong;
+                returnData.ho = dataList[idx].ho;
+                returnData.fullName = dataList[idx].fullName;
+                returnData.nickname = dataList[idx].nickname;
+                returnData.regDate = dataList[idx].regDate;
+                resultList.push(returnData);
+    		}
+    	});
+    	if(resultList.length > 0){
+    		try{ opener._searchUserCallback(resultList) }catch(e){ alert("error : function fnSelectItem fail"); }
+            self.close();
+    	} else {
+    		alert("선택한 항목이 없습니다.");
+    	}
+    }
+    function fnDblClickItem(){
+        var idx = $(this).parent().index();
+        if(idx >= 0){
+        	var resultList = new Array();
+        	var returnData = {};
+        	returnData.id = dataList[idx].id;
+        	returnData.email = dataList[idx].email;
+            returnData.phone = dataList[idx].phone;
+            returnData.birthYear = dataList[idx].birthYear;
+            returnData.gender = dataList[idx].gender;
+        	returnData.aptName = dataList[idx].aptName;
+        	returnData.dong = dataList[idx].dong;
+        	returnData.ho = dataList[idx].ho;
+        	returnData.fullName = dataList[idx].fullName;
+        	returnData.nickname = dataList[idx].nickname;
+        	returnData.regDate = dataList[idx].regDate;
+        	resultList.push(returnData);
+        	try{ opener._searchUserCallback(resultList) }catch(e){ alert("error : function fnDblClickItem fail"); }
+            self.close();
+        }
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

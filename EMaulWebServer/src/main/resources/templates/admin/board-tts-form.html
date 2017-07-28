@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+
+	<meta http-equiv="Expires" content="0" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        table th{width:15%}
+		table{width:100%;}
+
+		.modal.modal-center {
+		  text-align: center;
+		}
+
+		@media screen and (min-width: 768px) {
+		  .modal.modal-center:before {
+		    display: inline-block;
+		    vertical-align: middle;
+		    content: " ";
+		    height: 100%;
+		  }
+		}
+
+		.modal-dialog.modal-center {
+		  display: inline-block;
+		  text-align: left;
+		  vertical-align: middle;
+		}
+
+	.wrap-loading{ /*화면 전체를 어둡게 합니다.*/
+    position: absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    background: rgba(0,0,0,0.2); /*not in ie */
+    filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#20000000', endColorstr='#20000000');    /* ie */
+
+}
+    .wrap-loading div{ /*로딩 이미지*/
+        position: relative;
+        top:50%;
+        left:50%;
+        margin-left: -21px;
+        margin-top: -21px;
+    }
+    .display-none{ /*감추기*/
+        display:none;
+    }
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA| 방송 게시판 - 등록</title>
+</head>
+
+<body onFocus="parent_disable();" onclick="parent_disable();">
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin" ></div>
+
+			   <div id="loading" style="display: none">
+                               <img src="/img/ajax-loader.gif" alt="loading"/>
+                     </div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" th:text="${category.name}">방송 게시판</h1>
+
+                <div id="content-container">
+                    <form enctype="multipart/form-data" method="post" action="" id="theForm" name="theForm">
+
+						<div class="panel panel-info"><!--add-->
+							<div class="panel-heading">방송정보</div><!--add-->
+							<div class="panel-body" >
+							<div th:if="${detailYn == null }">※ 최대 글자 수(1,500자) 기준 하루 최대 6회 등록 가능 합니다.</div>
+								<p class="bcnecessaryP" style="text-align:right; color:red;"><span class="fa fa-asterisk nesessary" style="font-size:7px; color:red;"></span>필수 입력 항목입니다.</p>
+								<!-- <p class="bcAttention" style="font-weight:bold;">ⓘ e마을 방송게시판과 아파트 방송시스템이 연결이 되어야만 게시물 등록 후 아파트에 방송을 내보낼 수 있습니다.</p> --><!--add-->
+								<div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+									<table class="table table-responsive table" style="margin-bottom: 0">
+										<tbody>
+											<tr >
+												<th>목소리 설정</th>
+												<td class="form-inline">
+													<select class="form-control" id="_voiceGubun" name="_voiceGubun" disabled="disabled" >
+														<option value="male" selected="selected">남자</option>
+														<option value="female" >여자</option>
+													</select>
+												</td>
+											</tr>
+<!--//
+											<tr>
+												<th>소리 크기 설정</th>
+												<td class="form-inline">
+													<select class="form-control" id="_voiceVolume" name="_voiceVolume">
+														<option value="-5">-5</option>
+														<option value="-4">-4</option>
+														<option value="-3">-3</option>
+														<option value="-2">-2</option>
+														<option value="-1">-1</option>
+														<option value="0" selected="selected">0</option>
+														<option value="1">1</option>
+														<option value="2">2</option>
+														<option value="3">3</option>
+														<option value="4">4</option>
+														<option value="5">5</option>
+													</select>
+												</td>
+											</tr>
+//-->
+											<tr>
+												<th>내용 <span class="fa fa-asterisk nesessary" style="font-size:7px; color:red;"></span></th>
+												<td>
+													<textarea class="form-control bcContentsTxt" id="_content" placeholder=" 1,500자 내로 작성해주세요." rows="10" style="resize: none" name="_content" disabled="disabled" maxlength="1500"></textarea>
+													(<span id="spn_content_count">0</span>/1500자)
+												</td>
+											</tr>
+									<!--
+											<tr>
+											<th>푸시메시지 발송 여부</th>
+												<td class="form-inline">
+													<div class="radio-inline" style="margin:0 5px;">
+														<label>
+															<input type="radio" class="bcSendBtn" id="_pushSendYn" value="Y" name="_pushSendYn" /> 발송
+														</label>
+													</div>
+													<div class="radio-inline" style="margin:0 5px;">
+														<label>
+															<input type="radio" class="bcNotSendBtn" id="_pushNotSendYn" value="N" name="_pushSendYn" checked="true" /> 미발송
+														</label>
+													</div>
+												</td>
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<div th:if="${id == null}" class="bcSignupbox" style="overflow:hidden; margin:20px 0 0 0">
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-success bcBroadcast" id="bcBroadcast" value="등록" name="bcBroadcast" onclick="addBoardPost();" />
+								<input type="button" class="btn btn-outline btn-info bcCancle" id="bcCancle" value="취소" name="bcCancle" onclick="movePrePage();" />
+							</div>
+						</div>
+
+
+						<!-- 방송내용 미리듣기 -->
+						<div th:if="${id !=null} and ${detailYn != null}" class="panel panel-info"><!--add-->
+							<div class="panel-heading">방송내용 미리듣기</div>
+									<div class="audiobox" style=" text-align:left; ">	
+										<audio id="ttsAudio" controls="controls" ></audio>
+									</div>
+							<div class="">
+								<p >&nbsp; * 미리듣기 하기 전 방송시스템이 해지되어 있는지 확인하여 주시기 바랍니다.</p>
+								<p>&nbsp; * 재생 버튼(▶)을 클릭하면 미리듣기 방송이 시작됩니다. 정지 버튼(||)을 클릭하면 방송이 정지됩니다.</p>
+							</div>
+						</div><!--add:end-->
+
+
+							<!-- 방송파일및 송출  -->
+						<div th:if="${id !=null} and ${detailYn != null}" class="panel panel-info"><!--add-->
+							<div class="panel-heading">방송 설정 및 파일 다운로드</div>
+
+							<div class="panel-body">
+								<div class="border-round" style="padding: 0; margin: 0 0 10px 0 ;">
+									<table class="table table-responsive table" style="margin-bottom: 0">
+										<tbody>
+											<tr>
+											<td colspan="2">
+												<span>
+												*예약설정 시 설정한 시간에 컴퓨터 전원을 켜두셔야 합니다. 또 <span style="color: red; font-weight: 700;">관리자 계정 로그인이 유지된 상태</span>
+												(인터넷이 연결된 상태)에서 <span style="color: red; font-weight: 700;">음성플레이어 창이 켜져 있어야 합니다.</span> 창을 종료하시면 예약이 자동 취소됩니다.</span>
+											</td>
+											</tr>
+											<tr>
+												<th >방송 내보내기 </th>
+												<td class="form-inline">
+													<div class="radio">
+														<label><input type='radio' name='reserveYn' id='playNow' value='N' checked="checked" />즉시방송하기</label>
+														<label><input type='radio' name='reserveYn' id='playReserve' value='Y' />예약방송하기</label>
+														<select th:id = "yearOption" name = "yearOption" disabled="disabled" class="form-control" ></select>
+														<select th:id = "meridiem" name = "meridiem" disabled="disabled" class="form-control" >
+														<option value= "AM">오전</option>
+														<option value= "PM">오후</option>
+														</select>
+														<select th:id="hourOption" name="hourOption" disabled="disabled" class="form-control"  ></select>
+														<select th:id="minutesOption" name="minutesOption" disabled="disabled" class="form-control" ></select>&nbsp;&nbsp;&nbsp;&nbsp;
+														<span id="reserveDate"></span>
+													</div>
+
+												</td>
+											</tr>
+											<tr>
+												<th>방송파일 다운로드</th>
+												<td>
+													<a href="javascript:downloadAudio();" th:text="${id} + '.mp3'"></a>
+												</td>
+											</tr>
+
+											<tr>
+												<th >푸시알림 설정 </th>
+												<td>
+													<div class="radio">
+														<label><input type='radio' name='push' id='pushNow' value='Y'  />발송</label>
+														<label><input type='radio' name='push' id='pushNot' value='N' checked="checked" />미발송</label>
+													</div>
+
+												</td>
+											</tr>
+													<tr>
+													
+												<th ><div style="font-size: x-small; color: gray;">*음성파일 재생 반복 횟수입니다.</div>연속재생횟수 </th>
+												<td>
+													<div class="radio">
+														<label><input type='radio' name='repeat' id='notRepeat' value='1' checked="checked" />반복없음</label>
+														<label><input type='radio' name='repeat' id='repeat2' value='2'  />2번 반복</label>
+														<label><input type='radio' name='repeat' id='repeat3' value='3'  />3번 반복</label>
+													</div>
+												</td>
+											</tr>
+										<!-- 	<tr>
+												<th>방송송출</th>
+												<td class="form-inline">
+													<input type="button" class="btn btn-default bcPlayBtn" id="bcPlayBtn" value="방송 내보내기" name="bcPlayBtn" onclick="broadcasting();" />
+												</td>
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div><!--add:end-->
+
+						<!-- 버튼  -->
+						<div th:if="${detailYn == null} and ${id != null}" class="bcSignupbox" style="overflow:hidden; margin:20px 0 0 0">
+							<div class="bcSignupLeft" style="float:left;">
+								<input type="button" class="btn btn-outline btn-primary bcDelete" id="bcDelete" value="삭제" name="bcDelete" onclick="removeBoardPost();" />
+							</div>
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-success bcChange" id="bcChange" value="수정" name="bcChange" onclick="modifyBoardPost();" />
+								<input type="button" class="btn btn-outline btn-info bcCancle" id="bcCancle" value="목록" name="bcCancle" onclick="moveList();" />
+							</div>
+						</div>
+
+					<div th:if="${detailYn != null}" class="bcSignupbox" style="overflow:hidden; margin:20px 0 0 0">
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-success bcChange" id="bcStart" value="방송하기" name="bcChange" onclick="startBroadCast();" />
+								<input type="button" class="btn btn-outline btn-info bcCancle" id="bcCancle" value="취소" name="bcCancle" onclick="moveList();" />
+							</div>
+						</div>
+						<!-- 버튼 end -->
+
+
+						<!-- 방송 모달 팝업추가 -->
+<!-- 						<div class="modal fade in" id="broadcastingPopup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel" style="font-weight:bold; font-size:20px;">방송 안내</h4>
+									</div>
+									<div class="modal-body">
+										<div class="broadcastingPopupbox">
+											<p>재생 버튼을 클릭하면 아파트에 방송이 시작되므로 방송내용을 다시한번 확인하여 주세요. </p>
+											<p>정지 버튼을 클릭하면 방송이 정지됩니다.</p>
+											<div class="audiobox" style="border-top:1px solid #E5E5E5; margin:20px 0 0 0; padding:20px; text-align:center;">
+
+												<video id="control-video" controls="true" width="100%" src="">
+													<embed id="news-video2" src="25-1.mp4" type="application/x-shockwave-flash" allowfullscreen="false" allowscriptaccess="always" width="500" height="500" />
+												</video>
+
+												<audio id="ttsAudio2" controls="controls">HTML5 audio not supported</audio>id를 임시로 변경
+											</div>
+										</div>
+										<div class="modal-footer">
+											<input type="button" class="btn btn-info pu_Cancel" data-dismiss="modal" id="pu_Cancel" value="닫기" name="pu_Cancel" onclick="cancelBroadcasting();" />
+										</div>
+									</div>
+								</div>/.modal-content
+							</div>/.modal-dialog
+						</div>/.modal
+
+ -->
+ 					<input type="hidden" id="categoryId" name="categoryId" th:value="${category.id}" value="0" />
+						<input type="hidden" id="categoryType" name="categoryType" th:value="${category.type}" value="0" />
+
+						<input type="hidden" id="id" name="id" th:value="${id}" />
+
+						<input type="hidden" id="voiceGubun" name="voiceGubun" value="" />
+						<input type="hidden" id="voiceVolume" name="voiceVolume" value="0" />
+						<input type="hidden" id="content" name="content" value="" />
+						<input type="hidden" id="preContent" name="preContent" value="" />
+						<input type="hidden" id="pushSendYn" name="pushSendYn" value="" />
+						<input type="hidden" id="todayLength" name="todayLength" value="0" />
+						<input type="hidden" id="soundCheck" name="soundCheck" value="0" />
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+
+   $(document).ajaxStart(function() {
+        $('#loading').css('position','absolute');
+        $('#loading').css('z-index','10000');
+        $('#loading').css('top','40%');
+        $('#loading').css('left','60%');
+
+        $('#loading').show();
+    }).ajaxStop(function() {
+        $('#loading').attr('style','');
+        $('#loading').hide();
+    });
+
+	/* 오늘날짜 */
+   function getAgoDate(yyyy, mm, dd)
+   {
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    var day = today.getDate();
+    
+    var resultDate = new Date(yyyy+year, month+mm, day+dd);
+    
+    
+          year = resultDate.getFullYear();
+          month = resultDate.getMonth() + 1;
+          day = resultDate.getDate();
+
+          if (month < 10)
+              month = "0" + month;
+          if (day < 10)
+              day = "0" + day;
+
+          return year + "" + month + "" + day;
+   }
+
+ var popupWindow=null;
+function movePrePage() {
+	history.back();
+};
+
+function moveList(){
+	location.href = "/admin/board/post/list/" +$("#categoryId").val() ;
+}
+
+
+function addBoardPost() {
+	if (!preSubmit()) {
+		return;
+	}
+	console.log($("#theForm").serialize());
+	var result = confirm(' 등록하시겠습니까? ');
+
+	if (result) {
+		var addUrl = "/admin/board/post/write-json";
+
+		$("#theForm").ajaxSubmit({
+	        url: addUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: $("#theForm").serialize()
+	        , success: function(jsonData) {
+	        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+	        	alert("음성 mp3파일이 생성되었습니다.방송일정을 설정하세요.");
+	        		location.href = "/admin/board/post/list/" +$("#categoryId").val() ;
+
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+
+	}
+};
+function saveBoardPost() {
+	if (!preSubmit()) {
+		return;
+	}
+
+		var modUrl = "/admin/board/post/modify-ext/" + $("#id").val();
+
+		$("#theForm").ajaxSubmit({
+	        url: modUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: $("#theForm").serialize()
+	        , success: function(jsonData) {
+	        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	// window.location.reload();
+	        	movePrePage();
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+};
+
+function modifyBoardPost() {
+	if (!preSubmit()) {
+		return;
+	}
+
+	var result = confirm(' 저장 하시겠습니까? ');
+
+	if (result) {
+		var modUrl = "/admin/board/post/modify-ext/" + $("#id").val();
+
+	        	
+
+		$("#theForm").ajaxSubmit({
+	        url: modUrl
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , data: $("#theForm").serialize()
+	        , success: function(jsonData) {
+				var text = $("textarea[name='_content']").val();
+				var textLength = text.length; // 수정한글자수
+				var todayTotalLength = parseInt($("#todayLength").val(),10); // mp3변환가능한 글자수
+				var extraLength =  todayTotalLength - textLength   ; // 수정후 변환가능한 글자수
+				
+				alert('수정 가능한 글자수가' + extraLength+'자 남았습니다' );
+				location.href = "/admin/board/post/read/" + $("#id").val() + "?categoryType=tts&categoryId=" + $("#categoryId").val();
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	}
+};
+
+
+/**
+ * 등록 또는 수정 폼 전송 전 체크
+ */
+function preSubmit() {
+	var voiceGubunVal = $("select[name='_voiceGubun']").val();
+	// var voiceVolumeVal = $("select[name='_voiceVolume']").val();
+	var voiceVolumeVal = 0;
+	var contentVal = $("textarea[name='_content']").val();
+	var pushSendYnVal = $("input:radio[name='_pushSendYn']:checked").val();
+	var todayTotalLength = parseInt($("#todayLength").val(),10);
+
+	if (!contentVal) {
+    	$().toastmessage('showToast', {
+    		stayTime : 1200
+    	    , text : ' 내용을 입력해주세요. '
+    	    , sticky : false
+    	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+    	    , type : 'warning' // notice, warning, error, success
+    	    , close : function () { $("textarea[name='_content']").focus(); }
+    	});
+    	/**
+		alert(" 내용을 입력해주세요. ");
+		$("textarea[name='_content']").focus();
+		*/
+		return false;
+	}
+	if (contentVal.length > todayTotalLength) {
+    	alert("mp3파일로 생성 가능한 글자수를 모두 사용하였습니다. 내일 다시 시도해주세요.(방송게시판 파일생성 가능 글자수는 하루 10,000자 입니다.)");
+		return false;
+	}
+
+	$("#voiceGubun").val(voiceGubunVal);
+	$("#voiceVolume").val(voiceVolumeVal);
+	$("#content").val(contentVal);
+	$("#pushSendYn").val(pushSendYnVal);
+
+	return true;
+};
+/**
+ * 방송 게시판 JSON 데이타 세팅
+ */
+function postLoad(jsonData) {
+	$("select[name='_voiceGubun']").val(jsonData.voiceGubun);
+	// $("select[name='_voiceVolume']").val(jsonData.voiceVolume);
+	$("textarea[name='_content']").val(jsonData.content);
+
+	$("input:radio[name='_pushSendYn']").removeAttr("checked");
+	$("input:radio[name='_pushSendYn']:radio[value='" + jsonData.pushSendYn + "']").prop("checked", true);
+
+	$("#spn_content_count").text(jsonData.content.length);
+
+	$("#preContent").val(jsonData.content);
+
+	// 음성파일 미리 다운로드
+	var audioUrl = "/api/board/post/file/" + jsonData.id + "/" + jsonData.id + ".mp3"; // ?nocache=" + new Date().getTime();
+	var myAudio = document.getElementById("ttsAudio");
+	myAudio.src = audioUrl;
+	//myAudio.preload = "auto";
+
+	if (jsonData.airSendDate) {
+		// return; // 이미 방송이 한번 나간 것이므로 아래 구문은 실행하지 않는다?
+	}
+
+};
+/**
+ * 방송 게시판 상세정보 JSON 조회
+ */
+function searchFormJson() {
+	var idVal = $("#id").val();
+	if (!idVal || idVal === "0") {
+		return;
+	}
+
+	var searchUrl = "/admin/board/post/read-json/" + idVal;
+
+	// cosole.log(id);
+
+    $.ajax({
+        url: searchUrl
+        , type: 'post'
+        , async: true
+        , dataType: "json"
+        , data: { "id":idVal }
+        , success: function(jsonData) {
+        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+        	postLoad(jsonData);
+        }
+        , error: function(xhr, status, error) {
+        	if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+};
+// 방송 모달 팝업
+/* function broadcasting() {
+	var idVal = $("#id").val()
+	if (!idVal || idVal === "0") {
+		return;
+	}
+
+	var preContentVal = $("#preContent").val();
+	var contentVal = $("textarea[name='_content']").val();
+
+	if (preContentVal !== contentVal) {
+		alert(" 먼저 수정 버튼을 클릭하여 최종적으로 서버에 반영한 후 방송에 내보낼 수 있습니다! ");
+		return;
+	}
+
+	var myAudio = document.getElementById("ttsAudio");
+	myAudio.src = "/api/board/post/file/" + idVal + "/" + idVal + ".mp3";
+	myAudio.preload = "auto";
+
+	var modal = $('#broadcastingPopup').modal('toggle');
+}; */
+/**
+ * 방송 게시판 내용을 푸시로 발송
+ */
+function sendTtsGcm(id, content) {
+	var json = {};
+    json.type = "action";
+    json.action = "emaul://post-detail?id=" + id;
+    json.title = "방송 게시판 푸시알림";
+    json.message = content;
+    json.isTargetAll = false;
+    json.target = "notiAlarm";
+
+	sendGcm("/common/gcm/send-per-apt", json);
+};
+/**
+ * 모달창 닫고 방송 취소
+ */
+function cancelBroadcasting() {
+	var myAudio = document.getElementById("ttsAudio");
+
+	if (!myAudio.paused) {
+		myAudio.pause();
+	}
+
+	/**
+	if (myAudio.paused) {
+		myAudio.play();
+	}
+	else {
+		myAudio.pause();
+	}
+	*/
+};
+/**
+ * 게시판 삭제
+ */
+function removeBoardPost() {
+	var idVal = $("#id").val()
+	if (!idVal || idVal === "0") {
+		return;
+	}
+    var path = '/admin/board/post/delete/' + idVal;
+
+    if (confirm("삭제하시겠습니까??")) {
+        $.ajax({
+            url: path,
+            type: 'get',
+            success: function(result) {
+                location.href = "/admin/board/post/list/" + $("#categoryId").val();
+            }
+        });
+    }
+};
+/**
+ * 방송파일을 다운로드한다.
+ */
+function downloadAudio() {
+	var idVal = $("#id").val()
+	if (!idVal || idVal === "0") {
+		return;
+	}
+
+	location.href = "/api/board/post/file/" + idVal + "/" + idVal + ".mp3";
+}
+
+/*  예약방송 시간select box 설정*/
+function setTimeSelect(){
+	
+	 var y= '';
+	 var d =new Date();
+	 var month = (d.getMonth()+1);
+	 var date = d.getDate();
+
+	 if(t != null){
+		 date = date+1;
+	 }
+	 if(month < 10){
+		 month = "0" + month;
+	 }
+	 if(date < 10){
+		 date = "0" + date;
+	 }
+	
+	y+="<option value =" +getAgoDate(0,0,0)+" >"+d.getFullYear() +"-"+month+"-"+date+"</option>";
+	y+="<option value =" +getAgoDate(0,0,1)+" >"+d.getFullYear() +"-"+month+"-"+(date+1)+"</option>";
+	$("#yearOption").html(y);
+		
+	
+	var t = "";
+	    var j = 0;
+	    /* 시간 셀렉트박스 */
+	for(var i = 1; i < 13; i++){
+	    	    if (i < 10) {
+	    	        i= "0" + i;
+	    	    }
+		t+="<option value =" +i+" >"+i+"시</option>";
+		$("#hourOption").html(t);
+	}
+
+	t="";
+
+	    /* 분 셀렉트박스 */
+	for(var i = 0; i < 60; i++){
+		  if (i < 10) {
+  	        i= "0" + i;
+  	    }
+			t+="<option value = " +i+" >"+i+"분</option>";
+			$("#minutesOption").html(t);
+	}
+
+	//  현재시간을 select box설정
+		var d = new Date();
+		var meridiem = "AM";
+		var hours = d.getHours();
+		var minutes = d.getMinutes();
+		if(hours >12){
+			hours = hours-12;
+			meridiem = "PM";
+		}
+		if(hours < 10){
+			hours ="0"+ hours;
+		}
+
+		 if(minutes < 10){
+			 minutes = "0" + minutes;
+		 }
+
+ 	     $("select[name=meridiem]").val(meridiem);
+		 $("select[name=hourOption]").val(hours);
+		 $("select[name=minutesOption]").val(minutes);
+
+}
+/* 즉시방송하기 체크여부에따른 셀렉트박스 비활성화  */
+ $("#playNow").click(function(){
+
+	$("select[name=yearOption]").attr("disabled",true);
+	$("select[name=meridiem]").attr("disabled",true);
+	 $("select[name=hourOption]").attr("disabled",true);
+	 $("select[name=minutesOption]").attr("disabled",true);
+	 $("#reserveDate").text("");
+	 $('#bcStart').val('방송하기');
+
+});
+
+/*  예약방송하기 클릭했을때 셀렉트박스 활성화 */
+$("#playReserve").click(function(){ 
+
+	$("select[name=yearOption]").attr("disabled",false);
+	$("select[name=meridiem]").attr("disabled",false);
+	 $("select[name=hourOption]").attr("disabled",false);
+	 $("select[name=minutesOption]").attr("disabled",false);
+	 var d =new Date();
+
+	 var month = (d.getMonth()+1);
+	 var date = d.getDate();
+
+	 if(month < 10){
+		 month = "0" + month;
+	 }
+	 if(date < 10){
+		 date = "0" + date;
+	 }
+	 var s = $("select[name=yearOption]").val()+$("select[name=meridiem]").val()+"    " + $("select[name=hourOption]").val() + ":" + $("select[name=minutesOption]").val();
+	 
+// 	 $("#reserveDate").text(s); // 설정된 시간을 표시
+
+$('#bcStart').val('예약하기');
+
+
+
+});
+/* 예약시간 설정  */
+function reserveDateSet(t){
+	 var d =new Date();
+	 var month = (d.getMonth()+1);
+	 var date = d.getDate();
+
+	 if(t != null){
+		 date = date+1;
+	 }
+	 if(month < 10){
+		 month = "0" + month;
+	 }
+	 if(date < 10){
+		 date = "0" + date;
+	 }
+	 var s = d.getFullYear() +"-"+month+"-"+date;
+
+	 s+= "   "+$("select[name=meridiem]").val()+"    " + $("select[name=hourOption]").val() + ":" + $("select[name=minutesOption]").val();
+	 $("#reserveDate").text(s);
+
+}
+
+/* 방송하기 함수  */
+ function startBroadCast(){
+	
+	 var today= new Date();
+	 var idVal = $("#id").val()
+     var repeat= $("input[type=radio][name=repeat]:checked").val()
+	 var moveUrl = "/admin/board/post/read/" + idVal + "?categoryType=tts&categoryId=" + $("#categoryId").val() + "&repeat=" + repeat;
+     var modUrl = "/admin/board/broadCastSeting/" + $("#id").val();
+     var push = $("input[type=radio][name=push]:checked").val()
+     var reserveYn = $("input[type=radio][name=reserveYn]:checked").val()
+     var reserveDate = $("#yearOption option:selected").text()+$("select[name=meridiem]").val()+" " + $("select[name=hourOption]").val() + ":" + $("select[name=minutesOption]").val();
+     var push = $("input[type=radio][name=push]:checked").val()
+
+
+     /*  예약방송인경우*/
+     if(reserveYn == 'Y' ){
+    	var meridiem = $("select[name=meridiem]").val();
+   		var reserveHour = parseInt($("select[name=hourOption]").val(),10) ;
+   		var reserveMinutes = parseInt($("select[name=minutesOption]").val(), 10);
+   		var reserveYear = parseInt($("select[name=yearOption]").val(), 10);
+   		var y = getAgoDate(0,0,0); 
+   		var h = today.getHours();
+    	 var m = today.getMinutes();
+    	 var s = today.getSeconds();
+    	 var todaySecon = ((h * 60)*60) + (m*60) ;  // 현재시간을 초로 변환
+	     
+   		if(meridiem =='PM'){
+   			reserveHour = reserveHour+12;
+   		}
+    	 if(meridiem == 'AM' &&reserveHour == 12  ){
+    		 reserveHour = reserveHour-12;
+    	 }
+    	var reDate =((reserveHour * 60)*60) + (reserveMinutes*60);
+    	console.log('reDate = '+reDate);
+    	console.log('todaySecon' + todaySecon );
+    	
+    	
+    	 if(reDate < todaySecon && reserveYear == y ){
+    		 //reserveDateSet(1); //하루더하기
+    		 alert('예약 시간은 24시간 이내로만 설정 가능합니다.');
+    		 $("#hourOption > option[value=00]").attr("selected", "true");
+    		 $("#minutesOption > option[value=00]").attr("selected", "true");
+		     return;
+    	 }
+    	 if(reDate > todaySecon && reserveYear > y ){
+    		 //reserveDateSet(1); //하루더하기
+    		 alert('예약 시간은 24시간 이내로만 설정 가능합니다.');
+    		 $("#hourOption > option[value=00]").attr("selected", "true");
+    		 $("#minutesOption > option[value=00]").attr("selected", "true");
+		     return;
+    	 }
+    	 alert('※주의※\n음성플레이어 창(새로 뜨는 창)을 종료하면 \n방송이 되지 않습니다. 방송이 다 끝날 때까지 \n창을 종료하지 마십시오.');
+    	 reserveDate =  $("#yearOption option:selected").text()+$("select[name=meridiem]").val()+" " + $("select[name=hourOption]").val() + ":" + $("select[name=minutesOption]").val();
+     }
+     var obj = { "airReserveYn" : reserveYn,	 "pushSendYn" : push , "airReserveDate" : reserveDate  };
+
+	 	$("#theForm").ajaxSubmit({
+	        url: modUrl
+	        , type: 'post'
+	        , data: obj
+	        , success: function(jsonData) {
+	        	popupWindow =  window.open(moveUrl, 'popup', 'width=900, height=750, menubar=no, status=no, toolbar=no');
+
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+
+
+ }
+	function parent_disable() {
+ 		if(popupWindow && !popupWindow.closed)
+ 			popupWindow.focus();
+ 		}
+
+	function lengthCheck(){
+		var categoryId = $("#categoryId").val();
+		var lenChkUrl= "/admin/board/post/totalContent/" + categoryId;
+		var result;
+
+	    $.ajax({
+	        url: lenChkUrl
+	        , type: 'get'
+	        , async: true
+	        , dataType: "json"
+	        , data: { "categoryId":categoryId }
+	        , success: function(jsonData) {
+	        	result = 10000 - jsonData;
+	        	$("#todayLength").val(result);
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+
+	    return
+
+	}
+
+
+
+$(document).ready(function() {
+	setTimeSelect();
+	searchFormJson();
+	lengthCheck();
+
+	$("textarea[name='_content']").keyup(function() {
+		var text = $(this).val();
+		var textLength = text.length;
+
+		if (textLength > 1500) {
+			 alert(" 내용은 1500자까지 입력 가능합니다. ");
+			return false;
+		}
+
+		$("#spn_content_count").text(textLength);
+	});
+
+	$("#spn_content_count").text($("#_content").text().length);
+	/* 미리듣기전 방송시스템 체크얼럿 띄우기 */
+	if( [[${detailYn}]] == 'Y' ){
+		var myAudio = document.getElementById("ttsAudio");	
+	 	 if (myAudio.attachEvent) {
+			myAudio.attachEvent("onplay", function() { // IE
+				if($("#soundCheck").val() ==0){
+				myAudio.pause();
+				alert('미리듣기 하기 전 방송시스템이 해지되어 있는지 확인하여 주시기 바랍니다.');
+				}
+				myAudio.play();
+			});
+		}
+		else {
+			myAudio.addEventListener("play", function() { //chrome
+				if($("#soundCheck").val() == 0){
+				myAudio.pause();
+				alert('미리듣기 하기 전 방송시스템이 해지되어 있는지 확인하여 주시기 바랍니다.');
+				$("#soundCheck").val(1)
+				}
+				myAudio.play();
+			}, false);
+		}
+			if (myAudio.attachEvent) {
+				myAudio.attachEvent("onended", function() { //ie
+				$("#soundCheck").val(0);
+				});
+			}
+			else {
+				myAudio.addEventListener("ended", function() { // chrome
+				$("#soundCheck").val(0);
+				}, false);
+			}
+	}
+	/*/// 미리듣기전 방송시스템 체크얼럿 띄우기 */
+	
+	if( [[${detailYn}]] == null ){
+	 $("#_voiceGubun").attr("disabled",false);
+	 $("#_content").attr("disabled",false);
+	}
+	 $('#loading').hide();
+});
+/*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+@CHARSET "UTF-8";
+/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+
+ .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+.read{
+	color:#aaa;
+	}
+
+
+
+/*게시글*/
+.titleCount{font-size:23px;}
+
+.mtBoardTable{width:100%; margin:0;}
+.mtBoardTable tbody tr th{text-align:center; border:none;}
+.mtBoardTable tbody tr td{text-align:left; padding-left:3%; border:none;}
+
+.detailBox{display:none; margin:5px 0;}
+.boardSerchBox{margin:5px 0 0 0;}
+.boardSerchBox select{width:112px; padding:6px 12px;}
+
+.mtContentHead{display:inline-block; width:100%; margin:10px 0; padding:0;}
+.mtContentHead span{float:right;}
+
+.monitoringTable{text-align:center;}
+.grayTxt{color:#aaa;}
+
+/*팝업 memberInfo*/
+ .memberTable {padding: 0; margin: 0 0 10px 0}
+.memberTable th{ text-align:center; }
+.memberTable td{padding:10px 0; text-align:center;}
+.bottomBtnBox{text-align:center; margin:20px 0 0 0}
+
+.bold{font-weight:bold}
+.disIn{display:inline-block; width:100%; min-height:100px; padding:0 20px; }
+.fl{float:left; height:100%; width:100px;  }
+.fr{float:right; width:80%; height:100%; text-align:left; padding:20px 0;}
+.fl img{width:100%;}
+
+/*팝업 wirteboard*/
+.writeSerchTable{margin:0; width:100%;}
+.writeSerchTable tr th{text-align:center; border:none;}
+.writeSerchTable tr th{text-align:left; padding-left:3%; border:none;}
+.bottomBtnBox{text-align:center; margin:20px 0 0 0}
+
+/*팝업 content*/
+.contentTable {padding: 0; margin: 0 0 10px 0}
+.contentTable th{height:100px; text-align:center; }
+.contentTable td{height:100px; padding:10px 0;}
+.bottomBtnBox{text-align:center; margin:20px 0 0 0}
+.replyTable {}
+.replyTable tbody tr td{border-top:0; border-bottom:1px solid #ddd; padding:10px 0; line-height:1.6}
+.replyTable tbody tr td p{margin:5px 0;}
+.bold{font-weight:bold}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

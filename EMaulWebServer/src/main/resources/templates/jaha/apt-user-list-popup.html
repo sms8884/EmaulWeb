@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>가입자 상세정보</title>
+</head>
+
+<body style="background:#fff">
+
+<div class="wrap" style="padding:10px;">
+	<h3 class="page-header">가입자 상세정보</h3>
+
+	<div id="content-container">
+	                    				
+	    <div class="panel panel-info">
+			<form class="form-inline" onsubmit="return false;" >
+				<div class="row" style="padding:10px 0 10px 10px; margin:0">
+					<select id="searchAuth" name="searchAuth" aria-controls="user-list-table" class="form-control input-sm" >
+						<option value="">권한선택</option>
+						<option value="anonymous">방문자</option>
+						<option value="user">주민</option>
+						<option value="house_host">세대대표</option>
+						<option value="owner">소유주</option>
+						<option value="blocked">차단</option>
+						<option value="deactivated">탈퇴</option>
+						<option value="admin">관리자</option>
+						<option value="group_admin">단체관리자</option>
+						<option value="gas_checker">가스검침원</option>
+						<option value="jaha">자하</option>
+					</select>
+  					<select id="searchType" name="searchType" aria-controls="user-list-table" class="form-control input-sm" >
+  						<option value="">선택</option>
+  						<option value="fullName">이름</option>
+  						<option value="phone">전화번호</option>
+  						<option value="email">이메일</option>
+  					</select>
+					<input type="text" id="searchWord" name="searchWord" class="form-control input-sm" />
+                	<input type="button" class="btn btn-success" onclick="search();" value="검색" />
+                	<input type="button" class="btn btn-normal" onclick="init();" value="초기화" />
+				</div>
+			</form>
+		</div>			
+	                    				
+		<table id="userDetailTable" class="table">
+			<thead>
+				<tr class="info">
+					<th width="6%" style="text-align:center;">일련번호</th>
+					<th width="15%" style="text-align:center;">아파트명</th>
+					<th width="10%" style="text-align:center;">이름</th>
+					<th width="9%" style="text-align:center;">동/호</th>
+					<th width="18%" style="text-align:center;">ID</th>
+					<th width="12%" style="text-align:center;">연락처</th>
+					<th width="10%" style="text-align:center;">권한</th>
+					<th width="10%" style="text-align:center;">생년/성별</th>
+					<th width="10%" style="text-align:center;">제어</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div id="pagingArea" align="center"></div>
+	</div>
+	<!-- /.content-container -->
+</div>
+<!-- /.col-lg-12 -->
+
+<!-- 사용자 정보 수정 -->
+<form name="frm" id="frm">
+<input type="hidden" name="userId" id="userId" />
+<div class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel2">사용자 정보 수정</h4>
+			</div>
+			<div class="modal-body">
+				<div class="aptName" style="padding:10px 0; font-weight:bold">자하아파트</div>
+
+				<table id="userInfoChange" class="table">
+					<thead>
+						<tr class="info">
+							<th width="5%" style="text-align:center;">일련번호</th>
+							<th width="10%" style="text-align:center;">이름</th>
+							<th width="20%" style="text-align:center;">동/호</th>
+							<th width="20%" style="text-align:center;">ID</th>
+							<th width="10%" style="text-align:center;">연락처</th>
+							<th width="25%" style="text-align:center;">생년/성별</th>
+							<th width="10%" style="text-align:center;">닉네임</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td style="text-align:center;">1</td>
+							<td class="form-inline" style="text-align:center;">
+								<input type="text" value="" name="userName" class="form-control" id="userName" style="width:120px"/>
+							</td>
+							<td class="form-inline" style="text-align:center;">
+								<input type="text" value="" name="dong" class="form-control" id="userDong" style="width:60px;"/> /
+								<input type="text" value="" name="ho" class="form-control" id="userHo" style="width:60px;"/>
+							</td>
+							<td class="form-inline" style="text-align:center;">
+								<input type="text" value="" name="email" class="form-control" id="email" style="width:170px;" readonly="readonly"/>
+							</td>
+							<td class="form-inline" style="text-align:center;">
+								<input type="text" value="" name="phone" class="form-control" id="userPhone" style="width:150px;" onkeydown='return onlyNumber(event)' onkeyup='removeChar(event)' />
+							</td>
+							<td class="form-inline" style="text-align:center;">
+								<select class="form-control" id="userBirth" name="birthYear">
+								</select>
+								 /
+								<select class="form-control" id="userGender" name="gender">
+									<option value="male">남자</option>
+									<option value="female">여자</option>
+								</select>
+							</td>
+							<td class="form-inline" style="text-align:center;">
+								<input type="text" value="" name="nickname" class="form-control" id="userNick" style="width:120px"/>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="7" class="form-inline" style="text-align:center;">
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="user" class=""/>주민</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="houseHost" class=""/>세대대표</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="owner" class=""/>소유주</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="anonymous" class=""/>방문자</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="blocked" class=""/>차단</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="parcelChecker" class=""/>택배</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="buildingGuard" class=""/>경비원</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="communityMaster" class=""/>게시판지기</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="gasChecker" class=""/>가스검침원</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="admin" class=""/>관리자</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="groupAdmin" class=""/>단체관리자</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="official" class=""/>공무원</label>
+								<label style="margin:0 5px;"><input type="checkbox" name="type" value="jaha" class=""/>자하</label>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default btnSave" onclick="saveInfo();">저장</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+<!-- 사용자 정보 수정 end -->
+
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var aptId = /*[[${aptId}]]*/ '';
+    var aptName = /*[[${aptName}]]*/ '';
+    var reg_date = /*[[${reg_date}]]*/ '';
+    var monitoringType = /*[[${monitoringType}]]*/ '';
+    var user_type = /*[[${user_type}]]*/ '';
+    var param = {};
+    param.pageSize = $("#pageSize").val();
+    $(document).ready(function(){
+    	userDetailTable();
+    	appendYear();
+    	
+    	$("#searchWord").setEnter(search);
+    });
+
+    function appendYear(){
+    	var date = new Date();
+    	var year = date.getFullYear();
+    	var selectValue = document.getElementById("userBirth");
+    	var optionIndex = 0;
+
+    	for(var i=year-100; i<=year; year--){
+    		selectValue.add(new Option(year+"년",year),optionIndex++);
+    	}
+    }
+    
+    
+    function search(){
+    
+    	if( $("#searchWord").val() != "" && $("#searchType").val() == ""){
+    		alert('검색구분을 선택해주세요');
+    		return;
+    	} 
+    	
+    	param.searchAuth = $("#searchAuth").val();
+    	param.searchType = $("#searchType").val();
+    	param.searchWord = $("#searchWord").val();
+    	userDetailTable();
+    }
+    function init(){
+    	$("#searchAuth").val("");
+    	$("#searchType").val("");
+    	$("#searchWord").val("");
+    }
+
+    function userDetailTable(pageNum){
+    	param.pageNum = gfnNvl(pageNum, "1");
+    	param.aptId = aptId;
+    	param.reg_date = reg_date;
+    	param.monitoringType = monitoringType;
+    	param.user_type = user_type;
+    	
+    	$.ajax({
+			url: '/jaha/apt/user/list/popup-data',
+	       	type: 'get',
+	       	async : true,
+	       	dataType: "json",
+	       	data : param,
+	        success: function (data) {
+	        	
+	        	var html2 = "";
+                html2 +="<tr>";
+                html2 +="<td colspan='9' style='text-align:center;'>검색된 데이터가 없습니다</td>";
+                html2 +="</tr>";
+                
+	    	   if(data==null) {
+					alert('데이터가 없습니다.');
+					$('#userDetailTable tbody').html(html2);
+	    	   } else {
+	    		   
+					var dataList = data.dataList;
+					var onlinePagingHtml = makePaging(data.pagingHelper, "userDetailTable");
+					$('#pagingArea').html(onlinePagingHtml);
+
+					var no = data.pagingHelper.totalRecordCount - ( data.pagingHelper.startNum );
+
+					if(dataList != null && dataList.length > 0){
+						var html = "";
+
+						for(i=0; i<dataList.length; i++){
+							var fullName = gfnNvl(dataList[i].fullName);
+							var aptName = gfnNvl(dataList[i].aptName);
+							var dong = gfnNvl(dataList[i].dong);
+							var ho = gfnNvl(dataList[i].ho);
+							var email = gfnNvl(dataList[i].email);
+							var phone = gfnNvl(dataList[i].phone);
+							var typeKoText = gfnNvl(dataList[i].typeKoText);
+							var gender = gfnNvl(dataList[i].gender);
+							var birthYear = gfnNvl(dataList[i].birthYear);
+							var id = gfnNvl(dataList[i].id);
+							if(gender == "male"){
+								gender = "(남)";
+							}else{
+								gender = "(여)";
+							}
+
+							html +="<tr>";
+							html +="<td style=\"text-align:center;\">"+(no--)+"</td>";
+							html +="<td style=\"text-align:center;\">"+aptName+"</td>";
+							html +="<td style=\"text-align:center;\">"+fullName+"</td>";
+							html +="<td style=\"text-align:center;\">"+dong+"/"+ho+"</td>";
+							html +="<td style=\"text-align:center;\">"+email+"</td>";
+							html +="<td style=\"text-align:center;\">"+phone+"</td>";
+							html +="<td style=\"text-align:center;\">"+typeKoText+"</td>";
+							html +="<td style=\"text-align:center;\">"+birthYear+gender+"</td>";
+							html +="<td style=\"text-align:center;\"><button type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal' onclick='userInfoChange("+id+");'>수정</button></td>";
+							html +="</tr>";
+						}
+						if(html.length>0){
+							$('#userDetailTable tbody').html(html);
+						}else{
+							$('#userDetailTable tbody').html(html2);
+						}
+					}else{
+					    $('#userDetailTable tbody').html(html2);
+					}
+	    	   }
+			},
+	       	error: function (jqXHR, textStatus, errorThrown) {
+				alert('오류입니다');
+	       }
+	   });
+	}
+
+    var dataList = null;
+	function userInfoChange(id){
+		$.ajax({
+			url: '/jaha/user/data',
+	       	type: 'get',
+	       	async : true,
+	       	dataType: "json",
+	       	data : {
+	       		"id":id
+	       	},
+	        success: function (data) {
+	    	   if(data==null) {
+					alert('데이터가 없습니다.');
+	    	   } else {
+					dataList = data;
+
+					if(dataList != null ){
+						var userId = gfnNvl(dataList.id);
+						var fullName = gfnNvl(dataList.fullName);
+						var nickname = gfnNvl(dataList.nickname);
+						var dong = gfnNvl(dataList.dong);
+						var ho = gfnNvl(dataList.ho);
+						var email = gfnNvl(dataList.email);
+						var phone = gfnNvl(dataList.phone);
+						var typeKoText = gfnNvl(dataList.typeKoText);
+						var gender = gfnNvl(dataList.gender);
+						var birthYear = gfnNvl(dataList.birthYear);
+						var typeKoText = gfnNvl(dataList.typeKoText);
+						var typeEngText = gfnNvl(dataList.typeEngText);
+						var userType = typeEngText.split(",");
+
+						$('#userId').val(userId);
+						$('#userName').val(fullName);
+						$('#userNick').val(nickname);
+						$('#userDong').val(dong);
+						$('#userHo').val(ho);
+						$('#email').val(email);
+						$('#userPhone').val(phone);
+						$('#userBirth').val(birthYear);
+						$('#userGender').val(gender).prop("selected","selected");
+ 						$('input:checkbox[name="type"]').prop("checked",false);
+
+						for(var i=0; i<=userType.length; i++){
+							$('input:checkbox[name="type"]').each(function(){
+								if( $(this).val() == userType[i] ){
+									$(this).prop("checked",true);
+								}
+							})
+						}
+
+						/* html +="<tr>";
+						html +="<td>1</td>";
+						html +="<td class='form-inline' style='text-align:cetnter'>";
+						html +="<input type='text' value=' "+fullName+" ' name='' class='form-control' style='width:150px; text-align:cetnter'/>";
+						html +="</td>";
+						html +="<td class='form-inline' style='text-align:center;'>";
+						html +="<input type='text' value=' "+dong+" ' name='' class='form-control' style='width:100px; text-align:cetnter'/> /";
+						html +="<input type='text' value=' "+ho+" ' name='' class='form-control' style='width:100px; text-align:cetnter'/>";
+						html +="</td>";
+						html +="<td class='form-inline' style='text-align:center'>";
+						html +="<input type='text' value=' "+email+" ' name='' class='form-control' style='text-align:cetnter'/>";
+						html +="</td>";
+						html +="<td class='form-inline'  style='text-align:cetnter'>";
+						html +="<input type='text' value=' "+phone+" ' name='' class='form-control' style='text-align:cetnter'/>";
+						html +="</td>";
+						html +="<td class='form-inline'  style='text-align:cetnter'>";
+						html +="<input type='text' value=' "+birthYear+" ' name='' class='form-control' style='width:70px; text-align:cetnter'/> /";
+						html +="<select class='form-control'>";
+						html +="<option value='male' " + ( gender == 'male' ? 'selected' : '' ) + " >남자</option>";
+						html +="<option value='female' "+ ( gender == 'female' ? 'selected' : '' ) +" >여자</option>";
+						html +="</select>";
+						html +="</td>";
+						html +="</tr>";
+						$('#userInfoChange tbody').append(html);*/
+					}
+	    	   }
+			},
+	       	error: function (jqXHR, textStatus, errorThrown) {
+	       		alert('오류입니다');
+	       }
+	   });
+    }
+
+	function saveInfo(){
+	    
+        //사용자 정보 변경유무 체크 
+        var saveFlag = false;
+        if($('#userName').val() != dataList.fullName ||
+           $('#userNick').val() != dataList.nickname ||
+           $('#userDong').val() != dataList.dong ||
+           $('#userHo').val() != dataList.ho ||
+           $('#email').val() != dataList.email ||
+           $('#userPhone').val() != dataList.phone ||
+           $('#userBirth').val() != dataList.birthYear ||
+           $('#userGender').val() != dataList.gender)
+        {
+        	saveFlag = true;
+        }
+        
+        //권한 변경유무 체크
+        var userType = dataList.typeEngText.split(",");
+        var size = userType.length;
+        var checkSize = $('input:checkbox[name="type"]:checked').length;
+        
+        if(checkSize == 0){
+        	alert("권한은 필수 선택사항입니다.");
+        	return;
+        }
+        
+        if(size == checkSize){
+        	//개수가 같을경우는 내용이 하나라도 다른지 확인.
+        	var matchSize = 0;
+        	for(var i=0;i<size;i++){
+        		var item = userType[i];
+        		$('input:checkbox[name="type"]:checked').each(function(){
+        			if($(this).val() == item){
+        				matchSize++;
+        			}
+        		});
+        	}
+        	if(matchSize != size){
+                saveFlag = true; // value가같은 개수가 차이나면 변경사항이 있는것.
+            }
+        } else {
+        	//개수가 다르면 무조건 변경사항이 있는것.
+        	saveFlag = true;
+        }
+        
+        if(saveFlag == false){
+        	alert("변경된 사항이 없습니다.");
+            return;
+        }
+			
+		if(!confirm("저장하시겠습니까?")){
+			return;
+		}
+
+		$.ajax({
+			url: '/jaha/user/updateUserData',
+	       	type: 'post',
+	       	async : true,
+	       	dataType: "html",
+	       	data : $("#frm").serialize(),
+	        success: function (data) {
+	    	   if(data=="Y") {
+				   alert("저장 되었습니다.");
+				   $("#myModal").modal("hide");
+	    	   } else if (data == "99"){
+	    		   alert("이미 존재하는 닉네임입니다.");
+	    	   } else {
+	    		   alert("저장 실패하였습니다.");
+	    	   }
+			},
+	       	error: function (jqXHR, textStatus, errorThrown) {
+	       		alert('오류입니다');
+	       }
+	   });
+	}
+
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

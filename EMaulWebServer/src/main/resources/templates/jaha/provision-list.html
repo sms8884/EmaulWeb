@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+      th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+      th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<title>JAHA-Admin</title>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+
+<!-- 그리드를 표시하기 위한 CSS -->
+<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+<!--오류잡기-->
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script type="text/javascript">
+/*<![CDATA[*/
+    var datagrid;
+    var gridJsonData;
+    
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+                
+    $(document).ready(function(){
+    	createDataGrid();
+    	searchData();
+    	
+    	$("#addBtn").bind("click", function(){
+    		location.href = "/jaha/provision/form";
+    	});
+    });
+    
+    function createDataGrid(){
+        var gridAttr, 
+            objJson;
+
+	    gridAttr = {
+	        "strParentId"                           : 'sbGridArea',
+	        "strId"                                 : 'datagrid',
+	        "strCaption"                            : "번호^제목^게시^등록자^등록일",
+	        "strColWidth"                           : "10%,50%,10%,10%,20%",
+	        "strJsonRef"                            : "gridJsonData",
+	        "strStyle"                              : "width:100%; height:650px; font-family:dotum, arial; font-size:14px;",
+	        "strExplorerbar"                    : "sortshow",
+	        "strRowHeight"                      : "50px",
+	        "strDataHeight"                     : "45px",
+	        "strFocusColor"                 : "#E8E8E8",
+	        "strSelectFontColorStyle"       : "none",
+	        "fixedcol"                      : "1",
+	        "bUseMultiSorting"              : true,
+	        "bDataSearching"                    : true,
+	        "bDragMode" : false,
+	        "strExtendLastCol"              : "scroll",
+	        "strOverflow"                           :"scroll",
+	        "strEmptyRecords"   :   "조회결과가 없습니다.",
+	        };
+	
+	    datagrid= createSBDataGrid(gridAttr);
+	
+	    objJson = [
+	                        {"id" : "_idx" , "type" : "output" , "ref" : "_idx" , "style":"text-align:center;"},
+	                        {"id" : "title" , "type" : "output" , "ref" : "title" , "style":"text-align:center;"},
+	                        {"id" : "statusName" , "type" : "output" , "ref" : "statusName" , "style":"text-align:center;"},
+	                        {"id" : "regName" , "type" : "output" , "ref" : "regName" , "style":"text-align:center;"},
+	                        {"id" : "regDate" , "type" : "output" , "ref" : "regDate" , "style":"text-align:center;"},
+	                     ];               
+	    datagrid.createColumns(objJson);        
+
+    };
+
+    function searchData(){
+    	
+        datagrid.showWait(true);
+        
+        $.ajax({
+            url: '/jaha/provision/list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            success: function(jsonData) {
+                //var jo = JSON.parse(data);
+                gridJsonData = jsonData;
+                gfnSetGridIndex(gridJsonData, "DESC");// 그리드 순번
+                datagrid.rebuild();
+                
+                datagrid.addEventListener("onclick","rowClick","","");
+                datagrid.setColStyles(datagrid.getColRef("title"), "color:blue; text-decoration: underline; cursor:pointer;", "data");
+            },
+            error: function(xhr, status, error) {
+                alert("error : faq list data fail");
+            }
+        });
+        
+        datagrid.showWait(false);
+    }
+    
+    function rowClick(){
+        var rowData = datagrid.getRowData(datagrid.getRow());
+        
+        if(datagrid.getCol() == datagrid.getColRef("title")){
+            location.href = "/jaha/provision/form?id="+rowData.id;
+        } 
+    }
+    
+ //]]>
+ </script>
+</head>
+
+<body>
+
+<div id="wrapper">            
+
+        <div th:replace="admin/admin :: top-nav"></div>
+
+        <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">약관</h1>
+                    <div id="content-container">
+                        <form method="post" action="" name="termsList">
+                            <div class="termsGridArea" id="sbGridArea"></div>
+                            <div class="termsSignupBox" style="text-align:right; margin:20px 0 40px 0;">
+                                <input type="button" class="btn btn-info termsSignupBtn" id="addBtn" value="등록" name="addBtn"/>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- page wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+</body>
+</html>

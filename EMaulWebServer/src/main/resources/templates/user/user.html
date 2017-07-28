@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'e마을 | '+${user.house.apt.name}">e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:fragment="nav" id="nav">
+	<!-- 구글분석 추가, 20160608, 전강욱 -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-77707904-1', 'auto');
+	  ga('send', 'pageview');
+	</script>
+
+    <div id="user-menu">
+        <div class="container">
+            <span><a href="/user/logout"><img src="/img/userHome/log.png"/></a></span>
+            <span style="border-right-width: 1px;"><a href="/user/mypage"><img src="/img/userHome/info.png"/></a></span>
+            <span th:if="${user.type.jaha} or ${user.type.admin}"><a href="/admin/user/list"><img src="/img/userHome/admin.png"/></a></span>
+            <span th:if="${user.type.groupAdmin}" style="border: none; padding-top: 10px; padding-right: 20px"><input type="button" class="btn btn-default" value="단체로돌아가기" onclick="fnComeBackGroupAdmin()" /></span>
+            <span style="font-weight: 600; border: none; padding-top: 16px; padding-right: 20px" th:text="${user.nickname}? ${user.nickname.name} : ${user.fullName}">접속한 사람 이름</span>
+        </div>
+    </div>
+
+    <div id="apt-menu">
+        <div class="container">
+
+            <div>
+                <!--<a class="emaul-logo"><span>eMAUL</span></a>-->
+                <a id="apt-name" href="/user">
+                    <span th:if="${user.house.apt.aptInfo==null} or ${user.house.apt.aptInfo.urlLogo==null}" th:text="${user.house.apt.name}">아파트</span>
+                    <span th:if="${user.house.apt.aptInfo} and ${user.house.apt.aptInfo.urlLogo}">
+                        <img style="width: 190px;height: 50px" th:src="${user.house.apt.aptInfo.urlLogo}" alt="이마을에 오신 것을 환영합니다"/>
+                    </span>
+                </a>
+
+                <ul id="apt-menu-ul" class="nav navbar-nav navbar-right" th:if="${categories.size() > 0}" th:with="firstCat=${categories[0]}">
+                    <li><a href="/user/board/news/list">마을뉴스</a></li>
+                    <li th:if="${user.house.apt.virtual == false}"><a href="/user/apt/info">아파트소개</a></li>
+                    <!-- <li><a th:href="'/user/board/post/list/' + ${firstCat.id}">커뮤니티</a></li> -->
+                    <li><a th:href="'/v2/user/board/' + ${firstCat.type} + '/list/' + ${firstCat.id}">커뮤니티</a></li>
+                    <li th:if="${user.house.apt.virtual == false}"><a href="/user/apt/fee">관리비</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="container">
+
+    <div id="page">
+        <div th:fragment="left-side-menu" id="left-side-menu" class="col-xs-2">
+            <div th:if="${leftSideMenu=='apt'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">아파트소개</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+                        <li><a href="/user/apt/info">인사말</a></li>
+                        <li><a href="/user/apt/map">약도</a></li>
+                        <li><a href="/user/apt/contact">관리소 연락처</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${leftSideMenu=='board'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">커뮤니티</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+<!--
+                        <li th:each="c : ${categories}">
+                            <a th:if="${c.type == 'complaint'}" th:text="${c.name} + '접수'" th:href="'/user/board/post/list/' + ${c.id}"></a>
+                            <a th:if="${c.type != 'complaint'}" th:text="${c.name}" th:href="'/user/board/post/list/' + ${c.id}"></a>
+                        </li>
+-->
+                        <li th:each="c : ${categories}" th:switch="${c.type}">
+                            <a th:case="'complaint'" th:text="${c.name} + '접수'" th:href="'/user/board/post/list/' + ${c.id}"></a>
+                            <a th:case="*" th:text="${c.name}" th:href="'/user/board/post/list/' + ${c.id}"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${leftSideMenu=='mypage'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">마이페이지</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+                        <li><a href="/user/mypage">개인정보수정</a></li>
+                        <li><a href="/user/mypage/deactivate">회원탈퇴</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${leftSideMenu=='today'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">마을뉴스</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+						<li><a href="/user/board/news/list">전체</a></li>
+						<li  th:each="category : ${categoryList}"><a th:href="'/user/board/news/list/'+${category.code}" th:text="${category.name}">생활</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${leftSideMenu=='fee'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">관리비조회</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+                        <li><a href="/user/apt/fee">청구내역조회</a></li>
+                        <li><a href="/user/apt/fee/comparison">전월 비교</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${leftSideMenu=='system'}" id="left-side-menu-box">
+                <div id="left-side-menu-box-main">
+                    <h3 style="margin-top: 15px; font-size: 20px">시스템</h3>
+                </div>
+                <div id="left-side-menu-box-sub">
+                    <ul class="nav nav-stacked">
+                        <li><a href="/v2/user/board/system-notice/list">e마을 공지사항</a></li>
+                        <li><a href="/v2/user/board/faq/list">자주 하는 질문</a></li>
+                        <!-- <li><a href="/v2/user/board/event/list">이벤트</a></li> -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="footer" id="footer">
+    <div class="container">
+        <div id="footer-logo" class="col-xs-2">
+            <a class="emaul-logo" id="footer-emaul-logo"><span>eMAUL</span></a>
+        </div>
+        <div id="footer-right" class="col-xs-10" style="font-size: 12px">
+            <div class="right_sub1" >
+                <p><a href="#;" onclick="movePagePolicyService()">이용약관</a>
+                	| <a href="#;" onclick="movePagePolicyPrivacy()">개인정보취급방침</a>
+                	| <a href="#;" onclick="movePagePolicyLocation()">위치기반서비스이용약관</a>
+                	| <a href="#;" onclick="movePageNotice()">e마을공지사항</a>
+                	| <a href="#;" onclick="movePageFaq()">FAQ</a>
+                	<!-- | <a href="#;" onclick="movePageEvent()">이벤트</a> -->
+                	| <a href="#;" onclick="movePageEmailPop()">이메일무단수집거부</a>
+                	| <a href="#;" onclick="movePageManual()">사용설명서</a>
+                </p>
+
+                <div id="apps-badge" style="text-align: right; padding:7px 0px 5px 5px;">
+                    <a href="https://play.google.com/store/apps/details?id=com.jaha.app.emaul" target="_blank" title="새창으로 이동">
+                        <img alt="Android app on Google Play" src="../../static/img/m_google.png" style="width: 100px; height: auto" th:src="@{/img/m_google.png}" />
+                    </a>
+					<a href="https://itunes.apple.com/kr/app/ima-eul-mobail-tupyo-mich/id1058747039?mt=8 " target="_blank" title="새창으로 이동">
+                        <img alt="Available on the iphone App store" src="../../static/img/m_apple.png" style="width: 98px; height: auto; " th:src="@{/img/m_apple.png}" />
+                    </a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #d2d2d2">
+                <p>서울시 구로구 디지털로32길 30 코오롱디지털타워빌란트 404호<br/>
+                COPYRIGHT &copy; 2015 <a href="http://jahasmart.com" target="_blank">자하스마트</a> ALL RIGHT RESERVED</p>
+                <div id="site-link" style="float: right">
+                    <select class="form-control" style="width: 200px; font-size: 12px" onchange="if(value != '') {window.open(value,'_blank');};">
+                        <option value="">관련 사이트 연결</option>
+                        <option value="http://jahasmart.com">자하스마트</option>
+                        <!-- 임시로 주석처리함 추후에 각 지역별 구청으로 표시되게 작업이 필요함 -->
+                        <!--option value="http://www.guro.go.kr">구로구청</option-->
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form name="moveFrm" id="moveFrm" action="/provision/view" method="post">
+	    <input type="hidden" name="id" />
+	</form>
+    <script type="text/javascript">
+    /*<![CDATA[*/
+    function movePagePolicyService(){
+    	moveFrm.id.value = "1";
+    	moveFrm.submit();
+    }
+    function movePagePolicyPrivacy(){
+    	moveFrm.id.value = "2";
+        moveFrm.submit();
+    }
+    function movePagePolicyLocation(){
+    	moveFrm.id.value = "3";
+        moveFrm.submit();
+    }
+    function movePageFaq(){
+        location.href = "/v2/user/board/faq/list";
+    }
+    function movePageNotice(){
+    	location.href = "/v2/user/board/system-notice/list";
+    }
+    function movePageEvent(){
+        location.href = "/v2/user/board/event/list";
+    }
+    function movePageEmailPop(){
+    	var width = 800;
+    	var height = 540;
+    	var left = (screen.width-width)/2;
+    	var top = (screen.height-height)/2;
+        window.open("/html/policy-email.html","policy-email","width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+    }
+    function movePageManual(){
+    	location.href = "/user/manual/view";
+    }
+    function fnComeBackGroupAdmin(){
+        if(confirm("원 소속 단체로 돌아가시겠습니까?")){
+            location.href = "/v2/group-admin/apt/switch?comeback=Y";
+        }
+    }
+    /*]]>*/
+    </script>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+           
+/*]]>*/
+</script>
+</body>
+</html>

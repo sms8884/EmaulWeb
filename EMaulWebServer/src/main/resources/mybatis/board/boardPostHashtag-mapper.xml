@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board">
+
+	<insert id="insertBoardPostHashtag" parameterType="BoardPostHashtagVo">
+	    INSERT /* insertBoardPostHashtag, 전강욱(realsnake@jahasmart.com) */ INTO board_post_hashtag (
+	        post_id
+	        , name
+	    ) VALUES (
+	        #{postId}
+	        , #{name}
+	    )
+	</insert>
+
+	<update id="updateBoardPostHashtag" parameterType="BoardPostHashtagVo">
+	    UPDATE /* updateBoardPostHashtag, 전강욱(realsnake@jahasmart.com) */ board_post_hashtag
+	    <set>
+		    <if test='postId != null and !postId.equals("")'>post_id=#{postId},</if>
+		    <if test='name != null and !name.equals("")'>name=#{name},</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<delete id="deleteBoardPostHashtag" parameterType="long">
+	    DELETE /* deleteBoardPostHashtag, 전강욱(realsnake@jahasmart.com) */ FROM board_post_hashtag
+	    WHERE id=#{id}
+	</delete>
+
+	<select id="selectBoardPostHashtag" parameterType="long" resultType="BoardPostHashtagVo">
+	    SELECT /* selectBoardPostHashtag, 전강욱(realsnake@jahasmart.com) */ id
+	    , post_id
+	    , name
+	    FROM board_post_hashtag
+	    WHERE id=#{id}
+	</select>
+
+	<sql id="whereClauseOfBoardPostHashtag">
+	    <where>
+		    <if test='postId != null and !postId.equals("")'> AND post_id=#{postId}</if>
+		    <if test='name != null and !name.equals("")'> AND name=#{name}</if>
+		</where>
+	</sql>
+
+	<select id="selectBoardPostHashtagListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardPostHashtagListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_post_hashtag
+	    <include refid="whereClauseOfBoardPostHashtag" />
+	</select>
+
+	<select id="selectBoardPostHashtagList" parameterType="BoardDto" resultType="BoardPostHashtagVo">
+	    SELECT /* selectBoardPostHashtagVOList, 전강욱(realsnake@jahasmart.com) */ id
+	    , post_id
+	    , name
+	    FROM board_post_hashtag
+	    <include refid="whereClauseOfBoardPostHashtag" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+</mapper>

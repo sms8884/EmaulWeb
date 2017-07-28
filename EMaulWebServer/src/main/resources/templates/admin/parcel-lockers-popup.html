@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+        body, div, a, ul, li, img, h1, h2, h3, h4, p, address, span, dl, dt, dd, form,
+        fieldset, legend, label, input, table, tr, td, thead, tbody, caption, colgroup {
+            padding: 0;
+            margin: 0;
+        }
+
+        header, footer, section, aside, article, time, nav, figure, figcaption, video {
+            display: block;
+        }
+
+        body,
+        input {
+            font-size: 12px;
+            color: #333;
+            font-family: Malgun Gothic, dotum, Arial, Helvetica, sans-serif;
+        }
+
+        .defaultPopup {
+            border: 1px solid #c3c3c3;
+            margin: 0 auto;
+            padding: 0px 15px 0px 15px;
+            vertical-align: middle;
+            background: #FFFFFF;
+        }
+
+        .bottomBtnBox {
+            text-align: right;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        ._addTable th {
+            font-weight: normal;
+            width: 140px;
+        }
+
+        ._addTable td {
+            width: 260px;
+        }
+
+    </style>
+
+    <title>무인택배시스템 등록</title>
+</head>
+
+<body>
+
+<div class="defaultPopup">
+    <h4 class="page-header">무인택배시스템 등록</h4>
+
+    <form name="frm" id="frm" method="post">
+    <table class="table table-responsive _addTable">
+    <tr>
+        <th>택배함 ID</th>
+        <td class="form-inline" colspan="2">
+            <input type="text" class="form-control" id="uuid" name="uuid" maxlength="50" style="width:250px;" placeholder="자동생성" disabled="disabled" />
+        </td>
+    </tr>
+    <tr>
+        <th>택배함 인증키</th>
+        <td class="form-inline" colspan="2">
+            <input type="text" class="form-control" id="authKey" name="authKey" maxlength="250" style="width:250px;" placeholder="자동생성" disabled="disabled" />
+        </td>
+    </tr>
+    <tr>
+        <th>택배함 이름</th>
+        <td class="form-inline">
+            <input type="text" class="form-control" id="name" name="name" maxlength="100" style="width:250px;"/>
+        </td>
+    </tr>
+    <tr>
+        <th>택배함 위치</th>
+        <td class="form-inline">
+            <input type="text" class="form-control" id="location" name="location" maxlength="100" style="width:250px;"/>
+        </td>
+    </tr>
+    </table>
+    </form>
+
+    <div class="bottomBtnBox">
+        <input type="button" class="btn btn-info sc_asSignup" id="createBtn" value="저장" />
+        <input type="button" class="btn btn-info sc_asSignup" id="cancelBtn" value="취소" />
+    </div>
+</div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function () {
+
+        $('#createBtn').click(function (e) {
+            e.preventDefault();
+
+            if($.trim($('#name').val()) == '') {
+                alert('택배함 이름을 입력해주세요');
+                return false;
+            }
+
+            if (!confirm("저장하시겠습니까?"))
+                return false;
+
+            $.ajax({
+                url: '/admin/parcel-lockers',
+                type: 'post',
+                async: false,
+                dataType: 'json',
+                data: $('#frm').serialize(),
+                beforeSend: function() {
+                    $('#createBtn').attr('disabled', true);
+                },
+                success: function () {
+                    opener.parent.SBGrid_pagingInit();
+                    alert('저장에 성공하셨습니다');
+                    window.self.close();
+                },
+                complete: function () {
+                    $('#createBtn').attr('disabled', false);
+                },
+                error: function (error) {
+                    alert("error : 저장에 실패했습니다");
+                }
+            });
+        });
+
+        $('#cancelBtn').click(function (e) {
+            e.preventDefault();
+            window.self.close();
+        });
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

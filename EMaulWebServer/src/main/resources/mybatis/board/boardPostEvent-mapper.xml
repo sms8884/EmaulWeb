@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardPostEventMapper">
+
+	<insert id="insertBoardPostEvent" parameterType="BoardPostEventVo">
+	    INSERT /* insertBoardPostEvent, 전강욱(realsnake@jahasmart.com) */ INTO board_post_event (
+	        post_id
+	        , start_date
+	        , end_date
+	        , title_category
+	        , title_color
+	        , title_bold_yn
+	        , end_yn
+	        , end_notice
+	    ) VALUES (
+	        #{postId}
+	        , #{startDate}
+	        , #{endDate}
+	        , #{titleCategory}
+	        , #{titleColor}
+	        , IFNULL(#{titleBoldYn}, 'Y')
+	        , 'N'
+	        , #{endNotice}
+	    )
+	</insert>
+
+	<update id="updateBoardPostEvent" parameterType="BoardPostEventVo">
+	    UPDATE /* updateBoardPostEvent, 전강욱(realsnake@jahasmart.com) */ board_post_event
+	    <set>
+		    <if test=' startDate != null and !"".equals(startDate) '>start_date = #{startDate},</if>
+		    <if test=' endDate != null and !"".equals(endDate) '>end_date = #{endDate},</if>
+		    <if test=' titleCategory != null and !"".equals(titleCategory) '>title_category = #{titleCategory},</if>
+		    <if test=' titleColor != null and !"".equals(titleColor) '>title_color = #{titleColor},</if>
+			<if test=' "Y".equals(titleBoldYn) or "N".equals(titleBoldYn) '>title_bold_yn = #{titleBoldYn},</if>
+			<if test=' "Y".equals(endYn) or "N".equals(endYn) '>end_yn = #{endYn},</if>
+		    <if test=' endNotice != null and !"".equals(endNotice) '>end_notice = #{endNotice},</if>
+	    </set>
+	    WHERE post_id = #{postId}
+	</update>
+
+	<select id="selectOnlyBoardPostEvent" parameterType="long" resultType="BoardPostEventVo">
+	    SELECT /* selectBoardPostEvent, 전강욱(realsnake@jahasmart.com) */ post_id
+        , start_date
+        , end_date
+        , title_category
+        , title_color
+        , title_bold_yn
+        -- , end_yn
+        , CASE WHEN end_date &lt; DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'Y'
+	   			 WHEN start_date &lt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') AND end_date &gt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'N'
+       			 ELSE 'R'
+  		  END AS end_yn
+        , end_notice
+	    FROM board_post_event
+	    WHERE post_id = #{postId}
+	</select>
+
+	<!-- board_post, board_post_event, board_post_range는 1:1관계 -->
+	<select id="selectBoardPostEvent" parameterType="long" resultType="BoardPostEventVo">
+	    SELECT /* selectBoardPostRange, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+		, BPE.post_id
+        , BPE.start_date
+        , BPE.end_date
+        , BPE.title_category
+        , BPE.title_color
+        , BPE.title_bold_yn
+        -- , end_yn
+        , CASE WHEN BPE.end_date &lt; DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'Y'
+	   			 WHEN BPE.start_date &lt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') AND BPE.end_date &gt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'N'
+       			 ELSE 'R'
+  		  END AS end_yn
+        , BPE.end_notice
+	    , BPR.range_id
+        -- , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_event BPE ON BP.id = BPE.post_id
+	    						   JOIN board_post_range BPR ON BPE.post_id = BPR.post_id
+	    WHERE BP.id = #{id}
+	</select>
+
+	<sql id="whereClauseOfBoardPostEvent">
+	    <where>
+		    AND BP.category_id = #{searchCategoryId}
+		    AND BP.blocked = b'0'
+		    <choose>
+		    	<when test=' "Y".equals(searchDisplayYn) '>AND BP.display_yn = 'Y'</when>
+		    	<when test=' "N".equals(searchDisplayYn) '>AND BP.display_yn = 'N'</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND BPE.start_date &gt;= #{pagingHelper.search.startDate}
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BPE.end_date &lt;= #{pagingHelper.search.endDate}
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BPE.end_date &lt;= #{pagingHelper.search.endDate}
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND BP.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND BP.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND (BP.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR BP.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+	    </where>
+	</sql>
+
+	<sql id="orderClauseOfBoardPostEvent">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<select id="selectBoardPostEventListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardPostEventListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_post BP JOIN board_post_event BPE ON BP.id = BPE.post_id
+	    						   JOIN board_post_range BPR ON BPE.post_id = BPR.post_id
+	    <include refid="whereClauseOfBoardPostEvent" />
+	</select>
+
+	<!-- board_post, board_post_event, board_post_range는 1:1관계 -->
+	<select id="selectBoardPostEventList" parameterType="BoardDto" resultType="BoardPostEventVo">
+	    SELECT /* selectBoardPostEventList, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+		, BPE.post_id
+        , BPE.start_date
+        , BPE.end_date
+        , BPE.title_category
+        , BPE.title_color
+        , BPE.title_bold_yn
+        -- , end_yn
+        , CASE WHEN BPE.end_date &lt; DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'Y'
+	   			 WHEN BPE.start_date &lt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') AND BPE.end_date &gt;= DATE_FORMAT(NOW(), '%Y%m%d%H%i') THEN 'N'
+       			 ELSE 'R'
+  		  END AS end_yn
+        , BPE.end_notice
+	    , BPR.range_id
+        -- , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_event BPE ON BP.id = BPE.post_id
+	    	    				   JOIN board_post_range BPR ON BPE.post_id = BPR.post_id
+	    <include refid="whereClauseOfBoardPostEvent" />
+	    <include refid="orderClauseOfBoardPostEvent" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+	<!-- board_post, board_post_event, board_post_range는 1:1관계 -->
+	<select id="selectBoardPostEventBatchList" parameterType="string" resultType="BoardPostEventVo">
+	    SELECT /* selectBoardPostEventBatchList, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+		, BPE.post_id
+        , BPE.start_date
+        , BPE.end_date
+        , BPE.title_category
+        , BPE.title_color
+        , BPE.title_bold_yn
+        , BPE.end_yn
+        , BPE.end_notice
+	    , BPR.range_id
+        -- , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_event BPE ON BP.id = BPE.post_id
+	    	    				   JOIN board_post_range BPR ON BPE.post_id = BPR.post_id
+        WHERE BPR.reserv_yn = 'Y'
+			AND BPR.push_status = 'reserv'
+            AND BPR.push_send_date IS NULL
+            AND BPR.open_date = #{searchOpenDate}
+	</select>
+
+</mapper>

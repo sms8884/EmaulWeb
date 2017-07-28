@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 관리자 > 메뉴 > 선거구 v2
+	* 경로 : /v2/admin/vote/group-create
+	* 이력 :
+		- 2016.10.13 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>선거구 | 등록</title>
+	<style>
+	.ms-container {
+            margin-left: 100px;
+        }
+		.choiceGray{background:#e6e6e6;}
+		.choiceYellow{background:#E6E44C;}
+		.choiceBlue{background:#4CCAE6;}
+	</style>
+</head>
+<body>
+
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">선거구 설정</h1>
+				<div class="content-container">
+
+					<form name="voteGroupForm" id="voteGroupForm" method="POST" >
+						<input type="hidden" name="description" id="description" th:value="${voteGroup.description}" />
+						<input type="hidden" name="votersCount" id="votersCount" th:value="${voteGroup.votersCount}" />
+						<input type="hidden" name="jsonArrayTarget" id="jsonArrayTarget" th:value="${voteGroup.jsonArrayTarget}" />
+						<input type="hidden" name="id" id="id" th:value="${voteGroup.id}" />
+						<input type="hidden" name="targetApt" id="targetApt" th:value="${aptId}" />
+
+
+						<table class="table table-responsive selectGuTable" >
+							<tbody>
+								<tr >
+									<th class="col-md-2"  style="border-top:none;">아파트</th>
+									<td  style="border-top:none;" >
+										<input type="button" class="btn btn-primary" id="" value="선택하기" name="" onclick="openSelectApt()" th:if="${user.type.jaha and job != 'update'}" />
+										<span th:text="${aptName}" id="displayAptName"></span>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-md-2">선거구명 </th>
+									<td><input type="text" class="form-control" id="name" value="" name="name" th:maxlength="20"  th:value="${voteGroup.name}"/></td>
+								</tr>
+								<tr>
+									<th class="col-md-2">세대 선택 방식</th>
+									<td>
+										<label class="radio-inline">
+											<input type="radio" name="groupType" id="selectGu-default" value="all" /> 전체
+										</label>
+										<label class="radio-inline">
+											<input type="radio" name="groupType" id="selectGu-dong" value="dong"  /> 동 단위
+										</label>
+										<label class="radio-inline">
+											<input type="radio" name="groupType" id="selectGu-ho" value="ho"  /> 동/호 단위
+										</label>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-md-2">선택 </th>
+									<td>
+										<p class="noSelect" style="" id="selectTypeMent">"세대 선택 방식"을 선택해주세요.</p>
+
+										<!-- 방식별 선택 영역 -->
+										<div id="selectTypeArea" style="display:none;">
+											<div id="displayArea" style="height: 400px; width:100px; overflow-y: auto; overflow-x: hidden; float: left; "><!-- 동 선택영역 --></div>
+											<div id="hoArea" style="height: 400px; width:780px; overflow: auto;  float: left; "><!-- 호 선택영역 --></div>
+										</div>
+
+									</td>
+								</tr>
+								<tr id="votersCountDisplay">
+									<th class="col-md-2">선택된 세대수</th>
+									<td><p id="selectVotersCountMent"><!-- 총 n세대가 선택되었습니다. --></p></td>
+								</tr>
+							</tbody>
+						</table>
+
+
+						<input type="button" class="btn  btn-info " id="goGroupList" value="목록" name=""  />
+						<input type="button" class="btn  btn-danger " id="goGroupDelete" value="삭제" th:if="${job eq 'update'}"/>
+						<div class="" style="float:right;">
+							<input type="button" class="btn  btn-success " onclick="voteGroupProc(this)"  value="수정" th:if="${job eq 'update'}"/>
+							<input type="button" class="btn  btn-success " onclick="voteGroupProc(this)"  value="저장" th:unless="${job eq 'update'}"/>
+						</div>
+
+					</form>
+				</div>
+				<!-- /.content-container-->
+
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+
+		<!-- 자하권한 아파트 선택 -->
+		<div class="modal fade" id="selectApt" th:if="${user.type.jaha}" >
+			<div class="modal-dialog" style="width:900px;">
+				<div class="modal-content">
+					<div class="modal-header">
+
+				        <div class="row">
+				            <div class="col-lg-12">
+					            <div class="panel panel-info">
+					                <div class="panel-heading">대상 아파트 검색하기</div>
+					                <div class="dataTables_wrapper" style="padding: 5px 5px;">
+
+					                <table id="apt-list-table" class="table table-responsive">
+					                    <thead>
+					                    <tr>
+					                        <th></th>
+					                        <th>아파트</th>
+					                        <th>주소</th>
+					                        <th></th>
+					                    </tr>
+					                    </thead>
+					                    <tbody >
+					                    <tr th:each="apt : ${list}">
+					                        <td th:text="${apt.id}"></td>
+					                        <td th:text="${apt.name}"></td>
+					                        <td th:text="${apt.strAddress}"></td>
+					                        <td th:id="@{td-}+${apt.id}">
+					                            <button type="button" class="btn btn-sm btn-outline btn-info" th:onclick="'selectApt('+${apt.id}+',\''+${apt.name}+'\' )'">선택</button>
+					                        </td>
+					                    </tr>
+					                    </tbody>
+					                </table>
+
+					                </div>
+					            </div>
+				        	</div>
+				    	</div>
+
+					</div>
+					<!-- /.modal-header -->
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+		<!-- /.modal -->
+		<script  th:inline="javascript" type="text/javascript">
+		    /*<![CDATA[*/
+		    $(document).ready(function() {
+		        $('#apt-list-table').dataTable( {
+		            "orderClasses": false
+		        } );
+		    });
+
+			 // 아파트 선택창 오픈
+			function openSelectApt(){
+				  $('#selectApt').modal('show');
+			}
+
+			 // 아파트 선택
+			 function selectApt(id, name) {
+
+				 $(":radio[name='groupType']:checked").attr('checked', false);
+				 $('#selectTypeArea').hide();
+				 $('#selectTypeMent').html('"세대 선택 방식"을 선택해주세요.');
+				 $('#selectVotersCountMent').empty();
+
+				 aptId = id;
+				 $('#targetApt').val(id);
+				 $('#displayAptName').html(name);
+				 $('#selectApt').modal('hide');
+
+			 }
+		    /*]]>*/
+		</script>
+		<!-- 자하권한 아파트 선택 -->
+
+
+	<script th:inline="javascript">
+	    // <![CDATA[
+		/** 수정, 등록 구분자 (create / update) */
+		var job = /*[[${job}]]*/ 'create';
+		var aptId = /*[[${aptId}]]*/ 0;
+		var voteGroup = /*[[${voteGroup}]]*/ voteGroup;
+		var isFirst = true;		// 최초에만 자동 조회기능 실행 (방식 선택 radio버튼)
+		var parseJsonArrayTargetDong = [];
+		var parseJsonArrayTargetHo = {};
+	    console.log(">>> job : " + job);
+	    console.log(">>> aptId : " + aptId);
+
+	    $(document).ready(function () {
+
+	    	// 목록 버튼
+		    $('#goGroupList').click(function (e) {
+		    	document.location.href = '/v2/admin/vote/group-list';
+		        e.preventDefault();
+		    });
+
+	    	// 삭제 버튼
+		    $('#goGroupDelete').click(function (e) {
+		        e.preventDefault();
+
+		        if (!confirm('삭제하시겠습니까?')) {
+		        	return;
+		        }
+		        $.ajax({
+					type: 'get'
+					,url: '/v2/admin/vote/group-delete/' + voteGroup.id
+					, contentType: "application/json; charset=utf-8"
+					, dataType: 'json'
+		            , success: function (data) {
+		            	document.location.href = '/v2/admin/vote/group-list';
+		            }
+		            ,error: function (jqXHR, textStatus, errorThrown) {
+		                console.log(errorThrown);
+		                console.log(textStatus);
+		            }
+		        });
+		    });
+
+	    	// 세대 선택방식
+		    $('input[type="radio"][name="groupType"]').change(function () {
+
+		    	parseJsonArrayTargetDong = [];
+		    	parseJsonArrayTargetHo = {};
+
+		    	$('#selectTypeMent').html('');
+				$('#selectVotersCountMent').html('');
+				$('#description').val('')
+				$('#votersCount').val(0)
+
+				$('#selectTypeMent').hide();
+				$('#selectTypeArea').show();
+
+	            var typeValue = $(this).val();
+				$('#hoArea').empty();
+
+	            // 아파트별 동 조회
+	            if (typeValue == 'dong' || typeValue == 'ho') {
+
+	            	if (typeValue == 'ho') {
+	            		if (isNotEmpty($('#jsonArrayTarget').val())) {
+	            			parseJsonArrayTargetHo = JSON.parse($('#jsonArrayTarget').val());
+	            		}
+	            		// 동/호 단위는 선택된 세대수를 출력하지 않는다. (저장만 함)
+	            		$('#votersCountDisplay').hide();
+	            	} else {
+	            		if (isNotEmpty($('#jsonArrayTarget').val())) {
+	            			parseJsonArrayTargetDong = JSON.parse($('#jsonArrayTarget').val());
+	            		}
+	            		$('#votersCountDisplay').show();
+	            	}
+
+	        		$.ajax({
+	        			type: 'get'
+	        			,url: '/v2/admin/vote/selectAptDong/' + aptId
+	        			, contentType: "application/json; charset=utf-8"
+	        			, dataType: 'json'
+	                    , success: function (data) {
+
+	        				var selectHtml = '';
+	                    	if (data.result) {
+	                    		selectHtml += '<table class="table table-bordered selectGu-dong" summary="" style="width:100px; text-align:center;">';
+	                   			selectHtml += '<tbody>';
+	                			selectHtml += '<tr>';
+	               				selectHtml += 	'<td class="form-inline choiceYellow" style="font-weight:bold;" >동</td>';
+	               				selectHtml += '</tr>';
+	                			if (data.dong.length > 0) {
+	                				$(data.dong).each(function (i, obj) {
+	                    				selectHtml += '<tr>';
+	                        			selectHtml += 	'<td class="col-md-2 form-inline" align="left">';
+	                        			selectHtml += 		'<div class="form-group checkbox">';
+	                        			selectHtml += 		'<label>';
+	                        			if (typeValue == 'ho') {
+	                        				selectHtml += 		'<input type="checkbox" id="dongs' + obj + '" name="dongs" onclick="selectDong(\'' + obj + '\', this)" value="' + obj + '"/>  ' + obj + '동';
+	                        			} else {
+	                        				selectHtml += 		'<input type="checkbox" id="dongs' + obj + '" name="dongs" onclick="checkDong(\'' + obj + '\')" value="' + obj + '"  />  ' + obj + '동';
+	                        			}
+	                        			selectHtml += 		'</label>';
+	                        			selectHtml += 		'</div>';
+	                        			selectHtml += 	'</td>';
+	                        			selectHtml += '</tr>';
+	                    			});
+
+	                				// 선거구는 동별 각 세대를 구분하여 선택하므로, 동별 호수 선택 div를 미리 그려놓고, 선택시마다 show, hide로 처리하도록 한다.
+	                				// 투표에서 사용하는 방식처럼 비동기로 처리할 경우 데이터의 중간 저장 개념이 어려워 지므로, 화면에서 모든 데이터를 보유하고
+	                				// 저장 버튼을 클릭 시 Json을 다시 생성하는 방식으로 구현한다.
+
+	                			} else {
+	                    				selectHtml += '<tr>';
+	                        			selectHtml += 	'<td class="col-md-2 form-inline" colspan="2" >등록된 동이 없습니다.';
+	                        			selectHtml += 	'</td>';
+	                        			selectHtml += '</tr>';
+	                			}
+	                			selectHtml += '</tbody>';
+	                			selectHtml += '</table>';
+
+								$('#displayArea').show();
+								$('#displayArea').html(selectHtml);
+
+								// 수정 시
+								if (isFirst) {
+									if (isNotEmpty($('#jsonArrayTarget').val())) {
+
+										if (typeValue == 'dong') {
+
+											for (i in parseJsonArrayTargetDong) {
+												$('#dongs' + parseJsonArrayTargetDong[i]).prop("checked", true);
+												checkDong(parseJsonArrayTargetDong[i]);
+											}
+
+										} else  if (typeValue == 'ho') {
+
+            	        					for (var i = 0; i < parseJsonArrayTargetHo.length; i++) {
+            	        						var object = parseJsonArrayTargetHo[i];
+
+            	        						for (property in object) {
+            		        				    	// 동 비교
+            		        				    	if (property == 'dong') {
+            		        				    		$('#dongs' + object['dong']).prop("checked", true);
+               		        				    		makeDong(object['dong'], false, (i == 0? true : false));
+            		        				    	}
+
+            		        				    }
+            	        					}
+        		        				    //var value = object[property];
+         		        				    //console.log(property + "=" + value);
+										}
+									}
+									isFirst = false;
+								}
+
+	                    	} else {
+	        					alert(data.message);
+	                    	}
+	                    }
+	                    ,error: function (jqXHR, textStatus, errorThrown) {
+	                        console.log(errorThrown);
+	                        console.log(textStatus);
+	                    }
+	                });
+	            } else if (typeValue == 'all') {
+
+	            	$('#votersCountDisplay').show();
+
+	            	$('#selectTypeMent').show();
+					$('#selectTypeArea').hide();
+
+	            	$.ajax({
+	        			type: 'get'
+	        			,url: '/v2/admin/vote/selectAptHo/' + aptId + '/all'
+	        			, contentType: "application/json; charset=utf-8"
+	        			, dataType: 'json'
+	                    , success: function (data) {
+
+	                    	if (data.result) {
+	                			if (data.ho.length > 0) {
+	                				$('#selectTypeMent').html('"전체"세대를 선택하셨습니다.');
+	                				$('#selectVotersCountMent').html('총 ' + data.ho.length + '세대가 선택되었습니다.');
+	                			} else {
+	                				$('#selectTypeMent').html('"전체"세대를 선택하셨습니다.');
+	                				$('#selectVotersCountMent').html('아파트에 등록된 호가 없습니다.');
+	                			}
+	                			$('#description').val('전체')
+                				$('#votersCount').val(data.ho.length)
+	                    	} else {
+	        					alert(data.message);
+	                    	}
+	                    }
+	                    ,error: function (jqXHR, textStatus, errorThrown) {
+	                        console.log(errorThrown);
+	                        console.log(textStatus);
+	                    }
+	                });
+
+	            }
+	        });
+
+
+			// 수정화면 화면 세팅
+	    	if (job == 'update') {
+	    		if ('all' == voteGroup.groupType) {
+	    			// 전체
+	    			$('#selectGu-default').prop('checked', true).trigger("change");
+	    			$('#selectTypeMent').html('"전체"세대를 선택하셨습니다.');
+    				$('#selectVotersCountMent').html('총 ' + voteGroup.votersCount + '세대가 선택되었습니다.');
+
+	    		} else if ('dong' == voteGroup.groupType) {
+	    			$('#selectGu-dong').prop('checked', true).trigger("change");
+	    		} else if ('ho' == voteGroup.groupType) {
+	    			$('#selectGu-ho').prop('checked', true).trigger("change");
+	    		}
+	    	}
+	    	// 수정화면 화면 세팅 끝
+
+	    });
+	    // end ready
+
+	    // 동/호 단위 방식에서 동 선택시 UI 처리
+	    function selectDong(dong, obj) {
+	    	$("[id*='checkAllDong-']").hide();
+
+	    	if (!$('#checkAllDong-' + dong).attr('id')) {
+    			// 생성되지 않은 동/호 선택 화면은 동 클릭 시 생성한다.
+    			makeDong(dong, true, false);
+    		} else {
+    			if ($(obj).is(":checked")) {
+    	    		$('#checkAllDong-' + dong).show();
+    	    	} else {
+    	    		$('#checkAllDong-' + dong).hide();
+    	    	}
+    		}
+	    }
+
+	    // 동/호 단위 선택시 동별 호수 선택화면 생성
+	    // isNew : 기존 등록되어 있던 아파트의 동인 경우에만 호수에 addClass 처리를 수행한다.
+	    // 신규 동에 대해서는 호 체크로직 불필요
+	    function makeDong(dong, isNew, isFirstDong) {
+
+	    	 $.ajax({
+	 			type: 'get'
+	 			,url: '/v2/admin/vote/selectAptHo/' + aptId + '/' + dong
+	 			, contentType: "application/json; charset=utf-8"
+	 			, dataType: 'json'
+	            , success: function (data) {
+
+	            	var selectHtml = '';
+	            	if (data.result) {
+
+	            		// 로딩 시점차이로 인하여 display 컨트롤이 잘 되지 않는다.
+	        	    	// flag성으로 display option을 받아서 html을 그릴때 처리하도록 한다.
+	            		console.log(">>> makeDong : " + dong + "/isNew : " + isNew + "/isFirstDong : " + isFirstDong + "/length : " + data.ho.length);
+	            		selectHtml += '<table class="table table-bordered selectGu-dong" summary="" id="checkAllDong-' + dong + '" ' + ((isNew || isFirstDong)?'':'style="display:none;"') + '>';
+	           			selectHtml += '<tbody>';
+
+	        			if (data.ho.length > 0) {
+
+	        				selectHtml += '<tr>';
+	        				selectHtml += '<td width="60px;" id="allDong-' + dong + '" style="min-width:60px;cursor:pointer;" align="center" onclick="checkAllDong(\'' + dong + '\');" >' + dong + '동</td>';
+	        				for (var column = 1; column <= (data.column * 1); column++) {	// 2자리
+	            				selectHtml += '<td width="60px;" id="hoTitle-' + dong + '-' +  ("00" + column).slice(-2) + '" class="choiceGray" style="min-width:60px;" align="center" onclick="checkAllHo(\'' + ("00" + column).slice(-2) + '\', this, \'' + dong + '\')">' + column + '호</td>';
+	        				}
+	        				selectHtml += '</tr>';
+
+	        				// 0층 0호는 없는 호수로 판단한다.
+	        				// 예: 0001 호 는 없는 호수
+	            			for (var row = 1; row <= (data.row * 1); row++) {	// 3자리
+	            				selectHtml += '<tr>';
+	            				selectHtml += '<td width="60px;" id="floorTitle-' + dong + '-' +  ("000" + row).slice(-3) + '" class="choiceGray" style="min-width:60px;" align="center" onclick="checkAllFloor(\'' + ("000" + row).slice(-3) + '\', this, \'' + dong + '\')">' + row + '층</td>';
+
+	               				for (var column = 1; column <= (data.column * 1); column++) {	// 2자리
+
+	               					var isSame = false;
+	               					var hoText = '-';
+	               					var isJsonHo = false;
+
+	               					$(data.ho).each(function (i, obj) {
+	               						var compare = ("000" + row).slice(-3) + ("00" + column).slice(-2);
+	               						if (obj == compare) {
+	               							hoText = (obj * 1);
+	               							isSame = true;
+
+	               							// 수정 시 호 정보 세팅
+	               							if (!isNew) {
+	               								if(isNotEmpty($('#jsonArrayTarget').val())){
+
+		            	        					// dong:xx, ho:xx 의 2 dimension
+		            	        					for (var i = 0; i < parseJsonArrayTargetHo.length; i++) {
+		            	        						var object = parseJsonArrayTargetHo[i];
+
+		            		        				    for (property in object) {
+		            		        				    	// 동 비교
+		            		        				    	if (dong == object['dong']) {
+		            		        				    		var objectHo = object['ho'] + '';
+		            		        				    		// 동의 호 비교
+		            		        				    		if (objectHo.indexOf(hoText) > -1) {
+		            		        				    			isJsonHo = true;
+		            		        				    		}
+		            		        				    	}
+		            		        				    }
+		            	        					}
+		            	        					//var value = object[property];
+    		        				    			//console.log(property + "=" + value);
+		            	        				}
+	               							}
+
+
+	               							return;
+	               						}
+	               					})
+
+	               					if (!isSame) {
+	               						selectHtml += '<td align="center" id="tr-' + dong + '-' + ("000" + row).slice(-3) + ' td-' + dong + '-' + ("00" + column).slice(-2) + '">';
+	               						selectHtml +='-';
+	               					} else {
+	               						selectHtml += '<td align="center" ' + (isJsonHo?'class="choiceGray"':'') + ' onclick="selectHo(this, \'' + dong + '\');" style="cursor:pointer;" id="tr-' + dong + '-' + ("000" + row).slice(-3) + ' td-' + dong + '-' + ("00" + column).slice(-2) + '">';
+	               						selectHtml +=hoText;
+	               					}
+	               					selectHtml += '</td>';
+	               				}
+	               				selectHtml += '</tr>';
+	               			}
+
+	        			} else {
+
+        					$('#dongs' + dong).prop('checked', false);
+        					$('#dongs' + dong + ':checkbox').click(function(){
+        						$(this).prop('checked',false);
+        					});
+
+            				selectHtml += '<tr>';
+                			selectHtml += 	'<td class="col-md-2 form-inline" align="center">' + dong + '동에 등록된 호가 없습니다.';
+                			selectHtml += 	'</td>';
+                			selectHtml += '</tr>';
+	        			}
+	        			selectHtml += '</tbody>';
+	        			selectHtml += '</table>';
+
+	        			$('#hoArea').show();
+	        			$("#hoArea").append(selectHtml);
+
+	        			// loading 시점 문제
+        				setTimeout(checkTable(dong), 0);
+
+	            	} else {
+						alert(data.message);
+	            	}
+				}
+	            ,error: function (jqXHR, textStatus, errorThrown) {
+	                console.log(errorThrown);
+	                console.log(textStatus);
+	            }
+	        });
+	    }
+
+	    // 동 선택 시 호수 조회
+	    function checkDong(dong) {
+	    	$.ajax({
+				type: 'get'
+				,url: '/v2/admin/vote/selectAptHo/' + aptId + '/' + dong
+				, contentType: "application/json; charset=utf-8"
+				, dataType: 'json'
+	            , success: function (data) {
+
+	            	if (data.result) {
+	        			if (data.ho.length > 0) {
+
+	        				$('#description').val('동단위')
+
+	        				if($('#dongs' + dong).is(':checked')) {
+	        					$('#votersCount').val(($('#votersCount').val() * 1) + data.ho.length);
+	        				} else {
+	        					$('#votersCount').val(($('#votersCount').val() * 1) - data.ho.length);
+	        				}
+
+	        				$('#selectVotersCountMent').html('총 ' + $('#votersCount').val() + '세대가 선택되었습니다.');
+	        			} else {
+	        				alert(dong + "동에 등록된 호가 없습니다.");
+	        				$('#dongs' + dong).prop('checked', false);
+	        			}
+	            	} else {
+						alert(data.message);
+	            	}
+	            }
+	            ,error: function (jqXHR, textStatus, errorThrown) {
+	                console.log(errorThrown);
+	                console.log(textStatus);
+	            }
+	        });
+	    }
+
+
+	    // 동/호 단위에서 "101동" 클릭시 전체 선택 (toggle)
+	    function checkAllDong(dong) {
+	    	for (var tr = 0; tr < $('#checkAllDong-' + dong + ' tbody tr').length; tr++) {
+				if (tr == 0) { continue; }
+				for (var td = 0; td < $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(0)').children('td').length; td++) {
+					if (td == 0) { continue; }
+					var tdText = $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+					if ("-" != tdText) {
+						if ($('#checkAllDong-' + dong + '').hasClass('choiceGray')) {
+							$('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').removeClass('choiceGray');
+				    	} else {
+				    		$('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').addClass('choiceGray');
+				    	}
+					}
+				}
+	    	}
+
+	    	if ($('#checkAllDong-' + dong + '').hasClass('choiceGray')) {
+	    		$('#allDong-' + dong + '').removeClass('choiceYellow');
+	    		$('#checkAllDong-' + dong + '').removeClass('choiceGray');
+	    	} else {
+	    		$('#allDong-' + dong + '').addClass('choiceYellow');
+	    		$('#checkAllDong-' + dong + '').addClass('choiceGray');
+	    	}
+
+	    	checkTable(dong);
+	    }
+
+
+	    // 호 클릭 (전체 호 toggle)
+	   	function checkAllHo(ho, obj, dong) {
+
+	    	// td id 규칙 tr-001 td-03
+	    	// true : 선택되지 않음, false : 선택된 상태
+	    	var isToggle = $(obj).hasClass("choiceGray");
+	    	resetColumn(ho, obj, isToggle, dong);
+	    	checkTable(dong);
+	    }
+
+	    // 층 클릭 (전체 층 toggle)
+	    function checkAllFloor(floor, obj, dong) {
+
+	    	// true : 선택되지 않음, false : 선택된 상태
+	    	var isToggle = $(obj).hasClass("choiceGray");
+	    	resetRow(floor, obj, isToggle, dong);
+	    	checkTable(dong);
+	    }
+
+	    // column 선택여부 체크
+		function resetColumn(ho, obj, isToggle, dong) {
+
+			for (var td = 0; td < $("[id*='td-" + dong + "-" + ho + "']").length; td++) {
+				if ("-" != $("[id*='td-" + dong + "-"  + ho + "']").filter(':eq(' + td + ')').text()) {
+
+					if (isToggle) {
+						$("[id*='td-" + dong + "-"  + ho + "']").filter(':eq(' + td + ')').addClass("choiceGray");
+					} else {
+						$("[id*='td-" + dong + "-"  + ho + "']").filter(':eq(' + td + ')').removeClass("choiceGray");
+					}
+				}
+	    	}
+
+	    	if (isToggle) {
+	    		$(obj).removeClass("choiceGray");
+	    		$(obj).addClass("choiceBlue");
+			} else {
+				$(obj).removeClass("choiceBlue");
+				$(obj).addClass("choiceGray");
+			}
+	    	// 일괄 변경 시
+	   		// $('#checkAllDong tbody td:nth-child(' + (ho + 1) + ')').addClass('choiceGray');
+	   	}
+
+
+	    // row 선택여부 체크
+	    function resetRow(floor, obj, isToggle, dong) {
+	    	for (var tr = 0; tr < $("[id*='tr-" + dong + "-"  + floor + "']").length; tr++) {
+				if ("-" != $("[id*='tr-" + dong + "-"  + floor + "']").filter(':eq(' + tr + ')').text()) {
+
+					if (isToggle) {
+						$("[id*='tr-" + dong + "-"  + floor + "']").filter(':eq(' + tr + ')').addClass("choiceGray");
+					} else {
+						$("[id*='tr-" + dong + "-"  + floor + "']").filter(':eq(' + tr + ')').removeClass("choiceGray");
+					}
+				}
+	    	}
+
+	    	if (isToggle) {
+	    		$(obj).removeClass("choiceGray");
+	    		$(obj).addClass("choiceBlue");
+			} else {
+				$(obj).removeClass("choiceBlue");
+				$(obj).addClass("choiceGray");
+			}
+			// 일괄 변경 시
+			// $(this).parents('th').nextAll('td').removeClass('choiceGray');
+	    }
+
+
+	    // 호 클릭시 매번 계산하는것으로 일괄 변경처리
+	    // 호 선택 테이블의 전체 row, col을 순환하여 전체 선택여부에 따라 타이틀의 색처리를 일괄 처리한다.
+	    function checkTable(dong) {
+
+	    	for (var tr = 0; tr < $('#checkAllDong-' + dong + ' tbody tr').length; tr++) {
+
+	    		var rowOk = true;
+	    		var rowDataOk = false;
+
+				if (tr == 0) { continue; }
+
+				for (var td = 0; td < $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(0)').children('td').length; td++) {
+
+					if (td == 0) { continue; }
+
+					var tdText = $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+					if ("-" != tdText) {
+
+						rowDataOk = true;	// 데이터 존재 여부
+						if (!$('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').hasClass('choiceGray')) {
+							rowOk = false;	// 데이터 체크 여부
+						}
+					}
+				}
+
+				if (rowOk && rowDataOk) {
+					$('#floorTitle-' + dong + '-' + ("000" + tr).slice(-3)).removeClass('choiceGray');
+					$('#floorTitle-' + dong + '-' + ("000" + tr).slice(-3)).addClass('choiceBlue');
+					//console.log(">>> tr make " + ("000" + tr).slice(-3) );
+					// 전체 체크 셋
+				} else {
+					// 전체 체크 해제
+					$('#floorTitle-' + dong + '-' + ("000" + tr).slice(-3)).removeClass('choiceBlue');
+					$('#floorTitle-' + dong + '-' + ("000" + tr).slice(-3)).addClass('choiceGray');
+				}
+	    	}
+
+
+	    	for (var td = 0; td < $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(0)').children('td').length; td++) {
+
+	    		var colOk = true;
+	    		var colDataOk = false;
+
+	    		if (td == 0) { continue; }
+
+	    		for (var tr = 0; tr < $('#checkAllDong-' + dong + ' tbody tr').length; tr++) {
+	    			if (tr == 0) { continue; }
+	    				var tdText = $('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+	    				if ("-" != tdText) {
+
+	    					colDataOk = true;	// 데이터 존재 여부
+	    					if (!$('#checkAllDong-' + dong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').hasClass('choiceGray')) {
+	    						colOk = false;	// 데이터 체크 여부
+	    					}
+	    				}
+	    		}
+
+	    		if (colOk && colDataOk) {
+					$('#hoTitle-' + dong + '-' + ("00" + td).slice(-2)).removeClass('choiceGray');
+					$('#hoTitle-' + dong + '-' + ("00" + td).slice(-2)).addClass('choiceBlue');
+					// 전체 체크 셋
+				} else {
+					// 전체 체크 해제
+					$('#hoTitle-' + dong + '-' + ("00" + td).slice(-2)).removeClass('choiceBlue');
+					$('#hoTitle-' + dong + '-' + ("00" + td).slice(-2)).addClass('choiceGray');
+				}
+	    	}
+	    }
+
+
+	    // 동/호 단위에서 개별 "호" 클릭 시
+	    function selectHo(obj, dong) {
+
+	    	var trId = $(obj).attr('id').split(" ")[0].split("-")[2];
+	    	var tdId = $(obj).attr('id').split(" ")[1].split("-")[2];
+
+	    	if ($(obj).hasClass('choiceGray')) {
+	    		// 해제
+	    		$(obj).removeClass('choiceGray');
+
+	    		// 호, 층 선택상태 해제
+	    		$('#hoTitle-' + dong + '-' + tdId).removeClass("choiceBlue");
+	    		$('#hoTitle-' + dong + '-' + tdId).addClass("choiceGray");
+
+				$('#floorTitle-' + dong + '-' + trId).removeClass("choiceBlue");
+				$('#floorTitle-' + dong + '-' + trId).addClass("choiceGray");
+
+	    	} else {
+	    		// 선택
+	    		$(obj).addClass('choiceGray');
+
+	    		// 전체 호 선택여부 판단
+				var isAllHo = true;
+	    		for (var td = 0; td < $("[id*='td-" + dong + "-" + tdId + "']").length; td++) {
+	    			if (isAllHo) {
+	    				if ("-" != $("[id*='td-" + dong + "-"  + tdId + "']").filter(':eq(' + td + ')').text()) {
+	        				if (! $("[id*='td-" + dong + "-"  + tdId + "']").filter(':eq(' + td + ')').hasClass("choiceGray") ) {
+	        					isAllHo = false;
+	        				}
+	        			}
+	    			}
+	        	}
+
+	    		if (isAllHo) {
+	    			$('#hoTitle-' + dong + '-' + tdId).addClass("choiceBlue");
+	        		$('#hoTitle-' + dong + '-' + tdId).removeClass("choiceGray");
+	    		}
+
+	    		// 전체 층 선택여부 판단
+	    		var isAllFloor = true;
+	    		for (var tr = 0; tr < $("[id*='tr-" + dong + "-"  + trId + "']").length; tr++) {
+	    			if (isAllFloor) {
+	    				if ("-" != $("[id*='tr-" + dong + "-"  + trId + "']").filter(':eq(' + tr + ')').text()) {
+	    					if (! $("[id*='tr-" + dong + "-"  + trId + "']").filter(':eq(' + tr + ')').hasClass("choiceGray") ) {
+	    						isAllFloor = false;
+	    					}
+	    				}
+	    			}
+	    		}
+	    		if (isAllFloor) {
+	    			$('#floorTitle-' + dong + '-' + trId).addClass("choiceBlue");
+	        		$('#floorTitle-' + dong + '-' + trId).removeClass("choiceGray");
+	    		}
+	    	}
+	    }
+
+	    // 저장
+	    function voteGroupProc(e) {
+	    	event.preventDefault();
+
+	    	if (isEmpty($('#name').val())) {
+	            alert('선거구명을 입력해주세요.');
+	            $('#name').focus();
+	            return;
+	        }
+
+	    	if(!($(":radio[name='groupType']:checked").length > 0)){
+	        	alert('세대 선택 방식을 선택해 주세요.');
+	            return;
+			}
+
+	    	// 동단위
+	    	if( 'dong' == $(":radio[name='groupType']:checked").val()){
+
+	 			if (!$('[name="dongs"]:checked').length > 0) {
+	 				alert("동을 선택하세요.");
+	 				return;
+	 			}
+
+	 			if (isEmpty($('#votersCount').val()) || !($('#votersCount').val() > 0)) {
+	 				alert("동을 선택하세요.");
+	 				return;
+	 			}
+	 		}
+
+
+	    	var jsonArrayDong = {};	// 동
+			var jsonArraytHo = [];		// 동별 호
+			var jsonArray = [];			// 아파트 동 취합
+			var votersCountHo = 0;
+
+	    	// 동/호 단위
+	    	var isHoOk = true;
+
+	    	if( 'ho' == $(":radio[name='groupType']:checked").val()){
+
+	 			if (!$('[name="dongs"]:checked').length > 0) {
+	 				alert("동을 선택하세요.");
+	 				return;
+	 			}
+
+	 			$("input[name=dongs]").each( function () {
+	 				var inDong = '';
+	 				if ($(this).is(":checked") && isHoOk) {
+	 					inDong = $(this).val();
+	 				} else {
+	 					return;
+	 				}
+
+	 				console.log(">>> inDong : " + inDong);
+
+	 				jsonArrayDong = {};
+		 			jsonArraytHo = [];
+
+	 				for (var tr = 0; tr < $('#checkAllDong-' + inDong + ' tbody tr').length; tr++) {
+	    				if (tr == 0) { continue; }
+	    				for (var td = 0; td < $('#checkAllDong-' + inDong + ' tbody tr').filter(':eq(0)').children('td').length; td++) {
+	    					if (td == 0) { continue; }
+	    					var tdText = $('#checkAllDong-' + inDong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+	    					if ("-" != tdText) {
+	    						if ($('#checkAllDong-' + inDong + ' tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').hasClass('choiceGray')) {
+	    							jsonArraytHo.push(tdText);
+	    							jsonArraytHo.sort();
+	    							votersCountHo++;
+	    						}
+
+	    					}
+	    				}
+	    	    	}
+
+	 				if (jsonArraytHo.length > 0) {
+	 					jsonArrayDong.dong = inDong;
+	 					jsonArrayDong.ho = jsonArraytHo;
+	 					jsonArray.push(jsonArrayDong);
+    				} else {
+    					alert(inDong + '동의 호를 선택하세요.');
+						$("[id*='checkAllDong-']").hide();
+						$('#checkAllDong-' + inDong).show();
+						isHoOk = false;
+    				}
+	 		   	});
+
+	 			$('#votersCount').val(votersCountHo);
+	 			$('#jsonArrayTarget').val(JSON.stringify(jsonArray))
+	 		}
+
+	    	// 동/호 단위 벨리 오케여부
+			if (!isHoOk) {
+				return;
+			}
+
+	       	if (confirm((job != 'update'?"저장":"수정") + "하시겠습니까?")) {
+	       		if (job == 'update') {
+	       			$('#voteGroupForm').attr('action', "/v2/admin/vote/updateGroupProc");
+	       		} else {
+	       			$('#voteGroupForm').attr('action', "/v2/admin/vote/createGroupProc");
+	       		}
+	       		$('#voteGroupForm').submit();
+	       	}
+	    }
+	    // end voteProc()
+		// ]]>
+	</script>
+
+
+
+
+	</div>
+	<!-- page wrapper -->
+
+
+</body>
+</html>

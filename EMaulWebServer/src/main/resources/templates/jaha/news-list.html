@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+	  th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+	  th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+	  th:href="@{/css/bootstrap-datetimepicker.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css"
+	  th:href="@{/multiselect/css/multi-select.css}"/>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<title>JAHA-Admin</title>
+
+<script src="../../static/js/jquery-1.11.2.min.js" type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+
+<!-- 그리드를 표시하기 위한 CSS -->
+<link type="text/css" rel="stylesheet" href="../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"></link>
+<!--오류잡기-->
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+var datagrid;
+var gridJsonData1 = [];
+var g_list = [];
+var g_totalRecordCount = 0;
+var g_totalPageNum = 0;
+var g_pageSize = 15;
+var g_blockSize = 10;
+
+var grid_data2= { "grid":[],"result1":[{}]},datagrid;
+				
+	$(document).ready(function(){
+		SBGrid_pagingInit(0);
+		__createElements();
+	})
+
+//데이터 조회, 완성	
+function searchListJson(pageNumber) {
+	var searchUrl = "/jaha/board/news/list-json"
+
+	$("#pageNum").val(pageNumber);
+	$("#pageSize").val(g_pageSize);
+	
+    $.ajax({
+        url: searchUrl,
+        type: 'post',
+        async : false,
+        dataType: "json",
+        data: $("#searchForm").serialize(),
+        success: function(jsonData) {
+        	g_totalRecordCount = jsonData.totalRecord;
+        	g_totalPageNum = jsonData.totalPage;
+        	g_list = jsonData.list;
+        	$("#spn_totalRecordCount").text(g_totalRecordCount);//리스트표위에 검색된 게시글 수표시
+        	
+        	//console.log(g_list);
+        },
+        error: function(xhr, status, error) {
+        	console.log("error : " + error.message);
+        }
+    });
+};
+
+
+	function SBGrid_pagingInit(pageNumber){
+
+		var nCount,			//총건수
+			nPageNum,		//현재 페이지번호
+			nPageSize,		//페이지 사이즈
+			nNaviSize,		//블럭 사이즈
+			nTotalPage,		//전체 페이지
+			nFromPage,		//시작 페이지
+			nToPage,		//종료 페이지
+			nGroupNum,		//블럭 번호
+			resultData; //결과 JSON 데이터
+			//resultData = jsonRlt.RESULT_LIST[0].records1;	//결과 JSON 데이터
+		
+		//현제 페이지 구함
+		if(pageNumber != null){
+			nPageNum =  parseInt(pageNumber);
+			if(nPageNum < 1) {
+				nPageNum = 1;
+			}
+		}else{
+			nPageNum = 1;
+		}
+			
+		//데이터 조회
+		searchListJson(nPageNum);
+		
+		nCount = g_totalRecordCount;	
+		//nCount = jsonRlt.RESULT_LIST[0].records1.length;
+		nTotalPage = 0; //g_totalPageNum;
+			
+		//페이지당 레코드 갯수 설정
+		nPageSize = 15;
+		
+		//블럭 사이즈 설정
+		nNaviSize = 10;
+
+		if (nCount != 0){
+			nTotalPage 	= ((nCount - 1) / nPageSize) + 1;
+			if (nPageNum > nTotalPage) {
+				nPageNum = nTotalPage;
+			}
+			
+			nGroupNum = Math.ceil((nPageNum / nNaviSize))-1;
+			nFromPage = (nGroupNum * nNaviSize)+1
+			nToPage		= (nFromPage + nNaviSize - 1);
+			if (nToPage >= nTotalPage) {
+				nToPage = nTotalPage;
+			}
+		}else{
+			nTotalPage = 0;
+		}
+		
+		var startNum = ((nPageNum-1) * nPageSize) + 1;
+		SBGrid_GoPaging(startNum,nPageSize, nPageNum);
+		pagingRander(nFromPage, nToPage, nTotalPage, nPageNum);
+	}
+
+	/*
+		PagingRander : 각 프로젝트 화면에 맞춰서 유동적으로 변경하면서 사용
+	*/
+	function pagingRander(nFromPage, nToPage, nTotalPage, nPageNum){
+		var pagingDiv = "";
+		//console.log(nFromPage  +'######'+ nToPage+'#####'+nTotalPage+'####'+nPageNum);
+		if (nTotalPage != 1 && nTotalPage != 1) {
+			pagingDiv +="\n<div class='page'>\n";
+			if (nFromPage > 1) {
+				pagingDiv += "<a class=\"page_btn first\"";
+				pagingDiv += "title=첫번째페이지 href=\"#\"  onclick=\"SBGrid_pagingInit(0)\"; return flase;\"></a>&#160;";
+				pagingDiv += "<a class=\"page_btn prev\"";
+				pagingDiv += "title=이전 10페이지 href=\"#\" onclick=\"SBGrid_pagingInit("+(nFromPage-1)+")\"; return flase;\">";
+				pagingDiv += "</a>&#160;";
+			}
+			for (var i = nFromPage; i <= nToPage; i++) {
+				if (i == nPageNum) {
+					pagingDiv += "<span class=\"page_num\"><a class=\"on\">" + i+ "</a></span>";
+				} else {
+					pagingDiv += "<span class=\"page_num\">";
+					pagingDiv += "<a href=\"javascript:SBGrid_pagingInit("+i+")\">" + i + "</a>";
+					pagingDiv += "</span>\n";
+				}
+			}
+			if (nToPage < nTotalPage) {
+				pagingDiv += "<a class=\"page_btn next\"";
+				pagingDiv += "title=\"다음\" href=\"#\"  onclick=\"SBGrid_pagingInit('"+ ( nToPage + 1 ) +"')\"></a>";
+				pagingDiv += "<a class=\"page_btn end\"";
+				pagingDiv += "title=\"마지막페이지\" href=\"#\" onclick=\"SBGrid_pagingInit('"+ nTotalPage +"')\">";
+				pagingDiv += "</a>&#160;";
+			}
+			pagingDiv += "</div>\n";
+		} else {
+			pagingDiv += "&nbsp;";
+		}
+		$('#sbGridPaging').html(pagingDiv);
+	}
+	
+	function SBGrid_GoPaging(nPageIndex,nPageSize, nPageNum){
+		//grid_data2.grid = [{}];
+		//var resultJsonData = jsonRlt.RESULT_LIST[0].records1;
+		
+		gridJsonData1 = [];
+		var listData = [];
+		var resultJsonData = g_list;
+		var startNum = nPageIndex-1;
+		var endNum = nPageIndex + nPageSize;
+		var chkIndex = 0;
+		
+		//여기서 또 계산을?
+		startNum = 0;
+		endNum = g_pageSize;
+		
+		var startNoOfList = getStartNoOfList(nPageNum, nPageSize, g_totalRecordCount);
+		//console.log(grid_data2.grid[startNum]);
+		for(var i = startNum; i < endNum; i++){
+			if(i == resultJsonData.length){
+				break;
+			}
+			
+			var areaVal = resultJsonData[i].range_sido + resultJsonData[i].range_sigungu
+			listData[i] = {
+					"col1":startNoOfList--
+					, "col2":resultJsonData[i].news_type
+				 	, "col3":resultJsonData[i].news_ctg
+				 	, "col4":areaVal
+				 	, "col5":resultJsonData[i].title 
+				 	, "col6":resultJsonData[i].display_yn
+				 	, "col7":resultJsonData[i].id
+				 	, "col8":getDateFromUnixTimestamp(resultJsonData[i].reg_date)
+				};
+			
+			if(chkIndex == 0){
+				gridJsonData1[chkIndex] = listData[i];
+				//grid_data2.grid[chkIndex] = resultJsonData[i];
+			}else{
+				gridJsonData1 = gridJsonData1.concat(listData[i]);
+				//grid_data2.grid = grid_data2.grid.concat(resultJsonData[i]);
+			}
+			chkIndex++;
+		}
+		__createElements();
+	}
+
+/*테이블 생성*/
+function __createElements(){
+	var gridAttr, objJson;
+
+	gridAttr = {
+		"strParentId"							: 'newsGridArea',
+		"strId"									: 'datagrid',
+		"strCaption"							: "번호^구분^카테고리^지역^제목^게시^게시글ID^등록일",
+		"strColWidth"							:  "5%,10%,10%,15%,30%,10%,10%,10%",
+		"strJsonRef"							: "gridJsonData1",
+		"strStyle"								: "width:100%; height:500px; font-family:dotum, arial; font-size:14px;",
+		"strExplorerbar"					: "sortshow",
+		"strRowHeight"						: "50px",
+		"strDataHeight"						: "45px",
+		"strFocusColor"	    			: "#E8E8E8",
+		"strSelectFontColorStyle"		: "none",
+		"fixedcol"								: "1",
+		"bUseMultiSorting"				: true,
+		"bDataSearching"					: true,
+		"strExtendLastCol"				: "scroll",
+		"strOverflow"							:"scroll",
+		"strEmptyRecords"                  : "표시할 데이터가 없습니다.",
+	    "strEmptyRecordsFontStyle"       : "font-size:40px; font-weight:bold;"
+		};
+
+	datagrid= createSBDataGrid(gridAttr);
+
+	objJson = [
+						{"id" : "col1" , "type" : "output" , "ref" : "col1" , "style":"text-align:center;"},
+						{"id" : "col2" , "type" : "output" , "ref" : "col2" , "style":"text-align:center;"},
+						{"id" : "col3" , "type" : "output" , "ref" : "col3" , "style":"text-align:center;"},
+						{"id" : "col4" , "type" : "output" , "ref" : "col4" , "style":"text-align:center;"},
+						{"id" : "col5" , "type" : "output" , "ref" : "col5" , "style":"text-align:center;"},
+						{"id" : "col6" , "type" : "output" , "ref" : "col6" , "style":"text-align:center;"},
+						{"id" : "col7" , "type" : "output" , "ref" : "col7" , "style":"text-align:center;"},
+						{"id" : "col8" , "type" : "output" , "ref" : "col8" , "style":"text-align:center;"},
+					 ];				  
+	datagrid.createColumns(objJson);		
+	datagrid.setColStyles(datagrid.getColRef("col5"), "color:blue; text-decoration: underline;", "data");
+	datagrid.addEventListener("onclick","popupOpen","","");
+	
+};
+
+			
+//글 제목 눌렀을때 상세페이지로 가는 이벤트
+function popupOpen(){
+	var a = datagrid.getRow()-1;
+	var rowData = datagrid.getRowData(datagrid.getRow());	
+	/*상세페이지로 이동*/
+	if(datagrid.getRefOfCol(datagrid.getCol()) == "col5" ){	
+		location.href = "/jaha/board/news/read/"+rowData.col7;
+	}
+};
+
+function initPage() {
+	location.href = "/jaha/board/news/list";
+}
+ //]]>
+ </script>
+<style>
+
+/*추가*/
+	.newsSearchBox{
+		float:right;
+	}
+	.newsSearchtxt{
+		width:505px !important;
+	}
+	.newsResultTxt{
+		font-size:17px;
+		font-weight:bold;
+	}
+	.newsSignupBox{
+		text-align:right;
+		margin-bottom:40px;
+	}
+	.newsStartDate,
+	.newsEndDate{
+		width:290px;
+	}
+	.newsSel{
+		width:585px;
+	}
+</style>
+</head>
+
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+	<div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">마을뉴스</h1>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-weight:900"></div>
+                        <div class="panel-body">
+                        <form id="searchForm" name="searchForm" method="post" action="">
+                        <input type="hidden" id="pageNum" name="pageNum" th:value="${pageNum}" />
+                        <input type="hidden" id="pageSize" name="pageSize" th:value="${pageSize}" />             
+							<table class="table table-responsive" style="margin:0;">
+								<tr>
+									<th>기간</th>
+									<td>
+										<div class="form-inline">
+											<div id="newsStartDate" class='input-group newsStartDate'>
+												<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="datetimepickerFromStart" name="searchSdate" placeholder="YYYY.MM.DD" th:value="${searchSdate}"/>
+												<span class="input-group-addon">
+													<span class="glyphicon glyphicon-calendar"></span>
+												</span>
+											</div>
+											<div id="newsEndDate" class='input-group newsEndDate'>
+												<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="datetimepickerFromEnd" name="searchEdate" placeholder="YYYY.MM.DD" th:value="${searchEdate}"/>
+												<span class="input-group-addon">
+													<span class="glyphicon glyphicon-calendar"></span>
+												</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<th>구분</th>
+									<td>
+										<select class="form-control newsSel" id="searchCategory" name="searchCategory">
+											<option value="">전체</option>
+											<option th:each="category : ${categoryList}" th:value="${category.code}" th:text="${category.name}"></option>
+										</select>										
+									</td>
+								</tr>
+								<tr>
+									<th>검색</th>
+									<td class="form-inline">
+										<select  class="form-control" id="searchColumn" name="searchColumn">
+											<option value="title">제목</option>
+											<option value="content">내용</option>
+										</select>
+										<input type="text" class="form-control newsSearchtxt" id="searchKeyword" name="searchKeyword" value="" placeholder="검색 키워드를 입력하세요."/>
+										<span class="newsSearchBox">
+											<input type="button" class="btn btn-sm btn-outline btn-info newsSearch" id="newsSearch" name="newsSearch" value="검색" onclick="SBGrid_pagingInit(1);"/>
+											<input type="button" class="btn btn-sm btn-outline btn-info newsReset" id="newsReset" name="newsReset" value="초기화" onclick="initPage();" />
+										</span>
+									</td>
+								</tr>
+							</table>
+							</form>
+                        </div>
+                    </div>
+                    <p class="newsResultTxt">총 <span id="spn_totalRecordCount"></span>건이 검색되었습니다.</p>
+					<div class="newsGridArea" id="newsGridArea"></div>
+					<div id="sbGridPaging" class="pagenate"></div>
+		
+					<div class="newsSignupBox">
+						<input type="button" class="btn btn-info newsNorSignup" id="newsNorSignup" value="뉴스등록" name="newsNorSignup" onclick="moveNorsite()"/>
+						<!-- <input type="button" class="btn btn-info newsCardSignup" id="newsCardSignup" value="카드뉴스등록" name="newsCardSignup" onclick="moveCardsite()"/> -->
+					</div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+
+<script type="text/javascript">
+    /*<![CDATA[*/
+
+$(document).ready(function (){
+
+	$('#newsStartDate, #newsEndDate').datetimepicker({	
+		format : "YYYY.MM.DD",
+		useCurrent: false 
+	});
+	$("#newsStartDate").on("dp.change", function (e) {
+            $('#newsEndDate').data("DateTimePicker").minDate(e.date);
+        });
+        $("#newsEndDate").on("dp.change", function (e) {
+            $('#newsStartDate').data("DateTimePicker").maxDate(e.date);
+        });
+
+});
+    
+/*등록으로 이동*/
+	function moveNorsite(){
+		location.href = "/jaha/board/news/write";
+	}; 
+	function moveCardsite(){
+		location.href = "news-card-signup.html";
+	}; 
+
+	
+
+  /*]]>*/
+</script>
+</body>
+</html>

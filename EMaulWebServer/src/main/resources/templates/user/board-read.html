@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+
+    <style type="text/css">
+	    .cmtStyle {
+	        color: red;
+	    }
+	    .img-inline img{
+		    max-width: 100%;
+		    height: auto;
+		    margin-bottom: 10px;
+		}
+    </style>
+
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+        <div th:replace="user/user :: left-side-menu"></div>
+        <div id="wrapper" class="col-xs-10"  th:if="${post.blindYn eq 'Y'}">
+        	해당 게시물은 명예훼손 및 기타권리 침해신고로 게시 중단되었습니다.
+        </div>
+        <div id="wrapper" class="col-xs-10"  th:unless="${post.blindYn eq 'Y'}">
+            <h3 th:if="${post.category.type == 'complaint'}" th:text="${post.category.name} + '접수'">공지사항</h3>
+            <h3 th:if="${post.category.type != 'complaint'}" th:text="${post.category.name}">공지사항</h3>
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="#">홈</a></li>
+                    <li><a th:text="${leftSideMenu}? '커뮤니티' : '아파트소개'" href="#">커뮤니티</a></li>
+                    <li th:if="${post.category.type == 'complaint'}" th:text="${post.category.name} + '접수'" class="active">공지사항</li>
+                    <li th:if="${post.category.type != 'complaint'}" th:text="${post.category.name}" class="active">공지사항</li>
+                </ol>
+            </div>
+            <div>
+
+                <div class="board-border" align="center" style="height: 30px" >
+	          		<table width="100%" >
+						<tr>
+							<th width="5%">제목</th>
+							<td width="0%" th:if="${post.title == null }"  ><p th:text="${post.content}" style="width: 400px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; " ></p></td>
+							<td width="0%" th:if="${post.title != null }"><p th:text="${post.title}" style="width: 400px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; " ></p></td>
+						</tr>
+					</table>
+	            </div>
+
+                <div class="board-border">
+                    <table width="100%">
+                        <tr>
+                            <th width="10%">작성자</th>
+                            <td width="40%"><p th:if="${post.writerName}" th:text="${post.writerName}"></p></td>
+                            <th width="10%">게시일</th>
+                            <td width="40%"><p th:text="${post.regDate}"></p></td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="board-border">
+
+                    <pre th:if="${post.category.contentMode == 'text'}" th:text="${post.content}" style="margin-bottom: 5%; background: none; border: none; font-family: 'Nanum Gothic', sans-serif"></pre>
+                    <div class="board-detail-content" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody != null}" th:utext="${post.contentOnlyBody}" style="width:700px; margin-bottom: 5%; background: none; border: none; font-family: 'Nanum Gothic', sans-serif;"></div>
+					<div class="board-detail-content" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody == null}" th:utext="${post.content}" style="width:700px; margin-bottom: 5%; background: none; border: none; font-family: 'Nanum Gothic', sans-serif;"></div>
+
+                    <div id="show-img" style="padding: 9.5px" th:if="${post.imageCount != 0}">
+                        <div class="img-inline" th:if="${post.imageCount &gt; 0}">
+                            <img th:src="'/api/board/post/image/'+${post.id}+'/0.jpg'" class="img-rounded"/>
+                        </div>
+                        <div class="img-inline" th:if="${post.imageCount &gt; 1}">
+                            <img th:src="@{/api/board/post/image/}+${post.id}+'/1.jpg'" class="img-rounded"/>
+                        </div>
+                        <div class="img-inline" th:if="${post.imageCount &gt; 2}">
+                            <img th:src="@{/api/board/post/image/}+${post.id}+'/2.jpg'" class="img-rounded"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="board-border" id="fileLink" style="font-size: 13px">
+                    <span th:if="${post.file1}">
+                        <a th:href="${post.file1}">1. 첨부파일다운받기</a>
+                    </span>
+                    <span th:if="${post.file2}">
+                        <a th:href="${post.file2}">2. 첨부파일다운받기</a>
+                    </span>
+                </div>
+
+                <div class="board-border">
+                    <p><strong id="st_comment">댓글쓰기</strong></p>
+                    <textarea class="form-control2" rows="3" id="text-comment" style="resize: none; margin-bottom: 5px"></textarea>
+
+                    <div class="button-position">
+                        <span id="_cmtMaxMsg" style="display:none;"></span>
+                        <span id="_cmtLength"></span>
+                        <a class="btn2" th:href="'javascript:writeComment(' + ${post.id} + ')'">등록</a>
+                    </div>
+                </div>
+
+                <div class="board-border" id="comments-container">
+                </div>
+
+                <div style="padding-top: 10px; margin-bottom: 10px">
+                    <button th:if="${post.user.id == user.id or (post.category.type == 'notice' and user.type.admin == true) or user.type.jaha == true}" type="button" class="btn2" th:onclick="'location.href=\'/user/board/post/modify/'+ ${post.id}+ '\''">수정</button>
+                    <button th:if="${post.user.id == user.id or (post.category.type == 'notice' and user.type.admin == true) or user.type.jaha == true}" type="button" class="btn2" th:onclick="'javascript:deleteBoard(' + ${post.id} + ')'">삭제</button>
+
+                    <button type="button" class="btn2" style="float:right;" th:onclick="'location.href=\'/user/board/post/list/'+ ${post.category.id}+ '\''">목록</button>
+                </div>
+
+				<br />
+				<br />
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="user/user :: footer"></div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/autolink-min.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<input type="hidden" id="boardCategoryType" name="boardCategoryType" th:value="${post.category.type}" />
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var cmtMaxByte = 1000;// 댓글과 댓글에댓글의 글자수 제한
+    var cmtMaxMsg = "댓글 글자수를 초과하였습니다.";
+
+    $(document).ready(function () {
+        var postId = /*[[${post.id}]]*/ '100000000';
+        var contentMode = /*[[${post.category.contentMode}]]*/ 'html';
+
+        if(contentMode == 'text') {
+            var that = $('pre');
+            $(that).html(that.html().autoLink({
+                target: "_blank"
+            }));
+        }
+
+        appendComments(postId, null);
+
+        var boardCategoryTypeVal = $("#boardCategoryType").val();
+
+        if ("complaint" === boardCategoryTypeVal) {
+        	$("#div_board_comment").hide();
+
+        	$("#st_comment").text("답변");
+        }
+
+		$(".board-detail-content").each(function() {
+			var tempContent = $(this).html();
+
+			if (tempContent) {
+				$(this).html(tempContent.replace(/\n/g, "<br />"));
+			}
+		});
+    });
+
+    /**
+     * 댓글 글자제한 메시지및 byte수 표기
+     **/
+     function setTextLengthStatus(options){
+         $("#"+options._cmtMaxMsgId).text(cmtMaxMsg).addClass("cmtStyle");
+         $("#"+options._cmtLengthId).text(" [ 0 / "+cmtMaxByte+" ] ").addClass("cmtStyle");//처음 로딩시 기본 글자수표기
+
+         $("#"+options._textCommentId).on("keyup", function(){
+             var currByte = gfnByte($(this).val());
+             $("#"+options._cmtLengthId).text(" [ "+currByte+" / "+cmtMaxByte+" ] ");
+             if(currByte > cmtMaxByte){
+                 $("#"+options._cmtMaxMsgId).show();
+             } else {
+                 $("#"+options._cmtMaxMsgId).hide();
+             }
+         });
+     }
+
+    function writeComment(postId) {
+        var content = $('#text-comment').val();
+        if (content == '') {
+            alert('내용을 입력해주세요');
+            return;
+        }
+        if(gfnByte(content) >  cmtMaxByte){
+            alert(cmtMaxMsg);
+            return;
+        }
+        var obj = {
+            postId: postId,
+            content: content
+        };
+        $('#text-comment').val('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/board/comment/write/',
+            data: JSON.stringify(obj),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#comments-container').empty();
+
+                appendComments(postId, null);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+                $('#comments-container').empty();
+                appendComments(postId, null);
+            }
+        });
+    }
+
+    function appendComments(postId, nextPageToken) {
+
+        var readMoreTag = $('#read-more');
+        if (readMoreTag != null) {
+            readMoreTag.remove();
+        }
+
+        var boardCategoryTypeVal = $("#boardCategoryType").val();
+
+        $.ajax({
+            type: 'GET',
+            url: '/user/board/post/read-reply/' + postId + '?categoryType=' + boardCategoryTypeVal + (nextPageToken != null ? '&nextPageToken=' + nextPageToken : ''),
+            contentType: "text/html; charset=utf-8",
+            success: function (data) {
+                $('#comments-container').append(data);
+
+              //댓글 글자수 표기
+                setTextLengthStatus({
+                    _cmtMaxMsgId : "_cmtMaxMsg",
+                    _cmtLengthId : "_cmtLength",
+                    _textCommentId : "text-comment"
+                });
+
+                if ("complaint" === boardCategoryTypeVal) {
+                	$('.button-reply').hide();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+    function deleteComment(commentId) {
+
+        if (confirm('삭제하시겠습니까?')) {
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/board/comment/delete/' + commentId,
+                contentType: "text/html; charset=utf-8",
+                success: function (data) {
+                	if(data == "1"){
+                		$('#comment-' + commentId).remove();
+                	}
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("삭제 중 오류가 발생했습니다");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+//삭제버튼
+    function deleteBoard(postId) {
+        var path = '/user/board/post/delete/' + postId;
+        var postCategoryId = /*[[${post.category.id}]]*/ '100000000';
+
+        if (confirm("삭제하시겠습니까??")) {
+            $.ajax({
+                url: path,
+                type: 'delete',
+                success: function (result) {
+                    location.href = '/user/board/post/list/' + postCategoryId;//수정해야함
+                }
+            });
+        }
+    }
+
+    function showCommentReply(commentId) {
+        $.ajax({
+            type: 'GET',
+            url: '/user/board/comment/'+commentId+ '/reply/',
+            contentType: "text/html; charset=urf-8",
+            success: function (data) {
+
+                $('#reply-wrap').remove();
+                $('#comment-'+ commentId).after('<div id="reply-wrap"></div>');
+                $('#reply-wrap').append(data);
+
+                $('.button-reply').attr('style', '');
+                $('.button-reply-hide').attr('style', 'display:none');
+
+                $('#button-reply-'+commentId).attr('style', 'display:none');
+                $('#button-reply-hide-'+commentId).attr('style', '');
+
+              //댓글 글자수 표기
+                setTextLengthStatus({
+                    _cmtMaxMsgId : "_cmtMaxMsg-"+commentId,
+                    _cmtLengthId : "_cmtLength-"+commentId,
+                    _textCommentId : "text-comment-"+commentId
+                });
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        })
+
+    }
+
+    function hideCommentReply(commentId) {
+        $('#reply-wrap').remove();
+        $('#button-reply-' + commentId).attr('style', '');
+        $('#button-reply-hide-' + commentId).attr('style', 'display:none');
+    }
+
+    function writeCommentReply(commentId) {
+        var content = $('#reply-form-'+commentId).find('textarea').val();
+
+        if (content == '') {
+            alert('내용을 입력해주세요');
+            return;
+        }
+
+        if(gfnByte(content) >  cmtMaxByte){
+            alert(cmtMaxMsg);
+            return;
+        }
+
+        var obj = {
+            commentId: commentId,
+            content: content
+        };
+
+        $('#reply-form-'+commentId).find('textarea').val('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/board/comment/reply/write',
+            data: JSON.stringify(obj),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#reply-wrap').empty();
+                showCommentReply(commentId);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+                $('#reply-wrap').empty();
+                showCommentReply(commentId);
+            }
+        });
+    }
+
+    function deleteReply(replyId) {
+
+        if (confirm('삭제하시겠습니까?')) {
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/board/comment/reply/delete/' + replyId,
+                contentType: "text/html; charset=utf-8",
+                success: function (data) {
+                	if(data == "1"){
+                		$('#reply-' + replyId).remove();
+                	}
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("삭제 중 오류가 발생했습니다");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+    function verifyYouTubeUrl(url) {
+        var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+        var p2 = /^(?:https?:\/\/)?(?:(?:www|m)\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+        return (url.match(p2)) ?  true : false;
+    }
+
+    /*]]>*/
+
+</script>
+</body>
+</html>

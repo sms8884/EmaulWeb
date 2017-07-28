@@ -1,0 +1,64 @@
+div.tabMenuContainer {
+	position: relative; 
+	width: 100%; 
+	height: 26px; 
+	border-bottom: 1px solid #dddddd; 
+	overflow: hidden
+}
+
+div.tabMenuContainer div.tabMenu {
+	position: absolute; 
+	width: 10000px; 
+	height: 100%; 
+	left: 0px;
+}
+
+div.tabMenuContainer div.tabMenu ul li {
+	float: left;
+	width: 140px;
+	height: 25px;
+	border: 1px solid #000000;
+	background-color: #ffffff;
+	cursor: pointer;
+}
+
+div.tabMenuContainer div.tabMenu ul li.ui-tabs-active {
+	background-color: #ffffff;
+}
+
+div.tabMenuContainer div.tabMenu ul li.ui-tabs-inactive {
+	background-color: #dddddd;
+}
+
+div.tabMenuContainer div.tabMenu ul li div.ui-tabs-div {
+	overflow: hidden;
+	height: 20px;
+}
+
+div.tabMenuContainer div.tabMenu ul li div.ui-tabs-div span.ui-tabs-span {
+	float: left;
+	padding: .5em .5em;
+	width: 120px;
+}
+
+
+/* 탭화면 부분 */
+div.tabContentsContainer {
+	width: 100%;
+	height: 100%;
+}
+
+/* 탭무브 버튼 */
+div.tabMoveButton {
+	position: absolute; 
+	width: 30px; 
+	height: 25px; 
+	padding: .5em .5em; 
+	right: 0px; 
+	background-color: #ffffff;
+	border: none;
+}
+
+div.tabMoveButton span {
+	cursor: pointer;
+}

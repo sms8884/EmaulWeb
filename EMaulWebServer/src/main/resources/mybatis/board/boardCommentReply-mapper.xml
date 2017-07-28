@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardCommentReplyMapper">
+
+	<insert id="insertBoardCommentReply" parameterType="BoardCommentReplyVo" useGeneratedKeys="true" keyProperty="id">
+	    INSERT /* insertBoardCommentReply, 전강욱(realsnake@jahasmart.com) */ INTO board_comment_reply (
+	        comment_id
+	        , content
+	        , blocked
+	        , display_yn
+	        , req_ip
+	        , user_id
+	        , reg_date
+	    ) VALUES (
+	        #{commentId}
+	        , #{content}
+	        , b'0'
+	        , 'Y'
+	        , #{reqIp}
+	        , #{userId}
+	        , NOW()
+	    )
+	</insert>
+
+	<update id="updateBoardCommentReply" parameterType="BoardCommentReplyVo">
+	    UPDATE /* updateBoardCommentReply, 전강욱(realsnake@jahasmart.com) */ board_comment_reply
+	    SET content = #{content}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<update id="updateDisplayYn" parameterType="BoardCommentReplyVo">
+	    UPDATE /* updateDisplayYn, 전강욱(realsnake@jahasmart.com) */ board_comment_reply
+	    SET display_yn = #{displayYn}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<update id="updateBlocked" parameterType="BoardCommentReplyVo">
+	    UPDATE /* updateBlocked, 전강욱(realsnake@jahasmart.com) */ board_comment_reply
+	    SET blocked = #{blocked}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<sql id="whereClauseOfBoardCommentReply">
+		WHERE BCR.comment_id = #{searchCommentId}
+			AND BCR.blocked = b'0'
+			AND BCR.display_yn = 'Y'
+	</sql>
+
+	<select id="selectBoardCommentReplyList" parameterType="BoardDto" resultType="BoardCommentReplyVo">
+	    SELECT /* selectBoardCommentReplyList, 전강욱(realsnake@jahasmart.com) */ BCR.id
+	    , BCR.comment_id
+	    , BCR.content
+	    , BCR.blocked
+	    , BCR.user_id
+	    , BCR.reg_date
+		, IFNULL(U.full_name, '탈퇴회원') AS full_name /* 암호화된 사용자명 */
+		, IFNULL(U.nickname, '익명') AS nickname
+		, IFNULL(H.dong, '0') AS dong
+		, IFNULL(H.ho, '0') AS ho
+		FROM board_comment_reply BCR LEFT OUTER JOIN user U ON BCR.user_id = U.id
+					  					  		 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 		 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    <include refid="whereClauseOfBoardCommentReply" />
+	    ORDER BY BCR.id DESC
+	</select>
+
+</mapper>

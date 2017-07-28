@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.PushLogMapper">
+
+    <insert id="insertPushLog" parameterType="PushLog">
+    /* insertPushLog */
+        INSERT INTO push_log 
+        (
+            apt_id
+           ,user_id
+           ,gubun
+           ,title
+           ,message
+           ,device_rec_yn
+           ,push_send_count
+           ,push_click_count
+           ,sms_yn
+           ,device_type
+           ,reg_date
+        )
+        VALUES 
+        (
+            #{aptId}
+           ,#{userId}
+           ,#{gubun}
+           ,#{title}
+           ,#{message}
+           ,#{deviceRecYn}
+           ,#{pushSendCount}
+           ,#{pushClickCount}
+           ,#{smsYn}
+           ,#{deviceType}
+           ,now()
+        )
+        
+    </insert>
+
+</mapper>

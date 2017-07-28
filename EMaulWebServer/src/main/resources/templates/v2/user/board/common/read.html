@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/user/template/layout">
+
+<head>
+	<title th:text="${category.name} + ' | 상세'">공지사항 | 상세</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+    <style type="text/css">
+	    .cmtStyle {
+	        color: red;
+	    }
+	    .img-inline img{
+		    max-width: 100%;
+		    height: auto;
+		    margin-bottom: 10px;
+		}
+    </style>
+
+<script src="/js/autolink-min.js"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryType = /*[[${category.type}]]*/ 'error';
+var categoryId = /*[[${category.id}]]*/ '0';
+var blindYn = /*[[${post.blindYn}]]*/ 'N';
+
+if ("N" != blindYn) {
+	alert("게시 중단된 글입니다.");
+	history.go(-1);
+}
+
+$(document).ready(function() {
+
+	var that = $('#autolinkarea').html();
+    $('#autolinkarea').html(that.autoLink({
+        target: "_blank"
+    }));
+
+	$(".board-detail-content").each(function() {
+		var tempContent = $(this).html();
+
+		if (tempContent) {
+			$(this).html(tempContent.replace(/\n/g, "<br />"));
+		}
+	});
+
+});
+
+/*]]>*/
+</script>
+</head>
+<body>
+
+	<div id="wrapper" class="col-xs-10" layout:fragment="layout_content">
+
+            <h3 th:text="${category.name}">공지사항</h3>
+            <div>
+                <ol class="breadcrumb">
+                	<li><a href="/user">e마을</a></li>
+                	<li><a th:text="${leftSideMenu}? '커뮤니티' : '아파트소개'" href="#">커뮤니티</a></li>
+            		<li class="active" th:text="${category.name}">카테고리</li>
+                </ol>
+            </div>
+            <div>
+
+                <div class="board-border" align="center" style="height: 30px">
+	          		<table style="width:100%;">
+						<tbody><tr>
+							<th width="5%" >제목</th>
+
+							<td width="0%"><p style="width: 400px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; " th:text="${post.title}">공지사항을 테스트하는 거란다~</p></td>
+						</tr>
+					</tbody></table>
+	            </div>
+
+                <div class="board-border">
+                    <table width="100%">
+                        <tbody><tr>
+                            <th width="10%">작성자</th>
+                            <td width="40%"><p th:text="${post.writerName}">진짜뱀1 (0동)</p></td>
+                            <th width="10%">게시일</th>
+                            <td width="40%"><p th:text="${#dates.format(post.regDate, 'yyyy-MM-dd HH:mm')}" >2016-11-04 17:53:14.0</p></td>
+                        </tr>
+                    </tbody></table>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="board-border">
+
+                	<pre id="autolinkarea" th:if="${category.contentMode == 'text'}" th:text="${post.content}" style="margin-bottom: 5%; background: none; border: none; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap;"></pre>
+					<div id="autolinkarea" class="board-detail-content" th:if="${category.contentMode == 'html' and post.contentOnlyBody != null}" th:utext="${post.contentOnlyBody}" style="margin-bottom: 5%; background: none; border: none"></div>
+                    <!-- <div class="board-detail-content" style="width:700px; margin-bottom: 5%; background: none; border: none; font-family: 'Nanum Gothic', sans-serif;" th:text="${post.contentOnlyBody}"></div> -->
+
+					<div id="show-img" th:if="${post.imageCount!=0}">
+                           <div class="img-inline">
+                               <img th:src="@{/v2/board/common/post/image/} + ${post.id} + '/0.jpg'" class="img-rounded" />
+                           </div>
+                           <div class="img-inline" th:if="${post.imageCount &gt; 1}">
+                               <img th:src="@{/v2/board/common/post/image/} + ${post.id} + '/1.jpg'" class="img-rounded" />
+                           </div>
+                           <div class="img-inline" th:if="${post.imageCount &gt; 2}">
+                               <img th:src="@{/v2/board/common/post/image/} + ${post.id} + '/2.jpg'" class="img-rounded" />
+                           </div>
+					</div>
+
+                </div>
+
+                <div class="board-border" id="fileLink" style="font-size: 13px;display:none;">
+                    <span th:if="${post.file1}">
+                        <a th:href="${post.file1}">1. 첨부파일다운받기</a>
+                    </span>
+                    <span th:if="${post.file2}">
+                        <a th:href="${post.file2}">2. 첨부파일다운받기</a>
+                    </span>
+                </div>
+
+
+				<!-- 댓글/답글 영역 -->
+				<div th:replace="v2/user/board/comment-form :: comment-form"></div>
+				<!-- 댓글/답글 영역 -->
+
+                <div style="padding-top: 10px; margin-bottom: 10px">
+					<button th:if="${post.userId == user.id or (category.type == 'notice' and user.type.admin == true) or user.type.jaha == true}" type="button" class="btn2" th:onclick="'location.href=\'/v2/user/board/' + ${category.type} + '/modify-form/' + ${category.id} + '/' + ${post.id}+ '\''">수정</button>
+                    <button th:if="${post.userId == user.id or (category.type == 'notice' and user.type.admin == true) or user.type.jaha == true}" type="button" class="btn2" th:onclick="'javascript:deleteBoardPost(' + ${post.id} + ',' + ${post.commentCount} + ')'">삭제</button>
+                    <button type="button" class="btn2" style="float:right;" th:onclick="'location.href=\'/v2/user/board/' + ${category.type}+ '/list/'+ ${category.id}+ '\''">목록</button>
+                </div>
+
+            </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function () {
+
+    var postFile1 = /*[[${post.file1}]]*/ '';
+    var postFile2 = /*[[${post.file2}]]*/ '';
+
+    // 첨부파일 화면 표시
+    if (postFile1 || postFile2) {
+    	$("#fileLink").show();
+    }
+});
+
+/**
+ * 게시글 삭제
+ */
+ function deleteBoardPost(postId, commentCount) {
+		if (commentCount > 0) {
+			// alert(" 댓글이 있는 게시글은 삭제할 수 없습니다! ");
+			// return;
+		}
+
+		var url = "/v2/user/board/" + categoryType + "/remove/" + categoryId + "/" + postId;
+
+	    if (confirm(" 게시글을 삭제하시겠습니까?? ")) {
+			location.href = url;
+	    }
+	}
+
+/*]]>*/
+</script>
+
+</div>
+
+</body>
+</html>

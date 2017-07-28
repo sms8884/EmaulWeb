@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+	<script src="../../static/ckeditor/ckeditor.js" th:src="@{/ckeditor/ckeditor.js}"></script>
+
+    <title th:text="${category.name} + ' | 수정하기'">공지사항 | 글쓰기</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header" th:text="${category.name}"></h1>
+
+            <div id="content-container" >
+
+            	<form enctype="multipart/form-data" method="post" th:action="'/v2/admin/board/' + ${category.type} + '/modify/' + ${category.id} + '/' + ${post.id}">
+				    <input type="hidden" id="categoryId" name="categoryId" th:value="${category.id}" value="0" />
+				    <input type="hidden" id="rangeAll" name="rangeAll" value="0" />
+				    <input type="hidden" id="imageCount" name="imageCount" th:value="${post.imageCount}" value="0" />
+				    <input type="hidden" id="topFix" name="topFix" th:value="${post.topFix}" />
+				    <!-- <input type="hidden" id="pushSendYn" name="pushSendYn" th:value="${post.pushSendYn}" /> -->
+				    <input type="hidden" id="pushSendYn" name="pushSendYn" th:value="N" />
+
+                    <div class="panel-body">
+							<div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+                            <table class="table table-responsive table" style="margin-bottom: 0">
+                                <tbody>
+                                    <tr >
+                                        <th class="info">제목입력<span class="fa fa-asterisk nesessary" style="color:red;"></span></th>
+                                        <td colspan="2">
+                                        	<input type="text" id="title" name="title" class="form-control"  placeholder="최대 30자 입력 가능" maxlength="30" style="width: 90%; height: 30px" th:value="${post.title}" />
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${category.type eq 'notice'}">
+                                        <th class="info"><span class="fa fa-asterisk nesessary" style="color:red;"></span></th>
+                                        <td>
+                                       		<input type="hidden" name="viewService" id="viewService" />
+                                                <span>
+                                                	<label for="_pushSendYn"><input type="checkbox" id="_pushSendYn" name="_pushSendYn" class="type-check" />수정시 알림 전송</label>
+                                                	<span th:if="${post.pushSendYn == 'Y'}">&nbsp;<b>- 푸시 발송 했음</b></span>
+                                                </span>
+                                                <span>
+                                                	<label for="_topFix"><input type="checkbox" id="_topFix" name="_topFix" class="type-check" th:checked="${post.topFix}" />게시판 상단고정(최대 3개)</label>
+                                                </span>
+                                                <!-- <input type="checkbox" id="_rangeAll" name="_rangeAll" class="type-check" /> 모든 사용자에게 공개 -->
+                                        </td>
+									</tr>
+                                    <tr>
+                                        <th class="info">내용<span class="fa fa-asterisk nesessary" style="color:red;"></span></th>
+                                        <td class="form-inline" colspan="2">
+                                        	<textarea class="form-control" placeholder="내용을 입력하세요" rows="30" name="content" id="content" style="resize: none; width:90%;"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="info">사진첨부<span>(최대 3개 등록)</span></th>
+                                        <td class="form-inline" colspan="2">
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                                	<p style="display:block;">
+			                                			<input type="text" readonly="readonly" title="File Route" id="file_route1" />
+				                                		<label>
+					                                    	사진 선택
+															<input type="file" onchange="javascript:document.getElementById('file_route1').value=this.value" name="imageFiles[0]" id="pic1" />
+				                                		</label>
+				                                		<span th:if="${post.imageCount > 0}" id="span-post-image0" style="display:none;">
+															<a id="a-post-image0" th:href="'/v2/board/common/post/image/' + ${post.id} + '/0.jpg'">1. 첨부사진 보기</a>
+															<!-- <input th:if="${user.id == post.userId or user.type.jaha}" class="btn btn-xs btn-outline btn-danger" type="button" value="삭제" th:onclick="'deletePostImage(' + ${post.id} + ', 0)'" /> -->
+														</span>
+				                                	</p>
+				                                	<p style="display:block;">
+				                                		<input type="text" readonly="readonly" title="File Route" id="file_route2" />
+				                                		<label>
+					                                    	사진 선택
+			                                    			<input type="file" onchange="javascript:document.getElementById('file_route2').value=this.value" name="imageFiles[1]"  id="pic2" />
+				                                		</label>
+				                                		<span th:if="${post.imageCount > 1}" id="span-post-image1" style="display:none;">
+															<a id="a-post-image1" th:href="'/v2/board/common/post/image/' + ${post.id} + '/1.jpg'">2. 첨부사진 보기</a>
+															<!-- <input th:if="${user.id == post.userId or user.type.jaha}" class="btn btn-xs btn-outline btn-danger" type="button" value="삭제" th:onclick="'deletePostImage(' + ${post.id} + ', 1)'" /> -->
+														</span>
+				                                	</p>
+				                                	<p style="display:block;">
+				                                		<input type="text" readonly="readonly" title="File Route" id="file_route3" />
+				                                		<label>
+					                                    	사진 선택
+			                                    			<input type="file" onchange="javascript:document.getElementById('file_route3').value=this.value" name="imageFiles[2]"  id="pic3" />
+				                                		</label>
+				                                		<span th:if="${post.imageCount > 2}" id="span-post-image2" style="display:none;">
+															<a id="a-post-image2" th:href="'/v2/board/common/post/image/' + ${post.id} + '/2.jpg'">3. 첨부사진 보기</a>
+															<!-- <input th:if="${user.id == post.userId or user.type.jaha}" class="btn btn-xs btn-outline btn-danger" type="button" value="삭제" th:onclick="'deletePostImage(' + ${post.id} + ', 2)'" /> -->
+														</span>
+				                                	</p>
+				                            	</div>
+				                        	</div>
+                                        </td>
+									</tr>
+									<tr>
+                                         <th class="info">파일첨부(최대 2개 등록)</th>
+                                        <td class="form-inline" colspan="2">
+				                        	<div id="image-file-up" class="col-md-10">
+				                            	<div class="file_input">
+				                            		<p style="display:block;">
+				                                		<input type="text" readonly="readonly" title="File Route" id="file_route4" />
+				                                		<label>
+					                                    	파일선택
+					                                    	<input type="file" onchange="javascript:document.getElementById('file_route4').value=this.value" name="attachFiles[0]" />
+				                                		</label>
+				                                		<span th:if="${user.id == post.userId or user.type.jaha}" id="span-post-file1" style="display:none;">
+															<a th:href="${post.file1}">1. 첨부파일 다운받기</a>
+															<input class="btn btn-xs btn-outline btn-danger" type="button" value="삭제" th:onclick="'deletePostAttach(' + ${post.id} + ', 1)'" />
+															<input type="hidden" th:id="hdn-post-file1" th:value="${post.file1}" />
+														</span>
+				                                	</p>
+				                                	<p style="display:block;">
+				                                		<input type="text" readonly="readonly" title="File Route" id="file_route5" />
+				                                		<label>
+					                                    	파일선택
+					                                    	<input type="file" onchange="javascript:document.getElementById('file_route5').value=this.value" name="attachFiles[1]" />
+				                                		</label>
+				                                		<span th:if="${user.id == post.userId or user.type.jaha}" id="span-post-file2" style="display:none;">
+															<a th:href="${post.file2}">2. 첨부파일 다운받기</a>
+															<input class="btn btn-xs btn-outline btn-danger" type="button" value="삭제" th:onclick="'deletePostAttach(' + ${post.id} + ', 2)'" />
+															<input type="hidden" th:id="hdn-post-file2" th:value="${post.file2}" />
+														</span>
+				                                	</p>
+				                            	</div>
+				                        	</div>
+                                        </td>
+									</tr>
+                                </tbody>
+                            </table>
+                            <div class="panel-footer" align="right">
+                            	<input class="btn btn-default" type="button" value="미리보기" onclick="checkReg('preview')" />
+								<input class="btn btn-default" type="button" value="수정 완료"  onclick="checkReg()" />
+								<button class="btn btn-default" type="button" data-toggle="modal" data-target="#cancelModal" >취소</button>
+							</div>
+                        </div>
+
+                        <!-- 모달 영역 -->
+						<div th:replace="v2/admin/board/board-modal :: board-modal"></div>
+
+					</div>
+
+				</form>
+
+            </div>
+        </div>
+    </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+// category type별 에디터 실행여부 결정
+var categoryType = /*[[${category.type}]]*/ 'error';
+var editorId = 'content';
+if ("notice" != categoryType) {
+	editorId = 'content1';
+}
+
+var postId = /*[[${post.id}]]*/ 0;
+var postImageCount = /*[[${post.imageCount}]]*/ 0;
+
+(function() {
+	if ('notice' != categoryType) {
+		return;
+	}
+
+    'use strict';
+
+    CKEDITOR.replace('content', {
+        extraPlugins: 'youtube,image2,uploadimage',
+
+        removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+        'pagebreak,iframe,colorbutton,font,image',
+
+        // The toolbar groups arrangement, optimized for two toolbar rows.
+        toolbarGroups: [
+            { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+            { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+            { name: 'links' },
+            { name: 'insert' },
+            { name: 'forms' },
+            { name: 'tools' },
+            { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+            { name: 'others' },
+            '/',
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'colors' },
+            { name: 'about' }
+        ],
+
+        // Remove some buttons provided by the standard plugins, which are
+        // not needed in the Standard(s) toolbar.
+        removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+        uploadUrl: '/api/common/editor/image/temp/upload',
+
+        // Set the most common block elements.
+        format_tags: 'p;h1;h2;h3;pre',
+
+        // Simplify the dialog windows.
+        removeDialogTabs: 'link:advanced',
+
+        height: 400,
+
+        // Load the default contents.css file plus customizations for this sample.
+        contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+        stylesSet: [
+            { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+        ],
+
+        // Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+        // resizer (because image size is controlled by widget styles or the image takes maximum
+        // 100% of the editor width).
+		image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+		image2_disableResizer: true
+    });
+})();
+
+/**
+ * 모달창을 닫고 포커스
+ */
+function closeModalAfterFocus(elementId, canFocus) {
+	if (!canFocus) {
+		canFocus = true;
+	}
+
+	$("#" + elementId + "CheckModal").modal("hide");
+
+	if (!canFocus) {
+		return;
+	}
+
+	if ('notice' == categoryType) {
+		if (CKEDITOR && "content" == elementId) {
+			CKEDITOR.instances.content.focus();
+			return;
+		}
+	} else {
+		$("#" + elementId).focus();
+	}
+}
+
+/**
+ * 유효성 체크
+ */
+function checkReg(gubun) {
+    var title = $('#title').val();
+    title = title.replace(/^\s*/, "");
+
+
+    if ('notice' != categoryType) {
+    	var contentData = $('#content').val();
+    } else {
+    	var contentData = CKEDITOR.instances.content.getData();
+    }
+
+    if (!title) {
+        $('#titleCheckModal').modal('show');
+        return;
+    }
+    if (!contentData) {
+    	$('#contentCheckModal').modal('show');
+    	return;
+    }
+    if (!checkFile()) {
+    	return;
+    }
+
+    if ($('#_pushSendYn').is(":checked")) {
+    	$('#pushSendYn').val("Y");
+    }
+    if ($('#_topFix').is(":checked")) {
+    	$('#topFix').val("1");
+    } else {
+    	$('#topFix').val("0");
+    }
+
+	if ("preview" === gubun) {
+        previewImage();
+        putPreviewData();
+        $('#previewModal').modal('show');
+	}
+	else {
+        $('#modifyModal').modal('show');
+	}
+}
+
+/**
+ * 파일 확장자 체크
+ */
+function checkFile() {
+	var imageFile0, imageFile1, imageFile2;
+	var imageFileAvailable = true;
+
+    var submitAvailable1 = true;
+    $('input[name*="imageFiles"]').each(function(i) {
+        var val = $(this).val();
+
+		if (i == 0) {
+			imageFile0 = val;
+		}
+		else if (i == 1) {
+			imageFile1 = val;
+
+			if (!imageFile0 && imageFile1) {
+				imageFileAvailable = false;
+			}
+		}
+		else if (i == 2) {
+			imageFile2 = val;
+
+			if (!imageFile1 && imageFile2) {
+				imageFileAvailable = false;
+			}
+		}
+
+        if (val) {
+            var ext = val.split('.').pop().toLowerCase();
+            if ($.inArray(ext, ['gif', 'png', 'jpg', 'jpeg']) == -1) {
+                submitAvailable1 = false;
+            }
+        }
+    });
+
+    if (!imageFileAvailable) {
+    	// alert(" 위 사진 선택란을 먼저 선택해주세요! ");
+    	$('#picOrderCheckModal').modal('show');
+    	return false;
+    }
+
+    if (!submitAvailable1) {
+        // alert('사진은 gif,png,jpg,jpeg 파일만 업로드 할 수 있습니다.');
+        $('#picCheckModal').modal('show');
+        // event.preventDefault();
+        return false;
+    }
+
+    var submitAvailable2 = true;
+    $('input[name*="attachFiles"]').each(function() {
+        var val = $(this).val();
+        if (val) {
+            var ext = val.split('.').pop().toLowerCase();
+            if ($.inArray(ext, ['pdf', 'hwp', 'doc', 'docx', 'ppt', 'pptx', 'xlsx', 'xlsm', 'xls', 'xml']) == -1) {
+                submitAvailable2 = false;
+            }
+        }
+    });
+
+    if (!submitAvailable2) {
+        // alert('파일은 pdf, hwp, doc, docx, ppt, pptx, xlsx, xlsm, xls, xml 파일만 업로드 할 수 있습니다.');
+        $('#attachFileCheckModal').modal('show');
+        // event.preventDefault();
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * 게시글 수정
+ */
+function modifyPost() {
+    disabledButton();
+    $("form").submit();
+}
+
+/**
+ * 미리보기
+ */
+function putPreviewData() {
+	// var content = $("#content").val();
+	var title = $("#title").val();
+	$("#previewTitle").text(title);
+	try {
+		$("#previewContent").html(CKEDITOR.instances.content.getData().replace(/\n/g, ''));
+	}
+	catch(e) {
+		$("#previewContent").html($("#content").val());
+	}
+	$("#_preview_regDate").text(new Date().yyyymmdd());
+}
+
+/**
+ * [예] 버튼이 한번만 클릭되도록 비활성화
+ */
+function disabledButton() {
+    $('#writeModal').find('button').each(function () {
+        $(this).attr('disabled', true);
+    });
+}
+
+/**
+ * 이미지 미리보기
+ */
+function previewImage() {
+	// Check for the various File API support.
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+	  // Great success! All the File APIs are supported.
+	} else {
+	  // alert(" 해당 웹브라우저로 미리보기가 지원되지 않습니다! ");
+	  if (window.console && console.log) {
+		  console.log(" 해당 웹브라우저로 미리보기가 지원되지 않습니다! ");
+	  }
+
+	  return;
+	}
+
+	var preview1 = document.getElementById('preview1');
+	var preview2 = document.getElementById('preview2');
+	var preview3 = document.getElementById('preview3');
+
+	var file1 = $("#pic1", document)[0].files[0];
+	var file2 = $("#pic2", document)[0].files[0];
+	var file3 = $("#pic3", document)[0].files[0];
+
+	var reader1  = new FileReader();
+	var reader2  = new FileReader();
+	var reader3  = new FileReader();
+
+	reader1.addEventListener("load", function () { preview1.src = reader1.result; }, false);
+	reader2.addEventListener("load", function () { preview2.src = reader2.result; }, false);
+	reader3.addEventListener("load", function () { preview3.src = reader3.result; }, false);
+
+	if (file1) {
+		reader1.readAsDataURL(file1);
+	}
+	if (file2) {
+		reader2.readAsDataURL(file2);
+	}
+	if (file3) {
+		reader3.readAsDataURL(file3);
+	}
+
+	if (postImageCount == 3) {
+		preview1.src = "/v2/board/common/post/image/" + postId + "/0.jpg"
+		preview2.src = "/v2/board/common/post/image/" + postId + "/1.jpg"
+		preview3.src = "/v2/board/common/post/image/" + postId + "/2.jpg"
+	}
+	else if (postImageCount == 2) {
+		preview1.src = "/v2/board/common/post/image/" + postId + "/0.jpg"
+		preview2.src = "/v2/board/common/post/image/" + postId + "/1.jpg"
+	}
+	else if (postImageCount == 1) {
+		preview1.src = "/v2/board/common/post/image/" + postId + "/0.jpg"
+	}
+	else {
+		var file1 = $("#pic1", document)[0].files[0];
+		var file2 = $("#pic2", document)[0].files[0];
+		var file3 = $("#pic3", document)[0].files[0];
+	}
+}
+
+/**
+ * 이미지파일 삭제
+ */
+function deletePostImage(postId, seq) {
+    if (confirm(" 선택한 사진파일을 삭제하시겠습니까? ")) {
+    	// 파일명만 추출
+    	var fileName = seq + ".jpg";
+
+        $.ajax({
+            type: "POST",
+            url: "/v2/board/common/post/image/remove/" + postId + "/" + fileName,
+            contentType: "text/html; charset=utf-8",
+            success: function(data) {
+				if ("1" === data) {
+					$("#span-post-image" + seq).hide();
+					$("#div-post-image" + seq).show();
+				}
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            	alert(" 사진파일 삭제 중 오류가 발생하였습니다! ");
+
+            	if (window.console && console.log) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+            	}
+            }
+        });
+    }
+}
+/**
+ * 첨부파일 삭제
+ */
+function deletePostAttach(postId, seq) {
+    if (confirm(" 선택한 첨부파일을 삭제하시겠습니까? ")) {
+    	var fileName = $("#hdn-post-file" + seq).val();
+    	if (!fileName) {
+    		alert(" 첨부파일 삭제 중 오류가 발생하였습니다! ");
+    		return;
+    	}
+
+    	// 파일명만 추출
+    	var onlyFileName = fileName.substring(fileName.lastIndexOf("/")+1, fileName.length);
+
+        $.ajax({
+            type: "POST",
+            url: "/v2/board/common/post/file/remove/" + postId + "/" + onlyFileName,
+            contentType: "text/html; charset=utf-8",
+            success: function(data) {
+				if ("1" === data) {
+					$("#span-post-file" + seq).hide();
+					$("#div-post-file" + seq).show();
+				}
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            	alert(" 첨부파일 삭제 중 오류가 발생하였습니다! ");
+
+            	if (window.console && console.log) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+            	}
+            }
+        });
+    }
+}
+
+$(document).ready(function() {
+	var content = /*[[${post.contentOnlyBody}]]*/ 'error';
+
+	if ("notice" == categoryType) {
+		CKEDITOR.instances.content.setData(content);
+	} else {
+		$("#content").val(content);
+	}
+
+	// 사진첨부
+	if (postImageCount == 3) {
+		$("#span-post-image0").show();
+		$("#span-post-image1").show();
+		$("#span-post-image2").show();
+	}
+	else if (postImageCount == 2) {
+		$("#span-post-image0").show();
+		$("#span-post-image1").show();
+		$("#div-post-image2").show();
+	}
+	else if (postImageCount == 1) {
+		$("#span-post-image0").show();
+		$("#div-post-image1").show();
+		$("#div-post-image2").show();
+	}
+	else {
+		$("#div-post-image0").show();
+		$("#div-post-image1").show();
+		$("#div-post-image2").show();
+	}
+
+	var postFile1 = /*[[${post.file1}]]*/ '';
+	var postFile2 = /*[[${post.file2}]]*/ '';
+
+	// 파일첨부1
+	if (postFile1) {
+		$("#span-post-file1").show();
+	}
+	else {
+		$("#div-post-file1").show()
+	}
+	// 파일첨부2
+	if (postFile2) {
+		$("#span-post-file2").show();
+	}
+	else {
+		$("#div-post-file2").show()
+	}
+
+	// 이미지뷰 1
+	$("#a-post-image0").click(function (e) {
+		e.preventDefault();
+		$(this).ekkoLightbox();
+	});
+	// 이미지뷰 2
+	$("#a-post-image1").click(function (e) {
+		e.preventDefault();
+		$(this).ekkoLightbox();
+	});
+	// 이미지뷰 3
+	$("#a-post-image2").click(function (e) {
+		e.preventDefault();
+		$(this).ekkoLightbox();
+	});
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

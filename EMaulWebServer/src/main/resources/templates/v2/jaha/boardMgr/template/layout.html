@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<title>게시글 모니터링 | 숨김글 관리</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="/css/monitoring.css" th:href="@{/css/monitoring.css}"/>
+	<link type="text/css" rel="stylesheet" href="/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="/css/ekko-lightbox.min.css" th:href="@{/css/ekko-lightbox.min.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<script src="/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="/js/jquery-2.1.3.min.js" th:src="@{/js/jquery-2.1.3.min.js}"></script>
+	<script src="/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+	<script src="/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+	<script src="/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+	<script src="/js/common.js" th:src="@{/js/common.js}"></script>
+	<script src="/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+	<script src="/multiselect/js/jquery.multi-select.js" th:src="@{/multiselect/js/jquery.multi-select.js}"></script>
+
+	<script src="/datatables/media/js/jquery.dataTables.min.js" th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+	<script src="/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+	<script src="/js/ekko-lightbox.min.js" th:src="@{/js/ekko-lightbox.min.js}"></script>
+
+	<style>
+		.popover-content {
+		   	max-height:90px;
+		    overflow:hidden;
+		}
+	</style>
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">
+	
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><strong>게시글 모니터링</strong></a>
+        </div>
+        <!-- /.navbar-header -->
+
+
+        <ul class="nav navbar-top-links navbar-right">
+			<li th:text="${user.fullName}">아파트</li>
+            <!-- jaha 권한용 상단메뉴영역 -->
+            <li class="dropdown" th:if="${user.type.jaha}">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <!--<i class="fa fa-cog fa-fw"></i> <i class="fa fa-caret-down"></i>-->
+                    <img src="/img/adminHome/menu.png" alt="메뉴" class="admin-main-icon"/>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="/jaha/board/news/list"><i class="fa fa-calendar-o fa-fw"></i> 마을뉴스</a> </li>
+                    <!-- <li><a href="/jaha/board/today/list"><i class="fa fa-calendar-o fa-fw"></i> 오늘 관리</a> </li> -->
+                    <li><a href="/jaha/user/list"><i class="fa fa-users fa-fw"></i> 전체 사용자 보기</a> </li>
+                    <li><a href="/jaha/apt"><i class="fa fa-building-o fa-fw"></i> 고객 아파트 등록</a> </li>
+                    <li><a href="/jaha/apt/user"><i class="fa fa-user-plus fa-fw"></i> 입주자 명단 등록</a> </li>
+                    <li><a href="/jaha/fee"><i class="fa fa-file-word-o fa-fw"></i> 관리비 정보 입력</a> </li>
+                    <li><a href="/jaha/sms"><i class="fa fa-envelope-o fa-fw"></i> 알림/문자 발송</a></li>
+                    <li><a href="/jaha/vote/vote/list"><i class="fa fa-edit fa-fw"></i> 투표/설문 조사</a> </li>
+                    <li><a href="/v2/jaha/vote/list"><i class="fa fa-edit fa-fw"></i> 투표 v2</a> </li>
+                    <li><a href="/admin/appMain?tapId=APP_MAIN"><i class="fa fa-cogs"></i> 컨텐츠 관리</a> </li>
+                    <li><a href="/v2/jaha/board/system-notice/list"><i class="fa fa-list-alt fa-fw"></i> e마을 공지사항</a> </li>
+                    <li><a href="/v2/jaha/board/faq/list"><i class="fa fa-question fa-fw"></i> 자주하는 질문</a> </li>
+					<li><a href="/v2/jaha/board/event/list"><i class="fa fa-magic"></i> 이벤트</a> </li>
+                    <li><a href="/jaha/provision/list"><i class="fa fa-reorder fa-fw"></i> 약관</a> </li>
+                    <li><a href="/v2/jaha/app-version/list"><i class="fa fa-reorder fa-fw"></i> App버전관리</a> </li>
+                    <li><a href="/v2/jaha/code/group-list"><i class="fa fa-reorder fa-fw"></i> 코드관리</a> </li>
+                    <li><a href="/v2/jaha/board-mgr/post/list"><i class="fa fa-reorder fa-fw"></i> 게시글 모니터링</a> </li>
+                    <li><a href="/jaha/apt/membership/list"><i class="fa fa-reorder fa-fw"></i> 아파트별 가입자 현황</a> </li>
+					<li><a href="/jaha/user/app/download/list"><i class="fa fa-reorder fa-fw"></i> 일자별 가입자 및 앱다운로드 현황</a> </li>
+                </ul>
+            </li>
+            <li><a href="/admin/logout">
+                <img src="/img/adminHome/logout.png" alt="로그아웃" class="admin-main-icon"/>
+            </a></li>
+            <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
+
+
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav" id="side-menu">
+                   <li class="active">
+                        <a href="/v2/jaha/board-mgr/post/list"><i class="fa fa-tasks fa-fw"></i> 게시글 관리</a>
+                    </li>
+                  	<li>
+						<a href="/v2/jaha/board-mgr/comment/list"><i class="fa fa-server" aria-hidden="true"></i> 댓글 관리</a>
+					</li>
+                    <li>
+                        <a href="/v2/jaha/board-mgr/spam/list"><i class="fa fa-server" aria-hidden="true"></i> 스팸글 관리</a>
+                    </li>
+                    <li>
+                        <a href="/v2/jaha/board-mgr/blind/list"><i class="fa fa-server" aria-hidden="true"></i> 숨김글 관리</a>
+                    </li>
+                </ul>
+            <!-- /.sidebar-collapse -->
+        	</div>
+        </div>
+        <!-- /.navbar-static-side -->
+    </nav>
+
+	<!-- Page Content -->
+    <div id="page-wrapper" layout:fragment="layout_content">Contents</div>
+	
+</div>
+
+<div id="loading" style="display:inline-block;">
+            <img src="/img/ajax-loader.gif" alt="loading"/>
+     </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+           
+           
+      $(document).ajaxStart(function() {
+        $('#loading').css('position','absolute');
+        $('#loading').css('z-index','10000');
+        $('#loading').css('top','40%');
+        $('#loading').css('left','60%');
+        $('#loading').show();
+    }).ajaxStop(function() {
+        $('#loading').attr('style','');
+        $('#loading').hide();
+    });
+           
+$('.monitoringTable td a').click(function(){
+	if($(this).is('.popover-top') == true){
+		$(this).addClass('grayTxt');
+	}
+});
+
+$(".popover-top").popover({trigger: 'hover click','placement': 'top'});
+
+/*읽음글표시*/
+function read(obj){
+	$(obj).addClass('read');
+}
+
+/*상세검색*/
+function showDetailBox(){
+	if($('.detailBox').css('display') == "none"){
+		$('.detailBox').show();
+	} else {
+		$('.detailBox').hide();
+	}
+}
+
+/*체크박스*/
+$("#checkall").click(function(){
+	if($("#checkall").prop("checked")){
+		$("input[name=ids]").prop("checked",true);
+	}else{
+		$("input[name=ids]").prop("checked",false);
+	}
+})
+
+/*숨김글해제 alert*/
+function hiddenCancelConfirm(){
+	if($("#checkall").is("checked") ||  $('input:checkbox[name="ids"]').is(":checked") ){
+		if( confirm('선택하신 글을 숨김 해제 하시겠습니까? 해지된 글은 게시글 목록으로 이동됩니다.') ){
+
+			var checkboxValues = new Array();
+			$("input[name='ids']:checked").each(function(i) {
+				checkboxValues.push($(this).val());
+			});
+			console.log(checkboxValues.length);
+
+			jQuery.ajaxSettings.traditional = true;
+
+			$.ajax({
+			 	 url: '/v2/jaha/board-mgr/common/post-list-blind-update',
+			     type: 'post',
+			     dataType: "json",
+			     data : {
+			    	 blindYn : 'N',
+			    	 ids : checkboxValues
+			     },
+			     success: function (data) {
+
+					if (data) {
+						selectBoardList(1);
+		     		} else {
+			     		alert("숨김글 리스트 조회 중 오류가 발생하였습니다.");
+			     		return;
+			     	}
+			     },
+			     error: function (jqXHR, textStatus, errorThrown) {
+			         console.log(errorThrown);
+			         console.log(textStatus);
+			     }
+			});
+		}
+	}else{
+		alert('선택한 게시물이 없습니다. 해제할 게시물을 선택해주세요.');
+	}
+}
+
+
+// 게시글 상세보기
+function pu_content(id){
+	window.open("/v2/jaha/board-mgr/common/post/" + id,"content","width=1000, height=750");
+}
+
+// 사용자 정보 조회
+function pu_memberInfo(id){
+	window.open("/v2/jaha/board-mgr/common/user/" + id,"memberInfo","width=700, height=350");
+}
+
+// 사용자 작성글 목록 조회
+function pu_writeBoard(id){
+	window.open("/v2/jaha/board-mgr/common/post/list/" + id,"writeBoard","width=770, height=800");
+}
+//사용자 댓글 목록 조회
+function pu_writeCommentBoard(id){
+	window.open("/v2/jaha/board-mgr/common/comment/list/" + id,"writeBoard","width=770, height=800");
+}
+
+// 금칙어 등록
+function banRegister_pop(){
+	window.open("/v2/jaha/board-mgr/common/word-list","writeBoard","width=770, height=800");
+}
+
+function showDetailBox(){
+	if($('.detailBox').css('display') == "none"){
+		$('.detailBox').show();
+	}else{
+		$('.detailBox').hide();
+	}
+}
+
+$("#checkall").click(function(){
+       if($("#checkall").prop("checked") == true){
+           $("input[name=check]").prop("checked",true);
+       }else{
+           $("input[name=check]").prop("checked",false);
+       }
+   })
+
+function hideConfirm(){
+	if($("#checkall").is("checked") ||  $('input:checkbox[name="ids"]').is(":checked") ==  true){
+		if( confirm('선택한 게시글을 숨김 하시겠습니까?  숨김 된 글은 숨김글 관리로 이동됩니다.') == true ){
+			var checkboxValues = new Array();
+			$("input[name='ids']:checked").each(function(i) {
+				checkboxValues.push($(this).val());
+			});
+			console.log(checkboxValues.length);
+
+			jQuery.ajaxSettings.traditional = true;
+
+			$.ajax({
+			 	 url: '/v2/jaha/board-mgr/common/post-list-blind-update',
+			     type: 'post',
+			     dataType: "json",
+			     data : {
+			    	 blindYn : 'Y',
+			    	 ids : checkboxValues
+			     },
+			     success: function (data) {
+
+					if (data) {
+						selectBoardList(1);
+		     		} else {
+			     		alert("숨김글 리스트 조회 중 오류가 발생하였습니다.");
+			     		return;
+			     	}
+			     },
+			     error: function (jqXHR, textStatus, errorThrown) {
+			         console.log(errorThrown);
+			         console.log(textStatus);
+			     }
+			});
+			}else{
+
+			}
+	}else{
+		alert('선택한 게시물이 없습니다. 숨김 할 게시물을 선택해주세요.');
+	}
+}
+
+//댓글 리스트 숨김
+function hideConfirmComment(){
+	if($("#checkall").is("checked") ||  $('input:checkbox[name="ids"]').is(":checked") ==  true){
+		if( confirm('선택한 댓글을 숨김 하시겠습니까? 숨긴댓글은 게시글 상세보기에서 확인할수있습니다 ') == true ){
+			var checkboxValues = new Array();
+			$("input[name='ids']:checked").each(function(i) {
+				checkboxValues.push($(this).val());
+			});
+			console.log(checkboxValues.length);
+
+			jQuery.ajaxSettings.traditional = true;
+
+			$.ajax({
+			 	 url: '/v2/jaha/board-mgr/common/comment-list-blind-update',
+			     type: 'post',
+			     dataType: "json",
+			     data : {
+			    	 blocked : '1',
+			    	 ids : checkboxValues
+			     },
+			     success: function (data) {
+
+					if (data) {
+						selectBoardList(1);
+		     		} else {
+			     		alert("댓글 리스트 조회 중 오류가 발생하였습니다.");
+			     		return;
+			     	}
+			     },
+			     error: function (jqXHR, textStatus, errorThrown) {
+			         console.log(errorThrown);
+			         console.log(textStatus);
+			     }
+			});
+			}else{
+
+			}
+	}else{
+		alert('선택한 게시물이 없습니다. 숨김 할 게시물을 선택해주세요.');
+	}
+}
+
+
+
+
+$(document).ready(function(){
+
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+	$('#startDateWrap, #endDateWrap').datetimepicker({
+        format : "YYYY-MM-DD",
+        useCurrent: false
+    });
+    $("#startDateWrap").on("dp.change", function (e) {
+        $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endDateWrap").on("dp.change", function (e) {
+        $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+    });
+    /* 선택한날짜 기준으로 날짜 셋팅 */
+    $('#selectDate').change(function(){
+    	var selectDate = $('#selectDate').val();
+    	if(selectDate == 0){
+    		$('#startDate').val('');
+    		$('#endDate').val('');
+    		$('#startDate').attr("placeholder", "YYYY-MM-DD");
+    		$('#endDate').attr('placeholder','YYYY-MM-DD')
+    		return;
+    	}
+    	var predate = dateInput(selectDate,0);
+        var today = new Date();
+  	    var t_yyyy = today.getFullYear();
+	    var t_mm = today.getMonth()+1;
+	    var t_dd = today.getDate();
+
+	    if(t_mm<10){
+		   t_mm = "0" + t_mm;
+		  }if(t_dd<10){
+		   t_dd = "0" + t_dd;
+		  }
+
+	  var t_date = t_yyyy + "-" + t_mm + "-" + t_dd;
+    	$('#startDate').datetimepicker({format:"YYYY-MM-DD "}).data('DateTimePicker').date(predate);
+    	$('#endDate').datetimepicker({format:"YYYY-MM-DD "}).data('DateTimePicker').date(t_date);
+
+    });
+});
+    /* 오늘날짜기준 입력받은 날짜 전 date계산  */
+    function dateInput(n,m){
+
+  	  var date = new Date();
+  	  var start = new Date(Date.parse(date) - n * 1000 * 60 * 60 * 24);
+  	  var today = new Date(Date.parse(date) - m * 1000 * 60 * 60 * 24);
+
+  	  var yyyy = start.getFullYear();
+  	  var mm = start.getMonth()+1;
+  	  var dd = start.getDate();
+
+  	  if(mm<10){
+  	   mm = "0" + mm;
+  	  }if(dd<10){
+  	   dd = "0" + dd;
+  	  }
+
+  	  var t_yyyy = today.getFullYear();
+  	  var t_mm = today.getMonth()+1;
+  	  var t_dd = today.getDate();
+
+  	  if(t_mm<10){
+  	   t_mm = "0" + t_mm;
+  	  }if(t_dd<10){
+  	   t_dd = "0" + t_dd;
+  	  }
+  	  return yyyy + "-" + mm + "-" + dd;
+  	 }
+
+    /* 유효성 검사 */
+    function searchData(){
+    	var format = /[12][0-9]{3}-[01][0-9]-[0-3][0-9]/;
+
+    	if($('.detailBox').css('display') == "block"){
+    		if($('#selectDate').val() != '0'){
+	    		if( $('#startDate').val() =='' || $('#endDate').val() == '' ){
+    				alert('날짜를 입력해주세요')
+    				$('#startDate').focus();
+    				return;
+    			}
+    		}
+    	}
+
+    	selectBoardList(1);
+
+    }
+
+/*]]>*/
+</script>
+<!-- /#wrapper -->
+
+</body>
+</html>

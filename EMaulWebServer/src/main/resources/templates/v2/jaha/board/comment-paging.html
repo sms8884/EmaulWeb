@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>JAHA-게시판 게시글 댓글-페이징</title>
+</head>
+<body>
+
+<div th:fragment='paginationbar-comment' style="text-align:center;">
+	<input type="hidden" id="listUrl" name="listUrl" th:value="${pagingHelper.listUrl}" />
+	<input type="hidden" id="pageNum" name="pageNum" th:value="${pagingHelper.pageNum}"	 />
+	<input type="hidden" id="pageSize" name="pageSize" th:value="${pagingHelper.pageSize}" />
+	<!--// search-form.html -->
+
+	<input type="hidden" id="_totalPageNum" name="_totalPageNum" th:value="${pagingHelper.totalPageNum}" />
+	<input type="hidden" id="_previousPage" name="_previousPage" th:value="${pagingHelper.previousPage}" />
+	<input type="hidden" id="_nextPage" name="_nextPage" th:value="${pagingHelper.nextPage}" />
+	<input type="hidden" id="_startPageBlockNum" name="_startPageBlockNum" th:value="${pagingHelper.startPageBlockNum}" />
+	<input type="hidden" id="_endPageBlockNum" name="_endPageBlockNum" th:value="${pagingHelper.endPageBlockNum}" />
+
+    <ul class='pagination' th:if="${pagingHelper.totalPageNum}">
+        <li th:class="${pagingHelper.pageNum == 1} ? 'disabled' : ''">
+            <span th:if="${pagingHelper.pageNum == 1}">처음</span>
+            <a th:if="${pagingHelper.pageNum &gt; 1}" th:href="'javascript:paging(1)'">맨처음</a>
+        </li>
+        <li th:class="${pagingHelper.previousPage}? '' : 'disabled'">
+            <span th:if="${not pagingHelper.previousPage}">«</span>
+            <a th:if="${pagingHelper.previousPage}" th:href="'javascript:paging(' + ${pagingHelper.pageNum-1} + ')'" title="Go to previous page">«</a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(pagingHelper.startPageBlockNum, pagingHelper.endPageBlockNum)}" th:class="${i == pagingHelper.pageNum}? 'active' : ''">
+            <span th:if="${i == pagingHelper.pageNum}" th:text="${i}">1</span>
+            <a th:if="${i != pagingHelper.pageNum}" th:href="'javascript:paging(' + ${i} + ')'"><span th:text="${i}">1</span></a>
+        </li>
+        <li th:class="${pagingHelper.nextPage}? '' : 'disabled'">
+            <span th:if="${not pagingHelper.nextPage}">»</span>
+            <a th:if="${pagingHelper.nextPage}" th:href="'javascript:paging(' + ${pagingHelper.pageNum+1} + ')'" title="Go to next page">»</a>
+        </li>
+        <li th:class="${pagingHelper.pageNum == pagingHelper.totalPageNum} ? 'disabled' : ''">
+            <span th:if="${pagingHelper.pageNum == pagingHelper.totalPageNum}">마지막</span>
+            <a th:if="${pagingHelper.pageNum &lt; pagingHelper.totalPageNum}" th:href="'javascript:paging(' + ${pagingHelper.totalPageNum} + ')'">끝</a>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	
+	    .apAddBtnBox {
+	        margin-top:25px;
+	        text-align:center;
+	        margin-bottom:5px;
+	    }
+	    
+	    .apAddBtnBox i{
+	        cursor: pointer;
+	    }
+	    
+	    .apDeleteBtnBox {
+	        margin-top:25px;
+	        text-align:left;
+	        margin-bottom:5px;
+	    }
+	
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:15px;margin-bottom:15px;
+	    }
+	    
+	    .searchTable th {
+	        width:50px;
+	        font-weight: normal;
+	    }
+	    .searchTable td {
+	        width:120px;
+	    }
+
+    </style>
+
+    <title>아파트 AP 선택</title>
+</head>
+
+<body>
+<input type="hidden" name="_callback" id="_callback" th:value="${callback}" />
+    <div class="defaultPopup">
+        <h4 class="page-header">아파트 AP 선택</h4>
+
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <table class="table searchTable">
+                    <tr>
+	                    <th>검색</th>
+	                    <td class="form-inline">
+	                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" style="width:550px;" placeholder="검색 키워드를 입력하세요."/>
+	                    </td>
+	                    <td>
+	                        <input type="button" class="btn btn-sm btn-outline btn-info sc_asSearch" id="searchBtn" name="searchBtn" value="검색" />
+	                    </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="sbGridArea1" id="sbGridArea1"></div>
+        
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info" id="selectBtn" value="선택" name="selectBtn" />
+        </div>
+    </div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid;
+    var gridJsonData;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+    $(document).ready(function(){
+        gridJsonData = new Array();
+        createDataGrid();
+        
+        $("#searchKeyword").setEnter(search);
+        
+        $("#searchBtn").on("click", search);
+        
+        $("#selectBtn").on("click", function(){
+        	if(gridJsonData != null){
+        		var arrData = new Array();
+        		var idx = 0;
+        		for(var i=0;i<gridJsonData.length;i++){
+                    var rowData = gridJsonData[i];
+                    if(rowData._chk == "true"){
+                    	arrData[idx++] = rowData;
+                    }
+                }
+        		if(arrData.length > 0){
+        			try{ eval("opener."+$("#_callback").val()+"(arrData)") }catch(e){}
+                    self.close();        			
+        		}
+        	}
+        });
+        
+    });
+    
+    function search(){
+    	$.ajax({
+            url: '/admin/apt/ap/all-list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "searchKeyword": $("#searchKeyword").val()
+            },
+            success: function(jsonData) {
+                gridJsonData = jsonData;
+                datagrid.rebuild();
+            },
+            error: function(xhr, status, error) {
+                alert("error : apt ap list data fail");
+            }
+        });
+    }
+    
+    function createDataGrid(){
+        var strCaption, 
+            strWidth,
+            gridAttr, 
+            objJson;
+    
+        strCaption = "^AP BEACON UUID^AP ID^AP 이름";
+        strWidth = "5%,45%,25%,25%";
+        
+        gridAttr = {
+            "strParentId"                   : 'sbGridArea1',
+            "strId"                         : 'datagrid',
+            "strCaption"                    : strCaption,
+            "strColWidth"                   : strWidth,
+            "strJsonRef"                    : "gridJsonData",
+            "strStyle"                      : "width:100%; height:300px; font-family:dotum, arial; font-size:14px;",
+            "strExplorerbar"            : "sortshowmove",
+            "strRowHeight"              : "50px",
+            "strDataHeight"              : "38px",
+            "strFocusColor"         :   "#E8E8E8",
+            "strSelectFontColorStyle":  "none",
+            "fixedcol"                       :"1",
+            "bUseMultiSorting"       : false,
+            "bDataSearching"             : true,
+            "bDragMode" : false,
+            "bIsShowLoadingImage"   :   true,
+            "strExtendLastCol"       : "scroll",
+            "strEmptyRecords"   :   "조회결과가 없습니다."
+            };
+    
+        datagrid = createSBDataGrid(gridAttr);
+        
+        objJson = [
+                     {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+                     {"id" : "apBeaconUuid" , "type" : "output" , "ref" : "apBeaconUuid" , "style":"text-align:center;"},
+                     {"id" : "apId" , "type" : "output" , "ref" : "apId" , "style":"text-align:center;"},
+                     {"id" : "apName" , "type" : "output" , "ref" : "apName" , "style":"text-align:center;"},
+                  ];
+                  
+        datagrid.createColumns(objJson);
+        
+        datagrid.setFixedcellcheckbox(0, 0, true);
+        
+        datagrid.addEventListener("ondblclick","gridDbClick","","");
+        
+    }
+    
+    function gridDbClick(){
+    	if(datagrid.getRow() > 0){
+    		var rowData = datagrid.getRowData(datagrid.getRow());
+            var arrData = new Array();
+            arrData[0] = rowData;
+            try{ eval("opener."+$("#_callback").val()+"(arrData)") }catch(e){}
+            self.close();    		
+    	}
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

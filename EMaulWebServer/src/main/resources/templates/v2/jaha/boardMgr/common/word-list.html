@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/jaha/boardMgr/template/layout_popup">
+
+<head>
+	<title>금칙어 관리</title>
+</head>
+<body>
+	<div class="panel-body" layout:fragment="layout_popup_content">
+		<div class="panel panel-info">
+
+		<form name="codeForm" id="codeForm" method="post">
+
+			<table class="table table-responsive" >
+				<colgroup>
+					<col style="width:70px"/>
+					<col style="width:*"/>
+				</colgroup>
+				<tbody>
+					<tr>
+			            <td class="bold" style="width:110px;">금칙어 등록</td>
+			            <td class="form-inline">
+
+			                	<input type="text" class="form-control" id="name" name="name"  value=""  maxlength="10"  style="width:250px;"/>
+			                	<input type="hidden" name="codeGroup" id="codeGroup" value="POST_WORD" />
+			                	<input type="hidden" name="code" id="code" value="" />
+
+			                <span class="searchBox">
+			                    <input type="button" class="btn btn-sm btn-outline btn-info" id="banAdd_searchBox" name="" value="추가" onclick="insertCommonCode();" />
+			                </span>
+			            </td>
+			        </tr>
+				</tbody>
+		    </table>
+
+		    </form>
+		</div>
+		<div style="display:inline-block; width:100%; margin:10px 0; padding:0;">
+			<input type="button" class="btn btn-sm btn-outline btn-success" id="" name="" value="삭제" onclick="deleteWord();"/>
+		</div>
+
+		<table class="table monitoringTable" style="text-align:center;">
+			<colgroup>
+				<col style="width:70px"/>
+				<col style="width:*"/>
+			</colgroup>
+			<thead>
+				<tr class="info">
+					<th  style="text-align:center;">
+						<label><input type="checkbox" id="checkall" /></label>
+					</th>
+					<th  style="text-align:center; width:400px;">
+						금칙어
+					</th>
+					<th style="text-align:center;">
+						등록일
+					</th>
+					<th style="text-align:center;">
+						등록자
+					</th>
+				</tr>
+			</thead>
+			<tbody id="wordList">
+				<!-- <tr>
+					<td>
+						<label><input type="checkbox" name="check" /></label>
+					</td>
+					<td id="banword">
+						성인
+					</td>
+					<td>
+						2016.12.08
+					</td>
+					<td>
+						홍길동
+					</td>
+				</tr> -->
+			</tbody>
+		</table>
+		<!-- paging -->
+		<div align="center" id="hiddenListPaging"></div>
+
+		<div class="bottomBtnBox">
+			<input type="button" class="btn btn-outline btn-info"  value="닫기" name="" onclick="javascript:window.close();"/>
+	    </div>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+$(document).ready(function(){
+
+	// 금칙어 리스트 조회
+    selectWordList(1);
+
+    $("#checkall").click(function(){
+        if($("#checkall").prop("checked") == true){
+            $("input[name=cdIds]").prop("checked",true);
+        }else{
+            $("input[name=cdIds]").prop("checked",false);
+        }
+    })
+
+});
+
+// 금칙어 목록 조회
+function selectWordList(pageNum) {
+
+	$.ajax({
+	 	 url: '/v2/jaha/board-mgr/common/select-word-list',
+	     type: 'post',
+	     dataType: "json",
+	     data : {
+	    	 pageNum : pageNum,
+	    	 pageSize : 10,
+	    	 searchKeyword : $("#searchKeyword").val(),
+	     },
+	     success: function (data) {
+	     	console.log(">>> data.length : " + data.length);
+	     	console.log(data);
+
+	 		var wordHtml = "";
+	 		$('#wordList').empty();
+
+	     	if (data) {
+	     		if (data.length > 0) {
+
+	     			$(data).each(function (i, obj) {
+	     				wordHtml += '<tr>';
+	         			wordHtml += '<td style="text-align:center;">';
+	         			wordHtml += '<label><input type="checkbox" name="cdIds" value="' + obj.code + '" /></label>';
+	         			wordHtml += '</td>';
+	         			wordHtml += '<td class = "board-list-contents" style="width:400px;">' + obj.name + '</td>';
+	         			wordHtml += '<td>' + new Date(obj.regDate).format('yyyy-MM-dd HH:mm:ss') + '</td>';
+	         			wordHtml += '<td>' + obj.nickname + '</td>';
+	         			wordHtml += '</tr>';
+
+	     			});
+
+	     		} else {
+	     			wordHtml += '<tr>';
+	     			wordHtml += '<td colspan="4">등록된 금칙어가 없습니다.</td>';
+	     			wordHtml += '</tr>';
+	     		}
+	     			if (data.pagingHelper && data.pagingHelper.totalPageNum) {
+	 					$('#hiddenListPaging').html(makePaging(data.pagingHelper, 'selectPostList'));
+	 				} else {
+	 					$('#hiddenListPaging').html('');
+	 				}
+
+	     		$('#wordList').html(wordHtml);
+
+	     		/*제목,댓글 미리보기 팝오버*/
+	     		$(".popover-top").popover({trigger: 'hover click','placement': 'top'});
+
+	     	} else {
+	     		alert("작성글 리스트 조회 중 오류가 발생하였습니다.");
+	     		return;
+	     	}
+	     },
+	     error: function (jqXHR, textStatus, errorThrown) {
+	         console.log(errorThrown);
+	         console.log(textStatus);
+	     }
+	 });
+}
+
+
+
+function insertCommonCode() {
+
+	if (isEmpty($('#name').val())) {
+		alert("금칙어를 입력하세요.");
+		$('#name').focus();
+		return;
+	}
+
+	$('#code').val($('#name').val());
+
+	if(confirm('금칙어를 등록하시겠습니까?')) {
+		$.ajax({
+            url: '/v2/jaha/code/set-code',
+            type: 'post',
+            dataType: 'json',
+            data: $("#codeForm").serialize(),
+            success: function(data) {
+            	if (data.result) {
+            		alert(data.code + ' 금칙어가 등록되었습니다.');
+            		selectWordList(1);
+            	} else {
+            		alert("금칙어 등록 중 오류가 발생하였습니다. (중복)");
+            	}
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+	}
+}
+
+
+function deleteWord(){
+	if($("#checkall").is("checked") ||  $('input:checkbox[name="cdIds"]').is(":checked") ){
+		if( confirm('금칙어를 삭제하시겠습니까?') ){
+
+			var checkboxValues = new Array();
+			$("input[name='cdIds']:checked").each(function(i) {
+				checkboxValues.push($(this).val());
+			});
+			console.log(checkboxValues.length);
+
+			jQuery.ajaxSettings.traditional = true;
+
+			$.ajax({
+			 	 url: '/v2/jaha/board-mgr/common/word-list-update',
+			     type: 'post',
+			     dataType: "json",
+			     data : {
+			    	 use_yn : 'N',
+			    	 cdIds : checkboxValues
+			     },
+			     success: function (data) {
+					if (data) {
+						selectWordList(1);
+						$('#checkall').prop('checked', false);
+
+		     		} else {
+			     		alert("금칙어 삭제 중 오류가 발생하였습니다.");
+			     		return;
+			     	}
+			     },
+			     error: function (jqXHR, textStatus, errorThrown) {
+			         console.log(errorThrown);
+			         console.log(textStatus);
+			     }
+			});
+		}
+	}else{
+		alert('금칙어를 선택해주세요.');
+	}
+}
+
+/*]]>*/
+</script>
+
+	</div>
+
+</body>
+</html>

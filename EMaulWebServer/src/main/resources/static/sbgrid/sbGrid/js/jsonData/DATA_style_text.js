@@ -1,0 +1,82 @@
+var ct_data= [
+	/* Position */
+	{"styleNm": "Position","discription":"", "depthLv": "1","dataNum" : "", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "height","discription":"높이를 설정. ( 85px )", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	/* Font */
+	{"styleNm": "Font","discription":"", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "font-family","discription":"글자체 설정.", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "가는안상수체","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "HY신명조","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "궁서체","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "바탕체","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "문체부 궁체 흘림체","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "휴먼매직체","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "Consolas","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "font-size","discription":"글자 크기 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "15px","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "25px","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "font-weight","discription":"글자 굵기 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "normal","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "bold","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "font-style","discription":"글자의 기울임 효과 설정.", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "italic","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "text-decoration","discription":"설명글자를 선 효과 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "underline","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "line-through","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "color","discription":"글자의 색상을 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "#4374D9","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "#CC3D3D","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "#EE5589","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	
+	/* Text */
+	{"styleNm": "Text","discription":"", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "text-align","discription":"문장의 가로 정렬 방법을 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "right","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "left","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "center","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "vertical-align","discription":"문장의 세로 정렬 방법을 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "top","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "middel","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "bottom","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "letter-spacing","discription":"글자 간격을 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "5px","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "10px","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	
+	/* Padding */
+	{"styleNm": "Padding","discription":"셀의 Border부터 Text까지의 간격설정", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "padding","discription":"-", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "padding-left","discription":"-", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "padding-top","discription":"-", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "padding-right","discription":"-", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "padding-bottom","discription":"-", "depthLv": "2","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	
+	/*BackGround*/
+	{"styleNm": "Background","discription":"배경색 지정", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "background-color","discription":"-", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "#4ABFD3","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "#F361A6","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	
+	// Border
+	{"styleNm": "Border","discription":"테두리 관련 설정", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "border-style","discription":"", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "solid","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "dotted","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "dashed","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "inset","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "outset","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "sunken","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	
+	// Specail
+	{"styleNm": "Specail","discription":"", "depthLv": "1","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "cursor","discription":"마우스오버시 커서모양을 설정", "depthLv": "2","dataNum":"", "dataText_kr" : "", "dataText_eng" : "", "dataText_spcl" : ""},
+	{"styleNm": "default","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "crosshair","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "hand","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "move","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "w-resize","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "s-resize","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "text","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "wait","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "progress","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"},
+	{"styleNm": "help","discription":"-", "depthLv": "3","dataNum":1234567890, "dataText_kr" : "가나다라마바사뤱휍퀣", "dataText_eng" : "abcdefHIJKLXZ", "dataText_spcl" : "@#$%^&*★※"}
+];

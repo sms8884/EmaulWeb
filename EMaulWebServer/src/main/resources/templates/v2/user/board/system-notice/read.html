@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/user/template/layout">
+
+<head>
+	<title th:text="'e마을 - e마을 공지사항 | '+${user.house.apt.name}">e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+<style type="text/css">
+<!--
+table{}
+table tr{}
+table th{
+    text-align:center;
+    background:#fff;
+}
+table td{}
+//-->
+</style>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryType = /*[[${category.type}]]*/ 'error';
+var categoryId = /*[[${category.id}]]*/ '0';
+
+$(document).ready(function() {
+	$(".board-detail-content").each(function() {
+		var tempContent = $(this).html();
+
+		if (tempContent) {
+			$(this).html(tempContent.replace(/\n/g, "<br />"));
+		}
+	});
+
+	$("#btn-move-list").click(function() {
+    	location.href="/v2/user/board/system-notice/list";
+    	// history.back();
+	});
+});
+
+/*]]>*/
+</script>
+</head>
+<body>
+
+<div id="wrapper" class="col-xs-10" layout:fragment="layout_content">
+    <h3 th:text="${category.name}">카테고리</h3>
+
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/user">e마을</a></li>
+            <li th:text="${category.name}">카테고리</li>
+        </ol>
+    </div>
+
+    <div>
+        <div class="board-border">
+            <b id="title" th:text="${post.title}"></b>
+        </div>
+
+        <div class="board-border" style="border-bottom:1px solid #bce8f1; padding:10px 15px;" th:if="${post.fileInfoList != null and post.fileInfoList.empty == false}">
+			<p th:each="fileInfo,iterStat : ${post.fileInfoList}">
+				<span th:text="${iterStat.count}">1</span>. 첨부파일 : <a id="a-thumb-attach" th:href="'/v2/board/common/post/file/' + ${post.id} + '/' + ${fileInfo.fileName}" th:text="${fileInfo.fileOriginName}">파일명</a>
+			</p>
+		</div>
+
+        <!-- /.panel-heading -->
+        <div class="board-border board-detail-content" id="content" th:utext="${post.contentOnlyBody}"></div>
+
+        <div align="right" style="padding-top: 10px; margin-bottom: 10px">
+            <button id="btn-move-list" type="button" class="btn btn-outline btn-info">목록</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

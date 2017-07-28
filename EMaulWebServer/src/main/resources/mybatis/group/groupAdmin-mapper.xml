@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.group.GroupAdminMapper">
+
+	<!-- 관련 테이블 : groupadmin_target_area -->
+
+	<!-- ############### groupadmin_target_area ############### -->
+	<!-- 단체관리자 정보 조회 -->
+	<select id="getGroupAdmin" parameterType="GroupAdminVo" resultType="GroupAdminVo">
+	    SELECT /* getGroupAdmin  조영태(cyt@jahasmart.com) */
+	    	gta.id
+	    	, gta.apt_id
+	    	, gta.user_id
+	    	, gta.area1
+	    	, gta.area2
+	    	, gta.area3
+	    	, gta.area4
+	    	, gta.group_address
+	    	, gta.group_zipcode
+	    	, gta.group_phone1
+	    	, gta.group_phone2
+	    	, gta.group_phone3
+	    	, gta.name
+	    	, gta.phone1
+	    	, gta.phone2
+	    	, gta.phone3
+	    	, gta.email
+	    	, gta.gu_name
+	    	, gta.gu_url
+	    	, gta.org_name
+	    	, gta.org_url
+	    	, u.full_name as userName
+	    	, u.email as userEmail
+	    	, u.phone as userPhone
+	    FROM
+	    	groupadmin_target_area gta
+	    	, user u
+	    WHERE
+	    	gta.user_id = u.id
+	    	AND gta.user_id = #{userId}
+	    	<if test="@com.jaha.util.MyBatis@isNotEmpty( aptId )">
+                AND gta.apt_id = #{aptId}
+	    	</if>
+	</select>
+
+	<update id="updateGroupAdmin" parameterType="GroupAdminVo">
+		UPDATE /* updateGroupAdmin  조영태(cyt@jahasmart.com) */ groupadmin_target_area
+		SET
+			<!-- area1 = #{userId},
+			area2 = #{userId},
+			area3 = #{userId},
+			area4 = #{userId}, -->
+			group_zipcode = #{groupZipcode},
+			group_address = #{groupAddress},
+			group_phone1 = #{groupPhone1},
+			group_phone2 = #{groupPhone2},
+			group_phone3 = #{groupPhone3},
+			name = #{name},
+			phone1 = #{phone1},
+			phone2 = #{phone2},
+			phone3 = #{phone3},
+			email = #{email},
+			gu_name = #{guName},
+			gu_url = #{guUrl},
+			org_name = #{orgName},
+			org_url = #{orgUrl}
+		WHERE user_id = #{userId};
+	</update>
+	<!-- ############### groupadmin_target_area ############### -->
+
+
+	<!-- ############### cs_history ############### -->
+	<insert id="insertGroupAdminCs" parameterType="CsVo" useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO /* insertGroupAdminCs  조영태(cyt@jahasmart.com) */  cs_history (
+		user_id, email, title, content, reg_date
+	) VALUES (
+		#{userId},
+		#{email},
+		#{title},
+		#{content},
+		now()
+	)
+	</insert>
+
+	<update id="updateGroupAdminCs" parameterType="CsVo">
+	UPDATE /* updateGroupAdminCs  조영태(cyt@jahasmart.com) */ cs_history
+		SET
+			id = #{id}
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( mailSendDate )'>
+				, mail_send_date = #{mailSendDate}
+			</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file1 )'>
+				, file1 = #{file1}
+			</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file2 )'>
+				, file2 = #{file2}
+			</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file3 )'>
+				, file3 = #{file3}
+			</if>
+	WHERE id = #{id}
+	</update>
+
+
+	<!-- vote_key where -->
+	<sql id="whereClauseOfCs">
+	    <!-- <where> -->
+
+			<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND c.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND c.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND (c.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR c.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+
+		    <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND c.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND c.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND c.reg_date &lt;= CONCAT(#{searchEndDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    <!-- </where> -->
+	</sql>
+
+	<!-- 고객센터 1:1 문의내역 조회 -->
+	<select id="selectCsList" parameterType="CsDto" resultType="CsVo">
+		SELECT /* "selectCsList"  조영태(cyt@jahasmart.com) */ c.id,
+		    c.user_id,
+		    c.email,
+		    c.title,
+		    c.content,
+		    c.reg_date,
+		    c.mail_send_date,
+		    c.file1,
+		    c.file2,
+		    c.file3
+		FROM cs_history c
+		WHERE
+			1=1
+			<include refid="whereClauseOfCs" />
+		ORDER BY c.reg_date desc
+			LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+	<!-- 고객센터 1:1 문의내역 갯수 조회 -->
+	<select id="selectCsListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectCsListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM cs_history c
+	    WHERE
+			1=1
+			<include refid="whereClauseOfCs" />
+	</select>
+	<!-- ############### cs_history ############### -->
+	
+	<!-- ############### apt ############### -->
+	<sql id="sqlSelectApt">
+	    SELECT *
+		FROM
+		(
+	        SELECT a.* 
+	              ,concat(시도명,' ',시군구명,' ',도로명,' ',건물본번,if(건물부번 = null OR 건물부번 = 0, '', concat('-',건물부번)),' (',법정읍면동명,')') as road_address
+	        FROM apt a, address b
+			WHERE a.address_code = b.건물관리번호
+			AND b.비고1 != 'virtual'
+			<if test="@com.jaha.util.MyBatis@isNotEmpty( groupAdminVo.area1 )">AND b.시도명 = #{groupAdminVo.area1}</if>
+	        <if test="@com.jaha.util.MyBatis@isNotEmpty( groupAdminVo.area2 )">AND b.시군구명 = #{groupAdminVo.area2}</if>
+	        <if test="@com.jaha.util.MyBatis@isNotEmpty( groupAdminVo.area3 )">AND b.법정읍면동명 = #{groupAdminVo.area3}</if>
+		) aa
+		<where>
+			<if test='registered == "0"'>AND aa.registered_apt = false</if>
+			<if test='registered == "1"'>AND aa.registered_apt = true</if>
+			<if test="@com.jaha.util.MyBatis@isNotEmpty( searchApt )">
+			    AND ( aa.name LIKE concat('%', #{searchApt}, '%') OR aa.road_address LIKE concat('%', #{searchApt}, '%') )
+			</if>
+		</where>
+		ORDER BY aa.name
+    </sql>
+    
+    <select id="selectAptList" parameterType="AptDto" resultType="AptVo" >
+    /* selectAptList */
+        <include refid="sqlSelectApt" />
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+    
+    <select id="selectAptListCount" parameterType="AptDto" resultType="int" >
+    /* selectAptList */
+        SELECT COUNT(*)
+        FROM (
+        <include refid="sqlSelectApt" />
+        ) cnt
+    </select>
+    <!-- ############### apt ############### -->
+    
+</mapper>

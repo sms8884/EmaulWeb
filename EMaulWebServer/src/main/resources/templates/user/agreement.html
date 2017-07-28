@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>약관동의 | e마을</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link href="../../static/css/animate.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/animate.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <style>
+
+        .cell {
+            max-width: 90%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .starter-template {
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .lead {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+    </style>
+</head>
+<body style="background-image: url('/img/bg-login.jpg'); background-size: cover;">
+
+<div class="container">
+    <div class="panel" style="background-color: rgba(255, 255, 255, 1); margin-top: 5%; padding-bottom: 3%">
+        <div class="starter-template" style="color: #f46835">
+            <h1>약관동의
+                <small></small>
+            </h1>
+            <!--<p class="lead"><br/></p>-->
+        </div>
+
+        <div class="row">
+            <div class="cell">
+                <div>
+                    <div style="padding-bottom: 3%">
+                        <strong style="color: #f46835">e마을</strong> 회원으로 가입을 원하실 경우, 아래의 <strong>'이용약관 및 개인정보취급방침'</strong>에 대한 안내를 반드시 읽고 <strong>동의</strong>해
+                        주세요
+                    </div>
+                    <h5 style="color: #f46835"><strong><i class="fa fa-circle-o-notch"></i>  <span id="title1"></span></strong></h5>
+
+                    <div class="agreement-box" id="content1"></div>
+                    
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"/>위의 <strong>'이용약관'에 동의</strong>합니다.
+                        </label>
+                    </div>
+
+                    <h5 style="color: #f46835; padding-top: 3%"><strong><i class="fa fa-circle-o-notch"></i> <span id="title2"></span></strong> </h5>
+
+                    <div class="agreement-box" id="content2"></div>
+
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"/>위의 <strong>'개인정보취급방침'에 동의</strong>합니다.
+                        </label>
+                    </div>
+
+                    <div align="center" style="padding-top: 3%">
+	                    <a id="go" class="btn btn-emaul" href="/join/submit">다음단계로</a>
+	                    <a class="btn btn-default" onclick="history.back()">가입취소</a>
+                    </div>
+                    <!--'이용약관'과 '개인정보취급방침'에 모두 동의해 주세요-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>-->
+<!--<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>-->
+<!--<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>-->
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+    	
+    	fnGetPolicyData(1);// 이용약관
+    	fnGetPolicyData(2);// 개인정보취급방침
+    	
+    	$('#go').click(function(){
+            $(':checkbox').each(function(){
+                if(!$(this).is(':checked')){
+                    alert('\'이용약관\'과 \'개인정보취급방침\'에 모두 동의해 주세요');
+                    event.preventDefault();
+                    return false;
+                }
+            });
+        });
+    	
+    });
+    
+    function fnGetPolicyData(id){
+    	$.ajax({
+            url: '/provision/view-data',
+            type: 'get',
+            async : true,
+            dataType: "json",
+            data: {
+                "id": id
+            },
+            success: function(data) {
+                if(data != null){
+                	$("#title"+id).html(data.title);
+                    $("#content"+id).html(data.content);
+                }
+            },
+            error: function(xhr, status, error) {
+                //data가 없으면 error로 빠짐. 미게시상태
+            }
+        });
+    }
+
+    /*]]>*/
+</script>
+
+
+</body>
+</html>

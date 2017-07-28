@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardPostRangeMapper">
+
+	<insert id="insertBoardPostRange" parameterType="BoardPostRangeVo" useGeneratedKeys="true" keyProperty="rangeId">
+	    INSERT /* insertBoardPostRange, 전강욱(realsnake@jahasmart.com) */ INTO board_post_range (
+	        post_id
+	        , range_sido
+	        , range_sigungu
+	        , range_dong
+	        , range_apt_id
+	        , reserv_yn
+	        , open_date
+	        , push_status
+	        , push_send_date
+	    ) VALUES (
+	        #{postId}
+	        , #{rangeSido}
+	        , #{rangeSigungu}
+	        , #{rangeDong}
+	        , #{rangeAptId}
+	        , #{reservYn}
+	        , #{openDate}
+	        , #{pushStatus}
+	        , #{pushSendDate}
+	    )
+	</insert>
+
+	<update id="updateBoardPostRange" parameterType="BoardPostRangeVo">
+	    UPDATE /* updateBoardPostRange, 전강욱(realsnake@jahasmart.com) */ board_post_range
+	    <set>
+		    <if test=' rangeSido != null and !"".equals(rangeSido) '>range_sido = #{rangeSido},</if>
+		    <if test=' rangeSigungu != null and !"".equals(rangeSigungu) '>range_sigungu = #{rangeSigungu},</if>
+		    <if test=' rangeAptId != null and rangeAptId > 0 '>range_apt_id = #{rangeAptId},</if>
+		    <if test=' pushSendDate != null '>push_send_date = NOW(),</if>
+		    range_dong = #{rangeDong}
+			, reserv_yn = #{reservYn}
+			, open_date = #{openDate}
+			, push_status = #{pushStatus}
+	    </set>
+	    WHERE range_id = #{rangeId}
+	</update>
+
+	<update id="updatePushSendDate" parameterType="long">
+	    UPDATE /* updateBoardPostRange, 전강욱(realsnake@jahasmart.com) */ board_post_range
+	    SET push_send_date = NOW()
+	    WHERE range_id = #{rangeId}
+	</update>
+
+	<select id="selectOnlyBoardPostRange" parameterType="long" resultType="BoardPostRangeVo">
+	    SELECT /* selectBoardPostRange, 전강욱(realsnake@jahasmart.com) */ range_id
+        , post_id
+        , range_sido
+        , range_sigungu
+        , range_dong
+        , range_apt_id
+        , reserv_yn
+        , open_date
+        , push_status
+        , push_send_date
+	    FROM board_post_range
+	    WHERE range_id = #{rangeId}
+	</select>
+
+	<!-- board_post와 board_post_range는 1:1관계 -->
+	<select id="selectBoardPostRange" parameterType="long" resultType="BoardPostRangeVo">
+	    SELECT /* selectBoardPostRange, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+	    , BPR.range_id
+        , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_range BPR ON BP.id = BPR.post_id
+	    WHERE BP.id = #{id}
+	</select>
+
+	<sql id="whereClauseOfBoardPostRange">
+	    <where>
+		    AND BP.category_id = #{searchCategoryId}
+		    AND BP.blocked = b'0'
+		    <!-- AND BP.display_yn = 'Y' -->
+		    <!-- <if test=' searchTopFix != null '>AND BP.top_fix = #{searchTopFix}</if> -->
+		    <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND BP.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BP.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BP.reg_date &lt;= CONCAT(#{searchEndDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND BP.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND BP.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND (BP.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR BP.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+	    </where>
+	</sql>
+
+	<sql id="orderClauseOfBoardPostRange">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- board_post와 board_post_range는 1:1관계 -->
+	<select id="selectBoardPostRangeListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardPostRangeListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_post BP JOIN board_post_range BPR ON BP.id = BPR.post_id
+	    <include refid="whereClauseOfBoardPostRange" />
+	</select>
+
+	<!-- board_post와 board_post_range는 1:1관계 -->
+	<select id="selectBoardPostRangeList" parameterType="BoardDto" resultType="BoardPostRangeVo">
+	    SELECT /* selectBoardPostRangeList, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+	    , BPR.range_id
+        , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_range BPR ON BP.id = BPR.post_id
+	    <include refid="whereClauseOfBoardPostRange" />
+	    <include refid="orderClauseOfBoardPostRange" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+	<!-- board_post와 board_post_range는 1:1관계 -->
+	<select id="selectBoardPostRangeBatchList" parameterType="string" resultType="BoardPostRangeVo">
+	    SELECT /* selectBoardPostRangeBatchList, 전강욱(realsnake@jahasmart.com) */ BP.id
+	    , BP.category_id
+	    , BP.title
+	    , BP.content
+	    , BP.image_count
+	    , BP.range_all
+	    , BP.file1
+	    , BP.file2
+	    , BP.view_count
+	    , BP.count_empathy
+	    , BP.comment_count
+	    , BP.blocked
+	    , BP.display_yn
+	    , BP.top_fix
+	    , BP.file_group_key
+	    , BP.display_platform
+	    , BP.push_send_yn
+	    , BP.first_editor_image_thumb_url
+	    , BP.user_id
+	    , BP.reg_date
+	    , BP.mod_id
+	    , BP.mod_date
+	    , BPR.range_id
+        , BPR.post_id
+        , BPR.range_sido
+        , BPR.range_sigungu
+        , BPR.range_dong
+        , BPR.range_apt_id
+        , BPR.reserv_yn
+        , BPR.open_date
+        , BPR.push_status
+        , BPR.push_send_date
+	    FROM board_post BP JOIN board_post_range BPR ON BP.id = BPR.post_id
+        WHERE BPR.reserv_yn = 'Y'
+			AND BPR.push_status = 'reserv'
+            AND BPR.push_send_date IS NULL
+            AND BPR.open_date = #{searchOpenDate}
+	</select>
+
+</mapper>

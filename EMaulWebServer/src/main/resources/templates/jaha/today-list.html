@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>Jaha admin | 오늘 관리페이지</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">오늘</h1>
+
+                <div class="panel panel-info">
+                    <div class="panel-heading">등록된 오늘 기사</div>
+                    <table class="table table-responsive">
+                        <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>제목</th>
+                            <th>등록일</th>
+                            <th>대상</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${page.content.empty}">
+                            <td colspan="6">오늘 목록이 없습니다.</td>
+                        </tr>
+                        <tr th:each="post : ${page.content}">
+                            <td th:text="${post.id}"></td>
+                            <td th:text="${post.title}"></td>
+                            <td th:text="${post.regDate}"></td>
+                            <td th:text="${post.rangeSido} + ' ' + ${post.rangeSigungu}"></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="...">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-expanded="false">더 보기<span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a th:href="@{/jaha/board/today/modify/} + ${post.id}">수정</a></li>
+                                            <li><a th:href="'javascript:deleteToday(' + ${post.id} + ')'">삭제</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination Bar -->
+                <div th:fragment='paginationbar'>
+                    <ul class='pagination'>
+                        <li th:class="${page.firstPage}? 'disabled' : ''">
+                            <span th:if="${page.firstPage}">← 처음</span>
+                            <a th:if="${not page.firstPage}" th:href="@{${page.url}(page=0,size=${page.size})}">←
+                                First</a>
+                        </li>
+                        <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+                            <span th:if="${not page.hasPreviousPage}">«</span>
+                            <a th:if="${page.hasPreviousPage}"
+                               th:href="@{${page.url}(page=${page.number-2},size=${page.size})}"
+                               title="Go to previous page">«</a>
+                        </li>
+                        <li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+                            <span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+                            <a th:if="${not item.current}"
+                               th:href="@{${page.url}(page=${item.number},size=${page.size})}"><span
+                                    th:text="${item.number + 1}">1</span></a>
+                        </li>
+                        <li th:class="${page.hasNextPage}? '' : 'disabled'">
+                            <span th:if="${not page.hasNextPage}">»</span>
+                            <a th:if="${page.hasNextPage}"
+                               th:href="@{${page.url}(page=${page.number},size=${page.size})}"
+                               title="Go to next page">»</a>
+                        </li>
+                        <li th:class="${page.lastPage}? 'disabled' : ''">
+                            <span th:if="${page.lastPage}">마지막 →</span>
+                            <a th:if="${not page.lastPage}"
+                               th:href="@{${page.url}(page=${page.totalPages - 1},size=${page.size})}">Last →</a>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-outline btn-success"
+                            onclick="location.href='/jaha/board/today/create'" style="float: right;">오늘 컨텐츠 등록
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    function deleteToday(postId) {
+        var path = '/jaha/board/today/delete/' + postId;
+
+        if (confirm("삭제하시겠습니까??") == true){
+            $.ajax({
+                url: path,
+                type: 'delete',
+                success: function(result){
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

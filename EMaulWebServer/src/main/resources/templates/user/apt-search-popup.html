@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:15px;
+	        margin-bottom:15px;
+	    }
+	    .search-table {
+	        width:100%;
+	    }
+	    .search-table tr {
+	        height: 40px;
+	    }
+        .search-table .aptNm {
+            width:300px;
+            float:left;
+            margin-right:10px;
+        }
+        .search-table .searchBtn {
+            margin-top: 2px;
+        }
+        .search-table .sidoNm {
+            width:130px;
+        }
+        .search-table .sggNm {
+            width:100px;
+        }
+	    .listTableScroll {
+            width:100%;
+            height: 280px;
+            overflow-y: auto;
+	    }
+	    .hand {
+	        cursor: pointer;
+	    }
+	    ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable thead td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        ._chk{
+            width: 15px;
+            height: 15px;
+        }
+
+    </style>
+
+    <title>아파트 선택</title>
+</head>
+
+<body>
+    <div class="defaultPopup">
+        <h4 class="page-header">아파트 선택</h4>
+        
+        <div class="panel panel-info panel-body">
+                <table class="table-responsive search-table">
+                    <colgroup>
+                        <col width="15%" />
+                        <col width="30%" />
+                        <col width="15%" />
+                        <col width="*" />
+                    </colgroup>
+                    <tr>
+                        <th>계약여부</th>
+                        <td colspan="3">
+                            <label><input type="radio" name="registered" value="true" checked="checked" />계약</label>
+                            <label><input type="radio" name="registered" value="false" />미계약</label>
+                            <label><input type="radio" name="registered" value="" />전체</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>시도명</th>
+                        <td>
+                            <select name="sidoNm" id="sidoNm" class="form-control sidoNm" onchange="changeSido(this)">
+                                <option value="">전체</option>
+                                <option th:each="item : ${sidoList}" th:value="${item}" th:text="${item}"></option>
+                            </select>
+                        </td>
+                        <th>시군구명</th>
+                        <td>
+                            <select name="sggNm" id="sggNm" class="form-control sggNm">
+                                <option value="">전체</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>아파트명</th>
+                        <td colspan="3">
+                            <input type="text" class="form-control aptNm" id="aptNm" name="aptNm" />
+                            <input type="button" class="btn btn-sm btn-outline btn-info searchBtn" id="searchBtn" name="searchBtn" value="검색" />
+                        </td>
+                    </tr>
+                </table>
+        </div>
+        
+        <div class="panel-default" style="height:30px;">
+            <span style="float:left;" id="totalCountText" >0</span>건의 데이터가 조회되었습니다.
+        </div>
+        
+        <div class="panel panel-default panel-body">
+            <div class="scrollTableHeader">
+                <table class="table-hover _listTable" >
+                    <thead>
+                        <tr>
+                            <td style="width:10%;"><input type="checkbox" name="_all" id="_all" class="_chk" th:if="${mode == 'multi'}" /></td>
+                            <td style="width:90%;">아파트</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="listTableScroll" >
+                <table class="table table-hover _listTable" >
+                    <tbody id="_dataTable">
+                        <tr><td style="width:100%;text-align:center" colspan="10">검색해주세요.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info" value="선택" name="selectBtn" onclick="selectApt()" />
+        </div>
+    </div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    var mode = /*[[${mode}]]*/ '';               
+               
+    $(document).ready(function(){
+        $("#aptNm").setEnter(search);
+        $("#searchBtn").on("click", search);
+        
+        $("#_all").on("click", function(){
+        	$("input[name=_chk]").prop("checked",$(this).prop("checked"));
+        });
+    });
+    
+    var dataList = [];
+    function search(){
+    	$.ajax({
+            url: '/apt/search/list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "sidoNm": $("#sidoNm").val(),
+                "sggNm": $("#sggNm").val(),
+                "aptNm": $("#aptNm").val(),
+                "registered" : $("input[name=registered]:checked").val()
+            },
+            success: function(data) {
+            	if(data != null && data.length > 0){
+            		
+            		dataList = data;
+            		
+            		$("#totalCountText").text(data.length);
+            		
+            		var inputType = mode == "multi" ? "checkbox" : "radio";
+            		var _html = '';
+                    for(var i=0;i<data.length;i++){
+                    	var aptAddressNm = data[i].building_address;
+                    	
+                    	_html += '<tr>';
+                    	_html += '<td style="width:10%;">';
+                    	_html += '<input type="'+inputType+'" class="_chk" name="_chk" value="'+i+'" />';
+                    	_html += '</td>';
+                    	_html += '<td class="hand" style="width:90%;" onclick="clickApt('+i+')" ondblclick="dblClickApt('+i+')" >'+aptAddressNm+'</td>';
+                    	_html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                    	$("#_dataTable").html(_html);	
+                    } else {
+                    	$("#totalCountText").text("0");
+                        $("#_dataTable").html('<tr><td style="text-align:center" colspan="2">조회결과가 없습니다.</td></tr>');
+                    }
+                    
+            	} else {
+            		$("#totalCountText").text("0");
+            		$("#_dataTable").html('<tr><td style="text-align:center" colspan="2">조회결과가 없습니다.</td></tr>');
+            	}
+            },
+            error: function(xhr, status, error) {
+                alert("error : function search fail");
+            }
+        });
+    }
+    
+    function changeSido(obj){
+    	
+    	//전체선택시 처리
+    	if($(obj).val() == ""){
+    		$("#sggNm").empty();
+            $('<option value="">전체</option>').appendTo("#sggNm");
+            return;
+    	}
+    	
+    	//선택값이 있을시 처리
+    	$.ajax({
+            url: '/api/public/address/sigungu-names/'+$(obj).val(),
+            type: 'get',
+            async : false,
+            dataType: "json",
+            success: function(data) {
+            	if(data != null && data.length > 0){
+                    $("#sggNm").empty();
+                    $('<option value="">전체</option>').appendTo("#sggNm");
+                    for(var i=0;i<data.length;i++){
+                        $('<option value="'+data[i]+'">'+data[i]+'</option>').appendTo("#sggNm");
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : function changeSido");
+            }
+        });
+    }
+    
+    function clickApt(idx){
+    	var item = $("input[name=_chk]").eq(idx);
+    	if(item.prop("type") == "radio"){
+    		item.prop("checked", true);
+    	} else {
+    		item.prop("checked", !item.prop("checked"));	
+    	}
+    	
+    }
+    
+    /**
+     * 이 팝업에서 선택하면 팝업띄운 부모창에서 function  _searchAptCallback() 를 구현해야함. ( mode가 multi면 배열로 return )
+     **/
+    function dblClickApt(idx){
+    	var item = dataList[idx];
+        var aptAddressNm = item.building_address;
+        var aptNm = item.apt_name;
+        var aptId = item.apt_id;
+        var apt = {
+            "aptId" : aptId,
+            "aptAddressNm" : aptAddressNm,
+            "aptNm" : aptNm
+        }
+        try{
+        	if(mode == "multi"){
+        		opener._searchAptCallback(new Array(apt));
+        	} else {
+        		opener._searchAptCallback(apt);
+        	}
+        }catch(e){ alert("error [ function dblClickApt ] : Generate a _searchAptCallback function"); }
+        self.close();
+    }
+    
+    /**
+    * 이 팝업에서 선택하면 팝업띄운 부모창에서 function  _searchAptCallback() 를 구현해야함. ( mode가 multi면 배열로 return )
+    **/
+    function selectApt(){
+    	var size = $("input[name=_chk]:checked").length;
+    	if(size == 0){
+    		alert("선택한 항목이 없습니다.");
+            return;
+    	}
+    	
+    	var arr = [];
+    	$("input[name=_chk]:checked").each(function(){
+    		var idx = $(this).val();
+    		var apt = {
+   	            "aptId" : dataList[idx].apt_id,
+   	            "aptAddressNm" : dataList[idx].building_address,
+   	            "aptNm" : dataList[idx].apt_name
+   	        }
+    		arr.push(apt);
+    	});
+    	
+    	try{ 
+    		if(mode == "multi"){
+                opener._searchAptCallback(arr);
+            } else {
+                opener._searchAptCallback(arr[0]);
+            }
+    	}catch(e){ alert("error [ function selectApt ] : Generate a _searchAptCallback function"); }
+    	self.close();
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

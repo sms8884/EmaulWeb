@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<title>JAHA-Admin</title>
+
+<!-- 그리드를 표시하기 위한 CSS -->
+<link type="text/css" rel="stylesheet" href="../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}" />
+</head>
+
+<body>
+
+<div id="wrapper">
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+	<div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">방송 게시판</h1>
+
+                <div id="content-container">
+                	<form id="searchForm" name="searchForm" method="post" action="">
+                	<input type="hidden" id="categoryId" name="categoryId" th:value="${category.id}" />
+                	<input type="hidden" id="naverClientId" name="naverClientId" th:value="${naverClientId}" />
+                	<input type="hidden" id="pageNum" name="pageNum" th:value="${pageNum}" />
+					<div class="cpGridArea" id="cpGridArea"></div>
+					<div id="sbGridPaging" class="pagenate" ></div>
+
+					<fieldset id="" class="">
+						<legend class="hide"></legend>
+						<input type="button" class="btn btn-outline btn-info bcSignupBtn" id="bcSignupBtn" value="등록" name="bcSignupBtn" style="float:right;" onclick="moveRegForm();"/>
+					</fieldset>
+					</form>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<!--오류잡기-->
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script type="text/javascript">
+/*<![CDATA[*/
+
+$(function(){
+	// sbGrid root 경로 설정.
+	try{
+		SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+	}catch(e){}
+});
+
+var datagrid1;
+var gridJsonData1 = [];
+var g_list = [];
+var g_totalRecordCount = 0;
+var g_totalPageNum = 0;
+var g_pageSize = 10;
+/**
+ *
+ */
+function searchListJson(pageNumber) {
+	var searchUrl = "/admin/board/post/list-json/" + $("#categoryId").val();
+
+	$("#pageNum").val(pageNumber);
+	// $("#pageSize").val(g_pageSize);
+
+    $.ajax({
+        url: searchUrl,
+        type: 'post',
+        async : false,
+        dataType: "json",
+        data: $("#searchForm").serialize(),
+        success: function(jsonData) {
+        	g_totalRecordCount = jsonData.totalRecord;
+        	g_totalPageNum = jsonData.totalPage;
+        	g_list = jsonData.list;
+        	
+			
+    		
+        	//g_pageSize = jsonData.commonHelper.pageSize;
+        	//$("#spn_totalRecordCount").text(g_totalRecordCount);
+
+        	// if (window.console && console.log) console.log(JSON.stringify(g_list));
+        	// console.log(g_pageSize);
+        },
+        error: function(xhr, status, error) {
+        	if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+};
+function SBGrid_pagingInit(pageNumber){
+	var nCount,		//총건수
+	nPageNum,		//현재 페이지번호
+	nPageSize,		//페이지 사이즈
+	nNaviSize,		//블럭 사이즈
+	nTotalPage,		//전체 페이지
+	nFromPage,		//시작 페이지
+	nToPage,			//종료 페이지
+	nGroupNum,		//블럭 번호
+	resultData;		//결과 JSON 데이터
+
+	//현재 페이지 구함
+	if(pageNumber != null){
+		nPageNum =  parseInt(pageNumber);
+		if(nPageNum < 1) {
+			nPageNum = 1;
+		}
+	}else{
+		nPageNum = 1;
+	}
+
+	searchListJson(nPageNum);
+
+	nCount = g_totalRecordCount; //g_list.length; // g_totalRecordCount
+	nTotalPage = 0; //g_totalPageNum;
+
+	//페이지당 레코드 갯수 설정
+	nPageSize = g_pageSize;
+	//블럭 사이즈 설정
+	nNaviSize = 10;
+
+	if(nCount != 0){
+		nTotalPage 	= ((nCount - 1) / nPageSize) + 1;
+		if (nPageNum > nTotalPage) {
+			nPageNum = nTotalPage;
+		}
+
+		nGroupNum = Math.ceil((nPageNum / nNaviSize))-1;
+		nFromPage = (nGroupNum * nNaviSize)+1
+		nToPage		= (nFromPage + nNaviSize - 1);
+		if (nToPage >= nTotalPage) {
+			nToPage = nTotalPage;
+		}
+	}else{
+		nTotalPage = 0;
+	}
+
+	var startNum = ((nPageNum-1) * nPageSize) + 1;
+
+	// console.log("* startNum: " + startNum + ", nPageSize: " + nPageSize);
+
+	SBGrid_GoPaging(startNum, nPageSize, nPageNum);
+	pagingRander(nFromPage, nToPage, nTotalPage, nPageNum);
+};
+/**
+ * PagingRander : 각 프로젝트 화면에 맞춰서 유동적으로 변경하면서 사용
+ */
+function pagingRander(nFromPage, nToPage, nTotalPage, nPageNum){
+	var pagingDiv = "";
+	//console.log(nFromPage  +'######'+ nToPage+'#####'+nTotalPage+'####'+nPageNum);
+	if (nTotalPage != 0 && nTotalPage != 1) {
+		pagingDiv +="\n<div class='page'>\n";
+		if (nFromPage > 1) {
+			pagingDiv += "<a class=\"page_btn first\"";
+			pagingDiv += "title=첫번째페이지 href=\"#\"  onclick=\"SBGrid_pagingInit(0)\"; return flase;\"></a>&#160;";
+			pagingDiv += "<a class=\"page_btn prev\"";
+			pagingDiv += "title=이전 10페이지 href=\"#\" onclick=\"SBGrid_pagingInit("+(nFromPage-1)+")\"; return flase;\">";
+			pagingDiv += "</a>&#160;";
+		}
+		for (var i = nFromPage; i <= nToPage; i++) {
+			if (i == nPageNum) {
+				pagingDiv += "<span class=\"page_num\"><a class=\"on\">" + i+ "</a></span>";
+			} else {
+				pagingDiv += "<span class=\"page_num\">";
+				pagingDiv += "<a href=\"javascript:SBGrid_pagingInit("+i+")\">" + i + "</a>";
+				pagingDiv += "</span>\n";
+			}
+		}
+		if (nToPage < nTotalPage) {
+			pagingDiv += "<a class=\"page_btn next\"";
+			pagingDiv += "title=\"다음\" href=\"#\"  onclick=\"SBGrid_pagingInit('"+ ( nToPage + 1 ) +"')\"></a>";
+			pagingDiv += "<a class=\"page_btn end\"";
+			pagingDiv += "title=\"마지막페이지\" href=\"#\" onclick=\"SBGrid_pagingInit('"+ nTotalPage +"')\">";
+			pagingDiv += "</a>&#160;";
+		}
+		pagingDiv += "</div>\n";
+	} else {
+		pagingDiv += "&nbsp;";
+	}
+	$('#sbGridPaging').html(pagingDiv);
+};
+function SBGrid_GoPaging(nPageIndex,nPageSize){
+	gridJsonData1 = [];
+	var listData = [];
+	var resultJsonData = g_list;
+	var startNum = nPageIndex-1;
+	var endNum = nPageIndex + nPageSize;
+	var chkIndex = 0;
+
+	// console.log("* startNum: " + startNum + ", endNum: " + endNum);
+
+	startNum = 0;
+	endNum = g_pageSize;
+
+	for(var i = startNum; i < endNum; i++){
+		if(i == resultJsonData.length) {
+			break;
+		}
+
+		/**
+		[{"id":3897
+			,"category":{"id":1424,"type":"complaint","name":"민원","ord":4,"isWritable":false,"readableUserTypes":["jaha","admin","user"],"writableUserTypes":["jaha","admin","user"]}
+			,"rangeAll":false,"rangeSido":"","rangeSigungu":"","title":null,"content":"안녕하세요?\r\n\r\n대한민국 광명시에 사는 민원박사, 전민원이라고 합니다.\r\n많은 민원은 나의 힘~\r\n`1234567890-=\\~!@#$%^&*()_+[]}{;'\":,./?><","regDate":1463453409000
+			,"user":{"id":5334,"email":"realsnake1975@gmail.com","fullName":"전강욱","birthYear":"1975","gender":"male","nickname":{"name":"진짜뱀"}
+			,"setting":{"userId":5334,"notiAlarm":true,"notiPostReply":true,"notiPostCommentReply":true,"notiParcel":true,"notiFeePush":true,"notiAirPollution":true}
+			,"house":{"id":52665,"apt":{"id":1,"name":"자하아파트","latitude":37.485532,"longitude":126.892485,"strAddress":null,"strAddressOld":null,"registeredApt":true},"dong":"201","ho":"216","sizePyung":"40","sizeMeter":"133.5066"},"phone":"01057147515","hasProfileImage":false,"recommId":null,"kind":null,"emailRawData":"AAFCW4fI+DHC9QXkGbth3ltEFiPHWI+GCckzg06Pjx5FQw==","phoneRawData":"AAG3shKGpZq2jp15B1kJ/788","fullNameRawData":"AAHsgwMHkcYIyx4hnESQbXQl"}
+			,"imageCount":0,"file1":null,"file2":null,"viewCount":1,"blocked":false,"commentCount":0,"tags":[],"isDeletable":false,"countEmpathy":1}]
+		*/
+		var col0Val = resultJsonData[i].user.fullName + "(" + resultJsonData[i].user.house.dong + "동)";
+		var col1Val = resultJsonData[i].content;
+		var col2Val = getDateFromUnixTimestamp(resultJsonData[i].regDate);
+
+		listData[i] = {
+			"col0":col0Val
+			, "col1":col1Val
+		 	, "col2":col2Val
+		 	, "col3":resultJsonData[i].viewCount
+		 	, "col4":resultJsonData[i].file1
+		 	, "col5":""
+		 	, "col6":resultJsonData[i].id
+		};
+
+		// console.log(JSON.stringify(listData));
+
+		if(chkIndex == 0){
+			gridJsonData1[chkIndex] = listData[i];
+		}else{
+			gridJsonData1 = gridJsonData1.concat(listData[i]);
+		}
+		chkIndex++;
+	}
+
+	__createElements();
+};
+function __createElements(){
+	var gridAttr, objJson;
+
+	gridAttr = {
+		"strParentId"							: 'cpGridArea',
+		"strId"									: 'datagrid1',
+		"strCaption"							: "사용자^내용요약^등록일^조회^방송파일^제어^게시판고유번호",
+		"strColWidth"							:  "15%,30%,15%,5%,20%,15%,0%",
+		"strJsonRef"							: "gridJsonData1",
+		"strStyle"								: "width:100%; height:500px; font-family:dotum, arial; font-size:14px;",
+		"strExplorerbar"						: "sortshow",
+		"strRowHeight"						: "50px",
+		"strDataHeight"						: "45px",
+		"strFocusColor"	    				: "#E8E8E8",
+		"strSelectFontColorStyle"			: "none",
+		"fixedcol"								: "1",
+		"bUseMultiSorting"					: true,
+		"bDataSearching"					: true,
+		"strExtendLastCol"					: "scroll",
+		"strOverflow"							: "scroll",
+		"strEmptyRecords"                  : "표시할 데이터가 없습니다.",
+        "strEmptyRecordsFontStyle"       : "font-size:40px; font-weight:bold;"
+	};
+
+	datagrid1= createSBDataGrid(gridAttr);
+
+	objJson = [
+		{"id" : "col0" , "type" : "output" , "ref" : "col0" , "style":"text-align:center;"}
+		, {"id" : "col1" , "type" : "output" , "ref" : "col1" , "style":"text-align:center; " ,"renderer": function(id,nRow,nCol,strValue,obj) {return renderHtml2(id,nRow,nCol,strValue,obj);}}
+		, {"id" : "col2" , "type" : "output" , "ref" : "col2" , "style":"text-align:center;"}
+		, {"id" : "col3" , "type" : "output" , "ref" : "col3" , "style":"text-align:center;"}
+		, {"id" : "col4" , "type" : "output" , "ref" : "col4" , "style":"text-align:center;", "renderer": function(id,nRow,nCol,strValue,obj) {return renderAttach(id,nRow,nCol,strValue,obj);} }
+		, {"id" : "col5" , "type" : "output" , "ref" : "col5" , "style":"text-align:center;", "renderer": function(id,nRow,nCol,strValue,obj) {return renderHtml(id,nRow,nCol,strValue,obj);} }
+		, {"id" : "col6" , "type" : "output" , "ref" : "col6" , "style":"text-align:center;"}
+	];
+
+	datagrid1.createColumns(objJson);
+	datagrid1.setColStyles(datagrid1.getColRef("col1"), "color:blue; text-decoration: underline;", "data");
+	datagrid1.setColHidden(6, true);
+};
+
+
+/**
+ * 내용요약 수정 버튼 추가
+ */
+function renderHtml2(id,nRow,nCol,strValue,obj) {
+	var idVal = datagrid1.getRowData(nRow).col6;
+     var returnValue = "<div  id=\"me1_PAchangeBtn\" style=\"float: left; width: 320px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; \" name=\"svrValue\" >"+strValue+"</div>" ;
+     returnValue += "<input type=\"button\" class=\"btn btn-success\" id=\"me1_PAchangeBtn\" value=\"수정하기\" name=\"me_PAchangeBtn\" onclick=\"moveModForm("+idVal+");\" />";
+	return returnValue;
+};
+
+/**
+ * SB그리드에 첨부파일 추가
+ */
+function renderAttach(id,nRow,nCol,strValue,obj) {
+	var idVal = datagrid1.getRowData(nRow).col6;
+
+    var returnValue = "<a style=\"cursor:pointer;\" href=\"javascript:downloadAudio("+idVal+");\">" + idVal + ".mp3</a>";
+	return returnValue;
+};
+/**
+ * SB그리드에 수정 및 삭제 버튼 추가
+ */
+function renderHtml(id,nRow,nCol,strValue,obj) {
+	var idVal = datagrid1.getRowData(nRow).col6;
+    var returnValue = "<input type=\"button\" class=\"btn btn-success\" id=\"me2_PAchangeBtn\" value=\"방송하기\" name=\"me_PAchangeBtn\" onclick=\"moveDetailForm("+idVal+");\" />";
+	return returnValue;
+};
+/**
+ * 수정 폼 페이지 이동
+ */
+function moveDetail(){
+	var rowData = datagrid1.getRowData(datagrid1.getRow());
+
+	if (datagrid1.getCol() == 1) {
+		moveModForm(rowData.col6);
+	}
+};
+/**
+ * 수정 폼 페이지 이동
+ */
+function moveModForm(id) {
+	if (!id) {
+		return;
+	}
+
+	var moveUrl = "/admin/board/post/read/" + id + "?categoryType=tts&categoryId=" + $("#categoryId").val();
+	location.href = moveUrl;
+};
+/**
+ * 상세보기 폼 페이지 이동
+ */
+function moveDetailForm(id) {
+	if (!id) {
+		return;
+	}
+
+	var moveUrl = "/admin/board/post/read/" + id + "?categoryType=tts&categoryId=" + $("#categoryId").val() + "&detailYn=Y";
+	location.href = moveUrl;
+};
+
+
+/**
+ * 게시판 삭제
+ */
+function removeBoardPost(id) {
+	if (!id) {
+		return;
+	}
+
+    var path = '/api/board/post/delete/' + id;
+
+    if (confirm("삭제하시겠습니까??")){
+        $.ajax({
+            url: path,
+            type: 'delete',
+            success: function(result) {
+                window.location.reload();
+            }
+        });
+    }
+};
+/**
+ * 등록 폼 페이지 이동
+ */
+function moveRegForm() {
+	location.href = "/admin/board/post/create/" + $("#categoryId").val();
+};
+/**
+ * 방송파일을 다운로드한다.
+ */
+function downloadAudio(id) {
+	if (!id) {
+		return;
+	}
+
+	location.href = "/api/board/post/file/" + id + "/" + id + ".mp3";
+}
+$(document).ready(function() {
+	
+	/* 네이버 API 아이디 등록이 안되어있을경우 */
+	if($("#naverClientId").val() === ''){
+		alert("네이버 TTS 클라이언트 ID 를 등록해주세요");
+		history.back();
+	}
+	
+	SBGrid_pagingInit(0);
+	__createElements();
+});
+/*]]>*/
+ </script>
+</body>
+</html>

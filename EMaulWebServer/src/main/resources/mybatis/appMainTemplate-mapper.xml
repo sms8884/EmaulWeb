@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.AppMainTemplateMapper">
+
+  <sql id="AppMainTemplate_Column_List">
+    id, code, template_title, more_show_url, keyword_count, display_order, display_yn, 
+    display_template_name, reg_id, reg_date, mod_id, mod_date, highlight_text, more_show_url_use_yn
+  </sql>
+      <sql id="AppMainTemplateDetail_Column_List">
+    id, code, contents_title, post_id, file_group_key, contents_text, category, color, 
+    reg_id, reg_date, mod_id, mod_date, main_template_id, web_url
+  </sql>
+  
+  	<!--AppmainTempalte 검색조건 -->
+	<sql id="whereClauseOfAppMainTemplate">
+	    WHERE display_yn = #{display_yn}
+	</sql>
+  
+  <sql id="orderClauseOfAppMainTemplate">
+		ORDER BY display_order ASC
+	</sql>
+	
+  <select id="selectAppMainTemplateList" parameterType="map" resultType="AppMainTemplate">
+		SELECT /* selectMainTemplateList */ A.code_group AS codeGroup
+		, C.id
+		, C.code
+		, IFNULL(C.template_title, '') AS templateTitle
+		, IFNULL(CASE WHEN C.more_show_url_use_yn = 'Y' THEN C.more_show_url ELSE NULL END, '') AS moreShowUrl
+		, IFNULL(C.more_show_url_use_yn,'') AS moreShowUrlUseYn
+		, IFNULL(C.keyword_count, 0) keywordCount
+		, IFNULL(C.display_order, 0) AS displayOrder
+		, C.display_yn
+		, IFNULL(C.display_template_name, B.name) AS displayTemplateName
+		, IFNULL(C.highlight_text, '') AS highlightText
+		FROM emaul.code_group A JOIN emaul.common_code B ON A.code_group = B.code_group
+					 	   LEFT OUTER JOIN emaul.app_main_template C ON B.code = C.code
+		WHERE A.code_group LIKE CONCAT(#{AppHead},'%') 
+			AND A.use_yn = 'Y'
+		    AND B.use_yn = 'Y'
+		    <if test="AppHead != null and AppHead != '' and AppHead == 'APP_MAIN' ">
+        	AND C.display_yn = 'Y'
+			</if>
+		ORDER BY C.display_order
+    
+  </select>
+  
+  <select id="selectAppMainTemplate" parameterType="java.lang.Integer" resultType="com.jaha.web.emaul.model.AppMainTemplate">
+    select 
+    <include refid="AppMainTemplate_Column_List" />
+    from app_main_template
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteAppMainTemplate" parameterType="java.lang.Integer">
+    delete from app_main_template
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertAppMainTemplate" parameterType="AppMainTemplate" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO app_main_template (
+    code
+      , template_title
+      , more_show_url
+      , more_show_url_use_yn
+      , keyword_count 
+      , display_order
+      , display_yn
+      , display_template_name
+      , reg_id
+      , highlight_text
+      , reg_date
+      ) VALUES (
+      #{code}
+      , #{templateTitle}
+      , #{moreShowUrl}
+      , #{moreShowUrlUseYn}
+      , #{keywordCount}
+      , #{displayOrder}
+      , #{displayYn}
+      , #{displayTemplateName}
+      , #{regId}
+      , #{highlightText}
+      , now()
+      )
+  </insert>
+  
+  <insert id="insertAppMainTemplateAndDetail" parameterType="java.util.Map">
+         INSERT INTO app_main_template (
+       code
+      , template_title
+      , more_show_url
+      , keyword_count 
+      , display_order
+      , display_yn
+      , display_template_name
+      , reg_id
+      , reg_date
+      
+      ) VALUES
+        <foreach collection="appMainTemplate" item="item" separator=" , ">
+           (
+       #{item.code}
+      , #{item.templateTitle}
+      , #{item.moreShowUrl}
+      , #{item.keywordCount}
+      , #{item.displayOrder}
+      , #{item.displayYn}
+      , #{item.displayTemplateName}
+      , #{item.regId}
+      , now()
+      
+      )
+        </foreach>
+ </insert>
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="countAppMainTemplate" parameterType="AppMainTemplate" resultType="java.lang.Long">
+    select count(*) from app_main_template
+  </select>
+  
+  <update id="updateAppMainTemplate" parameterType="AppMainTemplate">
+    update app_main_template
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="templateTitle != null">
+        template_title = #{templateTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="moreShowUrl != null">
+        more_show_url = #{moreShowUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="moreShowUrlUseYn != null">
+        more_show_url_use_yn = #{moreShowUrlUseYn,jdbcType=CHAR},
+      </if>
+      <if test="keywordCount != null">
+        keyword_count = #{keywordCount,jdbcType=SMALLINT},
+      </if>
+      <if test="displayOrder != null">
+        display_order = #{displayOrder,jdbcType=SMALLINT},
+      </if>
+      <if test="displayYn != null">
+        display_yn = #{displayYn,jdbcType=CHAR},
+      </if>
+      <if test="displayTemplateName != null">
+        display_template_name = #{displayTemplateName,jdbcType=VARCHAR},
+      </if>
+      <if test="highlightText != null">
+        highlight_text = #{highlightText,jdbcType=VARCHAR},
+      </if>
+      <if test="modId != null">
+        mod_id = #{modId,jdbcType=BIGINT},
+      </if>
+        mod_date = now()
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  
+  <!--appMainTemplateDetail-mapper   -->
+  
+  <!--AppmainTempalteDetail 검색조건 -->
+	<sql id="whereClauseOfAppMainTemplateDetail">
+	    WHERE 
+	    <if test='mainTemplateId != null and !"".equals(mainTemplateId)'> main_template_id=#{mainTemplateId}</if>
+	</sql>
+  
+  
+  <select id="countAppMainTemplateDetail" parameterType="map" resultType="java.lang.Long">
+    select count(*) from app_main_template_detail
+  </select>
+  
+   <select id="selectAppMainTemplateDetailList" parameterType="map" resultType="AppMainTemplateDetail">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="AppMainTemplateDetail_Column_List" />
+    from app_main_template_detail
+    <include refid ="whereClauseOfAppMainTemplateDetail"/>
+  </select>
+  
+  
+  <select id="selectAppMainTemplateDetail" parameterType="java.lang.Integer" resultType="AppMainTemplateDetail">
+    select 
+    <include refid="AppMainTemplateDetail_Column_List" />
+    from app_main_template_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+<select id="selectAppMainTemplateDetailDisplay" parameterType="map"  resultType="AppMainTemplateDetail">		  
+     SELECT /* selectAppMainTemplateDetailDisplay */ 
+     	D.id
+        , D.code
+        , D.main_template_id
+        , D.contents_title
+        , D.contents_text
+        , D.category
+        , D.web_url
+        , D.display_yn
+        , D.direction
+        , D.post_id
+        , D.reg_id
+        , D.reg_date
+        , D.file_group_key
+    FROM emaul.code_group A JOIN emaul.common_code B ON A.code_group = B.code_group
+               LEFT OUTER JOIN emaul.app_main_template C ON B.code = C.code
+                           inner join emaul.app_main_template_detail D  ON C.id = D.main_template_id
+    WHERE A.code_group LIKE CONCAT(#{AppHead},'%')
+      AND A.use_yn = 'Y'
+        AND B.use_yn = 'Y'
+       <if test="AppHead != null and AppHead != '' and AppHead == 'APP_MAIN' ">
+        AND C.display_yn = 'Y'
+		</if>
+    ORDER BY D.id
+  </select>
+		  
+  <insert id="insertAppMainTemplateDetail" parameterType="AppMainTemplateDetail"  useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO app_main_template_detail (
+    code
+    , contents_title
+    , post_id
+    , file_group_key
+    , contents_text
+    , category
+    , color
+    , reg_id
+    , main_template_id
+    , web_url
+    , reg_date
+    ) VALUES (
+   #{code}
+   , #{contentsTitle}
+   , #{postId}
+   , #{fileGroupKey}
+   , #{contentsText}
+   , #{category}
+   , #{color}
+   , #{regId}
+   ,  #{mainTemplateId}
+   , #{webUrl}
+   , now()
+   )
+  </insert>
+  
+<update id="updateAppMainTemplateDetail" parameterType="AppMainTemplateDetail">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+      This element was generated on Fri Oct 07 13:17:35 KST 2016.
+    -->
+    update app_main_template_detail
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="contentsTitle != null">
+        contents_title = #{contentsTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="postId != null">
+        post_id = #{postId,jdbcType=BIGINT},
+      </if>
+      <if test="fileGroupKey != null">
+        file_group_key = #{fileGroupKey,jdbcType=BIGINT},
+      </if>
+      <if test="contentsText != null">
+        contents_text = #{contentsText,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="color != null">
+        color = #{color,jdbcType=VARCHAR},
+      </if>
+      <if test="modId != null">
+        mod_id = #{modId,jdbcType=BIGINT},
+      </if>
+        mod_date = now(),
+      <if test="mainTemplateId != null">
+        main_template_id = #{mainTemplateId,jdbcType=INTEGER},
+      </if>
+      <if test="webUrl != null">
+        web_url = #{webUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="displayYn != null">
+        display_yn = #{displayYn,jdbcType=VARCHAR},
+      </if>
+      <if test="direction != null">
+        direction = #{direction,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>  
+  
+   <delete id="deleteAppMainTemplateDetail" parameterType="java.lang.Integer">
+    delete from app_main_template_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <select id="selectAppMenuIdList"  resultType="String">		  
+     SELECT /* selectAppMenuIdList */ 
+		    C.id,
+		    C.code,
+		    C.display_yn,
+            C.display_template_name
+		FROM
+		    emaul.code_group A
+		        JOIN
+		    emaul.common_code B ON A.code_group = B.code_group
+		        LEFT OUTER JOIN
+		    emaul.app_main_template C ON B.code = C.code
+		WHERE
+		    A.code_group LIKE 'APP_MENU_%'
+		        AND A.use_yn = 'Y'
+		        AND B.use_yn = 'Y'
+		ORDER BY C.id;
+	  </select>
+  
+
+</mapper>

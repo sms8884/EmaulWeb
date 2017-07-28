@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js" />
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js" />
+    <![endif]-->
+
+    <style>
+
+	/*추가*/
+	    .moddelBtnBox {
+	       text-align:right;
+            margin-top:15px;margin-bottom:5px;
+	    }
+        .detail-table th{
+            width:150px;
+        }
+	</style>
+
+    <title>무인택배시스템 등록 관리 – 상세페이지</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    <input type="button" class="btn btn-default" value="&lt; 뒤로" name="backBtn" onclick="javascript:history.back()"/>
+                    <span>무인택배시스템 등록 관리 – 상세페이지</span>
+                </h1>
+
+                <div id="content-container">
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <form name="parcelLockerDetail" id="parcelLockerDetail" method="get">
+                            <input type="hidden" id="id" name="id" th:value="${parcelLocker.id}" />
+                            <table class="table detail-table" >
+                            <tr>
+                                <th>택배함 ID</th>
+                                <td class="form-inline">
+                                    <input type="text" class="form-control" id="uuid" name="uuid" maxlength="50" style="width:300px;" th:value="${parcelLocker.uuid}" th:disabled="${!user.type.jaha}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>보안인증키</th>
+                                <td class="form-inline">
+                                    <input type="text" class="form-control" id="authKey" name="authKey" maxlength="100" style="width:300px;" th:value="${parcelLocker.authKey}" th:disabled="${!user.type.jaha}" readonly="readonly" />
+                                    <!--<input type="button" class="btn btn-sm btn-warning" id="update-auth-key" value="갱신" th:disabled="${!user.type.jaha}"/>-->
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>택배함 이름</th>
+                                <td class="form-inline">
+                                    <input type="text" class="form-control" id="name" name="name" maxlength="250" style="width:300px;" th:value="${parcelLocker.name}" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>택배함 위치</th>
+                                <td class="form-inline">
+                                    <input type="text" class="form-control" id="location" name="location" maxlength="250" style="width:300px;" th:value="${parcelLocker.location}" />
+                                </td>
+                            </tr>
+                            </table>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="moddelBtnBox">
+                        <input type="button" class="btn btn-info" id="modifyBtn" value="저장" />
+                    </div>
+
+                    <h3 class="page-header">택배함 이용 현황</h3>
+                    <div style="padding-bottom: 10px;">
+                        <input type="button" class="btn btn-sm btn-warning" id="update-parcel-logs" value="갱신" th:disabled="${!user.type.jaha}"/>
+                        <span id="update-time" style="padding-left: 5px;"></span>
+                    </div>
+                    <div class="sc_asGridArea" id="sc_asGridArea"></div>
+                    <div id="sbGridPaging" class="pagenate" style="padding-bottom: 100px;"></div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(function () {
+        // sbGrid root 경로 설정.
+        try {
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        } catch (e) {
+        }
+    });
+    
+	$(document).ready(function(){
+
+        SBGrid_pagingInit();
+
+        $('#update-auth-key').click(function (e) {
+            e.preventDefault();
+
+            if(!confirm('보안키를 갱신하시겠습니까??'))
+                return false;
+
+            $.ajax({
+                url: '/admin/parcel-lockers/' + [[${parcelLocker.id}]] + '/auth-key',
+                type: 'post',
+                async : false,
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#update-auth-key').attr('disabled', true);
+                },
+                success: function(jsonData) {
+                    $('#authKey').val(jsonData.authKey);
+                },
+                complete: function () {
+                    $('#update-auth-key').attr('disabled', false);
+                },
+                error: function(error) {
+                    alert("error : 갱신에 실패하였습니다");
+                }
+            });
+        });
+
+        $('#update-parcel-logs').click(function (e) {
+            e.preventDefault();
+            SBGrid_pagingInit();
+        });
+
+        $('#modifyBtn').click(function (e) {
+            e.preventDefault();
+
+            if($.trim($('#uuid').val()) == '') {
+                alert('택배함 ID를 입력해주세요');
+                $('#uuid').focus();
+                return false;
+            }
+
+            if($.trim($('#name').val()) == '') {
+                alert('택배함 이름을 입력해주세요');
+                $('#name').focus();
+                return false;
+            }
+
+            if(!confirm('저장하시겠습니까??'))
+                return false;
+
+            $.ajax({
+                url: '/admin/parcel-lockers/' + [[${parcelLocker.id}]],
+                type: 'post',
+                async : false,
+                dataType: 'json',
+                data: $('#parcelLockerDetail').serialize(),
+                beforeSend: function() {
+                    $('#modifyBtn').attr('disabled', true);
+                },
+                success: function() {
+                    alert('저장되었습니다');
+                },
+                complete: function () {
+                    $('#modifyBtn').attr('disabled', false);
+                },
+                error: function(error) {
+                    alert("error : 저장에 실패했습니다");
+                }
+            });
+        });
+	});
+
+
+    var gridJsonData;
+    var nPageNum;      //현재 페이지번호
+    function SBGrid_pagingInit(pageNumber){
+
+        createDataGrid();
+
+        var nCount,        //총건수
+            nPageSize;     //페이지 사이즈
+
+        nPageSize = 10;
+
+        //현제 페이지 구함
+        if(pageNumber != null){
+            if(nPageNum < 1) {
+                nPageNum = 1;
+            } else {
+                nPageNum =  parseInt(pageNumber);
+            }
+        }else{
+            nPageNum = 1;
+        }
+
+        datagrid.showWait(true);
+
+        $.ajax({
+            url: '/admin/parcel-logs-data/' + [[${parcelLocker.id}]],
+            type: 'get',
+            async : false,
+            dataType: "json",
+            data: {
+                "page": nPageNum - 1,
+                "size": nPageSize
+            },
+            success: function(jsonData) {
+                gridJsonData = jsonData.content;
+                nCount = jsonData.totalElements;
+                datagrid.rebuild();
+                $.each(gridJsonData, function (i, val) {
+                    // 구분값
+                    if('new' == val.gubun)
+                        datagrid.setTextMatrix((i + 1), 1, '신규발송');
+                    else if('return' == val.gubun)
+                        datagrid.setTextMatrix((i + 1), 1, '반송');
+                    else if('long' == val.gubun)
+                        datagrid.setTextMatrix((i + 1), 1, '장기미수거');
+
+                    //타입값
+                    if('keep' == val.type)
+                        datagrid.setTextMatrix((i + 1), 2, '물품보관');
+                    else ('find' == val.type)
+                        datagrid.setTextMatrix((i + 1), 2, '택배찾기');
+
+                    //택배회사
+                    if(val.parcelCompany != null)
+                        datagrid.setTextMatrix((i + 1), 5, val.parcelCompany.name);
+                });
+            },
+            complete: function () {
+                var dt = new Date($.now());
+                $('#update-time').text('' + dt.getFullYear() + '. ' + dt.getMonth() + '. ' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds());
+            },
+            error: function(error) {
+                alert("error : 조회에 실패했습니다");
+            }
+        });
+
+        datagrid.showWait(false);
+        //ajax를 sync로 해놔서 순차적실행됨. style등은 datagrid가 rebuild되면 초기화되어서 rebuild후에 설정.
+
+        gfnPagingRander("sbGridPaging", nPageNum, nPageSize, nCount);
+    }
+
+    function createDataGrid(){
+        var strCaption,
+                strWidth,
+                gridAttr,
+                objJson;
+
+        strCaption = "택배함번호^이용상태^구분^동^호수^회사^택배기사연락처^맡긴시간";
+        strWidth = "10%,10%,15%,15%,10%,15%,15%,10%";
+
+        gridAttr = {
+            "strParentId": 'sc_asGridArea',
+            "strId": 'datagrid',
+            "strCaption": strCaption,
+            "strColWidth": strWidth,
+            "strJsonRef": "gridJsonData",
+            "strStyle": "width:100%; height:433px; font-family:dotum, arial; font-size:14px;",
+            "strExplorerbar": "sortshowmove",
+            "strRowHeight": "50px",
+            "strDataHeight": "38px",
+            "strFocusColor": "#E8E8E8",
+            "strSelectFontColorStyle": "none",
+            "fixedcol": "1",
+            "bUseMultiSorting": false,
+            "bDataSearching": true,
+            "bDragMode": false,
+            "bIsShowLoadingImage": true,
+            "strExtendLastCol": "scroll",
+            "strEmptyRecords": "조회결과가 없습니다."
+        };
+
+        datagrid = createSBDataGrid(gridAttr);
+
+
+        objJson = [
+            {"id" : "lockerNum" , "type" : "output" , "ref" : "lockerNum" , "style":"text-align:center;"},
+            {"id" : "gubun" , "type" : "output" , "ref" : "gubun" , "style":"text-align:center;"},
+            {"id" : "type" , "type" : "output" , "ref" : "type" , "style":"text-align:center;"},
+            {"id" : "dong" , "type" : "output" , "ref" : "dong" , "style":"text-align:center;"},
+            {"id" : "ho" , "type" : "output" , "ref" : "ho" , "style":"text-align:center;"},
+            {"id" : "parcelName" , "type" : "output" , "ref" : "" , "style":"text-align:center;"},
+            {"id" : "parcelPhone" , "type" : "output" , "ref" : "parcelPhone" , "style":"text-align:center;"},
+            {"id" : "inputDate" , "type" : "output" , "ref" : "inputDate" , "style":"text-align:center;"},
+        ];
+
+        datagrid.createColumns(objJson);
+    }
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

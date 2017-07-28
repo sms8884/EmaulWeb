@@ -1,0 +1,75 @@
+@charset "utf-8";
+
+/************************************************************************
+ * 파일명      : base.css
+ * 설명        : 기본_공통
+ * 작성자      : 박수림
+ * 작성일      : 2014.07.23
+************************************************************************/
+
+/* 기본  */
+* {margin:0; padding:0;}
+html {height:100%;}
+body {height:100%; line-height:140%; font-size:0.75em;  font-family:"Nanum", NanumGothic, "NanumB", NanumGothicBold, "dotum", 돋음, sans-serif;}
+pre, div, ul, ol, dl, p, td, th, input, textarea, select {font-family:"Nanum", NanumGothic, "NanumB", NanumGothicBold, "dotum", 돋음, sans-serif; font-size:12px;}
+table {border-collapse:collapse; border-spacing:0; width:100%;}
+img, fieldset {border:0 none; vertical-align:middle;}
+h1,h2,h3,h4,h5,h6 {font-size:100%; font-weight:normal;}
+ul, ol, li, dl, dt, dd {list-style:none; margin:0; padding:0;} /* 블릿감춤 */
+
+
+/* Link */
+a {text-decoration:none; color:#000;}
+a:hover, a:active, a:focus {text-decoration:none; color:#000;}
+
+input,select,option {font-size:12px; height:23px; font-family: "dotum", 돋음, sans-serif; color:#000; vertical-align:middle;}
+
+
+/* form */
+select,input {vertical-align:middle; word-break: break-all;}
+input.text {height:23px; border:1px solid #e0e0e0; line-height:20px;}
+input.disable {height:23px; border:1px solid #e0e0e0; background:#f8f8f8; line-height:20px;}
+textarea.textarea {"dotum", 돋음, sans-serif; border:1px solid #ccc; padding:5px; font-size:1em; color:#777; line-height:130%;  width:150px; height:120px;}
+select {padding:1px; border:#ccc 1px solid;}
+caption {display:none;}
+
+
+/* align */
+.vt {vertical-align:top;}
+.vb {vertical-align:bottom;}
+.vm {vertical-align:middle;}
+
+
+/* 폰트 스타일 */
+.f_11px {font-size:11px;} /* 0731추가 */
+.bold {font-weight:bold;}
+.red {color:#e64b47;}
+.blue {color:#1d6ce3; font-weight:bold;} /* 0731추가 */
+
+
+/* 간격 padding & margin*/
+.pd_l5 {padding-left:5px;}
+
+
+/* NanumGothic */
+@font-face {font-family:"Nanum"; font-style:normal; font-weight:400; src:url(/css/cms/common/font/NanumGothic.eot); src:local(※), url(/css/cms/common/font/NanumGothic.woff) format('woff');}
+@font-face{font-family:"NanumB"; font-style:normal; font-weight:400; src:url(/css/cms/common/font/NanumGothicBold.eot); src:local(※), url(/css/cms/common/font/NanumGothicBold.woff) format('woff');}
+
+
+
+
+/* 로그인 라운드 박스 참고 css */
+.sch_top_bg {background:url('/images/cms/common/login/main/sch_top_bg.gif') no-repeat 0 top;}
+.sch_mid_bg {background:url('/images/cms/common/login/main/sch_mid_bg.gif') repeat-y 0 0;}
+.sch_btm_bg {background:url('/images/cms/common/login/main/sch_btm_bg.gif') no-repeat 0 bottom;}
+
+/*
+<div class="sch_mid_bg">
+	<div class="sch_top_bg">
+		<div class="sch_btm_bg">
+			<div>들어갈 내용</div>
+		</div>
+	</div>
+</div>
+
+*/

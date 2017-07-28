@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.StatSharerMapper">
+
+	<insert id="insertStatSharer" parameterType="StatSharerVo">
+	    INSERT /* insertStatSharer, 전강욱(realsnake@jahasmart.com) */ INTO stat_sharer (
+	        post_id
+	        , user_id
+	        , shared_date
+	        , sns
+	    ) VALUES (
+	        #{postId}
+	        , #{userId}
+	        , #{sharedDate}
+	        , #{sns}
+	    )
+	</insert>
+
+	<delete id="deleteStatSharer" parameterType="long">
+	    DELETE /* deleteStatSharer, 전강욱(realsnake@jahasmart.com) */ FROM stat_sharer
+	    WHERE post_id=#{postId}
+	</delete>
+
+	<select id="selectStatSharer" parameterType="long" resultType="StatSharerVo">
+	    SELECT /* selectStatSharerVO, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , user_id
+	    , shared_date
+	    , sns
+	    FROM stat_sharer
+	    WHERE post_id=#{postId}
+	</select>
+
+	<sql id="whereClauseOfStatSharer">
+	    WHERE post_id=#{postId} AND user_id=#{userId} AND shared_date=#{sharedDate}
+	    <if test='sns != null and !sns.equals("")'> AND sns=#{sns}</if>
+	</sql>
+
+	<select id="selectStatSharerListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectStatSharerListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM stat_sharer
+	    <include refid="whereClauseOfStatSharer" />
+	</select>
+
+	<select id="selectStatSharerList" parameterType="BoardDto" resultType="StatSharerVo">
+	    SELECT /* selectStatSharerList, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , user_id
+	    , shared_date
+	    , sns
+	    FROM stat_sharer
+	    <include refid="whereClauseOfStatSharer" />
+	</select>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardEmpathyMapper">
+
+	<insert id="insertBoardEmpathy" parameterType="BoardEmpathyVo">
+	    INSERT /* insertBoardEmpathy, 전강욱(realsnake@jahasmart.com) */ INTO board_empathy (
+	        post_id
+	        , user_id
+	    ) VALUES (
+	        #{postId}
+	        , #{userId}
+	    )
+	</insert>
+
+	<update id="updateBoardEmpathy" parameterType="BoardEmpathyVo">
+	    UPDATE /* updateBoardEmpathy, 전강욱(realsnake@jahasmart.com) */ board_empathy
+	    <set>
+		    <if test='postId != null and !postId.equals("")'>post_id=#{postId},</if>
+		    <if test='userId != null and !userId.equals("")'>user_id=#{userId},</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<delete id="deleteBoardEmpathy" parameterType="long">
+	    DELETE /* deleteBoardEmpathy, 전강욱(realsnake@jahasmart.com) */ FROM board_empathy
+	    WHERE id=#{id}
+	</delete>
+
+	<select id="selectBoardEmpathy" parameterType="long" resultType="BoardEmpathyVo">
+	    SELECT /* selectBoardEmpathy, 전강욱(realsnake@jahasmart.com) */ id
+	    , post_id
+	    , user_id
+	    FROM board_empathy
+	    WHERE id=#{id}
+	</select>
+
+	<sql id="whereClauseOfBoardEmpathy">
+	    <where>
+		    <if test='postId != null and !postId.equals("")'> AND post_id=#{postId}</if>
+		    <if test='userId != null and !userId.equals("")'> AND user_id=#{userId}</if>
+	    </where>
+	</sql>
+
+	<select id="selectBoardEmpathyListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardEmpathyListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_empathy
+	    <include refid="whereClauseOfBoardEmpathy" />
+	</select>
+
+	<select id="selectBoardEmpathyList" parameterType="BoardDto" resultType="BoardEmpathyVo">
+	    SELECT /* selectBoardEmpathyList, 전강욱(realsnake@jahasmart.com) */ id
+	    , post_id
+	    , user_id
+	    FROM board_empathy
+	    <include refid="whereClauseOfBoardEmpathy" />
+	</select>
+
+</mapper>

@@ -1,0 +1,43 @@
+.sbgrid_explanation
+{	
+	margin-top:50px;
+}
+
+#sbgrid_explanation1
+{
+	color:#F37022;
+	font-size:20px;
+	font-weight:bold;
+}
+
+#contents
+{
+	//margin: 45px 0 0 15px;
+	margin-left:50px;
+	margin-top:30px;
+}
+
+#button_group
+{
+	margin-top:5px;
+	width:720px;
+}
+
+.content_group
+{
+	margin-top:5px;
+}
+
+.sep_line
+{
+	width:700px;
+	margin-top:5px;
+}
+
+.sbgrid_demo_button
+{
+	background-color:#4075C1;
+	border-radius:5px;
+	font-weight:bold;
+	color:#FFF;
+}

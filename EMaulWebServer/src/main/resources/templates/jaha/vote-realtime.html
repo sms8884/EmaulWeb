@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+
+	   
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <title>집계완료</title>
+</head>
+<style type="text/css">
+<!--
+	.filebox{margin:5px 0 0 0;}
+	.filebox label {
+	  display: inline-block;
+	  padding: .5em .75em;
+	  color: #46B8DA;
+	  font-size: inherit;
+	  line-height: normal;
+	  vertical-align: middle;
+	  background-color:#fff;
+	  cursor: pointer;
+	  border: 1px solid #46B8DA;
+	  border-bottom-color: #46B8DA;
+	  border-radius: .25em;
+	}
+	.filebox label:hover{
+		color: #fff;
+		background-color: #46B8DA;
+	}
+
+	.filebox input[type="file"] {  /* 파일 필드 숨기기 */
+	  position: absolute;
+	  width: 1px;
+	  height: 1px;
+	  padding: 0;
+	  margin: -1px;
+	  overflow: hidden;
+	  clip:rect(0,0,0,0);
+	  border: 0;
+	}
+//-->
+</style>
+<body>
+	<div class="popup_container" style="width:90%; margin:0 auto; padding:10px 0;">
+		
+	
+		<h4>오프라인 투표 결과</h4>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th style="text-align:center; background:#e4e4e4;">후보/선택지</th>
+					<th style="text-align:center; background:#e4e4e4;">득표수</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="vi:${vote.items}">
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;" th:text="${vi.title}" th:value="${vi.id}">
+						<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;" />
+					</th>
+					<td>
+						<input type="text" class="form-control"
+							   th:id="'vote-offline-result-' + ${vi.id}"
+							   th:if="${!vote.voteResultAvailable}"/>
+						<p th:if="${vote.voteResultAvailable}" th:text="${voteResultMap.get(vi.id)}"></p>
+					</td>
+				</tr>
+				<tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">무효
+						<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;" />
+					</th>
+					<td>
+						<input type="text" class="form-control" id="vote-offline-result-0" th:if="${!vote.voteResultAvailable}"/>
+						<p th:if="${vote.voteResultAvailable}" th:text="${voteResultMap.get(0l) == null ? '0' : voteResultMap.get(0l)}"></p>
+					</td>
+				</tr>
+				<tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">전체명부</th>
+					<td>
+						<button type="button" class="btn btn-default">첨부양식 다운받기</button>
+						<div class="filebox">
+						    <label for="voters_file">찾아보기</label>
+						    <!--<input type="file" id="ex_file" />-->
+							<input type="file"
+								   onchange="javascript:document.getElementById('file_route1').value=this.value"
+								   name="files" id="voters_file"/>
+						</div>
+						<p style="color:red">※ 반드시 다운로드 받은 양식으로 첨부 바랍니다.</p>
+					</td>
+				</tr>
+			</tbody>	
+		</table>
+		<h4>투표 결과 안내 문구<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></h4>
+		<input type="text" class="form-control" id="vote-result-text" />
+		<div style="text-align:center; margin-top:10px;">
+			<button type="button" class="btn btn-success">완료</button>
+		</div>
+	</div>
+
+	<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+	<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		function checkVoteAvailable() {
+			var aptId = /*[[${vote.targetApt}]]*/ 0;
+			var voteId = /*[[${vote.id}]]*/ 0;
+			var dong = $('#voter-check-dong').val();
+			var ho = $('#voter-check-ho').val();
+			var url = '/admin/vote/available?voteId=' + voteId + '&aptId=' + aptId + '&dong=' + dong + '&ho=' + ho;
+
+			if (dong == '' || ho == '') {
+				alert('동,호수를 입력해주세요');
+				return;
+			}
+
+			$.ajax({
+					   type: 'GET',
+					   url: url,
+					   success: function (data) {
+						   if (data == 'INVALID_VOTE_ID') {
+							   alert('해당 동, 호수와 매칭되는 투표가 아닙니다. 뒤로가기 후 동, 호수와 맞는 투표를 선택해서 체크해주세요');
+							   $('#vote-available-text').attr('class', 'hidden');
+							   $('#vote-unavailable-text').attr('class', 'hidden');
+							   $('#already-voted-detail').attr('class', 'hidden');
+						   } else if (data != '') {
+							   $('#vote-available-text').attr('class', 'hidden');
+							   $('#vote-unavailable-text').attr('class', '');
+							   $('#already-voted-detail').attr('class', '');
+
+							   var userInfo = JSON.parse(data);
+							   if (userInfo.user == undefined) {
+								   $('#already-voted-detail').text(userInfo.dong + '동 ' + userInfo.ho + '호 ' + userInfo.fullName + '님이 ' + new Date(userInfo.regDate).yyyymmdd() + '에 투표 참여하셨습니다');
+							   } else {
+								   $('#already-voted-detail').text(userInfo.dong + '동 ' + userInfo.ho + '호 ' + userInfo.user.fullName + '님이 ' + new Date(userInfo.voteDate).yyyymmdd() + '에 투표 참여하셨습니다');
+							   }
+						   } else {
+							   $('#vote-available-text').attr('class', '');
+							   $('#vote-unavailable-text').attr('class', 'hidden');
+							   $('#already-voted-detail').attr('class', 'hidden');
+						   }
+					   },
+					   error: function (jqXHR, textStatus, errorThrown) {
+						   alert("네트워크가 불안정합니다.");
+						   console.log(errorThrown);
+						   console.log(textStatus);
+					   }
+				   });
+		}
+
+		function saveOfflineVoter() {
+			var aptId = /*[[${vote.targetApt}]]*/ 0;
+			var voteId = /*[[${vote.id}]]*/ 0;
+			var dong = $('#voter-check-dong').val();
+			var ho = $('#voter-check-ho').val();
+			var name = $('#voter-name').val();
+			if (name == '') {
+				alert('이름을 입력해주세요');
+				return;
+			}
+			var url = '/admin/vote/offline/join?voteId=' + voteId + '&aptId=' + aptId + '&dong=' + dong + '&ho=' + ho + '&name=' + encodeURIComponent(name);
+
+			$.ajax({
+					   type: 'GET',
+					   url: url,
+					   success: function (data) {
+						   if (data != '') {
+							   alert('등록되었습니다');
+							   $('#vote-available-text').attr('class', 'hidden');
+							   $('#vote-unavailable-text').attr('class', 'hidden');
+							   $('#already-voted-detail').attr('class', 'hidden');
+							   $('#voter-check-dong').val('');
+							   $('#voter-check-ho').val('');
+							   $('#voter-name').val('');
+						   } else {
+							   alert('등록할 수 없습니다. 조회하는 동안 다른 사용자가 투표했을 수 있습니다. 다시 조회해주세요');
+							   $('#vote-available-text').attr('class', 'hidden');
+							   $('#vote-unavailable-text').attr('class', 'hidden');
+							   $('#already-voted-detail').attr('class', 'hidden');
+						   }
+					   },
+					   error: function (jqXHR, textStatus, errorThrown) {
+						   alert("네트워크가 불안정합니다.");
+						   console.log(errorThrown);
+						   console.log(textStatus);
+					   }
+				   });
+		}
+
+		function inputOfflineResult() {
+			var numCheck = /^[0-9]*$/;
+			var inputChecked = true;
+			$('#put-off-result input').each(function () {
+				var number = $(this).val();
+				if (!numCheck.test(number) || number == '') {
+					$(this).focus();
+					inputChecked = false;
+					return false;
+				}
+			});
+
+			if (!inputChecked) {
+				alert('결과 값이 입력되지 않았거나 숫자가 아닙니다.');
+				return;
+			}
+
+			var aptId = /*[[${vote.targetApt}]]*/ 0;
+			var voteId = /*[[${vote.id}]]*/ 0;
+			var offlineAvailable = /*[[${vote.offlineAvailable}]]*/ 0;
+			var itemIds = /*[[${itemIds}]]*/ [];
+			var reqData = {
+				itemResult: {}
+			};
+
+			for (var i in itemIds) {
+				var resultValue = $('#vote-offline-result-' + itemIds[i]).val();
+				if(resultValue == ''){
+					resultValue = 0;
+				}
+				reqData.itemResult[itemIds[i]] = resultValue;
+			}
+			var abstention = $('#vote-offline-result-0').val();
+			if(abstention == ''){
+				abstention = 0;
+			}
+			reqData.itemResult[0] = abstention;
+
+			reqData.aptId = aptId;
+			reqData.voteId = voteId;
+			reqData.voteResultText = $('#vote-result-text').val();
+
+			// console.log(reqData);
+			// console.log(JSON.stringify(reqData));
+
+			var fileData = new FormData();
+			fileData.append('json', JSON.stringify(reqData));
+			if(offlineAvailable && $('#voters_file')[0].files.length > 0){
+				// console.log($('#voters_file'));
+				fileData.append('votersFile', $('#voters_file')[0].files[0]);
+			}
+			$.ajax({
+					   type: 'POST',
+					   url: '/admin/vote/offline/result/save',
+					   contentType:false,
+					   processData:false,
+					   data: fileData,
+					   success: function (data) {
+						   // console.log('ajax result : ' + data);
+						   if (data == 'success') {
+							   alert('성공적으로 등록됐습니다');
+							   location.reload();
+						   }
+					   },
+					   error: function (jqXHR, textStatus, errorThrown) {
+						   alert('정보 입력 실패')
+					   }
+				   })
+		}
+
+		function updateVoterFile() {
+			var voteId = /*[[${vote.id}]]*/ 0;
+
+			var fileData = new FormData();
+			fileData.append('voteId', voteId);
+			if($('#voters_file')[0].files.length > 0){
+				// console.log($('#voters_file'));
+				fileData.append('votersFile', $('#voters_file')[0].files[0]);
+			}else{
+				alert('등록할 투표자 명부 파일을 선택해 주세요.');
+				return;
+			}
+			$.ajax({
+					   type: 'POST',
+					   url: '/admin/vote/offline/result/updateVotersFile',
+					   contentType:false,
+					   processData:false,
+					   data: fileData,
+					   success: function (data) {
+						   // console.log('ajax result : ' + data);
+						   if (data == 'success') {
+							   alert('성공적으로 등록됐습니다');
+							   location.reload();
+						   }
+					   },
+					   error: function (jqXHR, textStatus, errorThrown) {
+						   alert('정보 입력 실패')
+					   }
+				   })
+		}
+
+
+		function resetOfflineResult() {
+			var voteId = /*[[${vote.id}]]*/ 0;
+
+			var reqData = {};
+			reqData.voteId = voteId;
+
+			$.ajax({
+					   type: 'POST',
+					   url: '/admin/vote/offline/result/reset',
+					   contentType: "application/json; charset=utf-8",
+					   data: JSON.stringify(reqData),
+					   success: function (data) {
+						   // console.log('ajax result : ' + data);
+						   if (data == 'success') {
+							   alert('집계 결과를 리셋했습니다.');
+							   location.reload();
+						   }
+					   },
+					   error: function (jqXHR, textStatus, errorThrown) {
+						   alert('리셋 실패');
+					   }
+				   })
+		}
+
+		Date.prototype.yyyymmdd = function () {
+			var yyyy = this.getFullYear().toString();
+			var MM = (this.getMonth() + 1).toString(); // getMonth() is zero-based
+			var dd = this.getDate().toString();
+			var hh = this.getHours().toString();
+			var mm = this.getMinutes().toString();
+			return yyyy + '년 ' + (MM[1] ? MM : "0" + MM[0]) + '월 ' + (dd[1] ? dd : "0" + dd[0]) + '일 ' + (hh[1] ? hh : "0" + hh[0]) + ':' + (mm[1] ? mm : "0" + mm[0]); // padding
+		};
+		/*]]>*/
+	</script>
+</body>
+</html>

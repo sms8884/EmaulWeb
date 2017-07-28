@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title th:text="${category.name} + ' | 목록'">공지사항 | 목록</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+<form name="boardSearchForm" id="boardSearchForm" method="post" action="">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 th:text="${category.name}" class="page-header">게시판</h1>
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+					<div th:replace="v2/user/board/search-form :: board-search-form"></div>
+
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="10%" style="text-align:center;">글쓴이</th>
+                            <th width="10%" style="text-align:center;">소속</th>
+                            <th style="text-align:center;">제목</th>
+                            <th width="12%" style="text-align:center;">등록일</th>
+                            <th width="5%" style="text-align:center;">조회</th>
+                            <th th:if="${category.type eq 'notice'}" width="6%" style="text-align:center;">상단고정</th>
+                            <th width="5%" style="text-align:center;">댓글</th>
+                            <th width="5%" style="text-align:center;" th:if="${user.type.jaha}">숨김</th>
+                            <th width="5%" style="text-align:center;">노출</th>
+                            <th width="8%" style="text-align:center;">사진</th>
+                            <th width="10%" style="text-align:center;">첨부파일</th>
+                            <th width="15%" style="text-align:center;">제어</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${boardPostList.empty}">
+                            <td colspan="12" th:text="${category.name} + '게시글 목록이 없습니다.'">게시글 목록이 없습니다.</td>
+                        </tr>
+                        <tr th:each="post : ${boardPostList}">
+                            <td>
+                                <a th:href="@{/admin/user/info/}+${post.userId}" th:utext="${post.writerName}" target="_blank"></a>
+                            </td>
+                            <td>
+                                <p th:text="${post.userAptName}"></p>
+                            </td>
+                            <td>
+                                <div class="board-list-contents2" style="height:40px; text-align:left;">
+                            		<a th:id="${'blind_title_' + post.id}" class="board-list-title" th:text="${(post.blindYn eq 'Y'?'[숨김] ':'') + post.title}" th:href="'/v2/admin/board/' + ${category.type} + '/read/' + ${category.Id} + '/' + ${post.id}"></a>
+                            		<span class="badge" th:text="${post.commentCount}">댓글수</span>
+                                </div>
+                            </td>
+                            <td th:text="${#dates.format(post.regDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${post.viewCount}"></td>
+                            <!-- 상단고정범위 -->
+                            <td th:if="${category.type eq 'notice'}" ><span th:if="${post.topFix}" th:text="고정">고정</span></td>
+                            <td><span th:text="${post.commentDisplayYn eq 'Y' ?'-':'숨김'}" th:id="${'comment_display_area_td_' + post.id}">숨김</span></td>
+                            <td th:if="${user.type.jaha}"><span th:text="${post.blindYn eq 'Y' ?'숨김':'-'}" th:id="${'blind_yn_area_td_' + post.id}">숨김</span></td>
+                            <td th:text="${post.displayYn eq 'Y' ? '-':'미노출'}"></td>
+                            <td>
+                                <p th:if="${post.imageCount == 0}">없음</p>
+                                <img th:if="${post.imageCount != 0}" th:src="'/v2/board/common/post/image/' + ${post.id} + '/0-thumb.jpg'" width="80px" height="80px" />
+                            </td>
+                            <td>
+                                <p th:if="!${post.file1}">없음</p>
+                                <span th:if="${post.file1}">
+                                	<a th:href="${post.file1}">1번 파일</a>
+                           		</span>
+                             	<span th:if="${post.file2}">
+                                 	<a th:href="${post.file2}">2번 파일</a>
+                             	</span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="...">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">더 보기<span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a th:href="'javascript:moveModifyForm(' + ${post.id} + ')'">수정</a></li>
+                                            <li th:if="${post.displayYn ne 'N'}"><a th:href="'javascript:deleteBoardPost(' + ${post.id} + ', ' + ${post.commentCount} + ')'">삭제</a></li>
+                                            <li th:if="${category.type ne 'complaint'}" th:id="${'comment_display_area_' + post.id}"><a th:href="'javascript:updateBoardPostCommentDisplayYn(' + ${post.id} + ', \'' + ${post.commentDisplayYn eq 'Y' ? 'N':'Y'} + '\')'">댓글<span th:text="${post.commentDisplayYn eq 'N' ? ' 표시':' 숨김'}"></span></a></li>
+                                            <li th:if="${user.type.jaha}" th:id="${'blind_yn_area_' + post.id}"><a th:href="'javascript:updateBoardPostBlindYn(' + ${post.id} + ', \'' + ${post.blindYn eq 'Y' ? 'N':'Y'} + '\')'"><span th:text="${post.blindYn eq 'Y' ? '숨김해제':'게시글 숨김'}"></span></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <a class="btn btn-primary" style="float: right" onclick="moveCreateForm()">글쓰기</a>
+                </div>
+            </div>
+
+			<!-- paging -->
+			<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+
+        </div>
+	</div>
+</form>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryType = /*[[${category.type}]]*/ 'error';
+var categoryId = /*[[${category.id}]]*/ '0';
+
+/**
+ * 등록 페이지 이동
+ */
+function moveCreateForm() {
+   	location.href="/v2/admin/board/" + categoryType + "/create-form/" + categoryId;
+   	return;
+}
+/**
+ * 수정 페이지 이동
+ */
+function moveModifyForm(postId) {
+   	location.href="/v2/admin/board/" + categoryType + "/modify-form/" + categoryId + "/" + postId;
+   	return;
+}
+/**
+ * 게시글 삭제
+ */
+function deleteBoardPost(postId, commentCount) {
+	if (commentCount > 0) {
+		// alert(" 댓글이 있는 게시글은 삭제할 수 없습니다! ");
+		// return;
+	}
+
+	var url = "/v2/admin/board/" + categoryType + "/remove/" + categoryId + "/" + postId;
+
+    if (confirm(" 게시글을 삭제하시겠습니까?? ")) {
+		location.href = url;
+    }
+}
+
+/**
+ * 게시글 댓글 표시여부 수정
+ */
+ function updateBoardPostCommentDisplayYn(postId, commentDisplayYn) {
+	console.log('postid : ' + postId + '/commentDisplayYn : ' + commentDisplayYn);
+
+	var reqData = {};
+    reqData.postId = postId;
+    reqData.commentDisplayYn = commentDisplayYn;
+
+	$.ajax({
+		type: 'post'
+		, url: '/v2/board/common/post/update/commentDisplayYn'
+		, contentType: "application/json; charset=utf-8"
+		, dataType: 'html'
+		, data: JSON.stringify(reqData)
+		, success: function (data) {
+
+			if ("OK" == data) {
+				$('#comment_display_area_' + postId).html('<a href="javascript:updateBoardPostCommentDisplayYn(' + postId + ', \'' + ("Y" == commentDisplayYn?"N":"Y")  + '\')">댓글' + ("Y" == commentDisplayYn?" 숨김":" 표시") + '<span></span></a>');
+				$('#comment_display_area_td_' + postId).html( ("Y" == commentDisplayYn?"-":"숨김"));
+
+			} else {
+				alert("댓글 표시여부 수정 중 오류가 발생하였습니다.");
+				return;
+			}
+		}
+		, error: function (jqXHR, textStatus, errorThrown) {
+			console.log(errorThrown);
+			console.log(textStatus);
+		}
+	});
+
+}
+
+
+ /**
+  * 게시글 숨김여부 수정
+  */
+  function updateBoardPostBlindYn(postId, blindYn) {
+ 	console.log('postid : ' + postId + '/blindYn : ' + blindYn);
+
+ 	var reqData = {};
+     reqData.postId = postId;
+     reqData.blindYn = blindYn;
+
+ 	$.ajax({
+ 		type: 'post'
+ 		, url: '/v2/board/common/post/update/blindYn'
+ 		, contentType: "application/json; charset=utf-8"
+ 		, dataType: 'html'
+ 		, data: JSON.stringify(reqData)
+ 		, success: function (data) {
+
+ 			if ("OK" == data) {
+ 				$('#blind_yn_area_' + postId).html('<a href="javascript:updateBoardPostBlindYn(' + postId + ', \'' + ("Y" == blindYn?"N":"Y")  + '\')">' + ("Y" == blindYn?"숨김해제":"게시글 숨김") + '<span></span></a>');
+ 				$('#blind_yn_area_td_' + postId).html( ("Y" == blindYn?"숨김":"-"));
+ 				$('#blind_title_' + postId).html( ("Y" == blindYn?"[숨김] " + $('#blind_title_' + postId).text() : $('#blind_title_' + postId).text().replace("[숨김] ","")  ));
+
+ 			} else {
+ 				alert("숨김여부 수정 중 오류가 발생하였습니다.");
+ 				return;
+ 			}
+ 		}
+ 		, error: function (jqXHR, textStatus, errorThrown) {
+ 			console.log(errorThrown);
+ 			console.log(textStatus);
+ 		}
+ 	});
+
+ }
+
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum) {
+	$("#pageNum").val(movePageNum);
+
+	var $form = $("#boardSearchForm");
+	$form.attr("action", $("#listUrl").val());
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+  	$('#startDateWrap, #endDateWrap').datetimepicker({
+        format : "YYYY-MM-DD",
+        useCurrent: false
+    });
+    $("#startDateWrap").on("dp.change", function (e) {
+        $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endDateWrap").on("dp.change", function (e) {
+        $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+    });
+
+    // 검색 버튼 클릭 시
+    $("#searchBtn").bind("click", function() {
+      	paging(1);
+    });
+
+    // 초기화 버튼 클릭 시
+    $("#resetBtn").bind("click", function() {
+      	$("#searchStartDate").val("");
+        $("#searchEndDate").val("");
+        $("#searchKeyword").val("");
+
+        paging(1);
+    });
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css" >
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    body {
+	        background: #FFFFFF;
+	    }
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	    input[type=text]{
+            height:30px;
+        }
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	    }
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:10px;
+	    }
+	    
+	    .searchTable th {
+	        width:80px;
+	    }
+	    .searchTable tr {
+            height: 35px;
+        }
+        .searchTable td {
+            padding-right: 15px;
+        }
+	    .searchTable .aptName {
+            width:300px;
+        }
+	    .searchTable .searchKeyword {
+	        width: 300px;
+	        margin-right:10px;
+	    }
+	    .areas {
+            width:100%;
+            display: inline-block;
+	    }
+	    .area1{
+	        width: 48%;
+	        height:570px;
+	        float: left;
+	    }
+	    .area2{
+	        width: 2%;
+	        height:570px;
+	        float: left;
+	    }
+	    .area3{
+	        width: 50%;
+	        height:570px;
+	        float: left;
+	    }
+	    .basicDataBox {
+            height: 460px;
+            width: 100%;
+            padding:10px 15px 0px 15px;
+            border:1px solid #c3c3c3;
+            overflow: hidden;
+            overflow-y: auto;
+        }
+        .basicDataBox input[type=checkbox] {
+            width:17px;
+            height:17px;
+        }
+	    .fileBox div {
+	        height: 25px;
+	    }
+	    .fileBox span {
+	        font-size: 15px;
+            font-weight: normal;
+	    }
+	    .download {
+	        cursor: pointer;
+	    }
+	    .formTable th {
+            width:170px;
+        }
+        .formTable tr {
+            height: 35px;
+        }
+        
+        ._dataTable {
+            width:100%;
+        }
+        ._dataTable thead{
+            font-weight: bold;
+        }
+        ._dataTable thead tr{
+            height:30px;
+        }
+        ._dataTable tbody{
+            height: 360px;
+        }
+        ._dataTable td {
+            text-align: center;
+        }
+        .scrollTable {
+            height:360px;
+            overflow-y:auto;
+        }
+        .scrollTableHeader {
+            height:40px;
+            border-bottom: 1px solid gray;
+        }
+        .remoteControlDiv {
+            width:100%;
+            border: 1px solid #EAEAEA;
+            box-sizing: border-box;
+            padding: 5px 5px;
+            margin-top : 3px;
+        }
+        .remoteControlDiv div{
+            margin-top : 3px;
+        }
+        .remoteControlItemDiv {
+            width:100%;
+            overflow-y:auto;
+        }
+        ._listArea{
+            width: 100%;
+        }
+        .listTableScroll{
+            overflow-y:auto;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:30px;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        
+        .remote-control table {
+            width:100%;
+        }
+        .remote-control th{
+            width:50px;
+        }
+        .remote-control tr{
+            height : 40px;
+        }
+        .searchInput {
+            width:130px;
+        }
+    </style>
+
+    <title>AP 업데이트</title>
+</head>
+
+<body>
+
+    <div class="defaultPopup">
+        <h4 class="page-header"><b>AP 업데이트</b></h4>
+        <div class="areas">
+	        <div class="area1">
+		        <div class="panel panel-info">
+		            <div class="panel-body">
+		                <table class="table-responsive searchTable">
+		                    <tr>
+                                <th>아파트</th>
+                                <td class="form-inline" colspan="10">
+                                    <input type="hidden" name="aptId" id="aptId" />
+                                    <input type="text" class="form-control aptName" id="aptNm" name="aptNm" readonly="readonly" />
+                                    <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="selectAptPopup()"/>
+                                    <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="cancelApt()"/>
+                                </td>
+                            </tr>
+		                    <tr>
+                                <th class="form-inline">ID검색</th>
+                                <td>
+                                    <input type="text" class="form-control searchInput" id="ids" name="ids" placeholder="ex) 34, 51-60" /> 
+                                </td>
+                                <th class="form-inline">AP ID검색</th>
+                                <td>
+                                    <input type="text" class="form-control searchInput" id="apId" name="apId" />
+                                </td>
+                                <th>F/W Version</th>
+                                <td>
+                                    <input type="text" class="form-control searchInput" id="firmwareVersion" name="firmwareVersion" /> 
+                                </td>
+		                    </tr>
+		                    <tr>
+		                        <th>키워드검색</th>
+                                <td class="form-inline" colspan="10">
+                                    <input type="text" class="form-control searchKeyword" id="searchKeyword" name="searchKeyword" placeholder="검색 키워드를 입력하세요."/>
+                                    <input type="button" class="btn btn-sm btn-outline btn-info sc_asSearch" id="searchBtn" name="searchBtn" value="검색" />
+                                </td>
+		                    </tr>
+		                </table>
+		            </div>
+		        </div>
+		        
+		        <p class="sc_asResultTxt" id="totalCountText" >0건의 데이터가 조회되었습니다.</p>
+		        <div class="_listArea panel panel-default panel-body">
+		            <div class="scrollTableHeader">
+		                <table class="table-hover _listTable" >
+		                    <thead>
+		                        <tr>
+		                            <td style="width:5%;"><input type="checkbox" name="_all" id="_all" /></td>
+		                            <td style="width:35%;">AP UUID</td>
+		                            <td style="width:25%;">AP BEACON UUID</td>
+		                            <td style="width:15%;">AP ID</td>
+		                            <td style="width:20%;">AP 이름</td>
+		                        </tr>
+		                    </thead>
+		                </table>
+		            </div>
+		            <div class="listTableScroll" >
+		                <form name="frm" id="frm" method="post">
+		                <table class="table table-hover _listTable" >
+		                    <tbody id="_listTable">
+		                        <tr><td style="width:100%;" colspan="5">검색해주세요.</td></tr>
+		                    </tbody>
+		                </table>
+		                </form>
+		            </div>
+		        </div>
+		        
+	        </div>
+	        
+	        <div class="area2">
+	        </div>
+	        
+	        <div class="area3">
+	            <div role="tabpanel">
+		            <ul class="nav nav-tabs" role="tablist" id="myTab" style="margin-bottom: 5px;border-bottom: 1px solid #e5e5e5;">
+		                <li role="presentation" class="active"><a href="#firmware-tab" aria-controls="firmware-tab" role="tab" data-toggle="tab" >펌웨어 업데이트</a></li>
+		                <li role="presentation"><a href="#data-tab" aria-controls="data-add" role="tab" data-toggle="tab" >시스템정보 업데이트</a></li>
+		                <li role="presentation"><a href="#remote-control-tab" aria-controls="remote-control-tab" role="tab" data-toggle="tab" >Remote Control</a></li>
+		            </ul>
+		    
+		            <div class="tab-content">
+		                <div role="tabpanel" class="tab-pane active" id="firmware-tab">
+			                <div class="basicDataBox fileBox panel panel-default panel-body">
+			                    <div><label><input type="checkbox" name="firmwareAll" id="firmwareAll" /> <span>전체</span></label></div>
+			                    <div th:each="fileName : ${fileNames}" ><label><input type="checkbox" name="firmwareNames" th:value="${fileName}" /> <span th:text="${fileName}"></span></label> <i class="fa fa-download download" th:onclick="'fileDown(\''+${fileName}+'\')'"></i> </div>
+			                </div>
+			                <div class="bottomBtnBox">
+			                    <input type="button" class="btn btn-info" value="결과보기" name="systemDataBtn2" onclick="resultFirmwareModal()" />
+			                    <input type="button" class="btn btn-info" value="펌웨어 업데이트" name="firmwareBtn" onclick="firmwareUpdate()" />
+			                </div>
+		                </div>
+                        <div role="tabpanel" class="tab-pane" id="data-tab">
+                            <div class="basicDataBox panel panel-default panel-body">
+	                            <table class="table-responsive formTable">
+		                            <tr>
+		                                <th><label><input type="checkbox" name="chkRssi" id="chkRssi" />감도 (rssi)</label></th>
+		                                <td class="form-inline">
+		                                    <select class="form-control" id="rssi" name="rssi" style="height:30px;">
+		                                    </select>
+		                                </td>
+		                            </tr>
+		                            <tr>
+		                                <th><label><input type="checkbox" name="chkKeepon" id="chkKeepon" />open지연시간 (keepon)</label></th>
+		                                <td class="form-inline">
+		                                    <input type="text" class="form-control" id="keepon" name="keepon" placeholder="밀리세컨" onkeydown='return onlyNumber(event);' onkeyup='removeChar(event);' /> 
+		                                </td>
+		                            </tr>
+		                        </table>
+	                        </div>
+	                        <div class="bottomBtnBox">
+                                <input type="button" class="btn btn-info" value="결과보기" name="systemDataBtn2" onclick="resultSystemDataModal()" />
+                                <input type="button" class="btn btn-info" value="시스템정보 업데이트" name="systemDataBtn" onclick="systemDataUpdate()" />
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="remote-control-tab">
+                            <div class="basicDataBox panel panel-default panel-body">
+                                <form name="remoteSettingForm" id="remoteSettingForm" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="apList" id="apList" />
+                                <div>
+                                    <div><div style="float:left;margin: 7px 5px 0 0;">Firmware Version : </div><input type="text" class="form-control" name="fw_version" id="fw_version" style="width:150px;" /></div>
+                                </div>
+                                <div style="margin-top: 5px;">
+                                    <label><input type="radio" name="remoteType" value="file" checked="checked" />File</label>
+                                    <label><input type="radio" name="remoteType" value="cmd" />Command</label>
+		                            <input type="button" class="btn btn-sm btn-primary" value="추가" name="remoteSettingBtn" onclick="fnRemoteSettingItemAdd()" style="margin-left:10px;"/>
+                                </div>
+                                <div class="remoteControlItemDiv">
+			                        <table class="table-responsive table-hover remote-control" id="remoteSettingAddTable" >
+			                        </table>                                                                    
+                                </div>
+                                </form>
+                            </div>
+                            <div class="bottomBtnBox">
+                                <input type="button" class="btn btn-info" value="결과보기" name="remoteControlBtn2" onclick="resultRemoteControlModal()" />
+                                <input type="button" class="btn btn-info" value="전송" name="remoteControlBtn" onclick="resultRemoteControlSend()" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info" value="펌웨어 업데이트" name="firmwareBtn" onclick="firmwareUpdate()" />
+        </div>
+         -->
+    </div>
+
+
+<!-- AP 펌웨어 업데이트 결과 modal -->
+<div class="modal fade" id="modal-firmware" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">펌웨어 업데이트 결과 [ <span id="txt_result_firmware"></span> ]</h4>
+            </div>
+            <div class="modal-body" style="display:inline-block;">
+                <b>선택AP개수 : </b><span id="txt_select_ap_cnt_firmware"></span><br />
+                <b>업데이트파일 목록 : </b><br />
+                <span id="txt_firmwareFile"></span>
+                <div>
+                    <div style="width:350px; float:left;">
+                        <h5>성공한 목록 [ <span id="successCnt_firmware"></span> ]건</h5>
+                        <div class="panel panel-default panel-body" >
+                            <div class="scrollTableHeader">
+                                <table class="table-hover _dataTable" >
+                                    <thead>
+                                        <tr>
+                                            <td style="width:30%;">ID</td>
+                                            <td style="width:70%;">AP BEACON UUID</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="scrollTable" >
+                                <table class="table table-hover _dataTable" >
+                                    <tbody id="_successDataTable_firmware">
+                                        <tr><td style="width:100%;">데이터가 없습니다.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="width:810px; float:left; margin-left: 5px;">
+                        <h5>실패한 목록 [ <span id="failCnt_firmware"></span> ]건</h5>
+                        <div class="panel panel-default panel-body" >
+                            <div class="scrollTableHeader">
+                                <table class="table-hover _dataTable" >
+                                    <thead>
+                                        <tr>
+                                            <td style="width:20%;">ID</td>
+                                            <td style="width:30%;">AP BEACON UUID</td>
+                                            <td style="width:50%;">MESSAGE</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="scrollTable" >
+                                <table class="table table-hover _dataTable" >
+                                    <tbody id="_failDataTable_firmware">
+                                        <tr><td style="width:100%;" >데이터가 없습니다.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AP 시스템정보 업데이트 결과 modal -->
+<div class="modal fade" id="modal-system-data" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">시스템정보 업데이트 결과 [ <span id="txt_result_systemData"></span> ]</h4>
+            </div>
+            <div class="modal-body" style="display:inline-block;">
+                <div><b>선택AP개수</b> : <span id="txt_select_ap_cnt_systemData"></span></div>
+	            <div id="txt_rssi"><b>감도 (rssi)</b> : <span></span></div>
+	            <div id="txt_keepon"><b>open지연시간 (keepon)</b> : <span></span></div>
+                <div>
+	                <div style="width:350px; float:left;">
+	                    <h5>성공한 목록 [ <span id="successCnt_systemData"></span> ]건</h5>
+		                <div class="panel panel-default panel-body" >
+			                <div class="scrollTableHeader">
+			                    <table class="table-hover _dataTable" >
+			                        <thead>
+			                            <tr>
+			                                <td style="width:30%;">ID</td>
+			                                <td style="width:70%;">AP BEACON UUID</td>
+			                            </tr>
+			                        </thead>
+			                    </table>
+			                </div>
+			                <div class="scrollTable" >
+			                    <table class="table table-hover _dataTable" >
+			                        <tbody id="_successDataTable_systemData">
+			                            <tr><td style="width:100%;">데이터가 없습니다.</td></tr>
+			                        </tbody>
+			                    </table>
+			                </div>
+		                </div>
+	                </div>
+	                
+	                <div style="width:810px; float:left; margin-left: 5px;">
+	                    <h5>실패한 목록 [ <span id="failCnt_systemData"></span> ]건</h5>
+	                    <div class="panel panel-default panel-body" >
+	                        <div class="scrollTableHeader">
+	                            <table class="table-hover _dataTable" >
+	                                <thead>
+	                                    <tr>
+	                                        <td style="width:20%;">ID</td>
+	                                        <td style="width:30%;">AP BEACON UUID</td>
+	                                        <td style="width:50%;">MESSAGE</td>
+	                                    </tr>
+	                                </thead>
+	                            </table>
+	                        </div>
+	                        <div class="scrollTable" >
+	                            <table class="table table-hover _dataTable" >
+	                                <tbody id="_failDataTable_systemData">
+	                                    <tr><td style="width:100%;" >데이터가 없습니다.</td></tr>
+	                                </tbody>
+	                            </table>
+	                        </div>
+	                    </div>
+	                </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AP 원격컨트롤 업데이트 결과 modal -->
+<div class="modal fade" id="modal-remote-control" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">원격컨트롤 전송 결과 [ <span id="txt_result_remoteControl"></span> ]</h4>
+            </div>
+            <div class="modal-body" style="display:inline-block;">
+                <b>선택AP개수 : </b><span id="txt_select_ap_cnt_remoteControl"></span><br />
+                <b>Firmware Version : </b><span id="txt_firmwareVersion"></span>
+                <div>
+                    <div style="width:350px; float:left;">
+                        <h5>성공한 목록 [ <span id="successCnt_remoteControl"></span> ]건</h5>
+                        <div class="panel panel-default panel-body" >
+                            <div class="scrollTableHeader">
+                                <table class="table-hover _dataTable" >
+                                    <thead>
+                                        <tr>
+                                            <td style="width:30%;">ID</td>
+                                            <td style="width:70%;">AP BEACON UUID</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="scrollTable" >
+                                <table class="table table-hover _dataTable" >
+                                    <tbody id="_successDataTable_remoteControl">
+                                        <tr><td style="width:100%;">데이터가 없습니다.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="width:810px; float:left; margin-left: 5px;">
+                        <h5>실패한 목록 [ <span id="failCnt_remoteControl"></span> ]건</h5>
+                        <div class="panel panel-default panel-body" >
+                            <div class="scrollTableHeader">
+                                <table class="table-hover _dataTable" >
+                                    <thead>
+                                        <tr>
+                                            <td style="width:20%;">ID</td>
+                                            <td style="width:30%;">AP BEACON UUID</td>
+                                            <td style="width:50%;">MESSAGE</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="scrollTable" >
+                                <table class="table table-hover _dataTable" >
+                                    <tbody id="_failDataTable_remoteControl">
+                                        <tr><td style="width:100%;" >데이터가 없습니다.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var jsonListData;
+
+    $(document).ready(function(){
+        
+    	var wHeight = $(window).height();
+        var areaHeight = wHeight - 100;
+        $(".area1, .area2, .area3").height(areaHeight);
+        
+        var listHeight = wHeight - 420;
+        $(".listTableScroll").height(listHeight);
+        
+        var dataHeight = wHeight - 230;
+        $(".basicDataBox").height(dataHeight);
+        
+        var remoteControllHeight = wHeight - 310;
+        $(".remoteControlItemDiv").height(remoteControllHeight);
+    	
+        $("#searchKeyword, #ids, #apId, #firmwareVersion").setEnter(search);
+        
+        $("#searchBtn").on("click", search);
+        
+        $("#firmwareAll").on("click", function(){
+        	$("input[name=firmwareNames]").prop("checked", $(this).prop("checked"));
+        });
+        
+        $("input[name=firmwareNames]").on("click", function(){
+        	if($(this).prop("checked") == false){
+        		$("#firmwareAll").prop("checked", false);
+        	}
+        });
+        
+        $("#_all").on("click", function(){
+            $("input[name=chkApId]").prop("checked", $(this).prop("checked"));
+        });
+        
+        for(var i = -40 ; i >= -120 ; i--){
+        	$("<option value='"+i+"'>"+i+"</option>").appendTo("#rssi");	
+        }
+    });
+    
+    function search(){
+    	
+    	$("#_all").prop("checked", false);
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+            	"aptId": $("#aptId").val(),
+            	"ids": $("#ids").val(),
+            	"apId": $("#apId").val(),
+            	"firmwareVersion": $("#firmwareVersion").val(),
+            	"existExpIp": "Y",
+                "searchKeyword": $("#searchKeyword").val(),
+                "usePaging": "N"
+            },
+            success: function(jsonData) {
+            	var nCount = 0;
+                if(jsonData != null && jsonData.dataList != null && jsonData.dataList.length > 0){
+                    $("#_listTable").empty();
+                    var data = jsonData.dataList;
+                    jsonListData = data;
+                    nCount = jsonData.totalCount;
+                    var _html = '';
+                    for(var i=0;i<data.length;i++){
+                        var id = data[i].id;
+                        var apUuid = data[i].apUuid;
+                        var apBeaconUuid = data[i].apBeaconUuid;
+                        var apId = data[i].apId;
+                        var apName = data[i].apName;
+                        _html += '<tr>';
+                        _html += '<td style="width:5%"><input type="checkbox" name="chkApId" value="'+apBeaconUuid+'" /></td>';
+                        _html += '<td style="width:35%">'+apUuid+'</td>';
+                        _html += '<td style="width:25%">'+apBeaconUuid+'</td>';
+                        _html += '<td style="width:15%">'+apId+'</td>';
+                        _html += '<td style="width:20%">'+apName+'</td>';
+                        _html += '</tr>';
+                    }
+                    
+                    if(_html.length > 0){
+                        $(_html).appendTo("#_listTable");
+                        
+                        //생성한 row의 checkbox에 이벤트 등록
+                        $("input[name=chkApId]").on("click", function(){
+                            if($(this).prop("checked") == true){
+                            	if($("input[name=chkApId]").length == $("input[name=chkApId]:checked").length){
+                            		$("#_all").prop("checked", true);	
+                            	}
+                            } else {
+                            	$("#_all").prop("checked", false);
+                            }
+                        });                     
+                    }
+                } else {
+                    $("#_listTable").empty();
+                    $('<tr><td style="text-align:center" colspan="5">조회결과가 없습니다.</td></tr>').appendTo("#_listTable");
+                }
+                
+                $("#totalCountText").text(nCount+"건의 데이터가 조회되었습니다.");
+            },
+            error: function(xhr, status, error) {
+                alert("error : apt ap list data fail");
+            }
+        });
+    }
+    
+    function fileDown(fileName){
+    	if(confirm(fileName+" 파일을 다운로드 하시겠습니까?")){
+    		location.href = "/jaha/apt/ap/firmware/file-down?fileName="+fileName;    		
+    	}
+    }
+    
+    function fnApSelected(){
+    	
+    	var result = {};
+    	result.success = true;
+    	
+    	if($("input[name=chkApId]").length == 0){
+            alert("AP 조회후 진행해주세요");
+            result.success = false;
+            return result;
+        }
+        
+        var apList = new Array();
+        $("input[name=chkApId]:checked").each(function(){
+        	apList.push($(this).val());
+        });
+        result.apList = apList;
+        
+        if(apList.length == 0){
+            alert("AP선택후 진행해주세요");
+            result.success = false;
+        }
+        
+        return result;
+    }
+    
+    function setResultHtml(data, subId) {
+    	if(data.successList != null && data.successList.length > 0){
+            var _html = "";
+            for(var i=0;i<data.successList.length;i++){
+                var item = data.successList[i];
+                _html += '<tr><td style="width:30%;">'+item.id+'</td><td style="width:70%;">'+item.apBeaconUuid+'</td></tr>';
+            }
+            if(_html != ""){
+            	var itemCnt = $("#successCnt_"+subId).text();
+            	if(gfnIsEmpty(itemCnt)){
+            		itemCnt = "0";
+            	}
+            	itemCnt = parseInt(itemCnt) + 1;
+            	
+                $("#successCnt_"+subId).text(itemCnt);
+                $(_html).appendTo("#_successDataTable_"+subId);
+            }
+        }
+        if(data.failList != null && data.failList.length > 0){
+            var _html = "";
+            for(var i=0;i<data.failList.length;i++){
+                var item = data.failList[i];
+                _html += '<tr><td style="width:20%;">'+item.id+'</td><td style="width:30%;">'+item.apBeaconUuid+'</td><td style="width:50%;">'+item.message+'</td></tr>';
+            }
+            if(_html != ""){
+                var itemCnt = $("#failCnt_"+subId).text();
+                if(gfnIsEmpty(itemCnt)){
+                    itemCnt = "0";
+                }
+                itemCnt = parseInt(itemCnt) + 1;
+                
+                $("#failCnt_"+subId).text(itemCnt);
+                $(_html).appendTo("#_failDataTable_"+subId);
+            }
+        }
+    }
+    
+    function firmwareUpdate(){
+
+    	var apData = fnApSelected();
+    	if(apData.success == false){
+    		return;
+    	}
+    	var apList = apData.apList;
+    	
+    	var firmwareList = new Array();
+    	$("input[name=firmwareNames]:checked").each(function(){
+    		firmwareList.push($(this).val());
+    	});
+    	
+    	if(firmwareList.length == 0){
+            alert("선택된 펌웨어 업데이트 파일이 없습니다.");
+            return;
+        }
+    	if(firmwareList.length > 10 ){
+    		alert("선택된 펌웨어 업데이트 파일은 10개 이하로 선택해야합니다.");
+            return;
+    	}
+    	
+    	if(confirm("펌웨어 업데이트 하시겠습니까?")){
+    		
+    		gfnLoadingImage();
+    		
+    		var fileStr = firmwareList.join("  |  ");
+            $("#txt_firmwareFile").text(fileStr);
+    		
+    		$("#successCnt_firmware").text("0");
+    		$("#failCnt_firmware").text("0");
+    		$("#_successDataTable_firmware").empty();
+    		$("#_failDataTable_firmware").empty();
+    		$("#txt_result_firmware").text("진행중...");
+    		$("#txt_select_ap_cnt_firmware").text(apList.length);
+    		
+    		var responseIdx = 0;
+            $(apList).each(function(idx, val){
+                $.ajax({
+                    url: '/jaha/apt/ap/firmware/update',
+                    type: 'post',
+                    async : false,
+                    dataType: "json",
+                    traditional: true , // parameter 직렬화를 느슨하게 처리.
+                    timeout: 200000,
+                    data: {
+                        "apList": val,
+                        "firmwareList": firmwareList
+                    },
+                    success: function(data) {
+                        if(data == null){
+                            alert("업데이트할 실제파일이 없거나 모두 실패하였습니다.");
+                        } else {
+                            setResultHtml(data, "firmware");
+                            responseIdx++;
+                            if(responseIdx == apList.length){
+                            	$("#txt_result_firmware").text("완료");
+                                alert("완료되었습니다.");
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                    	responseIdx++;// 에러가 발생해도 진행은 완료 표기할수있게 count함
+                        alert("error : function firmwareUpdate fail");
+                    },
+                    complete : function(){
+                    }
+                });
+            });
+            
+            gfnUnLoadingImage();
+            resultFirmwareModal();
+    		
+    	}
+    	
+    }
+    
+    function systemDataUpdate(){
+        
+    	var apData = fnApSelected();
+        if(apData.success == false){
+            return;
+        }
+        var apList = apData.apList;
+        
+        if($("#chkRssi").prop("checked") == false && $("#chkKeepon").prop("checked") == false){
+            alert("시스템정보 항목중 한개이상 선택해야합니다.");
+            return;
+        }
+        
+        if(confirm("시스템정보를 업데이트 하시겠습니까?")){
+        	
+        	gfnLoadingImage();
+        	
+        	if($("#chkRssi").prop("checked") == true){
+                $("#txt_rssi > span").text($("#rssi").val());
+                $("#txt_rssi").show();
+            } else {
+                $("#txt_rssi").hide();
+            }
+            if($("#chkKeepon").prop("checked") == true){
+                $("#txt_keepon > span").text($("#keepon").val());
+                $("#txt_keepon").show();
+            } else {
+                $("#txt_keepon").hide();
+            }
+        	
+            //결과 html 초기화
+        	$("#_successDataTable_systemData").empty();
+        	$("#successCnt_systemData").text("0");
+        	$("#_failDataTable_systemData").empty();
+        	$("#failCnt_systemData").text("0");
+        	$("#txt_result_systemData").text("진행중...");
+        	$("#txt_select_ap_cnt_systemData").text(apList.length);
+        	
+            var params = {};
+            
+            if($("#chkRssi").prop("checked") == true){
+            	params.rssi = $("#rssi").val();
+            }
+            if($("#chkKeepon").prop("checked") == true){
+                params.keepon = $("#keepon").val();
+            }
+        	
+            var responseIdx = 0;
+			$(apList).each(function(idx, val){
+				params.apList = val;
+				$.ajax({
+	                url: '/jaha/apt/ap/system-data/update',
+	                type: 'post',
+	                async : true,
+	                dataType: "json",
+	                traditional: true , // parameter 직렬화를 느슨하게 처리.
+	                timeout: 200000,
+	                data: params,
+	                success: function(data) {
+	                    if(data != null){
+	                        setResultHtml(data, "systemData");
+	                        responseIdx++;
+	                        if(responseIdx == apList.length){
+	                        	$("#txt_result_systemData").text("완료");
+	                        	alert("완료되었습니다.");
+	                        }
+	                    }
+	                },
+	                error: function(xhr, status, error) {
+	                	responseIdx++;// 에러가 발생해도 진행은 완료 표기할수있게 count함
+	                    alert("error : function systemDataUpdate fail");
+	                },
+	                complete : function(){
+	                }
+	            });
+			});
+			
+			gfnUnLoadingImage();
+			resultSystemDataModal();
+        }
+        
+    }
+    
+    function resultRemoteControlSend(){
+        var apData = fnApSelected();
+        if(apData.success == false){
+            return;
+        }
+        var apList = apData.apList;
+        
+        if($("#fw_version").val() == "" && $("input[name=files]").length == 0 && $("input[name=cmd]").length == 0){
+        	alert("입력된 데이터가 없습니다.");
+        	return;
+        }
+        
+        var emptyData = true;
+        $("input[name=files]").each(function(){
+            if($(this).val() == ""){
+                alert("선택하지않은 파일이 있습니다.");
+                emptyData = false;
+                return false;
+            }
+        });
+        
+        if(emptyData == false){
+            return;
+        }
+        
+        $("input[name=path]").each(function(){
+            if($(this).val() == ""){
+                alert("입력되지않은 Path가 있습니다.");
+                emptyData = false;
+                return false;
+            }
+        });
+        
+        if(emptyData == false){
+            return;
+        }
+        
+        if(confirm("전송하시겠습니까?")){
+            
+            gfnLoadingImage();
+            
+            $("#txt_firmwareVersion").text($("#fw_version").val());
+            $("#_successDataTable_remoteControl").empty();
+            $("#successCnt_remoteControl").text("0");
+            $("#_failDataTable_remoteControl").empty();
+            $("#failCnt_remoteControl").text("0");
+            $("#txt_result_remoteControl").text("진행중...");
+            $("#txt_select_ap_cnt_remoteControl").text(apList.length);
+            
+            var responseIdx = 0;
+            $(apList).each(function(idx, val){
+            	
+            	$("#apList").val(val);
+            	
+            	$("#remoteSettingForm").ajaxSubmit({
+                    url: "/jaha/apt/ap/system/remote/control"
+                    , type: 'post'
+                    , async: false
+                    , dataType: "json"
+                    , timeout: 200000
+                    , success: function(data) {
+                        if(data != null){
+                        	setResultHtml(data, "remoteControl");
+                        	responseIdx++;
+                            if(responseIdx == apList.length){
+                            	$("#txt_result_remoteControl").text("완료");
+                            	alert("완료되었습니다.");
+                            }
+                        }
+                    }
+                    , error: function(xhr, status, error) {
+                    	responseIdx++;// 에러가 발생해도 진행은 완료 표기할수있게 count함
+                    	alert("error : function resultRemoteControlSend fail");
+                    }
+                    , complete : function(){
+                    }
+                });
+            });
+            
+            gfnUnLoadingImage();
+            resultRemoteControlModal();
+        }
+    }
+    
+    function resultFirmwareModal(){
+        $("#modal-firmware").centerModal();
+    }
+    
+    function resultSystemDataModal(){
+    	$("#modal-system-data").centerModal();
+    }
+    
+    function resultRemoteControlModal(){
+        $("#modal-remote-control").centerModal();
+    }
+    
+    function selectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+    }
+    
+    function cancelApt(){
+    	$("#aptNm").val("");
+        $("#aptId").val("");
+    }
+    
+    function fnDelRemoteSettingItem(obj){
+        $(obj).parent().parent().remove();
+    }
+
+    function fnRemoteSettingItemAdd(){
+        var _html = "";
+        var fw_type = $("input[name=remoteType]:checked").val();
+        if(fw_type == "file"){
+            _html = '<tr><th>Path</th><td class="form-inline"><input type="text" class="form-control" name="path" style="width:430px;" /></td><td class="form-inline" style="padding-left: 10px;"><input type="file" name="files" style="width:160px;" /></td><td><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelRemoteSettingItem(this)" /><input type="hidden" name="fw_type" value="'+fw_type+'" /></td></tr>';
+        } else {
+            _html = '<tr><th>Cmd</th><td class="form-inline" colspan="2"><input type="text" class="form-control" name="cmd" style="width:600px;" /></td><td><input type="button" class="btn btn-sm btn-warning" style="margin-left:5px;" value="X" name="modalDelBtn" onclick="fnDelRemoteSettingItem(this)"  /><input type="hidden" name="fw_type" value="'+fw_type+'" /></td></tr>';
+        }
+        
+        $(_html).appendTo("#remoteSettingAddTable");
+    }
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>회원가입 | e마을</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link href="../../static/css/animate.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/animate.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+
+        .cell {
+            max-width: 90%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .starter-template {
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .lead {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .container2 {
+            width: 750px;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+
+
+    </style>
+</head>
+<body  style="background-image: url('/img/bg-login.jpg'); background-size: cover;">
+
+<div class="container2">
+    <div class="panel" style="background-color: rgba(255, 255, 255, 1); margin-top: 15%; padding-bottom: 5%">
+    <div class="starter-template" style="color: #f46835">
+        <h1>회원가입<small></small></h1>
+        <!--<p class="lead"><br/></p>-->
+    </div>
+
+    <div class="row">
+        <div class="cell">
+
+            <form name="create-user-form" id="create-user" class="form-horizontal" action="/api/public/user/create-apt-user" method="POST" style="margin-left: -4%">
+                <input type="hidden" name="kind" value="web"/>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">주소</label>
+                    <div class="col-sm-9 form-inline">
+                        <div id="address-search-type" style="margin-bottom:10px">
+                            <label class="radio-inline">
+                                <input type="radio" name="search" value="reg"/> 등록된 아파트 검색
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="search" value="all"/> 전국 아파트 검색
+                            </label>
+                            <button type="button" class="btn btn-default" onclick="getAddressCode()" style="vertical-align: middle">주소검색</button>
+                        </div>
+
+
+
+                        <input type="text" class="form-control" id="address" style="width: 100%; margin-bottom: 10px" disabled="disabled"/>
+                        <div class="form-inline col-sm-9" style="padding: 0">
+                            <input type="text" class="form-control" name="dong" id="dong" style="width: 100px"/>
+                            <label for="dong" class="control-label">동</label>
+                            <input type="text" class="form-control" name="ho" id="ho" style="width: 100px"/>
+                            <label for="ho" class="control-label">호</label>
+                            <input type="hidden" name="addressCode" id="addressCode"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">email</label>
+                    <div class="col-sm-9">
+                    <input type="email" class="form-control" name="email" id="email"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">이름</label>
+                    <div class="col-sm-9">
+                    <input type="text" class="form-control" name="name" id="name"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">비밀번호</label>
+                    <div class="col-sm-9">
+                    <input type="password" class="form-control" name="password" id="password"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">비밀번호 재확인</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" name="password2" id="password2"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">핸드폰</label>
+                    <div class="col-sm-9 form-inline" id="phone-area">
+                        <input type="text" class="form-control" name="phoneNumber" id="phoneNumber"/>
+                        <button type="button" class="btn btn-default" id="phoneAuth-btn">인증</button>
+
+                        <div id="phone-auth" style="display: none">
+                            <p class="border-grayback" style="color: red; margin-bottom: 0"><small>핸드폰으로 인증번호를 전송했습니다.<br/>잠시 후 인증번호가 도착하면, 아래 빈 칸에 입력해 주세요.</small></p>
+                            <input type="hidden" id="phone-key" name="phoneAuthKey"/>
+                            <input id="phone-code" name="phoneAuthCode" class="form-control"/>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">추천인 닉네임</label>
+                    <div class="col-sm-9 form-inline" id="recomm-area">
+                        <input type="text" class="form-control" name="recommNickName" id="recommNickName"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">성별</label>
+                    <div class="col-sm-9">
+                    <label class="radio-inline">
+                        <input type="radio" name="gender" value="male"/> 남자
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="gender" value="female"/> 여자
+                    </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">나이</label>
+                    <div class="col-sm-9 form-inline">
+                        <select class="form-control" id="year" name="year">
+                            <option>생년선택</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div align="center" style="padding-top: 5px">
+                <input id="joinSubmit" type="submit" class="btn btn-emaul" onclick="checkVal()" value="회원가입"/><!--todo-->
+                    <a class="btn btn-default" href="/">취소</a>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info1" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">아파트검색</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-inline" style="margin-bottom: 10px">
+                    <input size="60" type="text" id="buildingName1" class="form-control" name=""
+                           onkeypress="if(event.keyCode == 13){findApt();}" placeholder="예)"/>
+                    <button type="button" class="btn btn-default" onclick="findApt()">찾기</button>
+                </div>
+                <div id="showFoundApt"></div>
+                <button id="submit-address1" class="btn btn-success" style="margin-left: 45%;"
+                        onclick="beforeSubmitAddress()" data-dismiss="modal">완료
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">주소검색</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <tr>
+                        <th width="20%">시도명</th>
+                        <td>
+                            <select class="form-control" id="sido" onchange="sidoToSigungu()">
+                                <option value="10">시/도 선택</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>시군구명</th>
+                        <td>
+                            <select class="form-control" id="sigungu">
+                                <option value="11">시군구 선택</option>
+                                <option value="12">시/도를 먼저 선택하세요</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>건물검색</th>
+                        <td>
+                            <div class="form-inline">
+                            <input type="text" id="buildingName" class="form-control" name="" onkeypress="if(event.keyCode == 13){findBuildingIf();}" placeholder="예)"/>
+                                <button type="button" class="btn btn-default" onclick="findBuildingIf()">찾기</button>
+                            </div>
+                            <div id="loading" style="display: none">
+                                <img src="/img/ajax-loader.gif" alt="loading"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <button id="submit-address" class="btn btn-success" style="margin-left: 45%;" onclick="submitAddressIf()" data-dismiss="modal">완료</button>
+                <p id="modal-content" style="word-wrap: break-word"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>-->
+<!--<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>-->
+<!--<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>-->
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ajaxStart(function() {
+        $('#loading').css('position','absolute');
+        $('#loading').css('z-index','10000');
+        $('#loading').css('top','70%');
+        $('#loading').css('left','50%');
+
+        $('#loading').show();
+    }).ajaxStop(function() {
+        $('#loading').attr('style','');
+        $('#loading').hide();
+    });
+
+    function getAddressCode() {
+
+        var checkedType = $(':checked').val();
+
+        if (checkedType == 'reg') {
+
+            $('#modal-info1').modal('show');
+
+        } else if (checkedType == 'all') {
+            $('#buildingChosen').remove();
+            $('#sido').empty();
+            $('#sido').append('<option value="10">시/도 선택</option>');
+
+            $('#sigungu').empty();
+            $('#sigungu').append('<option value="11">시군구 선택</option>');
+            $('#sigungu').append('<option value="12">시/도를 먼저 선택하세요</option>');
+
+            $('#buildingName').val("");
+            var url = "/api/public/address/sido-names";
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (data) {
+                    for (i in data) {
+                        $('#sido').append('<option>' + data[i] + '</option>');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+            $('#modal-info').modal('show');
+        }
+    }
+
+    function findApt() {
+
+        var htmlText = '<select class="form-control" id="buildingChosen" size="12"></select>';
+        var getKeyword = $('#buildingName1').val();
+        $.ajax({
+            type: 'GET',
+            url: '/api/public/apt/search?keyword=' + encodeURIComponent(getKeyword),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                $('#buildingChosen').remove();
+                buildingSearchResults = data;
+                $('#showFoundApt').append(htmlText);
+                for (i in data) {
+                    $('#buildingChosen').append('<optgroup label="' + data[i].address + '"><option>' + data[i].name + '</option></optgroup>');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    function sidoToSigungu() {
+
+        $('#sigungu').empty();
+        $('#sigungu').append('<option value="11">시군구 선택</option>');
+
+
+        var sidoName=$('#sido option:selected').text();
+
+        var url = "/api/public/address/sigungu-names/"+encodeURIComponent(sidoName);
+
+        if($('#sido option:selected').val()==10){
+            $('#sigungu').empty();
+            $('#sigungu').append('<option value="11">시군구 선택</option>');
+            $('#sigungu').append('<option value="12">시/도를 먼저 선택하세요</option>');
+        }else {
+            $.ajax({
+                type: 'GET',
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (data) {
+                    for (i in data) {
+                        $('#sigungu').append('<option>' + data[i] + '</option>');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+    var buildingSearchResults;
+
+    function findBuildingIf(){
+        if($('#sido').val()==10 || $('#sigungu').val()==11 || $('#sigungu').val()==12 || $('#buildingName').val()=="" || $('#buildingName').val()==null){
+            alert('시/도와 시군구를 선택한 후 검색할 단어를 입력해주세요');
+        }else{
+            findBuilding();
+        }
+    }
+
+    function findBuilding() {
+
+        $('#buildingChosen').remove();
+
+        var sidoName=$('#sido option:selected').text();
+        var sigunguName=$('#sigungu option:selected').text();
+        var buildingName = $('#buildingName').val();
+
+        var htmlText='<select class="form-control" id="buildingChosen" size="12"></select>';
+        var url = '/api/public/address/search-building?sidoName='+encodeURIComponent(sidoName)+'&sigunguName='+encodeURIComponent(sigunguName)+'&buildingName='+encodeURIComponent(buildingName);
+
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                $('#buildingChosen').remove();
+                buildingSearchResults = data;
+                $('td:last').append(htmlText);
+                for (i in data) {
+                    $('#buildingChosen').append('<optgroup label="'+data[i].address+'"><option>'+data[i].name+'</option></optgroup>');
+//                    $('#buildingChosen').append('<option>'+ data[i].address+'<br>\r\n'+data[i].name+'</option>');//<option>태그 안에 다른 태그 허용 안됨
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+
+        });
+    }
+
+    function submitAddressIf(){
+        if($('#sido').val()==10 || $('#sigungu').val()==11 || $('#sigungu').val()==12 || $('#buildingName').val()=="" || $('#buildingName').val()==null){
+            $('#submit-address').removeAttr("data-dismiss");
+            alert('시/도와 시군구를 선택한 후 검색할 단어를 입력해주세요');
+        } else if ($('#buildingChosen option:selected').text() == '') {
+            $('#submit-address').removeAttr("data-dismiss");
+            alert('아파트를 선택한 후 완료버튼을 눌러주세요.');
+        }else{
+            $('#submit-address').attr("data-dismiss","modal");
+            submitAddress();
+        }
+    }
+
+    function beforeSubmitAddress() {
+        if ($('#buildingChosen option:selected').text() == '') {
+            $('#submit-address1').removeAttr("data-dismiss");
+            alert('검색 후 아파트를 선택해 주세요');
+        } else {
+            $('#submit-address1').attr("data-dismiss", "modal");
+            submitAddress();
+        }
+    }
+
+    function submitAddress(){
+        var buildingSel = $('#buildingChosen option:selected').text();
+        var indexOfBuilding = $('#buildingChosen option').index($('#buildingChosen option:selected'));
+
+        $('#address').val(buildingSel);
+
+
+        $('#addressCode').val(buildingSearchResults[indexOfBuilding].code);
+    }
+
+
+    $('#phoneAuth-btn').click(function() {
+        var phoneNumber = $('#phoneNumber').val();
+        var numCheck = /^[0-9]*$/;
+        if(phoneNumber==""){
+            alert('전화번호를 입력해 주세요.');
+            $('#phoneNumber').focus();
+        }else if(!numCheck.test(phoneNumber)){
+            alert('숫자만 입력해 주세요.');
+            $('#phoneNumber').focus();
+        }else {
+            var $button = $('#phone-area').find('#phoneAuth-btn');
+            $('#phone-auth > input').val("");
+
+            var data = '{ phoneNumber : '+ phoneNumber + '}';
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/public/phone-auth/req',
+                data: data,
+                contentType: "application/json; charset=utf-8",
+                timeout: 10000,
+
+                success: function (data) {
+                    var k = JSON.parse(data);
+                    $('#phone-key').val(k.key);
+                    $('#phone-auth').show();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#phone-auth').hide();
+                    alert(jqXHR.responseJSON.message);
+                    $button.removeAttr('disabled');
+                },
+                beforeSend: function (xhr, setting) {
+                    $button.attr('disabled', 'disabled');
+                },
+                complete: function (xhr, status) {
+                    setTimeout(function () {
+                        $button.removeAttr('disabled');
+                    }, 3000);
+                }
+            });
+
+
+        }
+
+    });
+
+    function checkVal() {
+
+
+        var email = $('#email').val();
+        var regex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+
+        var pass = $('#password').val();
+        var regexPassDigit = /^[\w\Wㄱ-ㅎㅏ-ㅣ가-힣]{8,16}$/;
+
+        if($('#address').val()==''){
+            alert("주소를 검색해 주세요");
+            event.preventDefault();
+        }else if($('#dong').val()==''){
+            alert("동을 입력해 주세요");
+            $('#dong').focus();
+            event.preventDefault();
+        }else if($('#ho').val()==''){
+            alert("호를 입력해 주세요");
+            $('#ho').focus();
+            event.preventDefault();
+        }else if(regex.test(email) === false) {
+            alert("잘못된 이메일 형식입니다.\n정확한 이메일 주소를 입력해주세요.");
+            $('#email').focus();
+            event.preventDefault();
+        }else if($('#name').val()==''){
+            alert("이름을 입력해 주세요");
+            $('#name').focus();
+            event.preventDefault();
+        }else if(!regexPassDigit.test(pass)) {
+            alert("비밀번호를 8자리 이상 입력해 주세요.(최대 16자리)");
+            $('#password').focus();
+            event.preventDefault();
+        }else if(pass != $('#password2').val()) {
+            alert("비밀번호 재확인에 입력하신 번호가 일치하지 않습니다.\n비밀번호에 입력하신 번호와 동일하게 입력해주세요.");
+            $('#password2').focus();
+            event.preventDefault();
+        }else if($('#phoneNumber').val()==''){
+            alert("휴대폰 번호를 입력하시고 인증버튼을 클릭하세요");
+            $('#phoneNumber').focus();
+            event.preventDefault();
+        }else if($('#phone-key').val()==''){
+            alert("인증번호가 전송되지 않았습니다. 다시 인증버튼을 클릭해주세요");
+            event.preventDefault();
+        }else if($('#phone-code').val()==''){
+            alert("휴대폰으로 전송된 인증번호를 입력해 주세요");
+            $('#phone-code').focus();
+            event.preventDefault();
+        }else if($("input[type=radio][name='gender']:checked").val()==undefined){
+            alert("성별을 선택해 주세요");
+            event.preventDefault();
+        }else if($('#year').val()=='생년선택') {
+            alert("태어난 해를 선택해 주세요");
+            $('#year').focus();
+            event.preventDefault();
+        }else{
+                formSubmit();
+        }
+    }
+
+    function formSubmit(){
+
+        $('#create-user').ajaxForm({
+            success: function (resp) {
+
+                if(resp == "EXIST_EMAIL"){
+                    alert('이미 존재하는 이메일입니다. 다른 이메일 주소를 입력해 주세요');
+                    $('#email').focus();
+                }else if(resp =="PHONE_AUTH_ERROR"){
+                    alert('휴대폰 인증번호를 다시 확인해 주세요');
+                    $('#phoneNumber').focus();
+                }else if(resp == null){
+                    alert('휴대폰번호와 인증번호를 확인하시고 다시 시도해 주세요');
+                    $('#phoneNumber').focus();
+                }else if(resp == "NO_SUCH_NICKNAME"){
+                    alert('입력하신 추천인 닉네임이 없습니다. 다시 확인해 주세요');
+                    $('#recommNickName').focus();
+                }else{
+                    alert('가입을 축하합니다');
+                    window.location = '/';
+                }
+            },
+            error: function (resp, errorThrown, textStatus) {
+                console.log(resp);
+                console.log(errorThrown);
+                console.log(textStatus);
+            },
+            beforeSend : function(xhr,setting) {
+                $('#joinSubmit').attr('disabled','disabled');
+            },
+            complete : function(xhr,status) {
+                setTimeout(function(){
+                    $('#joinSubmit').removeAttr('disabled');
+                }, 5000);
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        for (var year=2015; year>=1920; year--){
+            $('#year').append('<option value="'+year+'">'+year+'</option>');
+        }
+
+        $("input:text").unbind("keydown");
+    });
+
+    /*]]>*/
+</script>
+
+
+</body>
+</html>

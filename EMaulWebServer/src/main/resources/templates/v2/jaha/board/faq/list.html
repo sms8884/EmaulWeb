@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title th:text="${category.name} + ' | 목록'">공지사항 | 목록</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+<form name="boardSearchForm" id="boardSearchForm" method="post" action="">
+	<input type="hidden" id="searchSubCategory" name="searchSubCategory" value="" />
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 th:text="${category.name}" class="page-header">게시판</h1>
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+					<div th:replace="v2/jaha/board/search-form :: board-search-form"></div>
+
+					<div class="btn-group btn-group-sm" role="group" style="height:50px; padding-top:10px;">
+						<button type="button" th:class="((${boardDto.searchSubCategory == null or boardDto.searchSubCategory == ''})? 'btn btn-default active' : 'btn btn-default')" value="" onclick="paging(1, this);">전체</button>
+						<button th:each="subCategory : ${subCategoryList}" type="button" th:class="((${boardDto.searchSubCategory == subCategory.code})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, this);" th:value="${subCategory.code}" th:text="${subCategory.name}">카테고리</button>
+					</div>
+
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="8%" style="text-align:center;">번호</th>
+                            <th style="text-align:center;">제목</th>
+                            <th width="10%" style="text-align:center;">첨부파일</th>
+                            <th width="10%" style="text-align:center;">등록일</th>
+                            <th width="8%" style="text-align:center;">조회수</th>
+                            <th width="15%" style="text-align:center;">카테고리</th>
+                            <th width="7%" style="text-align:center;">서비스 노출</th>
+                            <th width="7%" style="text-align:center;">게시여부</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${boardPostList.empty}">
+                            <td colspan="8" style="text-align:center;" th:text="${category.name} + ' 게시글 목록이 없습니다.'">게시글 목록이 없습니다.</td>
+                        </tr>
+                        <tr th:each="post,iterStat : ${boardPostList}">
+                            <td>
+                                <!--<a th:href="@{/admin/user/info/}+${post.userId}" th:text="${post.writerName}" target="_blank"></a>-->
+                                <span th:text="${pagingHelper.listStartNum - iterStat.index}"></span>
+                            </td>
+                            <td>
+                                <div class="board-list-contents2" style="height:40px; text-align:left;">
+                            		<a class="board-list-title" th:text="${post.title}" th:href="'/v2/jaha/board/faq/read/' + ${post.id}"></a>
+                                </div>
+                            </td>
+                            <td>
+                            	<!--<div class="img-inline"><img th:if="${post.firstEditorImageThumbUrl != null}" th:src="${post.firstEditorImageThumbUrl}" width="80" height="80" /></div>-->
+                            	<span th:if="${post.fileGroupKey == null}">없음</span>
+                                <span th:if="${post.fileGroupKey != null}">있음</span>
+                            </td>
+                            <td th:text="${#dates.format(post.regDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${post.viewCount}"></td>
+                            <td>
+                            	<span class="label label-success" style="font-size:15px;" th:each="subCategory : ${subCategoryList}" th:if="${subCategory.code == post.subCategory}" th:text="${subCategory.name}" >카테고리</span>
+                            </td>
+                            <td th:text="${post.displayPlatform}"></td>
+                            <td th:text="${post.displayYn}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <a class="btn btn-primary" style="float: right" onclick="moveCreateForm()">FAQ 등록</a>
+                </div>
+            </div>
+
+			<!-- paging -->
+			<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+
+        </div>
+	</div>
+</form>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryId = /*[[${category.id}]]*/ '0';
+
+/**
+ * 등록 페이지 이동
+ */
+function moveCreateForm() {
+   	location.href="/v2/jaha/board/faq/create-form";
+   	return;
+}
+/**
+ * 수정 페이지 이동
+ */
+function moveModifyForm(postId) {
+   	location.href="/v2/jaha/board/faq/modify-form/" + postId;
+   	return;
+}
+/**
+ * 게시글 삭제
+ */
+function deleteBoardPost(postId, commentCount) {
+	if (commentCount > 0) {
+		// alert(" 댓글이 있는 게시글은 삭제할 수 없습니다! ");
+		// return;
+	}
+
+	var url = "/v2/jaha/board/faq/remove/" + postId;
+
+    if (confirm(" 게시글을 삭제하시겠습니까?? ")) {
+		location.href = url;
+    }
+}
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum, el) {
+	var $this = $(el);
+	$("#searchSubCategory").val($this.val());
+
+	$("#pageNum").val(movePageNum);
+
+	var $form = $("#boardSearchForm");
+	$form.attr("action", $("#listUrl").val());
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+  	$('#startDateWrap, #endDateWrap').datetimepicker({
+        format : "YYYY-MM-DD",
+        useCurrent: false
+    });
+    $("#startDateWrap").on("dp.change", function (e) {
+        $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endDateWrap").on("dp.change", function (e) {
+        $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+    });
+
+    // 검색 버튼 클릭 시
+    $("#searchBtn").bind("click", function() {
+      	paging(1);
+    });
+
+    // 초기화 버튼 클릭 시
+    $("#resetBtn").bind("click", function() {
+      	$("#searchStartDate").val("");
+        $("#searchEndDate").val("");
+        $("#searchKeyword").val("");
+
+        paging(1);
+    });
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

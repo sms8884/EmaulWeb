@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+        body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+        fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+            padding:0; 
+            margin:0;
+        }
+        
+        header,footer,section,aside,article,time,nav,figure,figcaption,video{
+            display:block;
+        }
+        
+        body,
+        input{
+            font-size:12px; 
+            color:#333;
+            font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+        }
+        
+        .defaultPopup{
+            border:1px solid #c3c3c3;
+            margin:0 auto;
+            padding:0px 15px 0px 15px;
+            vertical-align:middle;
+            background:#FFFFFF;
+        }
+
+        .apAddBtnBox {
+            text-align:left;
+            margin-bottom:15px;
+        }
+
+        .bottomBtnBox {
+            text-align:right;
+            margin-top:5px;margin-bottom:15px;
+        }
+        
+        ._addTable th{
+            font-weight: normal;
+            width: 100px;
+        }
+        
+         ._addTable td{
+            width: 260px;
+        }
+        
+        .deleteAptApBtn {
+            background-color:white;
+            border:0px;
+            font-weight:bold;
+            width:15px;
+        }
+
+    </style>
+
+    <title>출입문 AP 등록 관리</title>
+</head>
+
+<body>
+
+    <div class="defaultPopup">
+        <h4 class="page-header">출입문 AP 출입 기기</h4>
+
+            
+                <form name="frm" id="frm" method="post">
+                    <input type="hidden" name="id" th:value="${aptApAccessDevice.id}" />
+                    <table class="table table-responsive _addTable">
+                        <tr>
+                            <th>TYPE</th>
+                            <td class="form-inline">
+                                <select name="type" id="type" class="form-control" style="width:200px;">
+                                    <option value="" >선택</option>
+                                    <option th:each="item : ${apAccessDeviceTypeList}" th:value="${item.code}" th:text="${item.name}" th:selected="${aptApAccessDevice.type == item.code}" ></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Access Key</th>
+                            <td class="form-inline">
+                                <input type="text" class="form-control" id="accessKey" name="accessKey" maxlength="50" style="width:400px;" th:value="${aptApAccessDevice.accessKey}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>소유자</th>
+                            <td class="form-inline" >
+                                <input type="text" class="form-control" id="userNm" name="userNm" maxlength="250" style="width:250px;" readonly="readonly" th:value="${aptApAccessDevice.user.fullName}" />
+                                <input type="hidden" name="userId" id="userId" th:value="${aptApAccessDevice.user.id}" />
+                                <input type="button" class="btn btn-sm btn-warning" id="selectUserBtn" value="유저선택" name="selectUserBtn" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>사용자</th>
+                            <td class="form-inline" >
+                                <input type="text" class="form-control" id="secondUser" name="secondUser" maxlength="250" style="width:250px;" th:value="${aptApAccessDevice.secondUser}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>아파트 출입문 AP</th>
+                            <td class="form-inline">
+                                <input type="button" class="btn btn-sm btn-warning" id="selectAptBtn" value="AP 선택" name="selectAptBtn" onclick=""/>
+                                <input type="button" class="btn btn-sm btn-warning" id="saveDetailBtn" value="선택한 목록보기" name="saveDetailBtn" onclick="fnAptApListView()"/>
+                                <div id="aptApIdArea" style="display:none;">
+                                    <p th:each="item : ${aptApList}" ><span th:text="${item.apName}"></span> [<span th:text="${item.apBeaconUuid}"></span>]<input type="hidden" name="aptApId" th:value="${item.id}"/><input type="button" name="deleteAptApBtn" class="deleteAptApBtn" onclick="fnDeleteAptApId(this)" value="X" /></p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>메모</th>
+                            <td class="form-inline" >
+                                <textarea style="width:100%" name="memo" id="memo" rows="5" th:text="${aptApAccessDevice.memo}"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info sc_asSignup" id="sc_asSignup" value="저장" name="sc_asSignup" onclick="save()"/>
+            <input type="button" class="btn btn-info sc_asSignup" id="cancelBtn" value="취소" name="cancelBtn" onclick="closePopup()"/>
+        </div>
+    </div>
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+        var _save = /*[[${csvFileSave}]]*/ '-1';
+        if(_save == "1"){
+            saveMessage();
+        } else if(_save == "0"){
+            alert("저장된 항목이 없습니다.");
+        }
+        
+        $("#apPassword, #apId").keyup(function(event){
+            $(this).val($(this).val().replace(/[^_a-z0-9]/gi,''));//영어, 숫자만 가능
+        });
+        
+        $("#selectUserBtn").on("click", function(){
+            var width = 700;
+            var height = 530;
+            var left = (screen.width-width)/2;
+            var top = (screen.height-height)/2;
+            var url = "/admin/user/search/default-popup?callback=_callback";
+            window.open(url,url,"width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+        });
+        
+        $("#selectAptBtn").on("click", function(){
+            var width = 800;
+            var height = 590;
+            var left = (screen.width-width)/2;
+            var top = (screen.height-height)/2;
+            var url = "/admin/apt/ap/search/popup?callback=_aptCallBack";
+            window.open(url,url,"width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+        });
+        
+    });
+    
+    function _callback(user){
+        if(!gfnIsEmpty(user)){
+            $("#userNm").val(user.fullName);
+            $("#userId").val(user.id);
+        }
+    }
+    
+    function _aptCallBack(arrAptAp){
+        if(!gfnIsEmpty(arrAptAp)){
+            for(var i=0;i<arrAptAp.length;i++){
+                var rowData = arrAptAp[i];
+                if(!gfnIsEmpty(rowData)){
+                	if($("input[name=aptApId][value="+rowData.id+"]").length == 0){
+                		$('<p>'+rowData.apName+' ['+rowData.apBeaconUuid+']<input type="hidden" name="aptApId" value="'+rowData.id+'" /><input type="button" name="deleteAptApBtn" class="deleteAptApBtn" onclick="fnDeleteAptApId(this)" value="X" /></p>').appendTo("#aptApIdArea");
+                	}
+                }
+            }
+        }
+    }
+    
+    function fnDeleteAptApId(obj){
+        if(confirm("목록에서 제거 하시겠습니까?")){
+            $(obj).parent().remove();
+        }
+    }
+    
+    function fnAptApListView(){
+        if($("#aptApIdArea").css("display") == "none"){
+            $("#aptApIdArea").show();
+        } else {
+            $("#aptApIdArea").hide();
+        }
+    }
+    
+    function validationForm(){
+        
+        if($("#type").val() == ""){
+            alert("TYPE을 선택해주세요.");
+            $("#type").focus();
+            return false;
+        } else if($("#accessKey").val() == ""){
+            alert("Access Key를 입력해주세요.");
+            $("#accessKey").focus();
+            return false;
+        } else if($("#userId").val() == "" && $("input[name=aptApId]").length == 0){
+            alert("소유자와 아파트 출입문 AP중 하나는 입력해야합니다.");
+            return false;
+        }
+        
+        return true;
+        
+    }
+    
+    function closePopup(){
+        self.close();
+    }
+    
+    function save(){
+        
+        if(confirm("저장하시겠습니까?")){
+            
+            $.ajax({
+                url: '/admin/apt/ap/access/device/save',
+                type: 'post',
+                async : false,
+                dataType: "html",
+                data: $("#frm").serialize(),
+                success: function(data) {
+                    if(data > 0){
+                        saveMessage();
+                    } else {
+                        //accessKey 중복체크 리턴
+                    	if(data == -1){
+                            alert("중복된 accessKey 입니다.");
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("error : save ajax fail !! ");
+                }
+            }); 
+            
+        }
+    }
+    
+    function saveMessage(){
+        alert("저장되었습니다.");
+        try{ opener.SBGrid_pagingInit(); }catch(e){}
+        closePopup();
+    }
+      
+    /*]]>*/
+</script>
+
+</body>
+</html>

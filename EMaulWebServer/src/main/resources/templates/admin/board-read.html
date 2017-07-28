@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+        .cmtStyle {
+            color: red;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA| 게시물목록</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">게시글 상세보기</h1>
+
+                <div id="content-container">
+                    <div class="panel panel-info">
+                    		<div class="panel-heading" style="height: 40px;">
+
+                            <p th:if="${post.title != null}" style="float: left; width: 400px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; " th:text="'제목 : ' + ${post.title}"> </p>
+                            <p th:if="${post.title == null}" style="float: left; width: 400px; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; " th:text="'제목 : ' + ${post.content}" ></p>
+
+                        </div>
+
+
+                        <div class="panel-heading" style="height: 40px;">
+                            <p th:if="${post.writerName}" style="float: left;" th:text="'작성자 : ' + ${post.writerName}">
+                            </p>
+                            <p style="float: right;" th:text="${post.regDate}"></p>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="show-img" th:if="${post.imageCount!=0}">
+                                <div class="img-inline">
+                                    <img th:src="'/api/board/post/image/'+${post.id}+'/0.jpg'" class="img-rounded"/>
+                                </div>
+                                <div class="img-inline" th:if="${post.imageCount &gt; 1}">
+                                    <img th:src="@{/api/board/post/image/}+${post.id}+'/1.jpg'" class="img-rounded"/>
+                                </div>
+                                <div class="img-inline" th:if="${post.imageCount &gt; 2}">
+                                    <img th:src="@{/api/board/post/image/}+${post.id}+'/2.jpg'" class="img-rounded"/>
+                                </div>
+                            </div>
+
+                            <pre th:if="${post.category.contentMode == 'text'}" th:text="${post.content}" style="margin-bottom: 5%; background: none; border: none"></pre>
+                            <div class="board-detail-content" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody != null}" th:utext="${post.contentOnlyBody}" style="margin-bottom: 5%; background: none; border: none"></div>
+                            <div class="board-detail-content" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody == null}" th:utext="${post.content}" style="margin-bottom: 5%; background: none; border: none"></div>
+
+                            <div th:if="${post.file1}" class="well well-sm" id="fileLink">
+                                <span th:if="${post.file1}">
+                                    <a th:href="${post.file1}">1. 첨부파일다운받기</a>
+                                </span>
+                                <span th:if="${post.file2}">
+                                    <a th:href="${post.file2}">2. 첨부파일다운받기</a>
+                                </span>
+                            </div>
+
+                            <div class="well well-sm">
+                                <p id="p_comment_title">댓글쓰기</p>
+                                <textarea class="form-control" rows="3" id="text-comment" style="resize: none; margin-bottom: 5px"></textarea>
+
+                                <div class="button-position">
+                                    <span id="_cmtMaxMsg" style="display:none;"></span>
+                                    <span id="_cmtLength"></span>
+                                    <a class="btn btn-sm btn-outline btn-danger" th:href="'javascript:writeComment(' + ${post.id} + ')'">등록</a>
+                                </div>
+                            </div>
+
+                            <div class="well well-sm" id="comments-container">
+                            </div>
+
+
+
+							<div style="float: left" th:if="${user.type.jaha}" id="blindArea">
+								<!-- 자하권한 블라인드 처리 -->
+                            	<button class="btn btn-success" th:onclick="'boardPostBlind(' + ${post.id} + ',\'Y\')'" th:unless="${post.blindYn eq 'Y'}">숨김</button>
+                            	<button class="btn btn-success" th:onclick="'boardPostBlind(' + ${post.id} + ',\'N\')'" th:if="${post.blindYn eq 'Y'}">숨김 해제</button>
+                           	</div>
+
+                            <button type="button" class="btn btn-outline btn-info" th:onclick="'location.href=\'/admin/board/post/list/'+ ${post.category.id}+ '\''" style="float: right">목록</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<input type="hidden" id="boardCategoryType" name="boardCategoryType" th:value="${boardCategoryType}" />
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var cmtMaxByte = 1000;// 댓글과 댓글에댓글의 글자수 제한
+    var cmtMaxMsg = "댓글 글자수를 초과하였습니다.";
+
+    $(document).ready(function () {
+        var postId = /*[[${post.id}]]*/ '100000000';
+        appendComments(postId, null);
+
+        var boardCategoryTypeVal = $("#boardCategoryType").val();
+
+        if ("complaint" === boardCategoryTypeVal) {
+        	$("#h1_page_header").text("민원확인");
+        	$("#p_comment_title").text("답변등록");
+        }
+
+		$(".board-detail-content").each(function() {
+			var tempContent = $(this).html();
+
+			if (tempContent) {
+				$(this).html(tempContent.replace(/\n/g, "<br />"));
+			}
+		});
+
+    });
+
+    /**
+     * 댓글 글자제한 메시지및 byte수 표기
+     **/
+     function setTextLengthStatus(options){
+         $("#"+options._cmtMaxMsgId).text(cmtMaxMsg).addClass("cmtStyle");
+         $("#"+options._cmtLengthId).text(" [ 0 / "+cmtMaxByte+" ] ").addClass("cmtStyle");//처음 로딩시 기본 글자수표기
+
+         $("#"+options._textCommentId).on("keyup", function(){
+             var currByte = gfnByte($(this).val());
+             $("#"+options._cmtLengthId).text(" [ "+currByte+" / "+cmtMaxByte+" ] ");
+             if(currByte > cmtMaxByte){
+                 $("#"+options._cmtMaxMsgId).show();
+             } else {
+                 $("#"+options._cmtMaxMsgId).hide();
+             }
+         });
+     }
+
+    function writeComment(postId) {
+        var content = $('#text-comment').val();
+        if (content == '') {
+            alert('내용을 입력해주세요');
+            return;
+        }
+
+        if(gfnByte(content) >  cmtMaxByte){
+        	alert(cmtMaxMsg);
+        	return;
+        }
+
+        var obj = {
+            postId: postId,
+            content: content
+        };
+        $('#text-comment').val('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/board/comment/write/',
+            data: JSON.stringify(obj),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#comments-container').empty();
+                appendComments(postId, null);
+
+                var boardCategoryTypeVal = $("#boardCategoryType").val();
+
+                if ("complaint" === boardCategoryTypeVal) {
+                	$().toastmessage('showToast', {
+                	    text : '답변이 등록되었습니다!'
+                	    , sticky : false
+                	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+                	    , type : 'success' // notice, warning, error, success
+                	    , close : function () { if (window.console && console.log) console.log("toast is closed ..."); }
+                	});
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+                $('#comments-container').empty();
+                appendComments(postId, null);
+            }
+        });
+    }
+
+    function appendComments(postId, nextPageToken) {
+        $(this).remove();
+        var readMoreTag = $('#read-more');
+        if (readMoreTag != null) {
+            readMoreTag.remove();
+        }
+
+        var replyUrl = '/admin/board/post/read-reply/' + postId + (nextPageToken != null ? '?nextPageToken=' + nextPageToken : '');
+
+        var boardCategoryTypeVal = $("#boardCategoryType").val();
+
+        if ("complaint" === boardCategoryTypeVal) {
+        	if (nextPageToken) {
+        		replyUrl += "&categoryType=" + boardCategoryTypeVal;
+        	}
+        	else {
+        		replyUrl += "?categoryType=" + boardCategoryTypeVal;
+        	}
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: replyUrl,
+            contentType: "text/html; charset=utf-8",
+            success: function (data) {
+                $('#comments-container').append(data);
+
+                //댓글 글자수 표기
+                setTextLengthStatus({
+                	_cmtMaxMsgId : "_cmtMaxMsg",
+                	_cmtLengthId : "_cmtLength",
+                	_textCommentId : "text-comment"
+                });
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+
+    }
+
+    function deleteComment(commentId) {
+
+        if (confirm('삭제하시겠습니까?')) {
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/board/comment/delete/' + commentId,
+                contentType: "text/html; charset=utf-8",
+                success: function (data) {
+                	if(data == "1"){
+                		$('#comment-' + commentId).remove();
+                	}
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("삭제 중 오류가 발생했습니다");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+    function showCommentReply(commentId) {
+        $.ajax({
+            type: 'GET',
+            url: '/admin/board/comment/'+commentId+'/reply',
+            contentType: "text/html; charset=urf-8",
+            success: function (data) {
+//                $('#reply-wrap').empty();
+
+                $('#reply-wrap').remove();
+                $('#comment-'+ commentId).after('<div id="reply-wrap"></div>');
+                $('#reply-wrap').append(data);
+
+                $('.button-reply').attr('style', '');
+                $('.button-reply-hide').attr('style', 'display:none');
+
+                $('#button-reply-'+commentId).attr('style', 'display:none');
+                $('#button-reply-hide-'+commentId).attr('style', '');
+
+                setTextLengthStatus({
+                    _cmtMaxMsgId : "_cmtMaxMsg-"+commentId,
+                    _cmtLengthId : "_cmtLength-"+commentId,
+                    _textCommentId : "text-comment-"+commentId
+                });
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        })
+    }
+
+    function hideCommentReply(commentId) {
+        $('#reply-wrap').remove();
+        $('#button-reply-'+commentId).attr('style', '');
+        $('#button-reply-hide-'+commentId).attr('style', 'display:none');
+
+
+    }
+    function writeCommentReply(commentId) {
+        var content = $('#reply-form-'+commentId).find('textarea').val();
+
+        if (content == '') {
+            alert('내용을 입력해주세요');
+            return;
+        }
+        if(gfnByte(content) >  cmtMaxByte){
+            alert(cmtMaxMsg);
+            return;
+        }
+
+        var obj = {
+            commentId: commentId,
+            content: content
+        };
+
+        $('#reply-form-'+commentId).find('textarea').val('');
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/board/comment/reply/write',
+            data: JSON.stringify(obj),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#reply-wrap').empty();
+                showCommentReply(commentId);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+                $('#reply-wrap').empty();
+                showCommentReply(commentId);
+            }
+        });
+    }
+
+    function deleteReply(replyId) {
+
+        if (confirm('삭제하시겠습니까?')) {
+
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/board/comment/reply/delete/' + replyId,
+                contentType: "text/html; charset=utf-8",
+                success: function (data) {
+                	if(data == "1"){
+                        $('#reply-' + replyId).remove();
+                	}
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("삭제 중 오류가 발생했습니다");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+
+
+    // 게시물 블라인드 처리
+	function boardPostBlind(postId, blindYn) {
+
+    	/* if (isEmpty($('#boardBlindComment').val())) {
+    		alert("숨김 사유를 입력하세요.");
+    		$('#boardBlindComment').focus();
+    		return;
+    	} */
+
+        if (confirm('숨김' + ('N' == blindYn?"해제":"") + '처리 하시겠습니까?')) {
+
+        	var obj = {
+        			blindYn: blindYn,
+                };
+            $.ajax({
+                type: 'POST',
+                url: '/admin/board/post/blind/' + postId,
+                data: JSON.stringify(obj),
+                contentType: "text/html; charset=utf-8",
+                success: function (data) {
+                	if(data){
+                		if ('Y' == blindYn) {
+                			$('#blindArea').html('<button class="btn btn-success" onclick="boardPostBlind(' + postId + ',\'N\')">숨김 해제</button>');
+                		} else if ('N' == blindYn) {
+                			$('#blindArea').html('<button class="btn btn-success" onclick="boardPostBlind(' + postId + ',\'Y\')">숨김</button>');
+                		}
+
+                	} else {
+                		alert("숨김 처리 중 오류가 발생하였습니다.");
+                		return;
+                	}
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                	alert("숨김 처리 중 오류가 발생하였습니다.");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        }
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

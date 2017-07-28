@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardCategoryMapper">
+
+	<insert id="insertBoardCategory" parameterType="BoardCategoryVo">
+	    INSERT /* insertBoardCategory, 전강욱(realsnake@jahasmart.com) */ INTO board_category (
+	        apt_id
+	        , json_array_readable_user_type
+	        , json_array_writable_user_type
+	        , name
+	        , ord
+	        , type
+	        , content_mode
+	        , push_after_write
+	        , user_privacy
+	        , del_yn
+	        , comment_display_yn
+	        , req_ip
+	        , user_id
+	        , reg_date
+	    ) VALUES (
+	        #{aptId}
+	        , #{jsonArrayReadableUserType}
+	        , #{jsonArrayWritableUserType}
+	        , #{name}
+	        , #{ord}
+	        , #{type}
+	        , #{contentMode}
+	        , #{pushAfterWrite}
+	        , #{userPrivacy}
+	        , 'N'
+	        , IFNULL(#{commentDisplayYn}, 'Y')
+	        , #{reqIp}
+	        , #{userId}
+	        , NOW()
+	    )
+	</insert>
+
+	<update id="updateBoardCategory" parameterType="BoardCategoryVo">
+	    UPDATE /* updateBoardCategory, 전강욱(realsnake@jahasmart.com) */ board_category
+	    <set>
+		    <if test=' jsonArrayReadableUserType != null and !"".equals(jsonArrayReadableUserType) '>json_array_readable_user_type = #{jsonArrayReadableUserType},</if>
+		    <if test=' jsonArrayWritableUserType != null and !"".equals(jsonArrayWritableUserType) '>json_array_writable_user_type = #{jsonArrayWritableUserType},</if>
+		    <if test=' name != null and !"".equals(name) '>name = #{name},</if>
+		    <if test=' ord != null and ord > 0 '>ord = #{ord},</if>
+		    <if test=' type != null and !"".equals(type) '>type = #{type},</if>
+		    <if test=' contentMode != null and !"".equals(contentMode) '>content_mode = #{contentMode},</if>
+		    <if test=' "Y".equals(pushAfterWrite) or "N".equals(pushAfterWrite) '>push_after_write = #{pushAfterWrite},</if>
+		    <if test=' userPrivacy != null and !"".equals(userPrivacy) '>user_privacy = #{userPrivacy},</if>
+		    <if test=' "Y".equals(commentDisplayYn) or "N".equals(commentDisplayYn) '>commentDisplayYn = #{commentDisplayYn},</if>
+		    <if test=' modId != null and modId > 0 '>req_ip = #{reqIp}, mod_id = #{modId}, mod_date = NOW()</if>
+	    </set>
+	    WHERE id = #{id}
+	</update>
+
+	<update id="updateDelYn" parameterType="BoardCategoryVo">
+	    UPDATE /* updateDisplayYn, 전강욱(realsnake@jahasmart.com) */ board_category
+	    SET del_yn = #{delYn}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<select id="selectBoardCategory" parameterType="long" resultType="BoardCategoryVo">
+	    SELECT /* selectBoardCategory, 전강욱(realsnake@jahasmart.com) */ id
+	    , apt_id
+	    , json_array_readable_user_type
+	    , json_array_writable_user_type
+	    , name
+	    , ord
+	    , type
+	    , content_mode
+	    , push_after_write
+	    , user_privacy
+	    , del_yn
+	    , comment_display_yn
+	    , user_id
+	    , reg_date
+	    , mod_id
+	    , mod_date
+	    FROM board_category
+	    WHERE id = #{id}
+	</select>
+
+	<sql id="whereClauseOfBoardCategory">
+	    WHERE apt_id = #{searchAptId}
+    		AND del_yn = 'N'
+	</sql>
+
+	<select id="selectBoardCategoryListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardCategoryListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_category
+	    <include refid="whereClauseOfBoardCategory" />
+	</select>
+
+	<select id="selectBoardCategoryList" parameterType="BoardDto" resultType="BoardCategoryVo">
+	    SELECT /* selectBoardCategoryList, 전강욱(realsnake@jahasmart.com) */ id
+	    , apt_id
+	    , json_array_readable_user_type
+	    , json_array_writable_user_type
+	    , name
+	    , ord
+	    , type
+	    , content_mode
+	    , push_after_write
+	    , user_privacy
+	    , del_yn
+	    , comment_display_yn
+	    , user_id
+	    , reg_date
+	    , mod_id
+	    , mod_date
+	    FROM board_category
+	    <include refid="whereClauseOfBoardCategory" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+</mapper>

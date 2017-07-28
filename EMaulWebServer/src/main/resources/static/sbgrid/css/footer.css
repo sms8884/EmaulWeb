@@ -1,0 +1,34 @@
+@charset "utf-8";
+
+
+
+footer{
+	background-color:#7F7F7F;
+	overflow:hidden;
+	color:#fff;
+}
+
+.footer_logo{
+	float:left;
+	font-size:17px;
+	font-weight:bold;
+	margin:0 20px;
+	line-height:2.5;
+
+}
+.footer_linklist{
+	float:right;
+}
+
+.footer_linklist ul{
+	overflow:hidden;
+}
+.footer_linklist ul li{
+	float:left;
+	margin:0 10px;
+	line-height:3;
+}
+
+.footer_linklist ul li a{
+	color:#fff;
+}

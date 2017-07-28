@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0;
+	        margin:0;
+	    }
+
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+
+	    body,
+	    input{
+	        font-size:12px;
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	        background:#FFFFFF;
+	    }
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:15px;
+	        margin-bottom:15px;
+	    }
+	    .search-table {
+	        width:100%;
+	    }
+	    .search-table tr {
+	        height: 40px;
+	    }
+        .search-table .aptName {
+            width:500px;
+        }
+        .search-table .searchBtn {
+            margin-top: 2px;
+        }
+	    ._listArea {
+            width:100%;
+	    }
+	    ._logListArea{
+	       min-height: 470px;
+	    }
+	    .hand {
+            cursor: pointer;
+        }
+        ._link{
+            text-decoration: underline;
+        }
+        ._link:hover{
+            font-weight: bold;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:40px;
+        }
+        ._listTable tbody tr{
+            height:30px;
+        }
+        ._listTable thead td{
+            border-bottom:2px solid #EAEAEA;
+        }
+        ._listTable tbody td{
+            border-bottom:1px solid #F6F6F6;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+        .listTableScroll2{
+            overflow-y:auto;
+            height: 350px;
+        }
+        .listTable2 {
+            text-align:center;
+        }
+        ._defaultTable tr{
+            border-bottom : 1px solid #F6F6F6;
+        }
+        ._defaultModalTable{
+            width:100%;
+        }
+        ._defaultModalTable th {
+            width:150px;
+        }
+        ._defaultModalTable tr {
+            height: 30px;
+        }
+
+        /* 말줄임 css */
+        .ellipsis{
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            overflow:hidden;
+        }
+
+    </style>
+
+    <title>AP 출입 Log</title>
+</head>
+
+<body>
+    <div class="defaultPopup">
+        <h4 class="page-header"><b>AP 출입 Log</b></h4>
+
+        <div class="panel panel-info panel-body">
+            <table class="table-responsive search-table">
+                <tr>
+                    <th>아파트</th>
+                    <td class="form-inline" colspan="3">
+                        <input type="hidden" name="aptId" id="aptId" th:value="${apt?.apt_id}" />
+                        <input type="text" class="form-control aptName" id="aptNm" name="aptNm" th:value="${apt?.building_address}" readonly="readonly" />
+                        <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="fnSelectAptPopup()"/>
+                        <input type="button" class="btn btn-default btn-sm" id="cancelAptBtn" value="아파트선택취소" name="cancelAptBtn" onclick="fnCancelApt()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>AP 검색</th>
+                    <td class="form-inline">
+                        <input type="button" class="btn btn-info btn-sm" value="AP검색" name="selectApBtn" onclick="fnSelectApPopup()"/>
+                        <input type="button" class="btn btn-default btn-sm" id="selectApBtn" value="선택한AP(0개)보기" name="selectApBtn" onclick="fnViewSelectedAp()"/>
+                        <input type="button" class="btn btn-default btn-sm" value="AP선택취소" name="cancelAptBtn" onclick="fnCancelAp()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>기간</th>
+                    <td class="form-inline" colspan="3">
+                        <div id="startDateWrap" class='input-group date'>
+                            <input type="text" class="form-control" id="sDate" name="sDate" placeholder="YYYY-MM-DD" />
+                            <span class="input-group-addon" style="cursor: pointer;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        ~
+                        <div id="endDateWrap" class='input-group date'>
+                            <input type="text" class="form-control" id="eDate" name="eDate" placeholder="YYYY-MM-DD" />
+                            <span class="input-group-addon" style="cursor: pointer;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                        <input type="button" class="btn btn-sm btn-outline btn-info" id="excelDownBtn" name="excelDownBtn" value="엑셀다운로드" />
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="panel-default" style="margin-bottom:10px; height:30px;">
+            <span style="float:left;" id="totalCountText" >0</span>건의 데이터가 검색되었습니다.
+            <select class="form-control" name="pageSize" id="pageSize" style="height:30px;width:120px;float:right;" >
+                <option value="10">10개씩</option>
+                <option value="20">20개씩</option>
+                <option value="30">30개씩</option>
+                <option value="50">50개씩</option>
+            </select>
+        </div>
+
+        <div class="_listArea panel _logListArea">
+            <table class="table _listTable" >
+                <thead>
+                    <tr>
+                        <td style="width:5%;">No.</td>
+                        <td style="width:14%;">아파트</td>
+                        <td style="width:5%;">ID</td>
+                        <td style="width:8%;">AP ID</td>
+                        <td style="width:8%;">AP 이름</td>
+                        <td style="width:8%;">사용자</td>
+                        <td style="width:8%;">비콘카드 사용자</td>
+                        <td style="width:13%;">출입시간</td>
+                        <td style="width:8%;">출입완료여부</td>
+                        <td style="width:10%;">IP</td>
+                        <td style="width:13%;">메모</td>
+                    </tr>
+                </thead>
+                <tbody id="_listTable">
+                    <tr><td style="width:100%;" colspan="15">검색해주세요.</td></tr>
+                </tbody>
+            </table>
+
+            <div id="pagingArea" align="center"></div>
+        </div>
+
+        <div class="bottomBtnBox">
+            <input type="button" class="btn btn-info" value="닫기" name="closeBtn" onclick="fnClose()" />
+        </div>
+    </div>
+
+<!-- AP 선택목록 modal -->
+<div class="modal fade" id="modal-ap-list" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">AP 검색 목록</h5>
+            </div>
+            <div class="modal-body">
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:20%;">ID</td>
+                                    <td style="width:50%;">AP BEACON UUID</td>
+                                    <td style="width:30%;">AP 이름</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="listTableScroll2" >
+                        <table class="table table-hover listTable2">
+                            <tbody id="_listTable2">
+                                <tr><td style="width:100%;" colspan="10">데이터가 없습니다.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-default" value="AP선택취소" name="cancelApSelectBtn" onclick="fnCancelAp()" />
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 사용자 상세정보 modal -->
+<div class="modal fade" id="modal-user" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">사용자 정보</h4>
+            </div>
+            <div class="modal-body" >
+                <table class="_defaultModalTable _defaultTable" id="modal-user-table">
+                </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AP 상세정보 modal -->
+<div class="modal fade" id="modal-ap" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">AP 정보</h4>
+            </div>
+            <div class="modal-body" >
+                <table class="_defaultModalTable _defaultTable" id="modal-ap-table">
+                </table>
+                <!-- <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-default" value="AP상세화면으로 이동" name="moveApDetailBtn" onclick="fnMoveApDetail()" />
+                </div>
+                 -->
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+
+    	$("#searchBtn").on("click", fnInitSearch);
+
+    	$("#pageSize").on("change", function(){
+            param.pageSize = $("#pageSize").val();
+            fnSearch();
+        });
+
+    	$("#excelDownBtn").on("click", function(){
+            fnSearch4ExcelDownload();
+        });
+
+        $('#startDateWrap, #endDateWrap').datetimepicker({
+            format : "YYYY-MM-DD"
+        });
+
+        var sDate = /*[[${sDate}]]*/ '';
+        var eDate = /*[[${eDate}]]*/ '';
+        if(gfnIsEmpty(sDate) == false){
+        	$('#startDateWrap').data("DateTimePicker").date(moment(sDate));
+        }
+        if(gfnIsEmpty(eDate) == false){
+            $('#endDateWrap').data("DateTimePicker").date(moment(eDate));
+        }
+
+        var apList = /*[[${apList}]]*/ '';
+        _searchApCallback(apList);// callback function을 활용하여 ap선택되게 처리.
+
+        // 팝업에 parameter로 전송된 데이터가 있으면 바로 검색 실행한다.
+        if($("input[name=apList]").length > 0 || $("#aptId").val() != ""){
+        	fnInitSearch();
+        }
+
+    });
+
+    var param = {};
+    function fnInitSearch(){
+
+        var sDate = $('#startDateWrap').data("DateTimePicker").date();
+        var eDate = $('#endDateWrap').data("DateTimePicker").date();
+
+        if(sDate > eDate){
+        	alert("기간검색을 다시 설정해주세요.");
+        	return;
+        }
+
+        param.aptId = $("#aptId").val();
+        param.sDate = $("#sDate").val();
+        param.eDate = $("#eDate").val();
+        param.pageSize = $("#pageSize").val();
+
+        var searchApList = new Array();
+        $("input[name=apList]").each(function(){
+            searchApList.push($(this).val());
+        });
+        param.apList = searchApList;
+
+        fnSearch();
+
+    }
+
+    function fnSearch(pageNum){
+
+    	param.pageNum = gfnNvl(pageNum, "1");
+
+    	gfnLoadingImage();
+
+    	$.ajax({
+            url: '/jaha/apt/ap/access/log/list/popup-data',
+            type: 'post',
+            async : true,
+            dataType: "json",
+            data: param,
+            traditional: true , // parameter 직렬화를 느슨하게 처리. ( ajax parameter에 array 변수를 전송 할때 적용함. )
+            success: function(data) {
+
+            	$("#_listTable").empty();
+
+                var dataList = data.dataList;
+
+                var onlinePagingHtml = makePaging(data.pagingHelper, "fnMovePaging");
+                $('#pagingArea').html(onlinePagingHtml);
+
+                var no = data.pagingHelper.totalRecordCount - ( data.pagingHelper.startNum );
+
+                if(dataList != null && dataList.length > 0){
+
+                    $("#totalCountText").text(data.pagingHelper.totalRecordCount);
+
+            		var _html = '';
+                    for(var i=0;i<dataList.length;i++){
+                    	var id = gfnNvl(dataList[i].id);
+                        var apBeaconUuid = gfnNvl(dataList[i].apBeaconUuid);
+                        var expIp = gfnNvl(dataList[i].expIp);
+                        var apName = gfnNvl(dataList[i].apName);
+                        var apId = gfnNvl(dataList[i].apId);
+                        var aptApId = gfnNvl(dataList[i].aptApId);
+                        var userId = dataList[i].userId;
+                        var fullName = dataList[i].fullName;
+                        var secondUser = gfnNvl(dataList[i].secondUser);
+                        var accessDate = dataList[i].accessDateText;
+                        var success = gfnNvl(dataList[i].success);
+                        var memo = gfnNvl(dataList[i].memo);
+                        var aptName = gfnNvl(dataList[i].aptName);
+
+                        _html += '<tr>';
+                        _html += '<td style="width:5%">'+(no--)+'</td>';
+                        _html += '<td style="width:14%">'+aptName+'</td>';
+                        _html += '<td style="width:5%" class="hand _link" onclick="fnApDetail('+apId+')">'+apId+'</td>';
+                        _html += '<td style="width:8%">'+aptApId+'</td>';
+                        _html += '<td style="width:8%">'+apName+'</td>';
+                        _html += '<td style="width:8%" class="hand _link" onclick="fnUserDetail('+userId+')" >'+fullName+'</td>';
+                        _html += '<td style="width:8%">'+secondUser+'</td>';
+                        _html += '<td style="width:13%">'+accessDate+'</td>';
+                        _html += '<td style="width:8%">'+success+'</td>';
+                        _html += '<td style="width:10%">'+expIp+'</td>';
+                        _html += '<td style="width:13%;" data-toggle="tooltip" title="'+memo+'"><div style="width:200px;" class="ellipsis">'+memo+'</div></td>';
+                        _html += '</tr>';
+                    }
+
+                    if(_html.length > 0){
+                    	$(_html).appendTo("#_listTable");
+                    	$(window).scrollTop(0);//검색하면 스크롤은 항상 맨위로
+                    }
+
+            	} else {
+            		$("#totalCountText").text("0");
+            		$('<tr><td style="text-align:center" colspan="15">검색결과가 없습니다.</td></tr>').appendTo("#_listTable");
+            	}
+            },
+            error: function(xhr, status, error) {
+                alert("error : function fnSearch fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+    }
+
+    function fnMovePaging(pageNum){
+        fnSearch(pageNum);
+    }
+
+    function clickApt(aptId){
+    	$("input[type=radio][name=aptId][value="+aptId+"]").prop("checked", true);
+    }
+
+    function fnSelectAptPopup(){
+    	gfnAptSearchPopup();
+    }
+
+    function _searchAptCallback(apt){
+        $("#aptNm").val(apt.aptAddressNm);
+        $("#aptId").val(apt.aptId);
+    }
+
+    function fnCancelApt(){
+        $("#aptNm").val("");
+        $("#aptId").val("");
+    }
+
+    /* AP검색 */
+    function fnSelectApPopup(){
+        var width = 800;
+        var height = 720;
+
+        var param = "";
+        if($("#aptId").val() != ""){
+            param = "?_aptId="+$("#aptId").val();
+        }
+        openWindow("/jaha/ap/search/popup"+param,"apSearchPopup", width, height);
+    }
+
+    function fnViewSelectedAp(){
+        $("#modal-ap-list").centerModal();
+    }
+
+    function fnCancelAp(){
+        $("#_listTable2").empty();
+        $("#selectApBtn").val("선택한AP(0개)보기");
+        $("#modal-ap-list").modal("hide");
+    }
+
+    function _searchApCallback(apDataList){
+        $("#_listTable2").empty();
+        var _html = '';
+        $(apDataList).each(function(idx){
+            var id = gfnNvl(apDataList[idx].id);
+            var apBeaconUuid = gfnNvl(apDataList[idx].apBeaconUuid);
+            var apName = gfnNvl(apDataList[idx].apName);
+             _html += '<tr>';
+             _html += '<td style="width:20%">'+id+'<input type="hidden" name="apList" value="'+id+'" /></td>';
+             _html += '<td style="width:50%">'+apBeaconUuid+'</td>';
+             _html += '<td style="width:30%">'+apName+'</td>';
+             _html += '</tr>';
+        });
+        if(_html.length > 0){
+            $("#selectApBtn").val("선택한AP("+apDataList.length+"개)보기");
+            $("#_listTable2").html(_html);
+        }
+    }
+
+    function fnApDetail(apId){
+        var id = gfnNvl(apId);
+        if(!gfnIsEmpty(id)){
+            $.ajax({
+                url: '/jaha/apt/ap/all/detail',
+                type: 'post',
+                async : true,
+                dataType: "json",
+                data: {
+                    "id" : id
+                },
+                success: function(data) {
+                    if(data != null){
+                        var _html = '';
+                        _html += '<tr><th>ID</th><td>'+data.id+'<input type="hidden" name="_tempApId" id="_tempApId" value="'+data.id+'" /></td></tr>';
+                        _html += '<tr><th>아파트</th><td>'+data.aptName+'</td></tr>';
+                        _html += '<tr><th>AP BEACON UUID</th><td>'+data.apBeaconUuid+'</td></tr>';
+                        _html += '<tr><th>AP ID</th><td>'+gfnNvl(data.apId)+'</td></tr>';
+                        _html += '<tr><th>AP 이름</th><td>'+gfnNvl(data.apName)+'</td></tr>';
+                        _html += '<tr><th>IP</th><td>'+data.expIp+'</td></tr>';
+                        _html += '<tr><th>간편출입권한</th><td>'+gfnNvl(data.skipAuth)+'</td></tr>';
+                        _html += '<tr><th>생성일</th><td>'+data.regDateText+'</td></tr>';
+                        _html += '<tr><th>삭제일</th><td>'+gfnNvl(data.deactiveDateText)+'</td></tr>';
+
+                        $("#modal-ap-table").html(_html);
+                        $("#modal-ap").centerModal();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("error : fnApDetail fail");
+                }
+            });
+        }
+    }
+
+    function fnUserDetail(userId){
+        var id = gfnNvl(userId);
+        if(!gfnIsEmpty(id)){
+            $.ajax({
+                url: '/jaha/user/info',
+                type: 'post',
+                async : true,
+                dataType: "json",
+                data: {
+                    "userId" : id
+                },
+                success: function(data) {
+                    if(data != null){
+                        var _html = '';
+                        _html += '<tr><th>아파트</th><td>'+data.aptName+'</td></tr>';
+                        _html += '<tr><th>동</th><td>'+data.dong+'</td></tr>';
+                        _html += '<tr><th>호</th><td>'+data.ho+'</td></tr>';
+                        _html += '<tr><th>이름</th><td>'+data.fullName+'</td></tr>';
+                        _html += '<tr><th>닉네임</th><td>'+data.nickname+'</td></tr>';
+                        _html += '<tr><th>이메일</th><td>'+data.email+'</td></tr>';
+                        _html += '<tr><th>연락처</th><td>'+data.phone+'</td></tr>';
+                        _html += '<tr><th>생년</th><td>'+data.birthYear+'</td></tr>';
+                        _html += '<tr><th>성별</th><td>'+data.gender+'</td></tr>';
+                        _html += '<tr><th>권한</th><td>'+data.auth+'</td></tr>';
+                        _html += '<tr><th>가입일</th><td>'+data.regDate+'</td></tr>';
+                        _html += '<tr><th>탈퇴일</th><td>'+gfnNvl(data.deactiveDate)+'</td></tr>';
+
+                        $("#modal-user-table").html(_html);
+                        $("#modal-user").centerModal();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("error : fnUserDetail fail");
+                }
+            });
+        }
+    }
+
+    function fnSearch4ExcelDownload(){
+    	var parameter = decodeURIComponent($.param(param, true));
+        $.download('/jaha/apt/ap/access/log/list/excel-download', parameter, 'post');
+    }
+
+    function fnClose(){
+    	self.close();
+    }
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+@charset "utf-8";
+body{
+	background-color: #666;
+}
+section.join .inbox{
+	width:720px;
+	margin:50px auto 0;
+	background-color: #fff;
+	border-radius: 5px;
+	position: relative;
+}
+section.join .inbox > h3{
+	font-size: 36px;
+	text-align: center;
+	color:#F46835;
+	padding-top: 20px;
+}
+section.join .inbox > form > fieldset{
+	padding: 20px;
+	border:0;
+}
+section.join .inbox > form > fieldset > table{
+	width: 100%;
+	margin-bottom: 50px;
+}
+section.join .inbox > form > fieldset > table tr th{
+	text-align: right;
+	padding: 5px 10px;
+	font-size: 16px;
+	line-height: 30px;
+}
+section.join .inbox > form > fieldset > table tr td{
+	padding: 5px 10px;
+}
+section.join .inbox > form > fieldset > table tr td input{
+	vertical-align: middle;
+	height: 30px;
+}
+section.join .inbox > form > fieldset > table tr td input.w100{
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	text-indent: 10px;
+}
+section.join .inbox > form > fieldset > table tr td input.w30{
+	width: 30%;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	text-indent: 10px;
+}
+section.join .inbox > form > fieldset > table tr td input.w50{
+	width: 50%;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	text-indent: 10px;
+}
+section.join .inbox > form > fieldset > table tr td div p{
+	margin: 10px 0;
+	padding: 10px 15px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	background:#F7F7F9;
+	color: #f00;
+	font-size: 13px;
+	line-height: 20px;
+}
+section.join .inbox > form > fieldset > table tr td label{
+	margin-right: 10px;
+}
+section.join .inbox > form > fieldset > table tr td select{
+	width: 35%;
+	height: 30px;
+	border: 1px solid #ddd;
+	text-indent: 3px;
+}
+section.join .inbox > form > fieldset > table tr td select option{
+	height: 30px;
+	line-height: 30px;
+	text-indent: 5px;
+}
+section.join .inbox > form > fieldset .btn_box{
+	text-align: center;
+}
+section.join .inbox > form > fieldset .btn_box input,
+section.join .inbox > form > fieldset .btn_box a{
+	height: 30px;
+	line-height: 30px;
+}
+section.join .inbox .btn{
+	display: inline-block;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	padding: 0 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	margin-left: 5px;
+	height: 30px;
+}
+section.join .inbox .btn_color{
+	display: inline-block;
+	background-color:#F46835;
+	padding: 0 10px;
+	border-radius: 3px;
+	color: #fff;
+	border: 1px solid #F46835;
+}
+
+
+
+section.join .inbox .pop{
+	background-color: #fff;
+	position: fixed;
+	top: 20%;
+	left: 50%;
+	width: 450px;
+	border-radius: 5px;
+	margin-left:-225px;
+	box-shadow: 5px 5px 5px #999;
+	display: none;
+}
+section.join .inbox .pop h3{
+	padding: 15px;
+	font-size: 18px;
+	color: #fff;
+	background-color:#F46835;
+	border-radius: 3px 3px 0 0;
+}
+section.join .inbox .pop form fieldset{
+	border:0;
+	padding: 5% 3% 3%;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px;
+	
+}
+section.join .inbox .pop form fieldset .w70{
+	width: 80%;
+	height: 30px;
+	line-height: 30px;
+	text-indent: 10px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+}
+section.join .inbox .pop form fieldset .btn_box{
+	text-align: center;
+	margin-top: 15px;
+}
+section.join .inbox .pop form fieldset .btn_box .btn_color{
+	height: 30px;
+	line-height: 30px;
+}
+section.join .inbox .pop > div{
+	text-align: right;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+section.join .inbox .pop > div .btn{
+	line-height: 30px;
+}
+section.join .inbox .popup0{
+	display: block;
+}
+
+section.join .inbox .popup1 form fieldset table{
+	width: 100%;
+}
+section.join .inbox .popup1 form fieldset table tr{
+	height: 40px;
+	line-height: 40px;
+	border-top: 1px solid #ddd;
+}
+section.join .inbox .popup1 form fieldset table tr th{
+	text-align: left;
+	padding-left: 5px;
+}
+section.join .inbox .popup1 form fieldset table tr td select{
+	height: 30px;
+	width: 50%;
+}
+section.join .inbox .popup1 form fieldset table tr td select option{
+	padding: 5px 0;
+	text-indent: 5px;
+}
+section.join .inbox > form > fieldset img{
+	width: 100%;
+}
+section.join .inbox > form > fieldset > p{
+	font-size: 17px;
+	font-weight: 600;
+	text-align: center;
+	padding: 15px 0;
+	background-color:#F46835;
+	color: #fff;
+	margin-top: 15px;
+}
+
+
+.form-control{
+    width:100% !important;
+    /*height: 150px !important;*/
+    margin-top: 10px !important;
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.SystemFaqMapper">
+
+    <sql id="sql_selectSystemFaq">
+        SELECT l1.id
+		      ,l1.type
+		      ,( SELECT name FROM common_code WHERE code_group = 'FAQ_TYPE' AND code = l1.type ) type_name
+		      ,l1.title
+		      ,l1.content
+		      ,l1.status
+		      ,IF(l1.status = '1', '게시','미게시') status_name
+		      ,l1.view_cnt
+		      ,l1.view_service
+		      ,( SELECT group_concat(name separator ' ') FROM common_code WHERE code_group = 'VIEW_SERV' AND find_in_set(code, l1.view_service) != 0 ) view_service_text
+		      ,l1.reg_id
+		      ,l1.reg_date
+		      ,l1.mod_id
+		      ,l1.mod_date
+		      ,l2.full_name reg_name
+		FROM system_faq l1
+		LEFT OUTER JOIN user l2
+		ON l1.reg_id = l2.id
+		<where>
+	        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+	            AND DATE_FORMAT(l1.reg_date, '%Y-%m-%d') BETWEEN #{startDate} AND #{endDate}
+	        </if>
+	        <if test="type != null and type != ''">
+	            AND l1.type = #{type}
+	        </if>
+	        <if test="searchKeyWord != null and searchKeyWord != ''">
+	            AND l1.${searchItem} LIKE CONCAT('%',#{searchKeyWord},'%')
+	        </if>
+	        <if test="status != null and status != ''">
+                AND l1.status = #{status}
+            </if>
+            <if test="userSearchKeyWord != null and userSearchKeyWord != ''">
+                <if test="userSearchItem == 1">
+                    AND ( l1.title LIKE CONCAT('%',#{userSearchKeyWord},'%') OR l1.content LIKE CONCAT('%',#{userSearchKeyWord},'%') )
+                </if>
+                <if test="userSearchItem == 2">
+                    AND l1.title LIKE CONCAT('%',#{userSearchKeyWord},'%')
+                </if>
+                <if test="userSearchItem == 3">
+                    AND l1.content LIKE CONCAT('%',#{userSearchKeyWord},'%')
+                </if>            
+            </if>
+            <if test="viewServices != null">
+                <foreach collection="viewServices" item="item" separator="OR" open="AND (" close=")">
+                find_in_set(#{item},l1.view_service) != 0
+                </foreach>
+            </if>
+            <if test="id != null and id != ''">
+                AND l1.id = #{id}
+            </if>
+        </where>
+       
+        ORDER BY reg_date DESC
+    </sql>
+
+	<select id="selectSystemFaqList" parameterType="map" resultType="SystemFaq">
+		/* selectSystemFaqList */
+		<include refid="sql_selectSystemFaq" />
+		LIMIT #{startNum}, #{pageSize}
+	</select>
+	
+	<select id="selectSystemFaqListCount" parameterType="map" resultType="int">
+        /* selectSystemFaqListCount */
+        SELECT COUNT(*) FROM (
+        <include refid="sql_selectSystemFaq" />
+        ) A
+    </select>
+    
+    <select id="selectSystemFaq" parameterType="map" resultType="SystemFaq">
+        /* selectSystemFaq */
+        <include refid="sql_selectSystemFaq" />
+    </select>
+	
+</mapper>

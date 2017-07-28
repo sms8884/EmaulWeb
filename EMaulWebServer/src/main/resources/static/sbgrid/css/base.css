@@ -1,0 +1,85 @@
+@charset "utf-8";
+
+
+/*base*/
+
+body,div,a,ul,ol,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	padding:0; 
+	margin:0;
+}
+
+header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	display:block;
+}
+
+body,
+input{
+	font-size:15px; 
+	color:#333;
+	font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+}
+
+img,
+fieldset{
+	border:none;
+}
+
+ul,ol{
+	list-style:none;
+}
+
+address{
+	font-style:normal;
+}
+
+a:link,
+a:visited{
+	text-decoration:none; color:#333;
+}
+
+a:hover,
+a:active{
+	text-decoration:underline; color:#333;
+}
+
+legend,
+.hide{
+	width:1px; 
+	height:1px;
+	overflow:hidden; 
+	visibility:hidden;
+	font-size:0; 
+	line-height:0;
+	position:absolute; 
+	left:-999px; 
+}
+
+img,
+input,
+select{
+	vertical-align:middle;
+}
+
+table{
+	border-collapse:collapse;
+}
+
+
+
+/*컬러
+진한색 #5C81AA
+연한색 #87A0BB
+글씨 #041D39
+버튼 #404040;
+
+
+
+#EAEFF3 배경
+#0E3979 글씨
+*/
+
+
+
+
+

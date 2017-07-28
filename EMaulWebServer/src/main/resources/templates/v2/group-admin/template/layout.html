@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}" />
+	<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../static/css/ekko-lightbox.min.css" th:href="@{/css/ekko-lightbox.min.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="../../static/js/jquery-2.1.3.min.js" th:src="@{/js/jquery-2.1.3.min.js}"></script>
+	<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+	<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+	<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+	<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+	<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+	<script src="../../static/multiselect/js/jquery.multi-select.js" th:src="@{/multiselect/js/jquery.multi-select.js}"></script>
+
+	<script src="../../static/datatables/media/js/jquery.dataTables.min.js" th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+	<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+
+	<script src="../../static/js/ekko-lightbox.min.js" th:src="@{/js/ekko-lightbox.min.js}"></script>
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+<div id="wrapper">
+
+    <!-- Navigation -->
+    <nav th:fragment="top-nav" class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/" style="color: #f46835; font-size: 2em;"><strong>eMAUL</strong></a>
+        </div>
+        <!-- /.navbar-header -->
+
+        <ul class="nav navbar-top-links navbar-right">
+            <li th:text="${user.house.apt.name}">아파트</li>
+            <li th:if="${user.type.jaha}">
+            	<a href="/user">
+                	<img src="/img/adminHome/home.png" alt="홈페이지" class="admin-main-icon"/>
+            	</a>
+            </li>
+            <li class="dropdown" th:if="${user.type.jaha}"><!-- jaha 권한용 상단메뉴영역 --><a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <img src="/img/adminHome/menu.png" alt="메뉴" class="admin-main-icon"/>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="/jaha/board/news/list"><i class="fa fa-calendar-o fa-fw"></i> 마을뉴스</a> </li>
+                    <!-- <li><a href="/jaha/board/today/list"><i class="fa fa-calendar-o fa-fw"></i> 오늘 관리</a> </li> -->
+                    <li><a href="/jaha/user/list"><i class="fa fa-users fa-fw"></i> 전체 사용자 보기</a> </li>
+                    <li><a href="/jaha/apt"><i class="fa fa-building-o fa-fw"></i> 고객 아파트 등록</a> </li>
+                    <li><a href="/jaha/apt/user"><i class="fa fa-user-plus fa-fw"></i> 입주자 명단 등록</a> </li>
+                    <li><a href="/jaha/fee"><i class="fa fa-file-word-o fa-fw"></i> 관리비 정보 입력</a> </li>
+                    <li><a href="/jaha/sms"><i class="fa fa-envelope-o fa-fw"></i> 알림/문자 발송</a></li>
+                    <li><a href="/jaha/vote/vote/list"><i class="fa fa-edit fa-fw"></i> 투표/설문 조사</a> </li>
+                    <li><a href="/v2/jaha/vote/list"><i class="fa fa-edit fa-fw"></i> 투표 v2</a> </li>
+                    <li><a href="/admin/appMain"><i class="fa fa-cogs"></i> 컨텐츠 관리</a> </li>
+                    <li><a href="/v2/jaha/board/system-notice/list"><i class="fa fa-list-alt fa-fw"></i> e마을 공지사항</a> </li>
+                    <li><a href="/v2/jaha/board/faq/list"><i class="fa fa-question fa-fw"></i> 자주하는 질문</a> </li>
+					<li><a href="/v2/jaha/board/event/list"><i class="fa fa-magic"></i> 이벤트</a> </li>
+                    <li><a href="/jaha/provision/list"><i class="fa fa-reorder fa-fw"></i> 약관</a> </li>
+                    <li><a href="/v2/jaha/app-version/list"><i class="fa fa-reorder fa-fw"></i> App버전관리</a> </li>
+                    <li><a href="/v2/jaha/code/group-list"><i class="fa fa-reorder fa-fw"></i> 코드관리</a> </li>
+                    <li><a href="/v2/jaha/board-mgr/post/list"><i class="fa fa-reorder fa-fw"></i> 게시글 모니터링</a> </li>
+                    <li><a href="/jaha/apt/membership/list"><i class="fa fa-reorder fa-fw"></i> 아파트별 가입자 현황</a> </li>
+					<li><a href="/jaha/user/app/download/list"><i class="fa fa-reorder fa-fw"></i> 일자별 가입자 및 앱다운로드 현황</a> </li>
+                </ul>
+            </li>
+            <li><a href="/v2/group-admin/logout">
+                	<img src="/img/adminHome/logout.png" alt="로그아웃" class="admin-main-icon"/>
+            	</a>
+            </li>
+            <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
+
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li style="position:relative" th:if="${user.type.groupAdmin}">
+                    	<!-- TODO: 단체 게시판 카테고리를 조회해야 한다. -->
+                        <a href="#"><i class="fa fa-tasks fa-fw"></i> 단체 게시판 관리<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+	                        <li th:each="c : ${categories}" th:if="${c.type == 'group'}">
+	                            <a th:href="'/v2/group-admin/board/group/create-form/' + ${c.id}">새 게시물 작성</a>
+	                            <a th:href="'/v2/group-admin/board/group/list/' + ${c.id}">게시판 관리</a>
+	                            <a th:href="'/v2/group-admin/board/group/comment/list/' + ${c.id}">댓글 관리</a>
+	                        </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/v2/group-admin/user-info"><i class="fa fa-user fa-fw"></i> 관리자 계정 정보</a>
+                    </li>
+                    <li>
+                        <a href="/v2/group-admin/cs"><i class="fa fa-question fa-fw"></i> 고객센터 1:1문의</a>
+                    </li>
+                    <li th:if="${user.type.jaha}">
+                        <a href="/v2/group-admin/cs/cs-list"><i class="fa fa-question fa-fw"></i> 고객센터 1:1문의내역</a>
+                    </li>
+                    <li>
+                        <a href="/v2/group-admin/apt/list"><i class="fa fa-building-o fa-fw"></i> 아파트</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
+    </nav>
+
+    <!-- Page Content -->
+    <div id="page-wrapper" layout:fragment="layout_content">Contents</div>
+
+</div>
+<!-- /#wrapper -->
+
+</body>
+</html>

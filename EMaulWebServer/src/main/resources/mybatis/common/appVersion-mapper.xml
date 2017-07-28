@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.v2.mapper.common.AppVersionMapper">
+
+	<!-- 푸시발송 대상을 조회한다. -->
+	<select id="selectAppVersionList" resultType="AppVersionVo">
+		SELECT /** selectAppVersionList, 전강욱(realsnake@jahasmart.com) */ id
+		, force_version_code
+		, kind
+		, version_code
+		, version_name
+		FROM app_version
+    </select>
+
+</mapper>

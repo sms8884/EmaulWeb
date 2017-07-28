@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA| 게시물목록</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" th:text="${post.category.name}"></h1>
+
+                <div id="content-container" class="container show-grid">
+                    <form enctype="multipart/form-data" method="post" th:action="'/admin/board/post/modify/' + ${post.id}">
+                        <div class="panel panel-default">
+                            <div class="panel-body bg-info">
+	                            <div class="row">
+	                                    <label style="font-size: 13pt; width: 80px; margin-left : 1em;" > 제목입력 </label>
+	                                    <input type="text" id="title" name="title" th:value="${post.title}"  placeholder="최대 30자 입력 가능" maxlength="30" style="width: 600px; height: 30px" />
+	                             </div>
+	                             <div class=" " id="noti-div" th:if="${post.category.type}=='notice'">
+		                            <div class="row" style="margin-left: 90px"  th:if="${post.category.type}=='notice'">
+		                                <label class="checkbox-inline">
+		                                    <input type="checkbox" name="notification" class="type-check" id="notification" checked="checked"/> 작성시 알림 전송
+		                                </label>
+		                                <label class="checkbox-inline" th:if="${user.type.jaha}">
+		                                    <input type="checkbox" name="rangeAll" class="type-check" id="rangeAll"/> 모든 사용자에게 공개
+		                                </label>
+		                                <label class="checkbox-inline" th:if="${post.topFix == true}" >
+		                                    <input type="checkbox" checked="checked"  name="topFix" class="type-check" id="topFix"  /> 게시판 상단 고정 (최대 3개)
+		                                </label>
+		                                <label class="checkbox-inline" th:if="${post.topFix == false}" >
+		                                    <input type="checkbox" name="topFix" class="type-check" id="topFix"  /> 게시판 상단 고정 (최대 3개)
+		                                </label>
+		                            </div>
+	                            </div>
+                            </div>
+                            <div class="panel-body">
+                                     <div class="row">
+                                <div id="image-file-up"  class="col-md-6" >
+                                    <p>사진을 3개까지 등록할 수 있습니다.</p>
+                                    <div class="img-inline" th:if="${post.imageCount != 0}"><img th:src="'/api/board/post/image/'+${post.id}+'/0.jpg'" class="img-rounded"  width="50" height="50" style="outline:none; border:none"/></div>
+                                    <div class="file_input">
+                                        <label> 사진 선택 <input type="file" onchange="javascript:document.getElementById('file_route1').value=this.value" name="files" id="pic1"/> </label>
+                                        <input type="text" readonly="readonly" title="File Route" id="file_route1"/>
+                                   	</div>
+									<div class="img-inline" th:if="${post.imageCount &gt; 1}"><img th:src="@{/api/board/post/image/}+${post.id}+'/1.jpg'" class="img-rounded" width="50" height="50" style="outline:none; border:none"/></div>
+                                    <div class="file_input">
+                                        <label> 사진 선택 <input type="file" onchange="javascript:document.getElementById('file_route2').value=this.value" name="files" id="pic2"/> </label>
+                                        <input type="text" readonly="readonly" title="File Route" id="file_route2"/>
+                                    </div>
+									<div class="img-inline" th:if="${post.imageCount &gt; 2}"><img th:src="@{/api/board/post/image/}+${post.id}+'/2.jpg'" class="img-rounded" width="50" height="50" style="outline:none; border:none"/></div>
+                                    <div class="file_input">
+                                        <label>  사진 선택 <input type="file"  onchange="javascript:document.getElementById('file_route3').value=this.value" name="files" id="pic3"/>  </label>
+                                        <input type="text" readonly="readonly" title="File Route" id="file_route3"/>
+                                    </div>
+                                </div>
+                                <div id="file-up"  class="col-md-6" style=" background-color: white;">
+                                <p>파일을 2개까지 등록할 수 있습니다.</p>
+                                    <div class="file_input" style="margin-top: 14px">
+                                        <label>  파일 선택 <input type="file" onchange="javascript:document.getElementById('file_route4').value=this.value" name="files2"/> </label>
+                                        <input type="text" readonly="readonly" title="File Route" id="file_route4"/>
+                                        <span th:if="${post.file1}"> <a th:href="${post.file1}">1. 첨부파일다운받기</a></span>
+                                    </div>
+                                    <div class="file_input">
+                                        <label> 파일 선택 <input type="file" onchange="javascript:document.getElementById('file_route5').value=this.value" name="files2"/> </label>
+                                        <input type="text" readonly="readonly" title="File Route" id="file_route5"/>
+                                        <span th:if="${post.file2}"> <a th:href="${post.file2}">2. 첨부파일다운받기</a> </span>
+                                    </div>
+                                    <label style="background-color: transparent;height: 22px"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <textarea class="form-control" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody != null}" placeholder="내용을 입력하세요" rows="30" th:text="${post.contentOnlyBody}" name="content" id="content" style="resize: none"></textarea>
+                                <textarea class="form-control" th:if="${post.category.contentMode == 'html' and post.contentOnlyBody == null}" placeholder="내용을 입력하세요" rows="30" th:text="${post.content}" name="content" id="content" style="resize: none"></textarea>
+                                <br/>
+                            </div>
+                            <input type="hidden" name="categoryId" th:value="${post.category.id}" value="0"/>
+                            <div class="panel-footer"  align="right">
+                            	<input class="btn btn-success" th:if="${post.category.type}=='notice'" type="button" value="미리보기" onclick="titleCheckPreview()" />
+                                <input class="btn btn-success" type="button" value="수정 완료"  onclick="titleCheck()" />
+                                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#cancelModal" >취소</button>
+
+                                	<!-- 취소모달 팝업 -->
+										<div class="modal fade" id="cancelModal" tabindex="-1"	role="dialog" aria-labelledby="myModalLabel"	aria-hidden="true">
+											<div class="modal-dialog modal-sm ">
+												<div class="modal-content">
+													<div class="modal-body"> 수정 중인 글을 취소하시겠습니까?</div>
+													<div class="modal-footer" style="text-align: center">
+														<button type="button" class="btn btn-default" onclick="history.back()" style="width: 70px">예</button>
+														<button type="button" class="btn btn-default" data-dismiss="modal">아니오</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+								<!-- 수정 완료 모달 팝업 -->
+									<div class="modal fade" id="writeModal" tabindex="-1"	role="dialog" aria-labelledby="myModalLabel"	aria-hidden="true" style="display: none; z-index: 1070;">
+											<div class="modal-dialog modal-sm ">
+												<div class="modal-content">
+													<div class="modal-body" align="center"> 수정 하시겠습니까? </div>
+													<div class="modal-footer" style="text-align: center">
+														<button type="submit" class="btn btn-default" onclick="fileExtensionCheck()" style="width: 70px">예</button>
+														<button type="button" class="btn btn-default" data-dismiss="modal">아니오</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- 제목입력 모달  -->
+										<div class="modal fade" id="titleModal" tabindex="-1"	role="dialog" aria-labelledby="myModalLabel"	aria-hidden="true" >
+											<div class="modal-dialog modal-sm ">
+												<div class="modal-content">
+													<div class="modal-body" style="text-align: center;"> 제목을 입력해주세요 (필수항목)</div>
+														<div class="modal-footer" style="text-align: center">
+														<button type="button" class="btn btn-default" data-dismiss="modal"  >확인</button>
+													</div>
+												</div>
+											</div>
+										</div>
+                                											<!-- 미리보기 모달  -->
+									<div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										<div class="modal-dialog modal-lg">
+											<div class="modal-content">
+												<div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+													</button>
+													<h3 class="modal-title" id="myModalLabel" align="left">공지사항 미리보기</h3>
+												</div>
+												<div class="modal-body">
+													<div id="wrapper">
+														<!-- /#wrapper -->
+
+														<div class="row">
+															<div class="col-lg-12">
+																<div id="content-container">
+																	<div class="panel panel-info">
+																			<div class="panel-heading" style="height: 40px;">
+																			<p style="float: left;">제목 : </p>
+                          													 <p style="float: left;" id="previewTitle"> </p>
+                     													   </div>
+																		<div class="panel-heading" style="height: 40px;">
+																			<p style="float: left;" th:text="${user.fullName}">작성자</p>
+																			<p style="float: right;" th:text="게시일"></p>
+																		</div>
+																		<!-- /.panel-heading -->
+																		<div class="panel-body">
+																		<div align="left">
+																		   <div id="modifyImg1" class="img-inline"  th:if="${post.imageCount != 0}">
+                                    										<img th:src="'/api/board/post/image/'+${post.id}+'/0.jpg'" class="img-rounded"/>
+                                    										</div>
+                                    										<div id="modifyImg2" class="img-inline" th:if="${post.imageCount &gt; 1}">
+                                    										<img th:src="@{/api/board/post/image/}+${post.id}+'/1.jpg'" class="img-rounded" />
+                                    										</div>
+                                    										<div id="modifyImg3" class="img-inline" th:if="${post.imageCount &gt; 2}">
+                                    										<img th:src="@{/api/board/post/image/}+${post.id}+'/2.jpg'" class="img-rounded" />
+                                    										</div>
+																			<img id="preview1"  width="400"/><br/>
+																			<img id="preview2"  width="400"/><br/>
+																			<img id="preview3"  width="400"/>
+																			<pre id = "previewContent"  style="margin-bottom: 5%; background: none; border: none"></pre>
+																			</div>
+
+																			<div class="well well-sm">
+																				<p id="p_comment_title">댓글쓰기</p>
+																				<textarea class="form-control" rows="3"
+																					id="text-comment"
+																					style="resize: none; margin-bottom: 5px"></textarea>
+
+																				<div class="button-position">
+																					<input type="button"
+																						class="btn btn-sm btn-outline btn-danger"
+																						value="등록" />
+																				</div>
+																			</div>
+																			<div class="well well-sm" id="comments-container">
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="modal-footer">
+                                				<button class="btn btn-success" type="button" data-toggle="modal" data-dismiss="modal">취소</button>
+												<a data-toggle="modal" href="#writeModal" class="btn btn-success">수정  완료</a>
+
+												</div>
+											</div>
+										</div>
+									</div>
+
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script type="text/javascript" th:src="@{/js/sb-admin-2.js}"></script>
+<script type="text/javascript" th:src="@{/ckeditor/ckeditor.js}"></script>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+	( function() {
+		'use strict';
+
+		CKEDITOR.replace( 'content', {
+			extraPlugins: 'youtube',
+
+			removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+			'pagebreak,iframe,colorbutton,font,image',
+
+			// The toolbar groups arrangement, optimized for two toolbar rows.
+			toolbarGroups: [
+				{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+				{ name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+				{ name: 'links' },
+				{ name: 'insert' },
+				{ name: 'forms' },
+				{ name: 'tools' },
+				{ name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+				{ name: 'others' },
+				'/',
+				{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+				{ name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+				{ name: 'styles' },
+				{ name: 'colors' },
+				{ name: 'about' }
+			],
+
+			// Remove some buttons provided by the standard plugins, which are
+			// not needed in the Standard(s) toolbar.
+			removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+//			uploadUrl: '/api/board/today/image/upload',
+
+			// Set the most common block elements.
+			format_tags: 'p;h1;h2;h3;pre',
+
+			// Simplify the dialog windows.
+			removeDialogTabs: 'link:advanced',
+
+			height: 400,
+			
+			// Load the default contents.css file plus customizations for this sample.
+			contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+			/*stylesSet: [
+				{ name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+			],*/
+
+			// Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+			// resizer (because image size is controlled by widget styles or the image takes maximum
+			// 100% of the editor width).
+//			image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+//			image2_disableResizer: true
+		} );
+	} )();
+
+
+     function titleCheck(){
+   	  var title = $('#title').val();
+   			title = title.replace(/^\s*/, "");
+
+            if(title ==""){
+     	      	   $('#titleModal').modal('show');
+             }else{
+              	   $('#writeModal').modal('show');
+    	      	   }
+            }
+
+     function titleCheckPreview(){
+  	   var title = $('#title').val();
+  			 title = title.replace(/^\s*/, "");
+         if(title ==""){
+      	   $('#titleModal').modal('show');
+         }else{
+      	   imagePreview()
+      	   previewTest();
+      	   $('#previewModal').modal('show');
+      	   }
+        }
+
+
+    function fileExtensionCheck() {
+        var submitAvailable1 = true;
+        $('input[name="files"]').each(function(){
+            var val = $(this).val();
+            if(val != ''){
+                var ext = val.split('.').pop().toLowerCase();
+                if ($.inArray(ext, ['gif', 'png', 'jpg', 'jpeg']) == -1) {
+                    submitAvailable1 = false;
+                }
+            }
+        });
+
+        if(!submitAvailable1){
+            alert('사진은 gif,png,jpg,jpeg 파일만 업로드 할 수 있습니다.');
+            event.preventDefault();
+        }
+
+        var submitAvailable2 = true;
+        $('input[name="files2"]').each(function(){
+            var val = $(this).val();
+            if(val != ''){
+                var ext = val.split('.').pop().toLowerCase();
+                if ($.inArray(ext, ['pdf', 'hwp', 'doc', 'docx', 'ppt', 'pptx', 'xlsx', 'xlsm', 'xls', 'xml']) == -1) {
+                    submitAvailable2 = false;
+                }
+            }
+        });
+
+        if(!submitAvailable2){
+            alert('파일은 pdf, hwp, doc, docx, ppt, pptx, xlsx, xlsm, xls, xml 파일만 업로드 할 수 있습니다.');
+            event.preventDefault();
+        }
+    }
+
+	function previewTest() {
+		var content = $("#content").val();
+		var title = $("#title").val();
+		$("#previewContent").html(CKEDITOR.instances.content.getData().replace(/\n/g, ''));
+		$("#previewTitle").text(title);
+
+	}
+
+    /*미리보기 test  */
+
+    function imagePreview() {
+    	var preview1 = document.getElementById('preview1');
+    	var preview2 = document.getElementById('preview2');
+    	var preview3 = document.getElementById('preview3');
+    	var file1 = $("#pic1", document)[0].files[0];
+    	var file2 = $("#pic2", document)[0].files[0];
+    	var file3 = $("#pic3", document)[0].files[0];
+
+    	var reader1  = new FileReader();
+    	var reader2  = new FileReader();
+    	var reader3  = new FileReader();
+    	reader1.addEventListener("load", function () { preview1.src = reader1.result;}, false);
+    	reader2.addEventListener("load", function () { preview2.src = reader2.result;}, false);
+    	reader3.addEventListener("load", function () { preview3.src = reader3.result;}, false);
+
+    	if (file1) {
+    		   $("#modifyImg1").css("display","none");
+    		   $("#modifyImg2").css("display","none");
+    		   $("#modifyImg3").css("display","none");
+    		reader1.readAsDataURL(file1);
+    	}
+
+    	if (file2) {
+    		$("#modifyImg1").css("display","none");
+ 		   $("#modifyImg2").css("display","none");
+ 		   $("#modifyImg3").css("display","none");
+    		reader2.readAsDataURL(file2);
+    	}
+
+    	if (file3) {
+    	   $("#modifyImg1").css("display","none");
+ 		   $("#modifyImg2").css("display","none");
+ 		   $("#modifyImg3").css("display","none");
+    		reader3.readAsDataURL(file3);
+    	}
+
+    }
+
+    /*////////////  */
+
+
+    /*]]>*/
+</script>
+</body>
+</html>

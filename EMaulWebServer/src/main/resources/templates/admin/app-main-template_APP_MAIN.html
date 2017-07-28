@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+<link  type="text/css" rel="stylesheet" href="../../static/js/jquery-ui/jquery-ui.min.css" th:href="@{/js/jquery-ui/jquery-ui.min.css}"  />
+<script src="../../static/js/jquery-ui/jquery-ui.min.js" th:src="@{/js/jquery-ui/jquery-ui.min.js}" ></script>
+
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+<link type="text/css" rel="stylesheet" href="../../static/js/colorpicker-master/jquery.colorpicker.css" th:href="@{/js/colorpicker-master/jquery.colorpicker.css}"  />
+<link type="text/css" rel="stylesheet" href="../../static/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+<style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+        .ms-container {
+            width: 100%
+        }
+        .form-group {
+            overflow: hidden;
+        }
+		ul,li{list-style:none; padding:0; margin:0;}
+		show{display:block;}
+		._rightDelBtn{background:#ffffff; font-weight:bold; font-size:18px; height:25px; line-height:16px; border:none}
+</style>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<title></title>
+</head>
+<body>
+<div id="wrapper">
+	<!-- /#wrapper -->
+	<div th:replace="admin/admin :: top-nav">
+	</div>
+	<div th:replace="admin/admin :: vert-nav-admin">
+	</div>
+	<div id="page-wrapper">
+		<div class="row" style="margin-bottom:20px">
+			<div class="col-lg-12">
+				<h1 class="page-header">e마을 앱</h1>
+				<div role="tabpanel">
+
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs" role="tablist">
+						<li role="presentation" class="active"><a href="#today" aria-controls="today" role="tab" data-toggle="tab">오늘</a></li>
+						<li role="presentation"><a href="/admin/appMain?tapId=APP_MENU" >메뉴</a></li>
+					</ul>
+
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="today" >
+
+
+
+						<div class="row" style="margin-top:20px" >
+							<div class="col-xs-7 col-sm-5" style="">
+								<div style="width:70%; text-align:center; margin:0 auto;">
+									<p style="font-size:18px; font-weight:bold; margin:10px;">step1. 템플릿 선택</p>
+									<table class="table step1" style="width:70%; border:1px solid #c3c3c3; margin:0 auto;" id = "tableStep1" >
+										<tbody >
+											<tr><th>템플릿 선택</th></tr>
+											<tr><td class="normal" data-idx="1" data-code="alarm_banner" onclick="addModal('alarm_banner')">알림 배너 (아이콘+텍스트형)</td></tr>
+											<tr><td class="normal" data-idx="2" data-code="advert_banner" onclick="addModal('advert_banner')" >광고 배너 (이미지형)</td></tr>
+											<tr><th>자동 컨텐츠(2)</th></tr>
+											<tr><td class="normal" data-idx="3" data-code="metro_today_news" onclick="addModal('metro_today_news')" >오늘의 뉴스 (메트로신문)</td></tr>
+											<tr><td class="normal" data-idx="4" data-code="best_community_post" onclick="addModal('best_community_post')" >커뮤니티 인기글</td></tr>
+											<tr><th>운영 컨텐츠(5)</th></tr>
+											<tr><td class="normal" data-idx="5" data-code="app_op_width_a" onclick="addModal('app_op_width_a')" >운영 가로형 A (이미지2+제목)</td></tr>
+											<tr><td class="normal" data-idx="6" data-code="app_op_width_b" onclick="addModal('app_op_width_b')" >운영 가로형 B (이미지3+제목)</td></tr>
+											<tr><td class="normal" data-idx="7" data-code="app_op_height_a" onclick="addModal('app_op_height_a')" >운영 세로형 A (이미지2+제목)</td></tr>
+											<tr><td class="normal" data-idx="8" data-code="app_op_height_b" onclick="addModal('app_op_height_b')">운영 세로형 B (카테고리5)</td></tr>
+											<tr><td class="normal" data-idx="9" data-code="app_op_hashtag" onclick="addModal('app_op_hashtag')" >운영 해쉬태그 (검색어9)</td></tr>
+											<tr><th>외부 컨텐츠(5)</th></tr>
+											<tr><td class="normal" data-idx="10" data-code="app_outside_width_a" onclick="addModal('app_outside_width_a')" >외부 가로형 A (이미지2+제목)</td></tr>
+											<tr><td class="normal" data-idx="11" data-code="app_outside_width_b" onclick="addModal('app_outside_width_b')" >외부 가로형 B (이미지3+제목)</td></tr>
+											<tr><td class="normal" data-idx="12" data-code="app_outside_height_a" onclick="addModal('app_outside_height_a')" >외부 세로형 A (이미지2+제목)</td></tr>
+											<tr><td class="normal" data-idx="13" data-code="app_outside_height_b" onclick="addModal('app_outside_height_b')" >외부 세로형 B (카테고리5)</td></tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="col-xs-2 col-sm-1"  style="text-align:center; padding:300px 0" hidden="">
+									<button type="button" class="btn btn-danger" onclick="addData();"  >추가</button>
+							</div>
+
+							<div class="clearfix visible-xs-block"></div>
+
+							<div class="col-xs-7 col-sm-5" style="">
+								<div style="width:80%; text-align:center; margin:0 auto;">
+									<p style="font-size:18px; font-weight:bold; margin:10px;">step2. 노출 위치 변경
+										<span class="btnUp" style="border:1px solid #c3c3c3;  padding:3px 7px; display:inline-block;"><i class="fa fa-angle-up" aria-hidden="true" style="font-size:20px; "></i></span>
+										<span class="btnDown" style="border:1px solid #c3c3c3; padding:3px 7px; display:inline-block;"><i class="fa fa-angle-down" aria-hidden="true" style="font-size:20px; "></i></span>
+									</p>
+									<div class="step2" style="width:70%; border:1px solid #c3c3c3; margin:0 auto;">
+									<!-- ****Step2**** -->
+										<ul class="nodata" id="mainList">
+											<li th:each="list : ${mainTemplateList}" th:value="${list.code}" th:text="${list.displayTemplateName}" th:id="${list.id}" th:onclick="|orderSort('${list.id}')|" th:ondblclick="|readData('${list.id}', '${list.code}')|" class="list-group-item">선택 된 데이터가 없습니다.
+											<!-- <td><button type="button" class="btn btn-default" th:onclick="'saveParcel('+${content.id}+')'" >저장 </button></td> -->
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!--modal  -->
+						<form id="dataForm" name = "dataForm" method="post" enctype="multipart/form-data">
+											<div class="modal fade" id="layerpop" >
+					  <div class="modal-dialog modal-lg">
+					    <div class="modal-content">
+					      <!-- header -->
+					      <div class="modal-header">
+					        <!-- 닫기(x) 버튼 -->
+					        <button type="button" class="close" data-dismiss="modal">×</button>
+					        <!-- header title -->
+					        <h4 class="modal-title">컨텐츠 관리</h4>
+					      </div>
+					      <!-- body -->
+					      <div class="modal-body" id="modalBody">
+
+						<div class="row" style="margin:0 auto 20px auto; width:100%">
+							<div class="step3 table-responsive" id="step3">
+							<div style=" margin:0 auto; " >
+
+								<table class="table table-bordered template" style="width:100%; display:none">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">3. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style=""/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+								<!--배너 컨텐츠 - 광고배너-->
+								<table id="advert_banner_tb" class="table table-bordered ad_Banner"  style="width:100%; display:none">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:100%"/>
+									</colgroup>
+									<tbody>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">광고 ID</th>
+											<td style="text-align:left; border-right:0;border-bottom:0">
+											<input type="text" class="form-control" name="webUrl0" value="" />
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+								<!--배너 컨텐츠 - 알림배너(아이콘+텍스트형)-->
+								<table id="alarm_banner_tb" class="table table-bordered alert_Banner" style="display:none;">
+									<colgroup>
+										<col style="width:30%"/>
+										<col style="width:90%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">이미지 등록</th>
+											<td style="text-align:left;  border-right:0;border-bottom:0">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route2"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route2').value=this.value" name="files0" id="pic2"/>
+													</label>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용 입력</th>
+											<td>
+												<input type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">URL</th>
+											<td>
+												<input type="text" class="form-control" id="" name ="webUrl0"  placeholder="AppUrl" style="width:500px"/>
+											</td>
+										</tr>
+
+									</tbody>
+								</table>
+
+								<!--자동 컨텐츠 - 개발로직포함형-->
+								<table id="app_main_auto_tb" class="table table-bordered logic" style="width:100%; display:none;">
+									<colgroup>
+										<col style="width:120%"/>
+									</colgroup>
+
+									<tbody>
+										<tr style=" width:100%; border:none; text-align:left ">
+											<td style=" min-width:120%; border:none;text-align:left" >
+												<p>노출 순서를 설정 후 저장해주세요.</p>
+												<p>자동 컨텐츠는 내용 수정을 할 수 없습니다.</p>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+								<!--운영 컨텐츠 - 세로형 A(이미지2+제목)-->
+								<table id="app_op_height_a_tb" class="table table-bordered height_A" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route10"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route10').value=this.value" name="files0" id="pic10"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId0" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route11"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route11').value=this.value" name="files1" id="pic11"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId1" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" name = "moreCheck" style=""/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" name="moreUrl" id="" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+								<!--운영 컨텐츠 - 세로형 B(카테고리5+제목5)-->
+								<table id="app_op_height_b_tb" class="table table-bordered height_B" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId0" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor" name = "inputColor0" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId1" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor2" name = "inputColor1" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">3. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId2" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor2" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">4. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle3" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId3" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+												<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category3" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor3" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">5. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle4" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId4" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+												<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category4" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor4" value="fe9810"/>
+											</td>
+										</tr>
+
+
+
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name="moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name ="moreUrl"  placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+
+									</tbody>
+								</table>
+
+								<!--운영 컨텐츠 - 가로형 A(이미지2+제목)-->
+								<table id="app_op_width_a_tb" class="table table-bordered width_A" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route3"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route3').value=this.value" name="files0" id="pic3"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId0" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route4"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route4').value=this.value" name="files1" id="pic4"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId1" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name="moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name="moreUrl" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+								<!--운영 컨텐츠 - 가로형 B(이미지3+제목)-->
+								<table id="app_op_width_b_tb" class="table table-bordered width_B" style=" display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route5"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route5').value=this.value" name="files0" id="pic5"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId0" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route6"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route6').value=this.value" name="files1" id="pic6"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId1" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">3. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route7"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route7').value=this.value" name="files2" id="pic7"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">게시물 ID</th>
+											<td>
+												<input type="text" class="form-control" name="detailBoardId2" value="" placeholder="숫자만입력하세요"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name = "moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name="moreUrl" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<!--운영 컨텐츠 - 해쉬태그(검색어6/9개)-->
+							<table id="app_op_hashtag_tb" class="table table-bordered hashTag" style="display:none;">
+								<tbody>
+								<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+									<tr>
+										<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+										<td colspan="5">
+											<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+										</td>
+									</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+									<tr>
+										<td colspan="6" class="form-inline" style="text-align:left;" headers="opCheckBox" >
+											 <div  class="checkbox" style="margin-right:10px;">
+												<label style="line-height:20px; font-size:14px;">
+												  <input type="checkbox" id="check3"  name="hashCheck0" value="3"/>3개
+												</label>
+											  </div>
+											  <div   class="checkbox" style="margin-right:10px;">
+												<label style="line-height:20px; font-size:14px;">
+												  <input type="checkbox" id="check6"  name="hashCheck1" value="6"/> 6개
+												</label>
+											  </div>
+											  <div class="checkbox" style="margin-right:10px;">
+												<label style="line-height:20px; font-size:14px;">
+												  <input type="checkbox" id="check9"   name="hashCheck2" value="9"/> 9개
+												</label>
+											  </div>
+										</td>
+									</tr>
+									<tr>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드1</th>
+										<td>
+											<input id="keyword1" type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드2</th>
+										<td>
+											<input id="keyword2" type="text" class="form-control" name="detailContetns1" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드3</th>
+										<td>
+											<input id="keyword3" type="text" class="form-control" name="detailContetns2" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+									</tr>
+									<tr>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드4</th>
+										<td>
+											<input id="keyword4" type="text" class="form-control" name="detailContetns3" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드5</th>
+										<td>
+											<input id="keyword5" type="text" class="form-control" name="detailContetns4" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드6</th>
+										<td>
+											<input id="keyword6" type="text" class="form-control" name="detailContetns5" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+									</tr>
+									<tr>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드7</th>
+										<td>
+											<input id="keyword7" type="text" class="form-control" name="detailContetns6" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드8</th>
+										<td>
+											<input id="keyword8" type="text" class="form-control" name="detailContetns7" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+										<th style="background-color: #f3f3f3; text-align:center;">키워드9</th>
+										<td>
+											<input id="keyword9" type="text" class="form-control" name="detailContetns8" value="" placeholder="최대 10자 입력 가능"/>
+										</td>
+									</tr>
+									<tr>
+										<td class="form-group" style="border-right:1px solid #fff !important;">
+											 <div class="checkbox">
+												<label style="line-height:20px; font-size:14px;">
+												  <input type="checkbox" style="" name="moreCheck"/> 더보기
+												</label>
+											  </div>
+										</td>
+										<td colspan="5">
+											<div class="form-inline" style="text-align:left;">
+												<label  style="line-height:35px;">URL
+												<input type="text" class="form-control" id="" name="moreUrl" placeholder="today/read" style="width:500px"/></label>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+								<!--  외부컨텐츠 -->
+
+											<!--외부 컨텐츠 - 세로형 A(이미지2+제목)-->
+								<table id="app_outside_height_a_tb" class="table table-bordered height_A" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route10"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route10').value=this.value" name="files0" id="pic10"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl0" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route11"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route11').value=this.value" name="files1" id="pic11"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl1" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" name = "moreCheck" style=""/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" name="moreUrl" id="" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+									<!--외부 컨텐츠 - 세로형 B(카테고리5+제목5)-->
+								<table id="app_outside_height_b_tb" class="table table-bordered height_B" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl0" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor" name = "inputColor0" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl1" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor2" name = "inputColor1" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">3. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl2" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor2" value="fe9810"/>
+											</td>
+										</tr>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">4. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle3" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl3" value="" placeholder=""/>
+											</td>
+										</tr>
+												<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category3" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor3" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">5. 제목</th>
+											<td>
+												<input type="text" class="form-control" name="detailTitle4" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl4" value="" placeholder=""/>
+											</td>
+										</tr>
+												<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">카테고리</th>
+											<td>
+												<input type="text" class="form-control" name="category4" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;">컬러</th>
+											<td>
+												<input type="text" id="inputColor3" name = "inputColor4" value="fe9810"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name="moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name ="moreUrl"  placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+
+									</tbody>
+								</table>
+
+							<!--외부 컨텐츠 - 가로형 A(이미지2+제목)-->
+								<table id="app_outside_width_a_tb" class="table table-bordered width_A" style="display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route3"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route3').value=this.value" name="files0" id="pic3"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl0" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route4"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route4').value=this.value" name="files1" id="pic4"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl1" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">내용</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailContetns1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name="moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name="moreUrl" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+
+										            	<!--외부 컨텐츠 - 가로형 B(이미지3+제목)-->
+								<table id="app_outside_width_b_tb" class="table table-bordered width_B" style=" display:none;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+										<col style="width:20%"/>
+										<col style="width:40%"/>
+									</colgroup>
+									<tbody>
+									<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">노출 템플릿 제목</th>
+											<td>
+												<input type="text" class="form-control" name="displayTemplateTitle" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">템플릿 제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="templateName" value="" placeholder="최대 30자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">강조</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="highlightText" value="" placeholder="최대 30자 입력 가능"/>
+
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">1. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route5"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route5').value=this.value" name="files0" id="pic5"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl0" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">2. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route6"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route6').value=this.value" name="files1" id="pic6"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl1" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">3. 이미지 등록</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="file_route7"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('file_route7').value=this.value" name="files2" id="pic7"/>
+													</label>
+												</div>
+											</td>
+											<th style="background-color: #f3f3f3; text-align:center;" title="thName">외부 URL</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl2" value="" placeholder=""/>
+											</td>
+										</tr>
+										<tr>
+											<th style="background-color: #f3f3f3; text-align:center;">제목</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="detailTitle2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="form-group" style="border-right:1px solid #fff !important;">
+												 <div class="checkbox">
+													<label style="line-height:20px; font-size:14px;">
+													  <input type="checkbox" style="" name = "moreCheck"/> 더보기
+													</label>
+												  </div>
+											</td>
+											<td colspan="3">
+												<div class="form-inline" style="text-align:left;">
+													<label  style="line-height:35px;">URL
+													<input type="text" class="form-control" id="" name="moreUrl" placeholder="today/read" style="width:500px"/></label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<!-- 외부컨텐츠 END -->
+						</div>
+					      </div>
+					    </div>
+					    <!--  modal body-->
+					      <!-- Footer -->
+					      <div class="modal-footer" id="modalFooter">
+					        <button type="button" class="btn btn-default" data-dismiss="modal" id="modalButton">적용</button>
+					        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+					      </div>
+					  </div>
+					</div>
+						<!-- modal end -->
+						</div>
+						<input type = "hidden" id ="jsonDataForm" name = "jsonData"/>
+					</form>
+						<div class="" style="float:right;">
+							<input type="button" class="btn  btn-info" id="" value="취소" onclick="javascript: history.back();"  name=""/>
+							<input type="button" class="btn  btn-success " id="" value="저장" name="" onclick="saveAndflush();" />
+						</div>
+						</div><!--#today end-->
+						<div role="tabpanel" class="tab-pane" id="tab2">
+						</div><!--#tab2 end-->
+						<div role="tabpanel" class="tab-pane" id="tab3">2</div><!--#tab3 end-->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script> -->
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+
+<script src="../../static/js/colorpicker-master/jquery.colorpicker.js" th:src="@{/js/colorpicker-master/jquery.colorpicker.js}" ></script>
+
+<script src="../../static/js/colorpicker-master/i18n/jquery.ui.colorpicker-nl.js" th:src="@{/js/colorpicker-master/i18n/jquery.ui.colorpicker-nl.js}" ></script>
+<script src="../../static/js/colorpicker-master/parts/jquery.ui.colorpicker-rgbslider.js" th:src="@{/js/colorpicker-master/parts/jquery.ui.colorpicker-rgbslider.js}"></script>
+<script src="../../static/js/colorpicker-master/parts/jquery.ui.colorpicker-memory.js" th:src="@{/js/colorpicker-master/parts/jquery.ui.colorpicker-memory.js}"></script>
+<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+	var objData = [[${data}]];
+
+    $('#myTab a').click(function (e) {
+        e.stoppropagation();
+        $(this).tab('show')
+    });
+
+
+    function guid() {
+    	  function s4() {
+    	    return Math.floor((1 + Math.random()) * 0x10000)
+    	  }
+    	  return s4()+s4() ;
+    	}
+
+
+	function addData(itemGuid){
+
+		if($('#mainList li').attr('data-row') == "0"){
+			$('#mainList li').remove();
+			$('#mainList').attr('data-row','1');
+		}
+
+
+ 		var itemIndex = cloneTxt.attr('data-idx');
+ 		var itemCode= cloneTxt.attr('data-code');
+		if(itemCode == 'metro_today_news' || itemCode == 'best_community_post'){
+			itemCode = "app_main_auto";
+		}
+ 		var loopNum = 1;
+ 		var tableCode = itemCode + '_tb' + itemGuid;
+
+ 		$("#"+tableCode).attr("name","use")
+		/*//////////////// 데이터 생성 Start ////////////////*/
+
+		var mainObject = new Object();
+		var keycount;
+		mainObject.code = cloneTxt.attr('data-code').toUpperCase();
+		mainObject.id = itemGuid;
+		mainObject.displayTemplateName = $('#'+tableCode).find('input[name=displayTemplateTitle]').val();
+		mainObject.highlightText = $('#'+tableCode).find('input[name=highlightText]').val();
+		mainObject.moreShowUrl = $('#'+tableCode).find('input[name=moreUrl]').val();
+		if($('#'+tableCode).find('input:checkbox[name=moreCheck]').prop("checked") === true){
+
+		mainObject.moreShowUrlUseYn = "Y";
+		}else{
+			mainObject.moreShowUrlUseYn = "N";
+		}
+
+		mainObject.templateTitle = $('#'+tableCode).find('input[name=templateName]').val();
+
+		/* 해시 태그 사용시 입력 갯수에따른 루프값 정의 Start */
+		if($('#'+tableCode).find('input[name=hashCheck0]').prop("checked")==true){
+		mainObject.keywordCount = $('#'+tableCode).find('input[name=hashCheck0]:checkbox:checked').val();
+		keycount = $('#'+tableCode).find('input[name=hashCheck0]:checkbox:checked').val();
+
+		}else if($('#'+tableCode).find('input[name=hashCheck1]').prop("checked")==true){
+		mainObject.keywordCount = $('#'+tableCode).find('input[name=hashCheck1]:checkbox:checked').val();
+		keycount= $('#'+tableCode).find('input[name=hashCheck1]:checkbox:checked').val();
+
+		}else if($('#'+tableCode).find('input[name=hashCheck2]').prop("checked")==true){
+		mainObject.keywordCount = $('#'+tableCode).find('input[name=hashCheck2]:checkbox:checked').val();
+		keycount = $('#'+tableCode).find('input[name=hashCheck2]:checkbox:checked').val();
+		}
+		/* 해시 태그 사용시 입력 갯수에따른 루프값 정의 END */
+
+		mainObject.displayYn= 'Y';
+		objData.appMainTemplate.push(mainObject);
+
+		/* appMainDetail 데이터를 넣을 반복횟수  */
+		if(itemIndex == '5' || itemIndex == '7' ||  itemIndex == '10'|| itemIndex == '12' ){
+			loopNum = 2;
+		}else if(itemIndex == '6' || itemIndex == '11' ){
+			loopNum = 3;
+		}else if(itemIndex == '8' || itemIndex == '13' ){
+			loopNum = 5;
+		}else if(itemIndex == '9'){
+			loopNum = keycount;
+
+		}
+
+		for(var i = 0 ; i <loopNum ; i++){
+		var detailObject = new Object();
+		var fileId = itemGuid+'-'+i
+		detailObject.mainTemplateId = itemGuid
+		detailObject.code = cloneTxt.attr('data-code').toUpperCase();
+		detailObject.contentsTitle = $('#'+tableCode).find('input[name=detailTitle'+i+']').val();
+		detailObject.postId = $('#'+tableCode).find('input[name=detailBoardId'+i+']').val();
+		detailObject.contentsText = $('#'+tableCode).find('input[name=detailContetns'+i+']').val();
+		detailObject.category = $('#'+tableCode).find('input[name=category'+i+']').val();
+		detailObject.color = $('#'+tableCode).find('input[name=inputColor'+i+']').val();
+		detailObject.webUrl = $('#'+tableCode).find('input[name=webUrl'+i+']').val();
+	   objData.appMainTemplateDetailList.push(detailObject);
+		//console.log(objData.appMainTemplateDetailList);
+
+       }
+
+		/*////////// 데이터 생성 END /////// */
+
+		/* Li 생성 Start  */
+		var li = document.createElement("li");
+			$(li).css(
+				{'background':'white', 'border':'1px solid #e6e6e6','height':'40px', 'line-height':'35px'}
+			);
+
+			$(li).addClass("list-group-item");
+			$(li).attr("class","list-group-item"+itemIndex);
+			$(li).attr("id",itemGuid);
+			$(li).attr("ondblclick","readData('"+itemGuid+"','"+itemCode+"')");
+			$(li).attr("onclick","orderSort('"+itemGuid+"')");
+
+			$('#mainList').append(li);
+			if(mainObject.displayTemplateName == "" || mainObject.displayTemplateName == null){
+				$(li).append(cloneTxt.html() +'<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />' );
+			}else{
+			$(li).append( mainObject.displayTemplateName +'<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />' );
+			}
+
+			$("._rightDelBtn").click(function(event){
+		    	$(this).parent().remove();
+				$('table').removeClass('show');
+				deleteTemplate($(this).parent().attr("id"));
+				if($('#mainList li').length == "0"){
+					$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+					$('#mainList').attr('data-row','0');
+				}
+				event.stopPropagation();
+			})
+		//	setLiEvent(li);
+
+		/* Li 생성 END */
+	}
+
+	function setLiEvent(li){
+		var delBtn = '<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />'
+		var inputStr = '';
+		//$("input[name=_rightDelBtn]").on("click", btnDel);
+		$("._rightDelBtn").click(function(event){
+	    	$(this).parent().remove();
+			$('table').removeClass('show');
+			deleteTemplate($(this).parent().attr("id"));
+			if($('#mainList li').length == "0"){
+				$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+				$('#mainList').attr('data-row','0');
+			}
+			event.stopPropagation();
+		})
+
+	}
+
+	$('.btnUp').click(
+		function(){
+			var item = $('#mainList .step2Sel');
+			var _idx = $('#mainList li').index(item);
+
+			if(_idx > 0){
+				$('#mainList li').eq(_idx-1).before(item.clone());
+				$(item).remove();
+				setLiEvent($('#mainList li').eq(_idx-1));
+			}
+		}
+	);
+
+	$('.btnDown').click(
+		function(){
+			var item = $('#mainList .step2Sel');
+			var _idx = $('#mainList li').index(item);
+
+			if( _idx < $('#mainList li').length-1){
+				$('#mainList li').eq(_idx+1).after(item.clone());
+				$(item).remove();
+				setLiEvent($('#mainList li').eq(_idx+1));
+			}
+		}
+	);
+
+	/* 키워드 END */
+
+
+	function createLi(templateId , detailCode){
+
+		$('#mainList li').removeClass('step2Sel');
+		$('#mainList li').css('background-color','white');
+		$('#mainList li ._rightDelBtn').css('background-color','white');
+		$("#templateId" + templateId).css('background-color','#c4c4c4');
+		$("#templateId" + templateId).find('._rightDelBtn').css('background-color','#c4c4c4');
+		$("#templateId" + templateId).addClass('step2Sel');
+
+	var detailCodeLow = detailCode.toLowerCase() + '_tb';  //테이블명
+
+		if(detailCode == 'METRO_TODAY_NEWS' || detailCode == 'BEST_COMMUNITY_POST'){
+			detailCodeLow = 'app_main_auto_tb';
+		}
+		$('#modalBody').find('table').css("display","none");
+		$('#'+detailCodeLow).css("display","block").appendTo('#modalBody');
+		$('#layerpop').modal('show');
+	}
+
+
+	function setDelBtn(){
+
+		var delBtn = '<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />'
+		 var codeName ;
+		$("#mainList").children().append(delBtn);
+
+		$("._rightDelBtn").click(function(event){
+			    	$(this).parent().remove();
+					$('table').removeClass('show');
+					deleteTemplate($(this).parent().attr("id"));
+					if($('#mainList li').length == "0"){
+						$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+						$('#mainList').attr('data-row','0');
+					}
+						event.stopPropagation();
+					})
+
+	}
+	function deleteTemplate(templateId){
+
+		for(var i=0 ; i <  objData.appMainTemplate.length ; i++){
+			if(objData.appMainTemplate[i].id+"" == templateId){
+				objData.appMainTemplate[i].displayYn = "N";
+				return;
+			}
+		}
+		console.log(objData);
+	}
+	function orderSort(templateId){
+		/* LI 눌렀을때 색변화 CSS */
+		$('#mainList li').removeClass('step2Sel');
+		$('#mainList li').css('background-color','white');
+		$('#mainList li ._rightDelBtn').css('background-color','white');
+		$("#" + templateId).css('background-color','#c4c4c4');
+		$("#" + templateId).find('._rightDelBtn').css('background-color','#c4c4c4');
+		$("#" + templateId).addClass('step2Sel');
+		/* END */
+
+	}
+	function addModal(detailCode , dataKeep , templateId){
+	var itemGuid ;
+	var itemCode = detailCode;
+
+
+
+	if(itemCode == 'metro_today_news' || itemCode == 'best_community_post'){
+		itemCode = "app_main_auto";
+	}
+	if(templateId != null){
+			itemGuid = templateId;
+		}else{
+			itemGuid = guid();
+		}
+	var tableCode = itemCode + '_tb' + itemGuid;
+	if(templateId != null){
+
+	}else{
+
+	//////////////////////////////	fileInput Id , name 생성	//////////////////////////////
+	var cloneTable = $('#'+itemCode+'_tb').clone();
+ 	cloneTable.appendTo('#modalBody').css("display" ,"block").attr("id",tableCode);
+	cloneTable.attr("name","tmp");
+
+	cloneTable.find('input[name=hashCheck0]').attr("onclick" , "checkBox(3,'" + tableCode+"')")
+	cloneTable.find('input[name=hashCheck1]').attr("onclick" , "checkBox(6,'" + tableCode+"')")
+	cloneTable.find('input[name=hashCheck2]').attr("onclick" , "checkBox(9,'" + tableCode+"')")
+
+	cloneTable.find('input[name=hashCheck0]').attr("value" , "3")
+	cloneTable.find('input[name=hashCheck1]').attr("value" , "6")
+	cloneTable.find('input[name=hashCheck2]').attr("value" , "9")
+	cloneTable.find("input[name=inputColor0]").colorpicker();
+	cloneTable.find("input[name=inputColor1]").colorpicker();
+	cloneTable.find("input[name=inputColor2]").colorpicker();
+	cloneTable.find("input[name=inputColor3]").colorpicker();
+	cloneTable.find("input[name=inputColor4]").colorpicker();
+
+	var fileInputLen = cloneTable.find('.file_input').length;
+
+	if(fileInputLen>0){
+			cloneTable.find('.file_input').find(':input').eq(0).attr("id","fileText" + itemGuid +"-"+ 0) ;
+			cloneTable.find('.file_input').find(':input').eq(0).attr("name","fileText" + itemGuid +"-"+ 0) ;
+			cloneTable.find('.file_input').find(':input').eq(1).attr("name","fileVal" + itemGuid +"-" + 0 ) ;
+			cloneTable.find('.file_input').find(':input').eq(2).attr("id","fileText" + itemGuid +"-" + 1 ) ;
+			cloneTable.find('.file_input').find(':input').eq(2).attr("name","fileText" + itemGuid +"-" + 1 ) ;
+			cloneTable.find('.file_input').find(':input').eq(3).attr("name","fileVal" + itemGuid +"-" + 1) ;
+			cloneTable.find('.file_input').find(':input').eq(4).attr("id","fileText" + itemGuid +"-" + 2) ;
+			cloneTable.find('.file_input').find(':input').eq(4).attr("name","fileText" + itemGuid +"-" + 2) ;
+			cloneTable.find('.file_input').find(':input').eq(5).attr("name","fileVal" + itemGuid +"-" + 2) ;
+			cloneTable.find('.file_input').find(':input').eq(1).attr("onchange",'javascript:document.getElementById("'+  'fileText' + itemGuid +'-'+ '0").value=this.value' ) ;
+			cloneTable.find('.file_input').find(':input').eq(3).attr("onchange",'javascript:document.getElementById("'+  'fileText' + itemGuid +'-'+ '1").value=this.value' ) ;
+			cloneTable.find('.file_input').find(':input').eq(5).attr("onchange",'javascript:document.getElementById("'+  'fileText' + itemGuid +'-'+ '2").value=this.value' ) ;
+	}
+
+	//////////////////////////////fileInput Id , name 생성 END////////////////////////////////
+	}
+
+	var detailCode = detailCode + '_tb';  //테이블명
+	if(detailCode == 'metro_today_news_tb' || detailCode == 'best_community_post_tb'){
+		detailCode = "app_main_auto_tb"
+	}
+			$('#modalBody').find('table').css("display","none");
+			$("#modalButton").text("등록");
+			$("#modalButton").attr("onclick","dataCheck('"+detailCode+"' , 'insert' , '" +itemGuid+ "')");
+			$('#'+tableCode).css("display","block");
+			$('#layerpop').modal('show');
+
+		 if(dataKeep == "" || dataKeep == null ){
+			$('#'+detailCode).find(':input').each(function(){
+				//$(this).val("");
+				$(this).text('');
+				$(this).attr('disabled', false);
+
+			});
+			}
+	}
+
+
+	function dataCheck(detailCode , dataType , templateId){
+		var checkResult = true;
+
+		$('#'+detailCode+templateId).find(':input').each(function(){
+
+ 		var inputName = $(this).attr('name');
+		console.log($(this).attr('name')+"----"+$(this).val());
+
+ 		if(inputName == "moreCheck" ){
+ 			 if($(this).prop('checked') === false){
+ 				return false;
+ 			 }
+ 		}
+
+		if(inputName.indexOf('fileVal') != -1){
+			return true;
+		}
+
+  		if($(this).val() == "" && $(this).prop('disabled') == false){
+	        $().toastmessage('showToast', {
+		            stayTime : 1200
+		            , text : ' 정보입력이 완료되지않았습니다 '
+		            , sticky : false
+		            , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+		            , type : 'warning' // notice, warning, error, success
+		            , close : function () {
+		            	detailCode = detailCode.replace('_tb','');
+		            	addModal(detailCode , 'keep' , templateId);
+		            }
+				});
+        		checkResult  = false;
+				return false;
+			}
+		});
+
+		if(checkResult == true){
+			if(dataType == 'update'){
+				updateData(templateId);	//업데이트하는 함수만들것
+
+			}else{
+				addData(templateId);
+			}
+		}
+
+	}
+
+	/* 데이터를 읽어옵니다 */
+	function readData(templateId , detailCode){
+
+		/* LI 눌렀을때 색변화 CSS */
+		$('#mainList li').removeClass('step2Sel');
+		$('#mainList li').css('background-color','white');
+		$('#mainList li ._rightDelBtn').css('background-color','white');
+		$("#templateId" + templateId).css('background-color','#c4c4c4');
+		$("#templateId" + templateId).find('._rightDelBtn').css('background-color','#c4c4c4');
+		$("#templateId" + templateId).addClass('step2Sel');
+		/* END */
+			$("#modalButton").text("적용");
+			$("#modalButton").attr("onclick","dataCheck('"+detailCode.toLowerCase() + "_tb"+"' , 'update' , '" + templateId+ "')");
+
+
+		var detailCodeLow = detailCode.toLowerCase() + '_tb' + templateId;  //테이블명
+		if(detailCode == 'METRO_TODAY_NEWS' || detailCode == 'BEST_COMMUNITY_POST' || detailCode == 'metro_today_news' || detailCode == 'best_community_post' ){
+			detailCodeLow = 'app_main_auto_tb' + templateId;
+		}
+
+		if(templateId !=null ){
+
+			$('#modalBody').find('table').css("display","none");
+			$('#'+detailCodeLow).css("display","block");
+
+			$('#layerpop').modal('show');
+			        console.log(objData);
+			        var maintemplate ;
+			        var templateDetail  = new Array();
+
+			        if(templateId >10000){
+			        	return;
+			        }
+
+			        /* AppMainTemplate 데이터  */
+			        for(var i = 0; i<objData.appMainTemplate.length; i++) {
+			        	if(objData.appMainTemplate[i].id == templateId){
+			        		maintemplate = objData.appMainTemplate[i];
+			        		continue;
+			        	}
+			        };
+
+			        /* AppMainTemplateDetail 데이터  */
+			        for(var i = 0; i<objData.appMainTemplateDetailList.length; i++) {
+			        	if(objData.appMainTemplateDetailList[i].mainTemplateId == templateId){
+			        		templateDetail.push(objData.appMainTemplateDetailList[i]);
+			        		continue;
+			        	}
+			        };
+
+			        /* mainTemplate 데이터셋팅  */
+
+			        $('#'+detailCodeLow).find('input[name=displayTemplateTitle]').val(maintemplate.displayTemplateName);
+			        $('#'+detailCodeLow).find('input[name=templateName]').val(maintemplate.templateTitle);
+			        $('#'+detailCodeLow).find('input[name=highlightText]').val(maintemplate.highlightText);
+			        $('#'+detailCodeLow).find('input[name=moreUrl]').val(maintemplate.moreShowUrl);
+
+			        if(maintemplate.moreShowUrlUseYn === true){
+			        $('#'+detailCodeLow).find('input[name=moreCheck]').attr('checked', true);
+			        }
+
+			        /* 키워드 숫자에 따른 데이터 셋팅 */
+			        if(maintemplate.keywordCount != "" || maintemplate.keywordCount != null){
+				        $('#'+detailCodeLow).find('#check'+maintemplate.keywordCount).attr('checked', true);
+				        checkBox(maintemplate.keywordCount,detailCodeLow);
+				        }
+
+			        				/* 키워드 숫자 END */
+
+			        /* mainTemplate 데이터셋팅 END */
+
+			        /* mainTemplateDeailt DataSetting Start */
+			         for(var i = 0 ; i <templateDetail.length ; i++){
+			        	 $('#'+detailCodeLow).find('input[name=detailBoardId'+i+']').val(templateDetail[i].postId);
+			        	 $('#'+detailCodeLow).find('input[name=detailTitle'+i+']').val(templateDetail[i].contentsTitle);
+			        	 $('#'+detailCodeLow).find('input[name=detailContetns'+i+']').val(templateDetail[i].contentsText);
+			        	 $('#'+detailCodeLow).find('input[name=webUrl'+i+']').val(templateDetail[i].webUrl);
+			        	 $('#'+detailCodeLow).find('input[name=category'+i+']').val(templateDetail[i].category);
+			        	 $('#'+detailCodeLow).find('input[name=inputColor'+i+']').val(templateDetail[i].color)
+			        	 $('#'+detailCodeLow).find('input[name=fileText'+templateId+'-'+i+']').val(objData.fileInfo[templateDetail[i].id])
+			        }
+			        /* mainTemplateDeailt DataSetting End */
+		}
+	}
+
+
+	function updateData(templateId){
+
+        var maintemplate ;
+        var templateDetail  = new Array();
+        /* AppMainTemplate 데이터  */
+        for(var i = 0; i<objData.appMainTemplate.length; i++) {
+        	if(objData.appMainTemplate[i].id+"" == templateId){
+        		maintemplate = objData.appMainTemplate[i];
+        		continue;
+        	}
+        };
+
+        /* AppMainTemplateDetail 데이터  */
+        for(var i = 0; i<objData.appMainTemplateDetailList.length; i++) {
+        	if(objData.appMainTemplateDetailList[i].mainTemplateId+"" == templateId){
+        		templateDetail.push(objData.appMainTemplateDetailList[i]);
+        		continue;
+        	}
+        };
+
+        var templateCode = maintemplate.code.toLowerCase() + '_tb'+templateId;  //테이블명
+
+        maintemplate.displayTemplateName = $('#'+templateCode).find('input[name=displayTemplateTitle]').val();
+        maintemplate.highlightText = $('#'+templateCode).find('input[name=highlightText]').val();
+        maintemplate.moreShowUrl = $('#'+templateCode).find('input[name=moreUrl]').val();
+
+    	if($('#'+templateCode).find('input:checkbox[name=moreCheck]').prop("checked") === true){
+    		 maintemplate.moreShowUrlUseYn = "Y";
+    	}else{
+    		 maintemplate.moreShowUrlUseYn = "N";
+    	}
+
+        maintemplate.templateTitle = $('#'+templateCode).find('input[name=templateName]').val();
+
+		var loopNum = templateDetail.length;
+		var oldKeyCount = maintemplate.keywordCount;
+
+		/* 해시 태그 사용시 입력 갯수에따른 루프값 정의 END */
+	    if(maintemplate.code == "APP_OP_HASHTAG" && (maintemplate.keywordCount !="" || maintemplate.keywordCount != null)){
+	        loopNum = maintemplate.keywordCount;
+	    }
+
+		/* 해시 태그 사용시 입력 갯수에따른 루프값 정의 Start */
+		if($('#'+templateCode).find('input[name=hashCheck0]').prop("checked")==true){
+			  maintemplate.keywordCount = $('#'+templateCode).find('input[name=hashCheck0]:checkbox:checked').val();
+			  loopNum = maintemplate.keywordCount;
+		}else if($('#'+templateCode).find('input[name=hashCheck1]').prop("checked")==true){
+			  maintemplate.keywordCount= $('#'+templateCode).find('input[name=hashCheck1]:checkbox:checked').val();
+			  loopNum = maintemplate.keywordCount;
+
+		}else if($('#'+templateCode).find('input[name=hashCheck2]').prop("checked")==true){
+			  maintemplate.keywordCount = $('#'+templateCode).find('input[name=hashCheck2]:checkbox:checked').val();
+			  loopNum = maintemplate.keywordCount;
+		}
+
+		for(var i = 0 ; i < loopNum  ; i++){
+ 			if(maintemplate.code == "APP_OP_HASHTAG" && oldKeyCount < loopNum && templateDetail[i] ==null ){
+ 				var templateDetail = new Object();
+  				templateDetail.code = "APP_OP_HASHTAG"
+  				templateDetail.contentsText = $('#'+templateCode).find('input[name=detailContetns'+i+']').val();
+  				templateDetail.mainTemplateId = maintemplate.id;
+ 				objData.appMainTemplateDetailList.push(templateDetail);
+ 				console.log(objData.appMainTemplateDetailList);
+
+			}else{
+
+				templateDetail[i].contentsTitle = $('#'+templateCode).find('input[name=detailTitle'+i+']').val();
+        		templateDetail[i].postId = $('#'+templateCode).find('input[name=detailBoardId'+i+']').val();
+
+        		if(maintemplate.code === "APP_OP_HASHTAG"){  // 해시태그 수정시 클라이언트에서 수정할경우 기존 키카운터로 반복을해야 지워진다
+        	  		for(var j = 0; j< oldKeyCount  ; j++){
+        		 		if($('#'+templateCode).find('input[name=detailContetns'+j+']').prop('disabled') == true){
+    	    		 		templateDetail[j].contentsText = "";
+        			 		$('#'+templateCode).find('input[name=detailContetns'+j+']').val("");
+        			 	}
+        		 	}
+        	 		templateDetail[i].contentsText = $('#'+templateCode).find('input[name=detailContetns'+i+']').val();
+        	 	}else{
+        	 		templateDetail[i].contentsText = $('#'+templateCode).find('input[name=detailContetns'+i+']').val();
+        	 	}
+
+        	 	templateDetail[i].category = $('#'+templateCode).find('input[name=category'+i+']').val();
+        	 	templateDetail[i].color = $('#'+templateCode).find('input[name=inputColor'+i+']').val();
+        	 	templateDetail[i].webUrl = $('#'+templateCode).find('input[name=webUrl'+i+']').val();
+
+        	 	console.log("<<templateDetail>>" + templateDetail[i]);
+        	 }
+
+       }
+
+		console.log(objData.appMainTemplateDetailList);
+		// console.log(objData.appMainTemplate);
+
+		$('#'+templateId).text(maintemplate.displayTemplateName);
+
+		var delBtn = '<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />'
+		$("#"+templateId).append(delBtn);
+
+		$("._rightDelBtn").click(function(event){
+	    	$(this).parent().remove();
+			$('table').removeClass('show');
+			deleteTemplate($(this).parent().attr("id"));
+			if($('#mainList li').length == "0"){
+				$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+				$('#mainList').attr('data-row','0');
+			}
+			event.stopPropagation();
+		});
+
+	}
+
+	function saveAndflush(){
+
+		var result = confirm(' 등록하시겠습니까? ');
+		if(result){
+			$("#modalBody").find("table[name=tmp]").remove();
+
+			var jsonData = new Object();
+	 		for(var i = 0 ; i < objData.appMainTemplate.length; i++) {
+	 			if(objData.appMainTemplate[i].displayYn != 'N'){
+	 				objData.appMainTemplate[i].displayOrder =  $("#"+objData.appMainTemplate[i].id).index()+1;
+
+	 			}
+
+				delete objData.appMainTemplate[i].regDate; // 등록날짜와 업데이트 날짜는 Ggone 으로 바꿀때 타입 에러가 발생하여 넘길때는 삭제한다
+				delete objData.appMainTemplate[i].modDate;
+
+			}
+	 		for(var i = 0 ; i < objData.appMainTemplateDetailList.length; i++) {
+				delete objData.appMainTemplateDetailList[i].regDate;
+				delete objData.appMainTemplateDetailList[i].modDate;
+
+			}
+
+	 		var formData = new FormData($("#dataForm"));
+	 		formData.append("jsonData",JSON.stringify(objData));
+
+			$("#jsonDataForm").val(JSON.stringify(objData));
+
+			$("#dataForm").ajaxSubmit({
+		        url: "/admin/appMain/saveAndflush"
+		        , type: 'post'
+		        , async: true
+		        , dataType: "json"
+		        , success: function(jsonData) {
+		        		alert("저장에 성공하였습니다");
+		        		location.reload();
+		        }
+		        , error: function(xhr, status, error) {
+		        	if (window.console && console.log) console.log("error : " + error.message);
+		        	alert("저장에 실패했습니다")
+		        }
+		    });
+		}
+
+	}
+
+	function setTable(){
+
+		for(var i = 0 ; i< objData.appMainTemplate.length; i++  ){
+			var code = objData.appMainTemplate[i].code;
+			code = code.toLowerCase() +"_tb";
+			if(code == 'metro_today_news_tb' || code == 'best_community_post_tb'){
+				code = "app_main_auto_tb";
+			}
+
+
+
+			var templateId = objData.appMainTemplate[i].id;
+			var cloneTable = $('#'+code).clone();
+			cloneTable.appendTo('#modalBody').css("display" ,"block").attr("id",code+templateId);
+
+			if( objData.appMainTemplate[i].moreShowUrlUseYn == "Y"){
+				cloneTable.find('input[name=moreCheck]').attr("checked" , true);
+			}
+
+
+			var fileInputLen = cloneTable.find('.file_input').length;
+
+			cloneTable.find('input[name=hashCheck0]').attr("onclick" , "checkBox(3,'" + code+templateId+"')")
+			cloneTable.find('input[name=hashCheck1]').attr("onclick" , "checkBox(6,'" + code+templateId+"')")
+			cloneTable.find('input[name=hashCheck2]').attr("onclick" , "checkBox(9,'" + code+templateId+"')")
+			cloneTable.find("input[name=inputColor0]").colorpicker();
+			cloneTable.find("input[name=inputColor1]").colorpicker();
+			cloneTable.find("input[name=inputColor2]").colorpicker();
+			cloneTable.find("input[name=inputColor3]").colorpicker();
+			cloneTable.find("input[name=inputColor4]").colorpicker();
+
+			/* 테이블별 파일 업로드 태그명 설정  */
+			if(fileInputLen>0){
+ 					cloneTable.find('.file_input').find(':input').eq(0).attr("id","fileText" + templateId +"-"+ 0) ; // fileText + 템플릿아이디로 생성
+ 					cloneTable.find('.file_input').find(':input').eq(0).attr("name","fileText" + templateId +"-"+ 0) ;
+					cloneTable.find('.file_input').find(':input').eq(1).attr("name","fileVal" + templateId +"-" + 0 ) ;
+					cloneTable.find('.file_input').find(':input').eq(2).attr("id","fileText" + templateId +"-" + 1 ) ;
+					cloneTable.find('.file_input').find(':input').eq(2).attr("name","fileText" + templateId +"-" + 1 ) ;
+					cloneTable.find('.file_input').find(':input').eq(3).attr("name","fileVal" + templateId +"-" + 1) ;
+					cloneTable.find('.file_input').find(':input').eq(4).attr("id","fileText" + templateId +"-" + 2) ;
+					cloneTable.find('.file_input').find(':input').eq(4).attr("name","fileText" + templateId +"-" + 2) ;
+					cloneTable.find('.file_input').find(':input').eq(5).attr("name","fileVal" + templateId +"-" + 2) ;
+					cloneTable.find('.file_input').find(':input').eq(1).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '0").value=this.value' ) ;
+					cloneTable.find('.file_input').find(':input').eq(3).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '1").value=this.value' ) ;
+					cloneTable.find('.file_input').find(':input').eq(5).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '2").value=this.value' ) ;
+			}
+
+		}
+
+	}
+	function checkBox(checkVal , tableCode){
+	var thisTable = $("#"+tableCode);
+
+		/* 해시태크 키우드 숫자 체크 여부에따른 비활성화 */
+
+		if(checkVal == 3){
+		thisTable.find("input[name=hashCheck1]").attr('checked', false);
+		thisTable.find("input[name=hashCheck2]").attr('checked', false);
+		   for(var i = 0 ; i<9; i++){
+				thisTable.find("input[name=detailContetns"+i+"]").attr('disabled', true);
+	      }
+
+		   for(var i = 0 ; i<3; i++){
+			   thisTable.find("input[name=detailContetns"+ i+"]").attr('disabled', false) ;
+	      }
+
+
+		}else if(checkVal == 6){
+
+		thisTable.find("input[name=hashCheck0]").attr('checked', false);
+		thisTable.find("input[name=hashCheck2]").attr('checked', false);
+		   for(var i = 0 ; i<9; i++){
+				thisTable.find("input[name=detailContetns"+i+"]").attr('disabled', true);
+	      }
+
+		   for(var i = 0 ; i<6; i++){
+			   thisTable.find("input[name=detailContetns"+ i+"]").attr('disabled', false) ;
+	      }
+		}else{
+		thisTable.find("input[name=hashCheck0]").attr('checked', false);
+		thisTable.find("input[name=hashCheck1]").attr('checked', false);
+		   for(var i = 0 ; i<9; i++){
+				thisTable.find("input[name=detailContetns"+i+"]").attr('disabled', false);
+	      }
+
+		}
+
+	}
+	$(document).ready( 	function(){
+			$('.step1 tr td').click(function(){
+				$('.step1 tr td').css('background','white');
+				$(this).css('background','#c4c4c4');
+				cloneTxt = $(this).clone();
+					$('#myTab a[href="#today"]').tab('show'); // Select tab by name
+					$('#myTab a:first').tab('show'); // Select first tab
+					$('#myTab a:last').tab('show') ;// Select last tab
+					  //color picker
+			});
+//				    $('input[name=inputColor0]    inputColor, #inputColor2, #inputColor3,#inputColor4,#inputColor5,#inputColor6').colorpicker();
+				   $("#dataForm").find("input[name=inputColor3]").colorpicker();
+				    setDelBtn();
+				    setTable();
+				console.log(objData);
+		}
+	);
+
+    /*]]>*/
+</script>
+</body>
+</html>

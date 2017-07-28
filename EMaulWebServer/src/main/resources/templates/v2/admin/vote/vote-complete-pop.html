@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout_popup">
+<head>
+    <title>집계완료</title>
+
+	<style type="text/css">
+	<!--
+		.filebox{margin:5px 0 0 0;}
+		.filebox label {
+		  display: inline-block;
+		  padding: .5em .75em;
+		  color: #46B8DA;
+		  font-size: inherit;
+		  line-height: normal;
+		  vertical-align: middle;
+		  background-color:#fff;
+		  cursor: pointer;
+		  border: 1px solid #46B8DA;
+		  border-bottom-color: #46B8DA;
+		  border-radius: .25em;
+		}
+		.filebox label:hover{
+			color: #fff;
+			background-color: #46B8DA;
+		}
+
+		.filebox input[type="file"] {  /* 파일 필드 숨기기 */
+		  position: absolute;
+		  width: 1px;
+		  height: 1px;
+		  padding: 0;
+		  margin: -1px;
+		  overflow: hidden;
+		  clip:rect(0,0,0,0);
+		  border: 0;
+		}
+	//-->
+	</style>
+
+</head>
+
+<body>
+
+	<div class="popup_container" style="width:90%; margin:0 auto; padding:10px 0;" layout:fragment="layout_cpopup_ontent">
+
+		<div th:if="${vote.offlineAvailable}">
+			<h4 th:if="${vote.voteResultAvailable}">오프라인 투표 결과</h4>
+			<h4 th:unless="${vote.voteResultAvailable}">오프라인 투표 결과 입력</h4>
+		</div>
+
+		<table class="table table-bordered" th:if ="${vote.offlineAvailable}">
+			<thead>
+				<tr>
+					<th style="text-align:center; background:#e4e4e4;">후보/선택지</th>
+					<th style="text-align:center; background:#e4e4e4;" th:text="${vote.voteResultAvailable} ? '득표수 ' : '득표수 입력'">득표수</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">제목</th>
+					<td th:text="${vote.title}">
+					</td>
+				</tr>
+			   <tr th:each="voteItem : ${voteItems}">
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;" th:value="${voteItem.id}"><span th:text="${voteItem.title}" >후보1</span><i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+					<td>
+						<input type="text" th:id="'vote-offline-result-' + ${voteItem.id}" th:if="${not vote.voteResultAvailable}" th:maxlength="6" class="form-control" onkeydown='return onlyNumber(event);' onkeyup='removeChar(event);'  />
+						<p th:if="${vote.voteResultAvailable}" th:text="${voteResultMap.get(voteItem.id)}"></p>
+					</td>
+				</tr>
+				<tr>
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">무효<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+					<td>
+						<input type="text" id="vote-offline-result-0" th:if="${not vote.voteResultAvailable}" th:maxlength="6" class="form-control" onkeydown='return onlyNumber(event);' onkeyup='removeChar(event);'  />
+						<p th:if="${vote.voteResultAvailable}" th:text="${voteResultMap.get(0l) == null ? '0' : voteResultMap.get(0l)}"></p>
+					</td>
+				</tr>
+
+				<tr th:unless="${vote.voteResultAvailable}">
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">전체명부</th>
+					<td>
+						<button type="button" class="btn btn-default" onclick="getVoteDocument();">첨부양식 다운받기</button>
+
+						<div class="filebox">
+						    <label for="voters_file">찾아보기</label>
+						    <input type="file" onchange="$('#file_route1').val(this.value)" name="files" id="voters_file"/>
+						    <input type="text" readonly="readonly" title="File Route" id="file_route1" />
+						</div>
+
+						<div th:if="${resultVoterFile} != ''" >
+							<a th:href="${'/api/vote/offline/votersFile/' + vote.id}" th:text="${resultVoterFile}"></a>
+						</div>
+
+						<p style="color:red">※ 반드시 다운로드 받은 양식으로 첨부 바랍니다.</p>
+					</td>
+				</tr>
+				<tr th:if="${vote.voteResultAvailable}">
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">입력시간</th>
+					<td th:text="${#dates.format(voteOfflineResultVo.regDate, 'yyyy-MM-dd HH:mm')}" >
+					</td>
+				</tr>
+				<tr th:if="${vote.voteResultAvailable}">
+					<th style="text-align:center; vertical-align:middle; background:#e4e4e4;">입력자</th>
+					<td th:text="${regUser.getFullName() + ' (' + regUser.getEmail() + ')'}">
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+
+		<h4>
+			<span th:if="${not vote.voteResultAvailable}">투표 결과 안내 문구 입력</span>
+			<span th:if="${vote.voteResultAvailable}">투표 결과 안내 문구</span>
+			<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></h4>
+
+		<p th:if="${vote.voteResultAvailable}" th:text="${voteOfflineResultVo.resultText}"></p>
+		<input type="text" class="form-control" id="vote-result-text" name="vote-result-text" value=""  th:if="${not vote.voteResultAvailable}" th:maxlength="50"/>
+
+		<div style="text-align:center; margin-top:10px;">
+			<button type="button" class="btn btn-success" th:if="${not vote.voteResultAvailable}" onclick="inputOfflineResult()">집계완료</button>
+			<button type="button" class="btn btn-success" th:if="${vote.voteResultAvailable}" onclick="resetOfflineResult()">집계취소</button>
+			<button type="button" class="btn btn-default" id="btn-cloase" th:onclick="|self.close();|">닫기</button>
+		</div>
+
+		<script th:inline="javascript">
+		    /*<![CDATA[*/
+
+			// 집계완료
+		    function inputOfflineResult() {
+		        var numCheck = /^[0-9]*$/;
+		        var inputChecked = true;
+		        $('#put-off-result input').each(function () {
+		            var number = $(this).val();
+		            if (!numCheck.test(number) || number == '') {
+		                $(this).focus();
+		                inputChecked = false;
+		                return false;
+		            }
+		        });
+
+		        if (!inputChecked) {
+		            alert('결과 값이 입력되지 않았거나 숫자가 아닙니다.');
+		            return;
+		        }
+
+		        var aptId = /*[[${vote.targetApt}]]*/ 0;
+		        var voteId = /*[[${vote.id}]]*/ 0;
+		        var offlineAvailable = /*[[${vote.offlineAvailable}]]*/ 0;
+		        var voteItems = /*[[${voteItems}]]*/ [];
+		        var reqData = {
+		            itemResult: {}
+		        };
+
+		        console.log(">>> voteItems length : " + voteItems.length);
+		        for (var a = 0; a < voteItems.length; a++) {
+		        	var voteItemId = voteItems[a].id;
+		        	if (isEmpty($('#vote-offline-result-' + voteItems[a].id).val())) {
+		        		$('#vote-offline-result-' + voteItems[a].id).val(0)
+		        	}
+		        	reqData.itemResult[voteItems[a].id] = $('#vote-offline-result-' + voteItems[a].id).val();
+		        }
+
+		        if (isEmpty($('#vote-offline-result-0').val())) {
+		        	$('#vote-offline-result-0').val(0);
+		        }
+		        reqData.itemResult[0] = $('#vote-offline-result-0').val();
+
+		        reqData.aptId = aptId;
+		        reqData.voteId = voteId;
+		        reqData.voteResultText = $('#vote-result-text').val();
+
+		        var fileData = new FormData();
+		        fileData.append('json', JSON.stringify(reqData));
+		        if(offlineAvailable && $('#voters_file')[0].files.length > 0){
+		            // console.log($('#voters_file'));
+		            fileData.append('votersFile', $('#voters_file')[0].files[0]);
+		        }
+
+		        $.ajax({
+		            type: 'POST'
+		            , url: '/v2/admin/vote/completeProc'
+		            , contentType:false
+		            , processData:false
+		            , data: fileData
+		            , success: function (data) {
+		                console.log(">>> result : " + data.result);
+		                console.log(">>> message : " + data.message)
+		                if (data.result) {
+		                	alert('성공적으로 등록됐습니다');
+		                	opener.location.reload();
+		                	self.close();
+		                } else {
+		                	alert(data.message);
+		                }
+		            }
+		            , error: function(xhr, status, error) {
+		            	if (window.console && console.log) console.log("error : " + error.message);
+		                alert('투표 집계 처리 실패');
+		            }
+		        })
+		    }
+
+
+			// 집계 취소
+		    function resetOfflineResult() {
+		        var voteId = /*[[${vote.id}]]*/ 0;
+		        var endDate = /*[[${vote.endDate}]]*/ 0;
+
+				if (new Date(endDate).format('yyyyMMddHHmm') > new Date().format('yyyyMMddHHmm') ) {
+					alert("투표 기간이 지난 투표는 집계취소할 수 없습니다.");
+					return;
+				}
+
+		        var reqData = {};
+		        reqData.voteId = voteId;
+
+		        $.ajax({
+		            type: 'POST'
+		            , url: '/v2/admin/vote/resetProc'
+		            , contentType: "application/json; charset=utf-8"
+		            , data: JSON.stringify(reqData)
+		            , success: function (data) {
+
+		            	if (data.result) {
+		            		alert('집계 결과를 리셋했습니다.');
+		                	opener.location.reload();
+		                	self.close();
+		                } else {
+		                	alert(data.message);
+		                }
+		            }
+		            , error: function(xhr, status, error) {
+		            	if (window.console && console.log) console.log("error : " + error.message);
+		                alert('투표 집계 리셋 실패');
+		            }
+		        })
+		    }
+
+			// 명부 양식 다운받기
+			function getVoteDocument() {
+				event.preventDefault();
+			    window.location.href = '/api/vote/document/offline';
+			}
+
+		    /*]]>*/
+		</script>
+	</div>
+</body>
+</html>

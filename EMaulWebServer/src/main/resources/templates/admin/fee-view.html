@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+
+    <style>
+
+        th:after {
+            color : #ff6100;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            padding:4px;
+        }
+
+        .table p {
+            margin: 0;
+        }
+
+    </style>
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>e마을 | 관리</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <h1 class="page-header">관리비 조회</h1>
+
+                <div id="content-container">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">조회할 가구 선택</div>
+                        <div class="panel-body">
+                            <div class="form-inline">
+    							<div class="form-group">
+                                    <input type="search" class="form-control" id="dong" />
+                                    <label for="dong">동</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="search" class="form-control input-sm" id="ho"/>
+                                    <label for="ho">호</label>
+                                </div>
+                                <button type="button" id="searchFee" class="btn btn-default">관리비 보기</button>
+                            </div>
+                            <div th:if="${none}">
+                                <p>조회하실 동, 호를 선택해 주세요. 선택 후 '관리비 보기' 버튼을 클릭하면 월 별로 조회할 수 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+            <div th:if="!${none}">
+
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+
+                        <div id="select-wrap" class="form-inline">
+                            <select class="form-control">
+                                <option th:each="l,iterStat : ${list}" th:value="${iterStat.index}" th:text="${l.date}"></option>
+                            </select>
+                            <label>월 선택</label>
+                            <span id="info" style="float: right; position: relative; margin-top: 7px;"></span>
+
+
+                        </div>
+
+                    </div>
+
+                    <div class="panel-body">
+                        <table id="top-table" class="table" style="margin-bottom: 0;">
+                            <tbody>
+                            <tr>
+                                <th width="30%">납기내</th><td id="납기내"></td>
+                            </tr>
+                            <tr>
+                                <th width="30%">납기후</th><td id="납기후"></td>
+                            </tr>
+                            <tr>
+                                <th width="30%">당월부과금액</th><td id="당월부과금액"></td>
+                            </tr>
+                            <tr>
+                                <th width="30%">미납금액</th><td id="미납금액"></td>
+                            </tr>
+                            <tr>
+                                <th width="30%">미납연체</th><td id="미납연체"></td>
+                            </tr>
+                            <tr>
+                                <th width="30%">납기후연체료</th><td id="납기후연체료"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <p style="font-size: 15px; font-weight: 600; margin-top: 30px"><img src="/img/userHome/fee-default.png" style="margin-right: 10px"/>상세내역</p>
+                <table id="detail" class="table">
+                    <thead style="text-align: center">
+                    <tr>
+                        <th width="33%">항목</th>
+                        <th width="33%">전월</th>
+                        <th width="33%">당월</th>
+                    </tr>
+                    </thead>
+
+                    <tbody th:if="!${list}">
+                    <tr>
+                        <td colspan="3">정보가 없습니다.</td>
+                    </tr>
+                    </tbody>
+
+                    <tbody th:if="${list}">
+                    <!--<tr th:each="contact,iterStat : ${user.house.apt.aptInfo.contacts}">-->
+                        <!--<td> <p th:text="${iterStat.count}">222222</p></td>-->
+                        <!--<td> <p th:text="${contact.name}"></p> </td>-->
+                        <!--<td> <p th:text="${contact.phoneNumber}"></p> </td>-->
+                    <!--</tr>-->
+
+
+                    <tr class="aptFeeCheckClass" id="tr-border" th:each="key : ${keySet}">
+                        <td th:id="${key}"> <p th:text="${key}"></p></td>
+                        <td th:id="'1'+${key}"></td>
+                        <td th:id="'2'+${key}"></td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</div>
+</div>
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js"
+        th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"
+        th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $('#searchFee').click(function () {
+        var getDong = $('#dong').val();
+        var getHo = $('#ho').val();
+        location.href = '/admin/fee/'+getDong+'/'+getHo;
+    });
+
+
+    var selectedMonth = 0;
+
+
+    var dateInfo = $('#wrapper option:selected').text();
+    var house = /*[[${house}]]*/;
+
+    var list = /*[[${jsonList}]]*/;
+
+    $(document).ready(function () {
+        if(list != null) {
+            showData();
+        }else{
+            $('#top-table').attr('style','display: none');
+            $('#select-wrap').attr('style','display: none');
+        }
+        $('#detail').dataTable({
+            "paging": false,
+            "info": false,
+            "searching": false,
+            "language": {
+                "emptyTable": "자료가 없습니다. 관리비를 등록해 주세요."
+            }
+        });
+    });
+
+
+    $('select').change(function () {
+        selectedMonth = Number($('select').val());
+        dateInfo = $('#wrapper option:selected').text();
+        showData();
+    });
+
+    function showData() {
+
+    	$(".aptFeeCheckClass").each(function() {
+			$(this).children("td").each(function() {
+				var id = $(this).attr("id");
+				$(this).attr("id", id.replace(/\s/gi, ''));
+				// console.log($(this).attr("id"));
+			});
+    	});
+
+        $('#info').text(house);
+
+        var jsonLast = JSON.parse(list[selectedMonth]);
+        if (list[selectedMonth + 1] != undefined) {
+
+            var jsonTwoMAgo = JSON.parse(list[selectedMonth + 1]);
+
+            $.each(jsonTwoMAgo, function (key, value) {
+            	key = key.replace(/\s/gi, '');
+            	// console.log("<<key>> " + key + ", <<value>> " + value);
+
+            	if (key.indexOf("일자") > -1) {
+            		$('#1' + key).text(value);
+            	} else {
+            		$('#1' + key).text(numberWithCommas(value));
+            	}
+            });
+
+        } else {
+
+            $.each(jsonLast, function (key, value) {
+                $('#1' + key).text('-');
+            });
+
+        }
+
+        $.each(jsonLast, function (key, value) {
+        	key = key.replace(/\s/gi, '');
+        	// console.log("<<key>> " + key + ", <<value>> " + value);
+
+        	if (key.indexOf("일자") > -1) {
+        		$('#top-table #' + key).text(value);
+        		$('#2' + key).text(value);
+        	} else {
+        		$('#top-table #' + key).text(numberWithCommas(value));
+        		$('#2' + key).text(numberWithCommas(value));
+        	}
+        });
+
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    //엔터눌렀을때 검색되게
+    $('#dong').on('keypress', function(e) {
+    	if (e.which == 13) {
+    		document.getElementById('ho').focus();
+    	}else if(e.which == 27){
+    		document.getElementById('ho').focus();
+    	}
+    });
+
+    $('#ho').on('keypress', function(e) {
+    	if (e.which == 13) {
+    		  var getDong = $('#dong').val();
+    	      var getHo = $('#ho').val();
+    	      if(getDong){
+    	    	  if(getHo){
+					location.href = '/admin/fee/'+getDong+'/'+getHo;
+    	    	  }else{
+    					alert('조회할 호 정보를 입력하세요');
+    					document.getElementById('ho').focus();
+    	    	  }
+    	      }else{
+				alert('조회할 동 정보를 입력하세요');
+				document.getElementById('dong').focus();
+    	      }
+    	}else if(e.which == 27){
+    		document.getElementById('ho').focus();
+    		document.getElementById('searchFee').click();
+    	}
+    });
+
+    /*]]>*/
+
+</script>
+</body>
+</html>

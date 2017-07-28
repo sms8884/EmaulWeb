@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"/>  
+<style type="text/css">
+<!--
+body,div,table,caption,colgroup,col,thead,tr,td,th,tbody,ul,li,a,form{margin:0; padding:0;}
+header,footer,section,article{display:block;}
+ul,li{list-style:none;}
+.hide{display:none;}
+body{width:100%;font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; line-height:1.5; color: #333; letter-spacing:-1px;}
+.tableWrap{width:100%; margin:40px  auto auto auto;}
+.printTable{width:98%; border-collapse:collapse; margin:0 auto;}
+.printTable thead th{ border-bottom:3px solid #DDDDDD; text-align:left;}
+.printTable tr{ height:58px; }
+.printTable tbody td{border-bottom:1px solid #DDDDDD;}
+
+.TableUl{}
+.TableUl li{ display:inline-block; margin-right:5px;}
+//-->
+</style>
+ <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+ </head>
+ <body>
+  
+	<div class="tableWrap">
+		<table class="printTable">
+			<caption class="hide">동,호 이름 등을 알 수 있는 표입니다.</caption>
+			<colgroup>
+				<col style="width:5%"/>
+				<col style="width:5%"/>
+				<col style="width:12%"/>
+				<col style="width:16%"/>
+				<col style="width:12%"/>
+				<col style="width:20%"/>
+				<col style="width:30%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th>동</th>
+					<th>호</th>
+					<th>이름</th>
+					<th>닉네임</th>
+					<th>전화번호</th>
+					<th>등록일</th>
+					<th>권한</th>
+				</tr>
+			</thead>
+			<tbody>			
+				<tr th:each="u : ${userList}">
+					<td th:text="${u.house.dong}">111</td>
+					<td th:text="${u.house.ho}">2</td>
+					<td th:text="${u.fullName}">육</td>
+					<td><span th:if="${u.nickname == null}">익명</span>
+                          <span th:if="${u.nickname}" th:text="${u.nickname.name}"></span>
+                    </td>
+					<td th:text="${u.phone}">01027156020</td>
+					<td th:text="${u.regDate}">2016-06-29 08:45:50.0</td>
+					<td th:text="${u.type.listInKo()}">주민</td>
+<!--
+					<td th:if="${u.type.deactivated}">탈퇴한 회원입니다</td>
+                    <td th:if="!${u.type.deactivated}">                           
+                           <ul class="TableUl">                          		
+								<li>
+									<input type="checkbox" class="" id="ck1" value="" name="" th:checked="${u.type.user}"/>
+									<label for="ck1"> 주민</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck2" value="" name="" th:checked="${u.type.houseHost}"/>
+									<label for="ck2"> 세대대표</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck3" value="" name="" th:checked="${u.type.anonymous}"/>
+									<label for="ck3"> 방문자</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck4" value="" name="" th:checked="${u.type.blocked}"/>
+									<label for="ck4"> 차단</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck5" value="" name="" th:checked="${u.type.deactivated}"/>
+									<label for="ck5"> 탈퇴</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck6" value="" name="" th:checked="${u.type.admin}"/>
+									<label for="ck6"> 관리자</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck7" value="" name="" th:checked="${u.type.gasChecker}"/>
+									<label for="ck7"> 가스검침원</label>
+								</li>
+								<li>
+									<input type="checkbox" class="" id="ck8" value="" name="" th:checked="${u.type.jaha}"/>
+									<label for="ck8"> 자하</label>
+								</li>
+							</ul>
+					</td>
+//-->
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script th:inline="javascript">
+$(document).ready(function () {
+ 	window.print();  
+ 	return false;  
+});	
+</script>
+ </body>
+</html>

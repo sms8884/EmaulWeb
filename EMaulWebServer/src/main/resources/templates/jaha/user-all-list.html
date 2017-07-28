@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<!--
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" th:href="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-responsive/css/dataTables.responsive.css" th:href="@{/datatables-responsive/css/dataTables.responsive.css}"/>
+-->
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        th:after {
+            display: none;
+        }
+
+        div.DTTT {
+            margin-bottom: 0.5em;
+            margin-right: 1em;
+            float: right;
+        }
+    </style>
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12" style="margin-bottom: 20px">
+                <h1 class="page-header">모든 사용자 보기</h1>
+
+                <div id="content-container">
+                    <div id="table-container">
+
+                    	<!--// 상단 검색영역 -->
+                    	<input type="hidden" id="url" name="url" th:value="${page.url}" />
+                    	<input type="hidden" id="page" name="page" th:value="${page.number-1}" />
+                    	<input type="hidden" id="sort" name="sort" th:value="${page.sort}" />
+
+                    	<!--<form id="searchForm" name="searchForm" method="GET">-->
+                    	<div id="user-list-table_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                    		<div class="row">
+                    			<div class="col-sm-4">
+                    				<label>
+                    					총 <span th:text="${page.totalElements}"></span>명의 사용자,
+                    					<span th:text="${page.number}"></span> page / <span th:text="${page.totalPages}"></span> pages,
+                    					한번에
+                    					<select id="size" name="size" aria-controls="user-list-table" class="form-control input-sm">
+                    						<option value="10">10</option>
+                    						<option value="25">25</option>
+                    						<option value="50">50</option>
+                    						<option value="100">100</option>
+                    					</select>
+                    					명씩 보이기
+                    					<input type="hidden" id="_size" name="_size" th:value="${page.size}" />
+                    				</label>
+                    			</div>
+
+	                    		<div class="col-sm-8">
+	                    			<div id="user-list-table_filter" class="dataTables_filter">
+	                    				<!--
+	                    				<label><input type="checkbox" id="searchDong" name="searchDong" />동</label>
+	                    				<label><input type="checkbox" id="searchHo" name="searchHo" />호</label>
+	                    				<label><input type="checkbox" id="searchUserName" name="searchUserName" />이름</label>
+	                    				<label><input type="checkbox" id="searchMobileNumber" name="searchMobileNumber" />전화번호</label>
+	                    				-->
+	                    				<label>
+											아파트 <input type="search" id="searchAptName" name="searchAptName" class="form-control input-sm" style="width:100px;" maxlength="20" placeholder="" aria-controls="user-list-table" th:value="${page.searchAptName}" />
+	                    				</label>
+	                    				<label>
+											동 <input type="search" id="searchDong" name="searchDong" class="form-control input-sm" style="width:70px;" maxlength="4" placeholder="" aria-controls="user-list-table" th:value="${page.searchDong}" />
+	                    				</label>
+	                    				<label>
+											호 <input type="search" id="searchHo" name="searchHo" class="form-control input-sm" style="width:70px;" maxlength="4" placeholder="" aria-controls="user-list-table" th:value="${page.searchHo}" />
+	                    				</label>
+                    					<select id="searchAuth" name="searchAuth" aria-controls="user-list-table" class="form-control input-sm">
+											<option value="">권한선택</option>
+											<option value="anonymous">방문자</option>
+											<option value="user">주민</option>
+											<option value="houseHost">세대대표</option>
+											<option value="owner">소유주</option>
+											<option value="blocked">차단</option>
+											<option value="deactivated">탈퇴</option>
+											<option value="admin">관리자</option>
+											<option value="groupAdmin">단체관리자</option>
+											<option value="gasChecker">가스검침원</option>
+											<option value="jaha">자하</option>
+										</select>
+										<input type="hidden" id="_searchAuth" name="_searchAuth" th:value="${page.searchAuth}" />
+                    					<select id="searchPart" name="searchPart" aria-controls="user-list-table" class="form-control input-sm">
+                    						<!-- <option value="">선택</option> -->
+                    						<option value="fullName">이름</option>
+                    						<option value="phone">전화번호</option>
+                    						<option value="email">이메일</option>
+                    						<option value="nickname">닉네임</option>
+                    					</select>
+                    					<input type="hidden" id="_searchPart" name="_searchPart" th:value="${page.searchPart}" />
+	                    				<label>
+											<input type="search" id="searchWord" name="searchWord" class="form-control input-sm" placeholder="" aria-controls="user-list-table" />
+	                    				</label>
+	                    				<input type="hidden" id="_searchWord" name="_searchWord" th:value="${page.searchWord}" />
+	                    				<input type="button" class="btn btn-success" onclick="search(0);" value="검색" />
+	                    				<input type="button" class="btn btn-normal" onclick="init();" value="초기화" />
+	                    				<input type="button" class="btn btn-normal" onclick="downloadExcel();" value="엑셀다운로드" />
+	                    			</div>
+	                    		</div>
+                    		</div>
+                    	</div>
+                    	<!--</form>-->
+                    	<!-- 상단 검색영역 //-->
+
+                        <table class="table table-striped table-hover" id="user-list-table">
+                            <thead>
+                            <tr title="각 항목의 이름을 클릭하여 오름차순-내림차순으로 정렬할 수 있습니다.">
+                                <th width="14%">아파트</th>
+                                <th width="5%">동</th>
+                                <th width="5%">호</th>
+                                <th width="5%">이름</th>
+                                <th width="10%">닉네임</th>
+                                <th width="10%">전화번호</th>
+                                <th width="13%">등록일</th>
+                                <th width="16%">권한</th>
+                                <th width="6%">수정</th>
+                                <th width="12%"  colspan="2" >초기화</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-body">
+                            <tr th:if="${page.content.empty}">
+                                <td colspan="9">유저 목록이 없습니다</td>
+                            </tr>
+                            <tr th:each="u : ${page.content}">
+                            	<td th:if= "${u.house}" th:text="${u.house.apt.name}"></td>
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.house.dong}"></a></td>
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.house.ho}"></a></td>
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.fullName}"></a></td>
+                                <td>
+                                    <span th:if="${u.nickname == null}">익명</span>
+                                    <span th:if="${u.nickname}" th:text="${u.nickname.name}"></span>
+                                </td>
+                                <td th:text="${u.phone}"></td>
+                                <td th:text="${u.regDate}"></td>
+                                <td id="jaha-userType" th:text="${u.type.listInKo()}"></td>
+                                <!--<td id="jaha-userType" th:if="${user.type.jaha} and !${u.type.deactivated}" th:text="${u.type.listInKo()}"></td>-->
+                                <td>
+                                	<!--<button onclick='editUser(" + user.id + ")' title="회원의 권한을 변경할 수 있습니다">수정</button>-->
+                                	<button title="회원의 권한을 변경할 수 있습니다" th:onclick="'editUser(' + ${u.id} +');'">수정</button>
+                                </td>
+                                <td>
+                                	<button title="회원의 비밀번호를 초기화 할수있습니다" th:onclick="'initUserPwd(' + ${u.id} +');'" >비번 초기화</button>
+                                </td>
+                                <td>
+                                	<button title="회원의 아이디를 초기화 할수있습니다" th:onclick="'initUserEmail(' + ${u.id} +');'">회원탈퇴</button>
+                                	<!-- <input type="button" value="이메일 초기화" th:onclick="'initUserEmail(' + ${u.id} +');'" /> -->
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+	                <!--// Pagination Bar -->
+	                <div th:fragment='paginationbar'>
+	                    <ul class='pagination'>
+	                        <li th:class="${page.firstPage}? 'disabled' : ''">
+	                            <span th:if="${page.firstPage}">처음</span>
+	                            <a th:if="${not page.firstPage}" th:href="'javascript:search(0);'">맨처음</a>
+	                        </li>
+	                        <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+	                            <span th:if="${not page.hasPreviousPage}">«</span>
+	                            <a th:if="${page.hasPreviousPage}" th:href="'javascript:search(' + ${page.number - 2} + ');'">«</a>
+	                        </li>
+	                        <li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+	                            <span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+	                            <a th:if="${not item.current}" th:href="'javascript:search(' + ${item.number} + ');'"><span th:text="${item.number + 1}">1</span></a>
+	                        </li>
+	                        <li th:class="${page.hasNextPage}? '' : 'disabled'">
+	                            <span th:if="${not page.hasNextPage}">»</span>
+	                            <a th:if="${page.hasNextPage}" th:href="'javascript:search(' + ${page.number} + ');'">»</a>
+	                        </li>
+	                        <li th:class="${page.lastPage}? 'disabled' : ''">
+	                            <span th:if="${page.lastPage}">마지막</span>
+	                            <a th:if="${not page.lastPage}" th:href="'javascript:search(' + ${page.totalPages - 1} + ');'">끝</a>
+	                        </li>
+	                    </ul>
+	                </div>
+	                <input type="hidden" id="sort" name="sort" th:value="${page.sort}" />
+	                <!-- Pagination Bar //-->
+
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">회원정보보기</h4>
+            </div>
+            <div class="modal-body">
+				<form action="/jaha/user/updateUserType" method="post">
+				<img id="userProfile" src="" style="max-width: 50%; display: block; margin-left: auto; margin-right: auto;"/>
+				<div id="in-modal-user-info" style="text-align: center; border-radius: 4px; border: 1px solid #ddd; margin: 5px; background-color: #fafafa"></div>
+				<div id="in-modal-user-type"></div>
+				</form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<!--
+<script src="../../static/datatables/media/js/jquery.dataTables.js" th:src="@{/datatables/media/js/jquery.dataTables.js}"></script>
+<script src="../../static/datatables-tabletools/js/dataTables.tableTools.min.js" th:src="@{/datatables-tabletools/js/dataTables.tableTools.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+-->
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    //dataTables
+    $(document).ready(function () {
+    	// 페이지 설렉팅
+    	var _sizeVal = $("#_size").val();
+        $("select[name='size']").val(_sizeVal);
+
+    	var _searchPartVal = $("#_searchPart").val();
+    	var _searchWordVal = $("#_searchWord").val();
+
+    	if (_searchPartVal && _searchWordVal) {
+    		$("select[name='searchPart']").val(_searchPartVal);
+    		$("#searchWord").val(_searchWordVal);
+    	}
+    	var _searchAuth = $("#_searchAuth").val();
+    	$("select[name='searchAuth']").val(_searchAuth);
+
+		$('form').submit(function () {
+
+			if($.trim($('#userName').val()) == '') {
+				alert('사용자 명을 입력해주세요');
+				$('#userName').focus();
+				return false;
+			}
+			alert('수정 되었습니다');
+		});
+
+/**
+        $('#user-list-table').dataTable({
+//            "serverSide": true,
+            "ajax": "/jaha/user/list/all",//JSON.parse(data);?? when using object, or use other..
+//            "sAjaxDataProp": "aaData",
+            "columns": [
+                { "data": "아파트" },
+                { "data": "동" },
+                { "data": "호" },
+                { "data": "이름" },
+                { "data": "닉네임" },
+                { "data": "전화번호" },
+                { "data": "등록일" },
+                { "data": "권한" },
+                { "data": "수정" }
+            ],
+        "deferRender": true,
+
+            "language": {
+                "emptyTable": "사용자가 없습니다.",
+                "info": "_TOTAL_ 사용자 중 _START_ - _END_ 사용자 표시",
+                "infoEmpty": " 0 사용자 중 0 - 0 사용자 표시",
+                "infoFiltered": "(총 _MAX_ 개의 데이터에서 검색된 결과)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "한 번에 _MENU_ 명씩 보이기",
+
+                "loadingRecords": "로딩중...",
+                "processing": "처리중...",
+                "search": "검색:",
+                "zeroRecords": "결과가 없습니다.",
+                "paginate": {
+                    "first": "처음",
+                    "last": "마지막",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+                "aria": {
+                    "sortAscending": ": 오름차순으로 정렬합니다.",
+                    "sortDescending": ": 내림차순으로 정렬합니다."
+                }
+            },
+            "order": [[ 6, "desc"]],
+            "stateSave": true,
+            "pagingType": "full_numbers",
+            "dom": "<'row'T>" +
+            "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            "renderer": 'bootstrap',
+            "tableTools": {
+                "sSwfPath": "/datatables-tabletools/swf/copy_csv_xls_pdf.swf",
+                "aButtons": ["copy", "xls"]
+            }
+        });
+*/
+    });
+
+    function init() {
+    	var urlVal = $("#url").val();
+    	location.href = urlVal;
+    }
+
+    function search(page) {
+    	var urlVal = $("#url").val();
+    	var pageVal = $("#page").val();
+    	var sizeVal = $("#size").val();
+    	var sortVal = $("#sort").val();
+
+    	if (page === 0 || page) {
+    		pageVal = page;
+    	}
+
+    	var actionUrl = urlVal + "?page=" + pageVal + "&size=" + sizeVal + sortVal;
+
+    	var searchAptNameVal = $("#searchAptName").val();
+    	if (searchAptNameVal) {
+    		actionUrl += "&searchAptName=" + searchAptNameVal;
+    	}
+
+    	var searchDongVal = $("#searchDong").val();
+    	if (searchDongVal) {
+    		actionUrl += "&searchDong=" + searchDongVal;
+    	}
+
+    	var searchHoVal = $("#searchHo").val();
+    	if (searchHoVal) {
+    		actionUrl += "&searchHo=" + searchHoVal;
+    	}
+
+    	var searchPartVal = $("#searchPart").val();
+    	var searchWordVal = $("#searchWord").val();
+
+    	if (searchPartVal && searchWordVal) {
+    		actionUrl += "&searchPart=" + searchPartVal;
+    		actionUrl += "&searchWord=" + searchWordVal;
+    	}
+
+    	var searchAuth = $("#searchAuth").val();
+    	if(searchAuth){
+    		actionUrl += "&searchAuth=" + searchAuth;
+    	}
+
+    	// console.log(actionUrl);
+    	location.href = actionUrl;
+    }
+
+    function initUserPwd(userId){
+
+    	if(confirm("사용자비밀번호를 초기화하시겠습니까?") == true){
+		    	$.ajax({
+		            type: 'GET',
+		            url: "/jaha/user/init_pwd/"+userId,
+		            contentType: "application/json; charset=utf-8",
+		            dataType: 'json',
+		            success: function (data) {
+		            	if(data === true){
+							alert('비밀번호가 초기화되었습니다 (초기화비밀번호:11111111)');
+		            	}else{
+							alert('초기화에 실패하였습니다');
+		            	}
+		            },
+		            error: function (jqXHR, textStatus, errorThrown) {
+		                console.log(errorThrown);
+		                console.log(textStatus);
+		            }
+		        });
+   		 }
+
+    }
+    function initUserEmail(userId){
+
+    	if(confirm("                     ※주의※ \n초기화시 해당 아이디는 탈퇴처리됩니다 ") == true){
+		    	$.ajax({
+		            type: 'GET',
+		            url: "/jaha/user/init_email/"+userId,
+		            contentType: "application/json; charset=utf-8",
+		            dataType: 'json',
+		            success: function (data) {
+		            	if(data === true){
+							alert(' 아이디가 초기화되었습니다. (탈퇴처리완료) ');
+							location.reload();
+		            	}else{
+							alert(' 초기화에 실패하였습니다. ');
+		            	}
+		            },
+		            error: function (jqXHR, textStatus, errorThrown) {
+		                console.log(errorThrown);
+		                console.log(textStatus);
+		            }
+		        });
+   		 }
+
+    }
+
+
+    function editUser(userId) {
+
+        $('#in-modal-user-info').text("");
+        $('#userProfile').attr("src", "");
+        $('#in-modal-user-type').empty();
+
+        var url = "/jaha/user/info/" + userId;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+//                아파트, 동, 호, 이름, 나이, 성별, 이메일, 권한, 사진
+
+                var getGender = data.성별 == 'female' ? '여자' : '남자';
+                var userInfoText =
+						data.아파트 + " " + data.동 +"동 "+ data.호 +"호 "
+						+ '<input type="text" name="userName" id="userName" value="' + data.이름 +  '" style="width: 70px;" />'
+						+" "+ data.나이 +"년 "+ getGender +" "+ data.이메일;
+                $('#in-modal-user-info').html(userInfoText);
+                $('#userProfile').attr("src", data.사진);
+
+                if(data.권한.indexOf("deactivated") == -1) {
+
+                    var userTypeCheckBox = ''
+                    + '<input type="hidden" id="in-modal-userId" name="userId" value="' + userId + '"/>'
+                    + '<input type="hidden" name="page" value="all"/>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-1" value="user"/> 주민</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-2" value="houseHost"/> 세대대표</label>'
+                    // 소유주 추가 : 2016.11.16
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-9" value="owner"/> 소유주</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-3" value="anonymous"/> 방문자 </label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-4" value="blocked"/> 차단</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-5" value="parcelChecker"/> 택배</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-6" value="buildingGuard"/> 경비원</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-7" value="communityMaster"/> 게시판지기</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-8" value="gasChecker"/> 가스검침원</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-9" value="admin"/> 관리자</label>'
+                    // 단체관리자 추가
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-10" value="groupAdmin"/> 단체관리자</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-10" value="official"/> 공무원</label>'
+                    + '<label class="checkbox-inline">'
+                    + '<input type="checkbox" name="type" class="type-check" id="user-type-11" value="jaha"/> 자하</label>'
+                    + '<button type="submit" id="modifyBtn" class="btn btn-default" style="float:right" data-toggle="tooltip" data-placement="top" title="수정된 사항을 저장합니다">저장'
+                    + '</button>';
+
+                    $('#in-modal-user-type').html(userTypeCheckBox);
+
+                    var arr = data.권한.split(", ");
+                    for (var i in arr) {
+                        $('.type-check[value=' + arr[i] + ']').attr('checked', true);
+                    }
+                    $('#in-modal-userId').val(userId);
+
+                }else{
+                    $('#in-modal-user-type').text('탈퇴한 회원입니다.');
+                }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+
+        $('#modal-info').modal('show');
+    }
+
+  //엔터눌렀을때 검색되게
+    $('#searchDong, #searchHo, #searchWord').on('keypress', function(e) {
+    	if (e.which == 13) {
+    		search(0);
+    	}
+    });
+
+  //페이지 리스트 사이즈 변할때 바로 검색되게
+    $('#size').change(function(){
+    	search(0);
+     });
+
+    function downloadExcel() {
+    	var urlVal = "/jaha/user/list/excel-download";
+    	var sortVal = $("#sort").val();
+
+    	var actionUrl = urlVal + "?" + sortVal;
+
+    	var searchAptNameVal = $("#searchAptName").val();
+    	if (searchAptNameVal) {
+    		actionUrl += "&searchAptName=" + searchAptNameVal;
+    	}
+
+    	var searchDongVal = $("#searchDong").val();
+    	if (searchDongVal) {
+    		actionUrl += "&searchDong=" + searchDongVal;
+    	}
+
+    	var searchHoVal = $("#searchHo").val();
+    	if (searchHoVal) {
+    		actionUrl += "&searchHo=" + searchHoVal;
+    	}
+
+    	var searchPartVal = $("#searchPart").val();
+    	var searchWordVal = $("#searchWord").val();
+
+    	if (searchPartVal && searchWordVal) {
+    		actionUrl += "&searchPart=" + searchPartVal;
+    		actionUrl += "&searchWord=" + searchWordVal;
+    	}
+
+    	var searchAuth = $("#searchAuth").val();
+    	if(searchAuth){
+    		actionUrl += "&searchAuth=" + searchAuth;
+    	}
+
+    	// console.log(actionUrl);
+    	location.href = actionUrl;
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

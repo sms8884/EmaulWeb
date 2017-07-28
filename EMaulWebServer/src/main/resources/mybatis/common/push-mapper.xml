@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.v2.mapper.common.PushMapper">
+
+	<!-- 푸시로그를 등록한다 -->
+	<insert id="insertPushLog" parameterType="PushLogVo" useGeneratedKeys="true" keyProperty="id">
+	    INSERT /* insertPushLog, 전강욱(realsnake@jahasmart.com) */ INTO push_log (
+		    apt_id
+		    , user_id
+		    , gubun
+		    , title
+		    , message
+		    , device_rec_yn
+		    , push_send_count
+		    , push_click_count
+		    , sms_yn
+		    , device_type
+		    , etc
+		    , action
+		    , reg_date
+	    ) VALUES (
+		    #{aptId}
+		    , #{userId}
+		    , #{gubun}
+		    , #{title}
+		    , #{message}
+		    , 'N'
+		    , 1
+		    , 0
+		    , 'N'
+		    , #{deviceType}
+		    , #{etc}
+		    , #{action}
+		    , NOW()
+	    )
+	</insert>
+
+	<!-- 푸시발송 대상을 조회한다. -->
+	<select id="selectTargetUserListForPush" parameterType="map" resultType="SimpleUser">
+		SELECT /** selectTargetUserListForPush, 전강욱(realsnake@jahasmart.com) */ U.id
+		, U.email
+		, U.full_name
+		, U.phone
+		, U.birth_year
+		, U.gender
+		, DATE_FORMAT(U.reg_date, '%Y-%m-%d %H:%i') reg_date
+		, U.nickname
+		, IFNULL(U.kind, 'android') AS kind
+		, U.gcm_id
+		, U.app_version
+		, H.dong
+		, H.ho
+		, H.apt_id
+		, A.name apt_name
+		, A.address_code
+		, AD.`시도명` AS sido
+		, AD.`시군구명` AS sigungu
+		, AD.`행정동명` AS addrDong
+		FROM user U JOIN user_type UT ON U.id = UT.user_id
+					JOIN setting S ON U.id = S.user_id
+					JOIN house H ON U.house_id = H.id
+					JOIN apt A ON H.apt_id = A.id
+		            JOIN address AD ON A.address_code = AD.`건물관리번호`
+		<where>
+		    <choose>
+		    	<when test=' searchUserIdList != null and searchUserIdList.size() > 0 '>U.id IN <foreach collection="searchUserIdList" item="userId" open="(" separator="," close=")" >#{userId}</foreach></when>
+		    	<otherwise>U.id &gt; 0</otherwise>
+		    </choose>
+		    <!-- #{gender}, #{age} |로구분, 00, 10, 20, 30, 40, 50, 60, 70 birth_year -->
+		    <choose>
+		    	<when test=' "M".equals(searchGender) or "male".equals(searchGender) '>AND U.gender = 'male'</when>
+		    	<when test=' "F".equals(searchGender) or "female".equals(searchGender) '>AND U.gender = 'female'</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    <if test=' searchAges != null and searchAges.length > 0 '>
+				AND (U.birth_year IS NOT NULL AND <foreach collection="searchAges" item="searchAge" open="(" separator="OR" close=")" > getAge(U.birth_year) = #{searchAge} </foreach>)
+		    </if>
+		    <if test=' searchUserPhoneNumber != null and !"".equals(searchUserPhoneNumber) '>AND U.phone = #{searchUserPhoneNumber}</if>
+		    <choose>
+		    	<when test=' "android".equals(searchDeviceType) '>AND (U.kind = 'android' OR U.kind IS NULL)</when>
+		    	<when test=' "ios".equals(searchDeviceType) '>AND U.kind = 'ios'</when>
+		    	<otherwise></otherwise>
+		    </choose>
+		    <choose>
+		    	<when test=' "noti_alarm".equals(searchAlarm) '>AND S.noti_alarm = 1</when>
+		    	<!--
+		    	<when test=' "noti_post_reply".equals(searchAlarm) '>AND S.noti_post_reply = 1</when>
+		    	<when test=' "noti_post_comment_reply".equals(searchAlarm) '>AND S.noti_post_comment_reply = 1</when>
+		    	-->
+		        <when test=' "noti_parcel".equals(searchAlarm) '>AND S.noti_parcel = 1</when>
+		    	<when test=' "noti_fee".equals(searchAlarm) '>AND S.noti_fee_push = 1</when>
+		    	<when test=' "noti_air_pollution".equals(searchAlarm) '>AND S.noti_air_pollution = 1</when>
+		    	<when test=' "noti_board".equals(searchAlarm) '>AND (S.noti_post_reply = 1 AND S.noti_post_comment_reply = 1)</when>
+		    	<when test=' "noti_visit".equals(searchAlarm) '>AND S.noti_visit = 1</when><!-- 누구냐 넌? -->
+		    	<when test=' "noti_edoor".equals(searchAlarm) '>AND S.noti_edoor = 1</when>
+		    	<otherwise>AND S.noti_alarm = 1</otherwise>
+		    </choose>
+			AND UT.anonymous = 0
+			AND UT.blocked = 0
+		    AND UT.deactivated = 0
+			<if test=' "Y".equals(searchAdminYn) '>AND UT.admin = 1</if>
+		    <if test=' searchHouseIdList != null and searchHouseIdList.size() > 0 '>
+				AND H.id IN <foreach collection="searchHouseIdList" item="houseId" open="(" separator="," close=")" >#{houseId}</foreach>
+		    </if>
+		    <if test=' searchAptIdList != null and searchAptIdList.size() > 0 '>
+				AND A.id IN <foreach collection="searchAptIdList" item="aptId" open="(" separator="," close=")" >#{aptId}</foreach>
+		    </if>
+		    <choose>
+		    	<when test=' searchSigungu == null or "".equals(searchSigungu) '>
+		    		<if test=' searchSido != null and !"".equals(searchSido) '>AND AD.`시도명` = #{searchSido}
+						<!--<if test=' searchDong != null and !"".equals(searchDong) '> AND AD.`행정동명` = #{searchDong}</if>-->
+		    		</if>
+		    	</when>
+		    	<otherwise>
+		    		<if test=' searchSido != null and !"".equals(searchSido) '>AND (AD.`시도명` = #{searchSido} AND AD.`시군구명` = #{searchSigungu})
+		    			<if test=' searchDong != null and !"".equals(searchDong) '> AND AD.`행정동명` = #{searchDong}</if>
+		    		</if>
+		    	</otherwise>
+		    </choose>
+		</where>
+    </select>
+
+</mapper>

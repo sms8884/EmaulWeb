@@ -1,0 +1,1309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.vote.VoteAdminMapper">
+
+	<!-- 관련 테이블 : vote, vote_item, voter, voter_offline, vote_key, vote_offline_result, voter_security, vote_group -->
+
+	<!-- ############### vote ############### -->
+	<!-- 투표 미참여자 리스트 조회 -->
+	<select id="getYetVoteList" parameterType="VoteVo" resultType="Long">
+	    SELECT /* getYetVoteList  조영태(cyt@jahasmart.com) */
+	    	u.id
+	    FROM
+	    	user u
+	    	, house h
+	    	, apt a
+	    WHERE
+	    	u.house_id = h.id
+	    	AND h.apt_id = a.id
+	    	AND a.id = #{targetApt}
+	    	AND u.id NOT IN (
+	    		<!-- 온라인 기 참여자 목록 제외 -->
+	    		SELECT user_id FROM voter WHERE vote_id = #{id}
+	    	)
+	    	AND CONCAT(h.dong, h.ho) NOT IN (
+	    		<!-- 오프라인 기 참여자 목록 제외 -->
+	    		SELECT CONCAT(dong, ho) FROM voter_offline WHERE vote_id = #{id}
+	    	)
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTargetGroup )'>
+	    		<!-- 선거구 -->
+	    		<if test='@com.jaha.util.MyBatis@isNotEmpty( dongList )'>
+	    			<if test='@com.jaha.util.MyBatis@isEmpty( hoList )'>
+		    			<!-- 동 별 선거구 -->
+		    			AND h.dong IN
+	       				<foreach collection="dongList" item="item" index="index" separator="," open="(" close=")">
+	           				#{item}
+	       				</foreach>
+	    			</if>
+	    			<if test='@com.jaha.util.MyBatis@isNotEmpty( hoList )'>
+	    				<!-- 동/호 별 선거구 -->
+	    				AND ( h.dong IN
+	       				<foreach collection="dongList" item="item" index="index" separator="," open="(" close=")">
+	           				#{item}
+	       				</foreach>
+	       				OR CONCAT(h.dong, h.ho) IN
+	       				<foreach collection="hoList" item="item" index="index" separator="," open="(" close=")">
+	           				#{item}
+	       				</foreach>
+	       				)
+	    			</if>
+	    		</if>
+	    		<!-- 호별 선거구 -->
+	    		<if test='@com.jaha.util.MyBatis@isEmpty( dongList )'>
+	    			<if test='@com.jaha.util.MyBatis@isNotEmpty( hoList )'>
+	       				AND CONCAT(h.dong, h.ho) IN
+	       				<foreach collection="hoList" item="item" index="index" separator="," open="(" close=")">
+	           				#{item}
+	       				</foreach>
+	    			</if>
+	    		</if>
+	    	</if>
+	    	<if test='@com.jaha.util.MyBatis@isEmpty( jsonArrayTargetGroup )'>
+		    	<if test='@com.jaha.util.MyBatis@isNotEmpty( targetDong )'>
+		    		<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTargetHo )'>
+		    			<!-- 동/호 별 -->
+		    			AND h.dong = #{targetDong}
+		    			AND h.ho IN
+        				<foreach collection="hoList" item="item" index="index" separator="," open="(" close=")">
+            				#{item}
+        				</foreach>
+		    		</if>
+		    		<if test='@com.jaha.util.MyBatis@isEmpty( jsonArrayTargetHo )'>
+		    			<!-- 동 별 -->
+		    			AND h.dong = #{targetDong}
+		    		</if>
+		    	</if>
+	    	</if>
+	</select>
+
+	<!-- vote where -->
+	<sql id="whereClauseOfVote">
+	    <!-- <where> -->
+	    	<!-- AS-IS 코드 데이터상 추가코드 (vote / poll 구분값) -->
+			AND v.type_id in (SELECT id FROM vote_type WHERE main = 'vote')
+
+			<!-- 사용여부 'Y' 만 조회 -->
+			AND v.use_yn = 'Y'
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( vkId )'>
+				AND v.vk_id = #{vkId}
+	    	</if>
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( aptId )'>
+				AND v.target_apt = #{aptId}
+	    	</if>
+
+	    	<!-- AND display_yn='Y' -->
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( voteTypeId )'>
+	    		AND v.type_id = #{voteTypeId}
+	    	</if>
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( voteStatus )'>
+	    		AND v.status =#{voteStatus}
+	    	</if>
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( aptName )'>
+	    		AND a.name LIKE CONCAT('%', #{aptName}, '%')
+	    	</if>
+
+	    	<choose>
+		    	<when test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.startDate )'>
+			    	AND v.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.endDate )'>
+			    		AND v.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+		    		<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.endDate )'>
+			    		AND v.reg_date &lt;= CONCAT(#{searchEndDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.keyword )'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND v.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+					</when>
+					<!-- AND (v.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR v.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')) -->
+			    </choose>
+	    	</if>
+
+	    <!-- </where> -->
+	</sql>
+
+	<!-- vote order by -->
+	<sql id="orderClauseOfVote">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                v.${sort.column} ${sort.ascOrDesc}
+                <!-- order by reg_date desc -->
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- 투표 목록 갯수 조회 -->
+	<select id="selectVoteListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectVoteListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM vote v
+	    		, apt a
+   		WHERE
+   			v.target_apt = a.id
+	    <include refid="whereClauseOfVote" />
+	</select>
+
+	<!-- 투표 목록 조회 -->
+	<select id="selectVoteList" parameterType="VoteDto" resultType="VoteVo">
+	    SELECT /* selectVoteList, 조영태(cyt@jahasmart.com) */
+	    	<!-- vote -->
+			v.id
+			,v.description
+			,v.end_date
+			,v.image_count
+			,v.multiple_choice
+			,v.number_enabled
+			,v.question
+			,v.range_all
+			,v.range_sido
+			,v.range_sigungu
+			,v.reg_date
+			,v.start_date
+			,v.status
+			,CASE
+				WHEN v.status = 'active' THEN '진행 중'
+				WHEN v.status = 'ready' THEN '준비'
+				WHEN v.status = 'done' THEN '완료'
+				ELSE '알 수 없음' END AS statusText
+			,v.target_apt
+			,v.target_dong
+			,v.title
+			,v.visible
+			,v.type_id
+			,v.house_limited
+			,v.json_array_target_ho
+			,v.json_array_target_group
+			,v.vote_result_available
+			,v.json_array_target_user_types
+			,v.voters_count
+			,v.file1
+			,v.file2
+			,v.enable_security
+			,v.security_level
+			,v.vk_id
+			,v.dec_yn
+			,v.offline_available
+			,v.security_check_state
+			,v.security_notice_state
+			,v.push_send_date
+			,v.use_yn
+			,v.file_check_yn
+			,v.noti_type
+			,v.noti_msg
+			,v.user_id
+			, (select full_name from user where v.user_id = id) as user_name
+			,v.mod_id
+			, (select full_name from user where v.mod_id = id) as mod_name
+			,v.mod_date
+			,v.photo1
+			,v.photo2
+			,v.photo3
+			,v.photo4
+			,v.photo5
+			<!-- apt -->
+			,a.name as apt_name
+	    FROM vote v
+	    		, apt a
+   		WHERE
+   			v.target_apt = a.id
+	    <include refid="whereClauseOfVote" />
+	    <include refid="orderClauseOfVote" />
+
+	    <if test='@com.jaha.util.MyBatis@isEmpty( fullYn )'>
+    		LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	    </if>
+
+	</select>
+
+	<!-- 투표 종류 조회 -->
+	<select id="selectVoteTypeList" parameterType="VoteTypeVo" resultType="VoteTypeVo">
+	    SELECT /* selectVoteTypeList  조영태(cyt@jahasmart.com) */
+			vt.id
+			, vt.main
+			, vt.sub
+			, vt.text
+			, vt.sort_order
+	    FROM vote_type vt
+	    WHERE
+	    	vt.main = #{main}
+    	ORDER BY vt.sort_order
+	    	<!-- AND use_yn = 'Y' -->
+	</select>
+
+
+	<!-- 투표 상세 조회 -->
+	<select id="getVote" parameterType="VoteDto" resultType="VoteVo">
+	    SELECT /* getVote, 조영태(cyt@jahasmart.com) */
+	    	<!-- vote -->
+			v.id
+			,v.description
+			,v.end_date
+			,v.image_count
+			,v.multiple_choice
+			,v.number_enabled
+			,v.question
+			,v.range_all
+			,v.range_sido
+			,v.range_sigungu
+			,v.reg_date
+			,v.start_date
+			,v.status
+			,CASE
+				WHEN v.status = 'active' THEN '진행 중'
+				WHEN v.status = 'ready' THEN '준비'
+				WHEN v.status = 'done' THEN '완료'
+				ELSE '알 수 없음' END AS statusText
+			,v.target_apt
+			,v.target_dong
+			,v.title
+			,v.visible
+			,v.type_id
+			,v.house_limited
+			,v.json_array_target_ho
+			,v.json_array_target_group
+			,v.vote_result_available
+			,v.json_array_target_user_types
+			,v.voters_count
+			,v.file1
+			,v.file2
+			,v.enable_security
+			,v.security_level
+			,v.vk_id
+			,v.dec_yn
+			,v.offline_available
+			,v.security_check_state
+			,v.security_notice_state
+			,v.push_send_date
+			,v.use_yn
+			,v.file_check_yn
+			,v.noti_type
+			,v.noti_msg
+			,v.user_id
+			, (select full_name from user where v.user_id = id) as user_name
+			,v.mod_id
+			, (select full_name from user where v.mod_id = id) as mod_name
+			,v.mod_date
+			,v.photo1
+			,v.photo2
+			,v.photo3
+			,v.photo4
+			,v.photo5
+			<!-- vote_key -->
+			, vk.admin_name
+			, vk.admin_email
+	    FROM vote v
+	    	LEFT OUTER JOIN vote_key vk
+	    		ON vk.vk_id = v.vk_id
+   		WHERE
+   			v.id = #{id}
+   			AND v.use_yn = 'Y'
+	</select>
+
+
+	<!-- 투표 삭제 -->
+	<update id="deleteVote" parameterType="VoteDto">
+	    UPDATE /* deleteVote, 조영태(cyt@jahasmart.com) */
+	    	vote v
+    	SET
+		    v.use_yn = 'N'
+   		WHERE
+   			v.id = #{id}
+	</update>
+
+	<!-- 투표 수정 (숫자 0 update처리 주의)-->
+	<update id="updateVote" parameterType="VoteVo">
+	    UPDATE /* updateVote, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+			<!-- <if test='@com.jaha.util.MyBatis@isNotEmpty( id )'>id = #{id},</if> -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( description )'>description = #{description},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( endDate )'>end_date = #{endDate},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( imageCount )'>image_count = #{imageCount},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( multipleChoice )'>multiple_choice = #{multipleChoice},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( numberEnabled )'>number_enabled = #{numberEnabled},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( question )'>question = #{question},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( rangeAll )'>range_all = #{rangeAll},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( rangeSido )'>range_sido = #{rangeSido},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( rangeSigungu )'>range_sigungu = #{rangeSigungu},</if>
+			<!-- <if test='@com.jaha.util.MyBatis@isNotEmpty( regDate )'>reg_date = #{regDate},</if> -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( startDate )'>start_date = #{startDate},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( status )'>status = #{status},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( targetApt )'>target_apt = #{targetApt},</if>
+
+			<!-- targetDong -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( targetDong )'>target_dong = #{targetDong},</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( targetDong )'>target_dong = '',</if>
+			<!-- targetDong -->
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( title )'>title = #{title},</if>
+			<!-- 사용안함 : 기존 데이터만 유지하고, 신규 데이터는 USE_YN을 사용하도록 한다. -->
+			<!-- <if test='@com.jaha.util.MyBatis@isNotEmpty( visible )'>visible = #{visible},</if> -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( typeId )'>type_id = #{typeId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( houseLimited )'>house_limited = #{houseLimited},</if>
+
+			<!-- jsonArray -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTargetHo )'>json_array_target_ho = #{jsonArrayTargetHo},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTargetGroup )'>json_array_target_group = #{jsonArrayTargetGroup},</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( jsonArrayTargetHo )'>json_array_target_ho = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( jsonArrayTargetGroup )'>json_array_target_group = '',</if>
+			<!-- jsonArray -->
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( voteResultAvailable )'>vote_result_available = #{voteResultAvailable},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTargetUserTypes )'>json_array_target_user_types = #{jsonArrayTargetUserTypes},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( votersCount )'>voters_count = #{votersCount},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file1 )'>file1 = #{file1},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file2 )'>file2 = #{file2},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( enableSecurity )'>enable_security = #{enableSecurity},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( securityLevel )'>security_level = #{securityLevel},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( vkId )'>vk_id = #{vkId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( decYn )'>dec_yn = #{decYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( offlineAvailable )'>offline_available = #{offlineAvailable},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( securityCheckState )'>security_check_state = #{securityCheckState},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( securityNoticeState )'>security_notice_state = #{securityNoticeState},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( pushSendDate )'>push_send_date = #{pushSendDate},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( useYn )'>use_yn = #{useYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( fileCheckYn )'>file_check_yn = #{fileCheckYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( notiType )'>
+				<if test='notiType.equals("0")'>noti_msg = '',</if>
+				noti_type = #{notiType},
+			</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( notiMsg )'>noti_msg = #{notiMsg},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( userId )'>user_id = #{userId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modId )'>mod_id = #{modId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modDate )'>mod_date = now(),</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo1 )'>photo1 = #{photo1},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo2 )'>photo2 = #{photo2},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo3 )'>photo3 = #{photo3},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo4 )'>photo4 = #{photo4},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo5 )'>photo5 = #{photo5},</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<!-- 투표 파일정보 수정 -->
+	<update id="updateVoteFile" parameterType="VoteVo">
+	    UPDATE /* updateVoteFile, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+			<!-- <if test='@com.jaha.util.MyBatis@isNotEmpty( id )'>id = #{id},</if> -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modId )'>mod_id = #{modId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modDate )'>mod_date = now(),</if>
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file1 )'>file1 = #{file1},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( file2 )'>file2 = #{file2},</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( file1 )'>file1 = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( file2 )'>file2 = '',</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<update id="updateVoteImageFile" parameterType="VoteVo">
+	    UPDATE /* updateVoteFile, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+			<!-- <if test='@com.jaha.util.MyBatis@isNotEmpty( id )'>id = #{id},</if> -->
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( imageCount )'>image_count = #{imageCount},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modId )'>mod_id = #{modId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modDate )'>mod_date = now(),</if>
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo1 )'>photo1 = #{photo1},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo2 )'>photo2 = #{photo2},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo3 )'>photo3 = #{photo3},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo4 )'>photo4 = #{photo4},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( photo5 )'>photo5 = #{photo5},</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( photo1 )'>photo1 = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( photo2 )'>photo2 = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( photo3 )'>photo3 = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( photo4 )'>photo4 = '',</if>
+			<if test='@com.jaha.util.MyBatis@isEmpty( photo5 )'>photo5 = '',</if>
+
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<!-- 투표 집계여부 수정 -->
+	<update id="updateVoteResult" parameterType="VoteVo">
+	    UPDATE /* updateVoteResult, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( voteResultAvailable )'>vote_result_available = #{voteResultAvailable},</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<!-- 투표 푸쉬 (독려메세지) 발송일자 수정 -->
+	<update id="updateVotePushSendDate" parameterType="VoteVo">
+	    UPDATE /* updateVotePushSendDate, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+			push_send_date = now()
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+	<!-- 보안투표 개표처리 여부 수정 -->
+	<update id="updateVoteDecYn" parameterType="VoteVo">
+	    UPDATE /* updateVoteDecYn, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+	    	dec_yn = #{decYn}
+	    </set>
+	    WHERE id=#{id}
+	</update>
+
+
+
+	<!-- 투표 정보 수정 -->
+	<update id="updateVoteInfo" parameterType="VoteVo">
+	    UPDATE /* updateVoteInfo, 조영태(cyt@jahasmart.com) */ vote
+	    <set>
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( endDate )'>end_date = #{endDate},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( startDate )'>start_date = #{startDate},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( status )'>status = #{status},</if>
+	    </set>
+	    WHERE
+	    	<if test='@com.jaha.util.MyBatis@isEmpty( vkId )'>id=#{id}</if>
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( vkId )'>vk_id = #{vkId}</if>
+
+	</update>
+
+
+	<!-- 투표 등록 -->
+	<insert id="insertVote" parameterType="VoteVo" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO  /* insertVote, 조영태(cyt@jahasmart.com) */ vote (
+			description,
+			end_date,
+			image_count,
+			multiple_choice,
+			number_enabled,
+			question,
+			range_all,
+			range_sido,
+			range_sigungu,
+			reg_date,
+			start_date,
+			status,
+			target_apt,
+			target_dong,
+			title,
+			visible,
+			type_id,
+			house_limited,
+			json_array_target_ho,
+			json_array_target_group,
+			vote_result_available,
+			json_array_target_user_types,
+			voters_count,
+			file1,
+			file2,
+			enable_security,
+			security_level,
+			vk_id,
+			dec_yn,
+			offline_available,
+			security_check_state,
+			security_notice_state,
+			push_send_date,
+			use_yn,
+			file_check_yn,
+			noti_type,
+			noti_msg,
+			user_id,
+			photo1,
+			photo2,
+			photo3,
+			photo4,
+			photo5
+		) VALUES (
+			#{description},
+			#{endDate},
+			#{imageCount},
+	        #{multipleChoice},
+	        #{numberEnabled},
+	        #{question},
+	        #{rangeAll},
+	        #{rangeSido},
+	        #{rangeSigungu},
+	        now(),
+	        #{startDate},
+	        #{status},
+	        #{targetApt},
+	        #{targetDong},
+	        #{title},
+	        #{visible},
+	        #{typeId},
+	        #{houseLimited},
+	        #{jsonArrayTargetHo},
+	        #{jsonArrayTargetGroup},
+	        #{voteResultAvailable},
+	        #{jsonArrayTargetUserTypes},
+	        #{votersCount},
+	        #{file1},
+	        #{file2},
+	        #{enableSecurity},
+	        #{securityLevel},
+	        #{vkId},
+	        <!-- #{decYn}, -->
+	        'N',
+	        #{offlineAvailable},
+	        #{securityCheckState},
+	        #{securityNoticeState},
+		    <choose>
+		    	<when test='@com.jaha.util.MyBatis@isNotEmpty( pushSendDate )'>
+		    		<!-- 바로전송 -->
+					now(),
+				</when>
+				<otherwise>
+					#{pushSendDate},
+				</otherwise>
+		    </choose>
+	        #{useYn},
+	        #{fileCheckYn},
+	        #{notiType},
+	        #{notiMsg},
+	        #{userId},
+	        #{photo1},
+	        #{photo2},
+	        #{photo3},
+	        #{photo4},
+	        #{photo5}
+
+        )
+	</insert>
+
+
+	<!-- 투표 시작, 종료일자 수정 (투표 보안키별) -->
+	<update id="updateVoteDateByVoteKey" parameterType="VoteVo">
+		UPDATE /* updateVoteDateByVoteKey  조영태(cyt@jahasmart.com) */ vote
+		SET start_date = #{startDate}, end_date = #{endDate}
+		WHERE vk_id =  #{vkId}
+	</update>
+	<!--// ############### vote ############### -->
+
+
+
+
+	<!-- ############### vote_item ############### -->
+	<!-- 투표 항목 조회 -->
+	<select id="selectVoteItemList" parameterType="VoteDto" resultType="VoteItemVo">
+		SELECT /* selectVoteItemList, 조영태(cyt@jahasmart.com) */
+			vi.id
+			, vi.commitment
+			, vi.image_count
+			, vi.is_subjective
+			, vi.parent_id
+			, vi.title
+			, vi.profile
+		FROM vote_item vi
+		WHERE
+			vi.parent_id = #{id}
+	</select>
+
+	<!-- 투표 항목 등록 -->
+	<insert id="insertVoteItemList" parameterType="java.util.List">
+		INSERT INTO  /* insertVoteItemList, 조영태(cyt@jahasmart.com) */ vote_item (
+			commitment,
+			image_count,
+			is_subjective,
+			parent_id,
+			title,
+			profile
+		) VALUES
+		<foreach item="voteItem" index="index" collection="list" open="(" separator="),(" close=")">
+			#{voteItem.commitment}
+			, #{voteItem.imageCount}
+			, #{voteItem.isSubjective}
+			, #{voteItem.parentId}
+			, #{voteItem.title}
+			, #{voteItem.profile}
+		</foreach>
+	</insert>
+
+	<!-- 투표 항목 삭제 -->
+	<delete id="deleteVoteItem" parameterType="VoteVo">
+		DELETE /* deleteVoteItem, 조영태(cyt@jahasmart.com) */ FROM vote_item WHERE parent_id = #{id}
+	</delete>
+	<!--// ############### vote_item ############### -->
+
+
+
+
+	<!-- ############### voter ############### -->
+	<!-- voter_online order by -->
+	<sql id="orderClauseOfVoterOnline">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                vr.${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- 투표 참여자 리스트 조회 -->
+	<select id="selectVoterList" parameterType="VoteDto" resultType="VoterVo">
+	    SELECT /* selectVoterList  조영태(cyt@jahasmart.com) */
+			vr.id
+			, vr.sign_image_uri
+			, vr.user_content
+			, vr.vote_date
+			, vr.user_id
+			, vr.vote_id
+			, vr.vote_item_id
+			, vr.apt_id
+			<!-- , vr.dong
+			, vr.ho -->
+			, vr.mandate_voter_name
+			, vr.mandated
+			, vr.register_type
+			<!-- , vr.voter_name -->
+			<!-- 투표 결과용 추가컬럼 -->
+		      ,CASE
+					WHEN vr.register_type = 'tablet' THEN vr.voter_name
+					ELSE u.full_name END AS voter_name
+		      ,CASE
+					WHEN vr.register_type = 'tablet' THEN vr.dong
+					ELSE h.dong END AS dong
+		      ,CASE
+					WHEN vr.register_type = 'tablet' THEN vr.ho
+					ELSE h.ho END AS ho
+		      ,CASE
+					WHEN vr.register_type = 'tablet' THEN '현장투표'
+					ELSE u.phone END AS phone
+	    FROM voter vr
+	    		LEFT OUTER JOIN vote v ON vr.vote_id = v.id
+	    		<!-- 투표 결과용 추가컬럼 -->
+	    		LEFT OUTER JOIN emaul.user u ON vr.user_id = u.id
+          		LEFT OUTER JOIN emaul.house h ON u.id = h.id
+	    WHERE
+	    	v.id = #{id}
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( itemId )'>
+				AND vr.vote_item_id = #{itemId}
+	    	</if>
+	    	AND v.use_yn = 'Y'
+	    <include refid="orderClauseOfVoterOnline" />
+	    <if test='@com.jaha.util.MyBatis@isEmpty( fullYn )'>
+    		LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	    </if>
+	</select>
+
+	<!-- 투표 참여자 목록 갯수 조회 -->
+	<select id="selectVoterListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectVoterListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM voter vr
+	    		LEFT OUTER JOIN vote v ON vr.vote_id = v.id
+	    		<!-- 투표 결과용 추가컬럼 -->
+	    		LEFT OUTER JOIN emaul.user u ON vr.user_id = u.id
+          		LEFT OUTER JOIN emaul.house h ON u.id = h.id
+   		WHERE
+   			v.id = #{id}
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( itemId )'>
+				AND vr.vote_item_id = #{itemId}
+	    	</if>
+	    	AND v.use_yn = 'Y'
+	</select>
+	<!--// ############### voter ############### -->
+
+
+
+
+
+	<!-- ############### voter_offline ############### -->
+	<!-- voter_offline order by -->
+	<sql id="orderClauseOfVoterOffline">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                vo.${sort.column} ${sort.ascOrDesc}
+                <!-- order by reg_date desc -->
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- 투표 오프라인 참여자 리스트 조회 -->
+	<select id="selectOfflineVoterList" parameterType="VoteDto" resultType="VoterOfflineVo">
+	    SELECT /* selectOfflineVoterList  조영태(cyt@jahasmart.com) */
+			vo.id
+			, vo.apt_id
+			, vo.dong
+			, vo.full_name
+			, vo.ho
+			, vo.reg_date
+			, vo.vote_id
+	    FROM voter_offline vo
+	    	LEFT OUTER JOIN vote v ON vo.vote_id = v.id
+	    WHERE
+	    	vo.vote_id = #{id}
+	    	AND v.use_yn = 'Y'
+	    <include refid="orderClauseOfVoterOffline" />
+	    <if test='@com.jaha.util.MyBatis@isEmpty( fullYn )'>
+    		LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	    </if>
+	</select>
+
+	<!-- 오프라인 투표 참여자 목록 갯수 조회 -->
+	<select id="selectOfflineVoterListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectOfflineVoterListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM voter_offline vo
+	    	LEFT OUTER JOIN vote v ON vo.vote_id = v.id
+   		WHERE
+   			vo.vote_id = #{id}
+	    	AND v.use_yn = 'Y'
+	</select>
+
+	<!-- 오프라인 투표 참여자 목록 삭제 -->
+	<delete id="deleteVoterOffline" parameterType="VoterOfflineVo">
+		DELETE /* deleteVoterOffline, 조영태(cyt@jahasmart.com) */ FROM voter_offline WHERE apt_id = #{aptId} AND vote_id = #{voteId}
+	</delete>
+
+	<!-- 오프라인 투표 명부 등록 (파일 리스트 입력) -->
+	<insert id="insertVoterOfflineList" parameterType="List">
+		INSERT INTO  /* insertVoterOfflineList, 조영태(cyt@jahasmart.com) */  voter_offline
+			(apt_id, dong, full_name, ho, reg_date, vote_id)
+		VALUES
+        <foreach collection="list" item="item" separator=" , ">
+            (#{item.aptId}, #{item.dong}, #{item.fullName}, #{item.ho}, now(), #{item.voteId})
+        </foreach>
+	</insert>
+	<!--// ############### voter_offline ############### -->
+
+
+
+
+	<!-- ############### vote_key ############### -->
+	<!-- 투표 상세 조회 -->
+	<select id="getVoteKey" parameterType="VoteDto" resultType="VoteKeyVo">
+		SELECT /* getVoteKey  조영태(cyt@jahasmart.com) */
+			vk.vk_id
+			, vk.key_name
+			, vk.apt_id
+			, vk.start_dt
+			, vk.end_dt
+			, vk.use_yn
+			, vk.admin_name
+			, vk.admin_email
+			, vk.key_vote_dec
+			, vk.key_vote_enc
+			, vk.key_check_dec
+			, vk.key_check_enc
+			, vk.key_base1
+			, vk.key_base2
+			, vk.key_base3
+			, vk.key_base1_uname
+			, vk.key_base2_uname
+			, vk.key_base3_uname
+			, vk.create_sign_fname
+			, vk.grant_sign_fname
+			, vk.check_sign_fname
+			, vk.key_grant_dec
+			, vk.key_grant_yn
+			, vk.reg_dt
+			, vk.reg_tm
+			, vk.upt_dt
+			, vk.key_level
+		FROM vote_key vk
+		WHERE vk.vk_id = #{vkId}
+	</select>
+
+	<!-- 투표 보안키 목록 조회 [SELECT BOX용]-->
+	<select id="getVoteKeyList" parameterType="VoteDto" resultType="VoteKeyVo">
+		SELECT /* getVoteKeyList  조영태(cyt@jahasmart.com) */
+			vk.vk_id
+			, vk.key_name
+			, vk.apt_id
+			, vk.start_dt
+			, vk.end_dt
+			, vk.use_yn
+			, vk.admin_name
+			, vk.admin_email
+			, vk.key_vote_dec
+			, vk.key_vote_enc
+			, vk.key_check_dec
+			, vk.key_check_enc
+			, vk.key_base1
+			, vk.key_base2
+			, vk.key_base3
+			, vk.key_base1_uname
+			, vk.key_base2_uname
+			, vk.key_base3_uname
+			, vk.create_sign_fname
+			, vk.grant_sign_fname
+			, vk.check_sign_fname
+			, vk.key_grant_dec
+			, vk.key_grant_yn
+			, vk.reg_dt
+			, vk.reg_tm
+			, vk.upt_dt
+			, vk.key_level
+		FROM vote_key vk
+		<!-- WHERE vk.vk_id in (15,37,39, 23) -->
+		WHERE vk.vk_id in (
+			SELECT
+				vks.vk_id
+			FROM emaul.vote_key vks
+			WHERE
+				vks.apt_id = #{aptId}
+				AND vks.use_yn = 'Y'
+				AND (vks.start_dt is null or vks.start_dt > now())
+		)
+	</select>
+
+	<!-- 투표 보안키 수정 -->
+	<update id="updateVoteKey" parameterType="VoteKeyVo">
+		    UPDATE /* updateVoteKey  조영태(cyt@jahasmart.com) */ vote_key
+	    <set>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( vkId )'>vk_id = #{vkId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyName )'>key_name = #{keyName},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( aptId )'>apt_id = #{aptId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( startDt )'>start_dt = #{startDt},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( endDt )'>end_dt = #{endDt},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( useYn )'>use_yn = #{useYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( adminName )'>admin_name = #{adminName},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( adminEmail )'>admin_email = #{adminEmail},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyVoteDec )'>key_vote_dec = #{keyVoteDec},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyVoteEnc )'>key_vote_enc = #{keyVoteEnc},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyCheckDec )'>key_check_dec = #{keyCheckDec},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyCheckEnc )'>key_check_enc = #{keyCheckEnc},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase1 )'>key_base1 = #{keyBase1},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase2 )'>key_base2 = #{keyBase2},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase3 )'>key_base3 = #{keyBase3},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase1Uname )'>key_base1_uname = #{keyBase1Uname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase2Uname )'>key_base2_uname = #{keyBase2Uname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyBase3Uname )'>key_base3_uname = #{keyBase3Uname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( createSignFname )'>create_sign_fname = #{createSignFname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( grantSignFname )'>grant_sign_fname = #{grantSignFname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( checkSignFname )'>check_sign_fname = #{checkSignFname},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyGrantDec )'>key_grant_dec = #{keyGrantDec},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyGrantYn )'>key_grant_yn = #{keyGrantYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( regDt )'>reg_dt = #{regDt},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( regTm )'>reg_tm = #{regTm},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( uptDt )'>upt_dt = #{uptDt},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( keyLevel )'>key_level = #{keyLevel},</if>
+	    </set>
+	    WHERE vk_id = #{vkId}
+	</update>
+
+	<!-- vote_key where -->
+	<sql id="whereClauseOfVoteKey">
+	    <!-- <where> -->
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.keyword )'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND vk.key_name LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+					</when>
+			    </choose>
+	    	</if>
+
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( aptName )'>
+	    		AND a.name LIKE CONCAT('%', #{aptName}, '%')
+	    	</if>
+
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( adminName )'>
+	    		AND vk.admin_name LIKE CONCAT('%', #{adminName}, '%')
+	    	</if>
+
+	    	<choose>
+		    	<when test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.startDate )'>
+			    	AND vk.start_dt &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.endDate )'>
+			    		AND vk.end_dt &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+		    		<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.endDate )'>
+			    		AND vk.end_dt &lt;= CONCAT(#{searchEndDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    <!-- </where> -->
+	</sql>
+
+	<!-- vote_key order by -->
+	<sql id="orderClauseOfVoteKey">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                vk.${sort.column} ${sort.ascOrDesc}
+                <!-- order by reg_date desc -->
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- 개표목록 갯수 조회 -->
+	<select id="selectVoteKeyListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectVoteKeyListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM vote_key vk
+				, apt a
+		WHERE vk.apt_id = #{aptId}
+			AND vk.apt_id = a.id
+			<!-- AND , vk.key_grant_yn = #{keyGrantYn} -->
+			AND vk.key_grant_yn = 'Y'
+			<include refid="whereClauseOfVoteKey" />
+	</select>
+
+	<!-- 투표 보안키 목록 조회 [개표 리스트]-->
+	<select id="selectVoteKeyList" parameterType="VoteDto" resultType="VoteKeyVo">
+		SELECT /* selectVoteKeyList  조영태(cyt@jahasmart.com) */
+			vk.vk_id
+			, vk.key_name
+			, vk.apt_id
+			, vk.start_dt
+			, vk.end_dt
+			, vk.use_yn
+			, vk.admin_name
+			, vk.admin_email
+			, vk.key_vote_dec
+			, vk.key_vote_enc
+			, vk.key_check_dec
+			, vk.key_check_enc
+			, vk.key_base1
+			, vk.key_base2
+			, vk.key_base3
+			, vk.key_base1_uname
+			, vk.key_base2_uname
+			, vk.key_base3_uname
+			, vk.create_sign_fname
+			, vk.grant_sign_fname
+			, vk.check_sign_fname
+			, vk.key_grant_dec
+			, vk.key_grant_yn
+			, vk.reg_dt
+			, vk.reg_tm
+			, vk.upt_dt
+			, vk.key_level
+			, a.name as aptName
+		FROM vote_key vk
+				, apt a
+		WHERE vk.apt_id = #{aptId}
+			AND vk.apt_id = a.id
+			<!-- AND , vk.key_grant_yn = #{keyGrantYn} -->
+			AND vk.key_grant_yn = 'Y'
+		<include refid="whereClauseOfVoteKey" />
+		<include refid="orderClauseOfVoteKey" />
+		LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+	<!--// ############### vote_key ############### -->
+
+
+
+
+	<!-- ############### vote_offline_result ############### -->
+	<!-- 오프라인 집계 등록 -->
+	<insert id="insertVoteOfflineResult" parameterType="VoteOfflineResultVo">
+		INSERT INTO /* insertVoteOfflineResult  조영태(cyt@jahasmart.com) */ vote_offline_result
+			(vote_id, apt_id, json_map_vote_item_result, reg_date, reg_user_id, result_text, voters_fname)
+		VALUES
+		(
+			#{voteId}
+			,#{aptId}
+			,#{jsonMapVoteItemResult}
+			,now()
+			,#{regUserId}
+			,#{resultText}
+			,#{votersFname}
+		)
+	</insert>
+
+	<!-- 오프라인 집계 삭제 -->
+	<delete id="deleteVoteOfflineResult" parameterType="Long">
+		DELETE /* deleteVoteOfflineResult, 조영태(cyt@jahasmart.com) */ FROM vote_offline_result WHERE vote_id = #{voteId}
+	</delete>
+
+	<!-- 오프라인 집계 조회 -->
+	<select id="getVoteOfflineResult" parameterType="Long" resultType="VoteOfflineResultVo">
+		SELECT /* getVoteOfflineResult  조영태(cyt@jahasmart.com) */
+			vor.vote_id
+			, vor.apt_id
+			, vor.json_map_vote_item_result
+			, vor.reg_date
+			, vor.reg_user_id
+			, vor.result_text
+			, vor.voters_fname
+		FROM vote_offline_result vor
+		WHERE
+			vor.vote_id = #{voteId}
+	</select>
+	<!--// ############### vote_offline_result ############### -->
+
+
+	<!-- ############### voter_security ############### -->
+	<!-- 보안투표 투표자 조회 -->
+	<select id="selectVoterSecurityList" parameterType="VoteDto" resultType="VoterSecurityVo">
+		SELECT /* selectVoterSecurityList  조영태(cyt@jahasmart.com) */
+			vs.vi_id
+			,vs.vote_id
+			,vs.item_id_enc
+			,vs.item_id
+			,vs.item_id_chk_fname
+			,vs.reg_dt
+		FROM voter_security vs
+		WHERE
+			vs.vote_id = #{id}
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( itemId )'>
+				AND vs.item_id = #{itemId}
+	    	</if>
+		ORDER BY vs.reg_dt DESC
+	</select>
+
+	<!-- 보안투표 복호화 후 투표아이템 적용 -->
+	<update id="updateVoterSecurityItem" parameterType="VoterSecurityVo" >
+		UPDATE /* updateVoterSecurityItem  조영태(cyt@jahasmart.com) */ voter_security
+		SET item_id = #{itemId}
+		WHERE
+			vi_id = #{viId}
+			AND vote_id = #{voteId}
+	</update>
+	<!--// ############### voter_security ############### -->
+
+
+	<!-- ############### etc ############### -->
+	<!-- 아파트 동 조회 -->
+	<select id="getAptDong" parameterType="Long" resultType="string">
+		SELECT /* getAptDong  조영태(cyt@jahasmart.com) */
+			dong
+			, LPAD(dong, 10, '0') as padDong
+		FROM house
+		WHERE
+			apt_id = #{aptId}
+		GROUP BY dong
+		ORDER BY padDong
+	</select>
+
+	<!-- 아파트 동별 호수 조회 (숫자형 데이터만 추출한다.)  -->
+	<select id="getAptHo" parameterType="VoteDto" resultType="string">
+
+		SELECT /* getAptHo  조영태(cyt@jahasmart.com) */
+			LPAD(ho, 5, '0') as ho
+		FROM house
+		WHERE
+			apt_id = #{aptId}
+			<!-- 선거구에서는 전체 동의 호수를 구한다. dong == 'all' -->
+	    	<if test='dong != "all" '>
+				AND dong = #{dong}
+			</if>
+			<![CDATA[
+			AND ho > 100
+			AND ho < 10000
+			]]>
+      		AND ho is not null
+     	<if test='dong != "all" '>
+			GROUP BY ho
+		</if>
+		ORDER BY ho
+
+	</select>
+
+	<!-- 아파트 동별 층수를 조회 (숫자형 데이터만 추출한다.)  -->
+	<select id="getAptHoRow" parameterType="VoteDto" resultType="string">
+		<![CDATA[
+		SELECT /* getAptHoRow  조영태(cyt@jahasmart.com) */
+			MAX(SUBSTRING(LPAD(ho, 5, '0'), 1 , 3)) as ho
+		FROM house
+		WHERE
+			apt_id = #{aptId}
+			AND dong = #{dong}
+			AND ho > 0
+			AND ho < 10000
+      		AND ho is not null
+		]]>
+	</select>
+
+	<!-- 아파트 동별 호수 조회 (숫자형 데이터만 추출한다.)  -->
+	<select id="getAptHoColumn" parameterType="VoteDto" resultType="string">
+		<![CDATA[
+		SELECT /* getAptHoColumn  조영태(cyt@jahasmart.com) */
+			MAX(SUBSTRING(LPAD(ho, 5, '0'),4)) as ho
+		FROM house
+		WHERE
+			apt_id = #{aptId}
+			AND dong = #{dong}
+			AND ho > 0
+			AND ho < 10000
+      		AND ho is not null
+		]]>
+	</select>
+	<!--// ############### etc ############### -->
+
+
+	<!-- ############### vote_group ############### -->
+	<!-- vote_group where -->
+	<sql id="whereClauseOfVoteGroup">
+	    <!-- <where> -->
+			<!-- 사용여부 'Y' 만 조회 -->
+			 AND vg.use_yn = 'Y'
+	    	<if test='@com.jaha.util.MyBatis@isNotEmpty( aptName )'>
+	    		AND a.name LIKE CONCAT('%', #{aptName}, '%')
+	    	</if>
+
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( pagingHelper.search.keyword )'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND vg.name LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+					</when>
+			    </choose>
+	    	</if>
+
+	    <!-- </where> -->
+	</sql>
+
+	<!-- vote_group order by -->
+	<sql id="orderClauseOfVoteGroup">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                vg.${sort.column} ${sort.ascOrDesc}
+                <!-- order by reg_date desc -->
+            </foreach>
+        </if>
+	</sql>
+
+	<!-- 선거구 목록 갯수 조회 -->
+	<select id="selectVoteGroupListCount" parameterType="VoteDto" resultType="int">
+	    SELECT /* selectVoteGroupListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+	    FROM vote_group vg
+	    		, apt a
+   		WHERE
+   			vg.target_apt = a.id
+   			AND vg.use_yn = 'Y'
+   			<if test='@com.jaha.util.MyBatis@isNotEmpty( aptId )'>
+   				AND vg.target_apt = #{aptId}
+   			</if>
+   			<include refid="whereClauseOfVoteGroup" />
+	</select>
+
+	<!-- 선거구 목록 조회 -->
+	<select id="selectVoteGroupList" parameterType="VoteDto" resultType="VoteGroupVo">
+	    SELECT /* selectVoteGroupList, 조영태(cyt@jahasmart.com) */
+	    	<!-- vote_group -->
+			vg.id
+			,vg.target_apt
+			,vg.name
+			,vg.json_array_target
+			,vg.description
+			,vg.voters_count
+			,vg.use_yn
+			,vg.group_type
+			,vg.user_id
+			,vg.reg_date
+			, (select full_name from user where vg.user_id = id) as user_name
+			,vg.mod_id
+			,vg.mod_date
+			, (select full_name from user where vg.mod_id = id) as mod_name
+			<!-- apt -->
+			,a.name as apt_name
+	    FROM vote_group vg
+	    		, apt a
+   		WHERE
+   			vg.target_apt = a.id
+   			AND vg.use_yn = 'Y'
+   			<if test='@com.jaha.util.MyBatis@isNotEmpty( aptId )'>
+   				AND vg.target_apt = #{aptId}
+			</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( groupIdList )'>
+		    	AND vg.id IN
+	        	<foreach collection="groupIdList" item="item" index="index" separator="," open="(" close=")">
+	            	#{item}
+	        	</foreach>
+			</if>
+			<include refid="whereClauseOfVoteGroup" />
+	    	<include refid="orderClauseOfVoteGroup" />
+
+
+
+	    <if test='@com.jaha.util.MyBatis@isEmpty( fullYn )'>
+    		LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	    </if>
+
+	</select>
+
+
+	<!-- 선거구 상세 조회 -->
+	<select id="getVoteGroup" parameterType="VoteDto" resultType="VoteGroupVo">
+	    SELECT /* getVoteGroup, 조영태(cyt@jahasmart.com) */
+	    	<!-- vote_group -->
+			vg.id
+			,vg.target_apt
+			,vg.name
+			,vg.json_array_target
+			,vg.description
+			,vg.voters_count
+			,vg.use_yn
+			,vg.group_type
+			,vg.user_id
+			,vg.reg_date
+			, (select full_name from user where vg.user_id = id) as user_name
+			,vg.mod_id
+			,vg.mod_date
+			, (select full_name from user where vg.mod_id = id) as mod_name
+			<!-- apt -->
+			,a.name as apt_name
+	    FROM vote_group vg
+	    		, apt a
+   		WHERE
+   			vg.target_apt = a.id
+   			AND vg.id = ${id}
+	</select>
+
+
+	<!-- 선거구 등록 -->
+	<insert id="insertVoteGroup" parameterType="VoteGroupVo" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO  /* insertVoteGroup, 조영태(cyt@jahasmart.com) */ vote_group (
+			target_apt
+			, name
+			, json_array_target
+			, description
+			, voters_count
+			, use_yn
+			, group_type
+			, user_id
+			, reg_date
+			, mod_id
+			, mod_date
+		) VALUES (
+			#{targetApt},
+			#{name},
+			#{jsonArrayTarget},
+	        #{description},
+	        #{votersCount},
+	        <!-- #{useYn}, -->
+	        'Y',
+	        #{groupType},
+	        #{userId},
+	        now(),
+	        #{modId},
+	        #{modDate}
+        )
+	</insert>
+
+	<!-- 선거구 삭제 -->
+	<update id="deleteVoteGroup" parameterType="VoteDto">
+	    UPDATE /* deleteVoteGroup, 조영태(cyt@jahasmart.com) */
+	    	vote_group vg
+    	SET
+		    vg.use_yn = 'N'
+   		WHERE
+   			vg.id = #{id}
+	</update>
+
+	<!-- 선거구 수정 -->
+	<update id="updateVoteGroup" parameterType="VoteGroupVo">
+	    UPDATE /* updateVoteGroup, 조영태(cyt@jahasmart.com) */ vote_group
+	    <set>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( targetApt )'>target_apt = #{targetApt},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( name )'>name = #{name},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( jsonArrayTarget )'>json_array_target = #{jsonArrayTarget},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( description )'>description = #{description},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( votersCount )'>voters_count = #{votersCount},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( useYn )'>use_yn = #{useYn},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( groupType )'>group_type = #{groupType},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modId )'>mod_id = #{modId},</if>
+			<if test='@com.jaha.util.MyBatis@isNotEmpty( modDate )'>mod_date = now(),</if>
+	    </set>
+	    WHERE id=#{id}
+	</update>
+	<!--// ############### vote_group ############### -->
+
+
+</mapper>

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/multiselect/css/multi-select.css"
+          th:href="@{/multiselect/css/multi-select.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        .ms-container {
+            margin-left: 100px;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" th:if="${vote.type.main}==@{vote}">투표 수정</h1>
+
+                <h1 class="page-header" th:if="${vote.type.main}==@{poll}">설문 수정</h1>
+
+                <form name="multiform" id="multiform" th:action="'/admin/vote/modify/' + ${vote.id}" method="POST" enctype="multipart/form-data">
+                    <div id="tab-container">
+                        <ul class="nav nav-tabs">
+                            <li role="presentation" class="active"><a href="#basic"><span class="label label-info">1</span> 기본 정보</a></li>
+                            <li role="presentation"><a href="#items"><span class="label label-info">2</span> 항목 추가/편집</a></li>
+                            <li style="float:right;"> <button type="button" id="btn-submit" class="btn btn-primary" onclick="submitForm(this)">저장</button> </li>
+                        </ul>
+
+                        <div id="my-tab-content" class="tab-content form-horizontal" style="padding: 10px">
+                            <!--basic information tab-->
+                            <div class="tab-pane active" id="basic">
+                                <input type="hidden" name="type" th:value="${vote.type.main}"/>
+                                <input th:if="${vote.type.main}==@{poll}" type="hidden" name="typeOptions" value="default"/>
+
+
+                                <div class="form-group">
+                                    <label for="inputTitle" class="col-sm-1 control-label">제목</label>
+
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="inputTitle" placeholder="제목" th:value="${vote.title}" name="title"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputDescription" class="col-sm-1 control-label">설명</label>
+
+                                    <div class="col-sm-10">
+                                    <textarea id="inputDescription" class="form-control" rows="4" th:text="${vote.description}" placeholder="설명" name="description"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" th:if="${vote.type.main}==@{vote}">
+                                    <label class="col-sm-1 control-label">투표 종류</label>
+
+                                    <div class="col-sm-10">
+                                        <label class="radio-inline">
+                                            <input th:checked="${vote.enableSecurity} == 'N'" type="radio" name="enableSecurity" id="securityN" value="N" onclick="setSecurityView()" /> 일반투표
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input th:checked="${vote.enableSecurity} == 'Y'" type="radio" name="enableSecurity" id="securityY" value="Y" onclick="setSecurityView()" /> 보안투표
+                                        </label>
+                                        <div>*주의! 보안투표 선택 시 3명의 선거관리위원의 암호인증을 통해서만 개표할 수 있습니다.</div>
+                                    </div>
+                                </div>
+                                <div class="form-group" th:if="${vote.type.main}==@{vote}" id="divVoteKey">
+                                    <label class="col-sm-1 control-label">보안 키</label>
+
+                                    <div class="col-sm-10" id="divVoteKeySelect">
+                                        <select class="form-control" name="vk_id" id="selectVoteKey">
+                                            <option value="">선택</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-10" id="divVoteKeyText">  보안투표의 보안키가 없습니다.<br /> E투표 보안 프로그램에서 보안키를 등록해주세요. </div>
+                                </div>
+                                <div class="form-group" th:if="${user.type.jaha} == true and ${vote.type.main}==@{vote}" id="divSecurityLevel">
+                                    <label class="col-sm-1 control-label">보안 등급</label>
+
+                                    <div class="col-sm-4" id="divSecurityLevelSelect">
+                                        <select class="form-control" name="securityLevel" id="selectSecurityLevel">
+                                            <option value="">미적용</option>
+                                            <option value="S" th:selected="${vote.securityLevel} == 'S'">보안등급 S (동영상 촬영)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="div-start-date">
+                                    <label for="datetimepickerFrom" class="col-sm-1 control-label">시작 날짜</label>
+
+                                    <div class="col-sm-4">
+                                        <div class='input-group date' id='datetimepickerFrom'>
+                                            <input th:value="${startDate}" type='text' class="form-control datetimepicker" name="startDate"/>
+                       						 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span> </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="datetimepickerTo" class="col-sm-1 control-label">종료 날짜</label>
+
+                                    <div class="col-sm-4">
+                                        <div class='input-group date' id='datetimepickerTo'>
+                                            <input th:value="${endDate}" type='text' class="form-control datetimepicker" name="endDate"/>
+                            				<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span> </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" th:if="${vote.type.main}==@{vote}" id="divVoteKeyAdmin">
+                                    <label class="col-sm-1 control-label">선거관리위원장</label>
+
+                                    <div class="col-sm-10">
+                                        <div id="voteKeyAdminName"></div>
+                                        <div id="voteKeyAdminEmail"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" th:if="${vote.type.main}==@{vote}" id="divOfflineAvailable">
+                                    <label class="col-sm-1 control-label">투표 방식</label>
+
+                                    <div class="col-sm-10">
+                                        <div>
+                                            <input type="checkbox" name="offline_available" th:checked="${vote.offlineAvailable}" /> 오프라인 동시 실시
+                                        </div>
+                                        <div>
+                                            * 서면동의, 종이투표가 함께 진행될 경우에 체크해주세요.<br/>
+                                            * 선택하지 않은 경우 서면동의, 종이투표의 결과를 집계할 수 없습니다.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-1 control-label">투표자 타입</label>
+                                    <div class="col-sm-10" id="user-types-container">
+                                        <label th:if="${vote.type.main}!=@{vote}" class="checkbox-inline">
+                                            <input type="checkbox" class="type-check" name="chk-user-type-anonymous"
+                                                   th:checked="${#lists.contains(userTypeList, 'anonymous')}"/>
+                                            방문자
+                                        </label>
+
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" class="type-check" name="chk-user-type-user"
+                                                   th:checked="${#lists.contains(userTypeList, 'user')}"/>
+                                            주민
+                                        </label>
+
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" class="type-check" name="chk-user-type-houseHost"
+                                                   th:checked="${#lists.contains(userTypeList, 'houseHost')}"/>
+                                            세대 대표
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputTarget" class="col-sm-1 control-label"
+                                           th:if="${vote.type.main}==@{vote}">투표
+                                        대상(동)</label>
+                                    <label for="inputTarget" class="col-sm-1 control-label"
+                                           th:if="${vote.type.main}==@{poll}">설문
+                                        대상(동)</label>
+
+                                    <div class="col-sm-4">
+                                        <select id="inputTarget" class="form-control" name="voteTarget">
+                                            <option value="all">전체</option>
+                                            <option th:each="dong : ${dongs}" th:value="${dong}"
+                                                    th:selected="${vote.targetDong} == ${dong}"
+                                                    th:text="${dong}"></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="checkbox col-sm-4">
+                                        <label>
+                                            <input type="checkbox" name="houseLimited"
+                                                   th:checked="${vote.houseLimited} == false"/>세대당 복수 투표 가능
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="target-ho" style="display: none"
+                                     th:style="${vote.targetDong} == '' ? 'display: none' : ''">
+                                    <label class="col-sm-1 control-label"></label>
+
+                                    <div class="col-sm-10"><!--TODO name, id 바꾸기-->
+                                        <label class="radio-inline" style="margin: 5px">
+                                            <input type="radio" name="target-ho" value="all"
+                                                   th:checked="${vote.jsonArrayTargetHo} == ''"/> 전체
+                                        </label>
+                                        <label class="radio-inline" style="margin: 5px">
+                                            <input type="radio" name="target-ho" value="part"
+                                                   th:checked="${vote.jsonArrayTargetHo} != ''"/> 일부
+                                        </label>
+                                        <label class="radio-inline" style="padding-left: 0">
+                                            <button type="button" id="btn-target-ho-part" class="btn btn-sm btn-info"
+                                                    onclick="showModalSelectHo()" style="display: none"
+                                                    th:style="${vote.jsonArrayTargetHo} == '' ? 'display:none' : ''">투표 대상 가구 선택하기
+                                            </button>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 0">
+                                    <label class="col-sm-1 control-label"></label>
+
+                                    <div class="col-sm-10" id="show-selected-ho"
+                                            th:text="${vote.jsonArrayTargetHo}">
+
+                                    </div>
+
+                                    <input type="hidden" id="selected-target-ho" name="selected-target-ho"
+                                            th:value="${vote.jsonArrayTargetHo}"/>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 10px">
+                                    <label class="col-sm-1 control-label">유권자 수</label>
+
+                                    <div class="col-sm-10">
+                                        <input id="inputVoterCount" type="text" class="form-control" style="width: 200px" name="voters-count"
+                                               th:value="${vote.votersCount}"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="image-file-up" class="col-sm-1 control-label">사진 첨부</label>
+
+                                    <div id="image-file-up" class="col-sm-10">
+                                        <div class="file_input">
+                                            <p class="text-danger">사진 및 파일 선택시 기존 사진,파일들은 삭제됩니다.</p>
+                                            <label>
+                                                사진 선택
+                                                <input type="file" name="base-img-1"
+                                                       onchange="javascript:document.getElementById('file_route1').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="file_route1"/>
+                                        </div>
+
+                                        <div class="file_input">
+                                            <label>
+                                                사진 선택
+                                                <input type="file" name="base-img-2"
+                                                       onchange="javascript:document.getElementById('file_route2').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="file_route2"/>
+                                        </div>
+
+                                        <div class="file_input">
+                                            <label>
+                                                사진 선택
+                                                <input type="file" name="base-img-3"
+                                                       onchange="javascript:document.getElementById('file_route3').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="file_route3"/>
+                                        </div>
+
+                                        <div class="file_input">
+                                            <label>
+                                                사진 선택
+                                                <input type="file" name="base-img-4"
+                                                       onchange="javascript:document.getElementById('file_route4').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="file_route4"/>
+                                        </div>
+
+                                        <div class="file_input">
+                                            <label>
+                                                사진 선택
+                                                <input type="file" name="base-img-5"
+                                                       onchange="javascript:document.getElementById('file_route5').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="file_route5"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="doc-file-up" class="col-sm-1 control-label">파일 첨부</label>
+
+                                    <div id="doc-file-up" class="col-sm-10">
+                                        <div class="file_input">
+                                            <label>
+                                                파일 선택
+                                                <input type="file" name="doc_file1"
+                                                       onchange="javascript:document.getElementById('doc_file_route1').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="doc_file_route1"/>
+                                        </div>
+
+                                        <div class="file_input">
+                                            <label>
+                                                파일 선택
+                                                <input type="file" name="doc_file2"
+                                                       onchange="javascript:document.getElementById('doc_file_route2').value=this.value"/>
+                                            </label>
+                                            <input type="text" readonly="readonly" title="File Route" id="doc_file_route2"/>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!--edit vote items tab-->
+                            <div class="tab-pane" id="items">
+                                <div class="form-group" id="vote-items-radio" th:if="${vote.type.main}==@{vote}">
+                                    <label class="col-sm-1 control-label">타입</label>
+
+                                    <div class="col-sm-10">
+                                        <label class="radio-inline"><input th:checked="${vote.type.sub} == 'default'" type="radio" name="typeOptions" id="typeDefault"  value="default"/> 기본형 </label>
+                                        <label class="radio-inline"> <input type="radio" name="typeOptions" id="typeY" value="Y" th:checked="${vote.type.sub} == 'y'"/> 동의형 </label>
+                                        <label class="radio-inline"><input th:checked="${vote.type.sub} == 'yn'" type="radio" name="typeOptions" id="typeYN" value="YN"/> 찬반형 </label>
+                                        <label class="radio-inline"><input th:checked="${vote.type.sub} == 'candidate_single'" type="radio" name="typeOptions" id="typeCandidates_single" value="candidate_single"/> 단일후보 </label>
+                                        <label class="radio-inline"><input th:checked="${vote.type.sub} == 'candidate'" type="radio" name="typeOptions" id="typeCandidates"  value="candidate"/> 복수후보 </label>
+                                    </div>
+                                </div>
+
+
+                                <div id="vote-items-default">
+                                    <div class="form-group">
+                                        <label for="inputQuestion-default" class="col-sm-1 control-label">질문</label>
+
+                                        <div class="col-sm-10">
+                                            <input th:value="${vote.type.sub} == 'default' ? ${vote.question} : ''"
+                                                   type="text" class="form-control" id="inputQuestion-default"
+                                                   name="question-default" placeholder="질문"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="inputNumberEnabled-default"
+                                               class="col-sm-1 control-label">옵션</label>
+
+                                        <div class="col-sm-10">
+                                            <label class=" checkbox-inline">
+                                                <input th:checked="${vote.type.sub} == 'default' ? ${vote.numberEnabled} : 'true'"
+                                                       id="inputNumberEnabled-default" type="checkbox"
+                                                       name="showNumbers-default"/>번호 표시
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-sm-1 control-label" th:if="${vote.type.main}==@{vote}">투표
+                                            항목</label>
+                                        <label class="col-sm-1 control-label" th:if="${vote.type.main}==@{poll}">설문
+                                            항목</label>
+
+                                        <div class="col-sm-10" id="vote-item-container-default">
+                                            <div id="default-item-first" class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button">1</button>
+                                                </span>
+                                                <input th:value="${vote.type.sub} == 'default' ? ${vote.items[0].title} : ''"
+                                                       type="text" class="form-control" name="text-default-1"
+                                                       placeholder="여기에 입력하세요"/>
+                                            </div>
+
+                                            <div class="input-group" style="margin-top: 6px">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button">2</button>
+                                                </span>
+                                                <input th:value="${vote.type.sub} == 'default' ? ${vote.items[1].title} : ''"
+                                                       type="text" class="form-control" name="text-default-2"
+                                                       placeholder="여기에 입력하세요"/>
+                                            </div>
+
+                                            <div th:each="voteItem, status : ${vote.items}" th:if="${vote.type.sub} == 'default' and ${status.count > 2}"
+                                                 class="input-group" style="margin-top: 6px">
+                                                <span class="input-group-btn">
+                                                    <button th:text="${status.index + 1}" class="btn btn-default"
+                                                            type="button">2
+                                                    </button>
+                                                </span>
+                                                <input th:value="${voteItem.title}"
+                                                       th:name="'text-default-' + ${status.index + 1}"
+                                                       type="text" class="form-control"
+                                                       placeholder="여기에 입력하세요"/>
+                                                <span class="input-group-btn">
+                                                <button class="btn btn-danger" type="button"
+                                                        th:onclick="'deleteDefaultVoteItem(' + ${status.index} + ')'">제거
+                                                </button>
+                                                </span>
+                                            </div>
+
+                                            <button th:if="${vote.type.main}==@{vote}" onclick="addDefaultVoteItem()"
+                                                    type="button" class="btn btn-default"
+                                                    style="margin-top: 6px">항목 추가
+                                            </button>
+                                            <button th:if="${vote.type.main}==@{poll}" onclick="addDefaultPollItem()"
+                                                    type="button" class="btn btn-default"
+                                                    style="margin-top: 6px">항목 추가
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="vote-items-candidate" style="display: none">
+                                    <div class="form-group">
+                                        <label for="inputQuestion-candidate" class="col-sm-1 control-label">질문</label>
+
+                                        <div class="col-sm-10">
+                                            <input th:value="${vote.type.sub} == 'candidate' ? ${vote.question} : ''"
+                                                   type="text" class="form-control" id="inputQuestion-candidate"
+                                                   name="question-candidate" placeholder="질문"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputNumberEnabled-candidate"
+                                               class="col-sm-1 control-label">옵션</label>
+
+                                        <div class="col-sm-10 checkbox">
+                                            <label>
+                                                <input th:checked="${vote.type.sub} == 'candidate' ? ${vote.numberEnabled} : 'true'"
+                                                       id="inputNumberEnabled-candidate" type="checkbox"
+                                                       name="showNumbers-candidate"/>번호 표시
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-1 control-label">투표 항목</label>
+
+                                        <div class="col-sm-10" id="vote-item-container-candidate">
+                                            <div id="candidate-item-first" class="input-group" style="width: 100%">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <td rowspan="4" style="width: 110px">
+                                                            <img id="img-candidate-preview-1"
+                                                                 class="img-candidate"
+                                                                 src="../../static/img/anonymous.png"
+                                                                 th:src="${vote.type.sub} == 'candidate' ?'/api/vote/item-image/' + ${vote.id} + '/0' : @{/img/anonymous.png}"/><br/>
+                                                            <label class="btn btn-primary" for="img-candidate-1">
+                                                                사진 선택
+                                                            </label>
+                                                            <input class="hidden" type="file" id="img-candidate-1"
+                                                                   name="img-candidate-1"/>
+                                                        </td>
+                                                        <td><p class="bold" style="float: left">기호 1번</p></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input th:value="${vote.type.sub} == 'candidate' ? ${vote.items[0].title} :''" type="text"
+                                                                   class="form-control"
+                                                                   name="text-candidate-1" placeholder="이름 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.type.sub} == 'candidate' ?${vote.items[0].commitment}:''"
+                                                                      name="commitment-candidate-1"
+                                                                      placeholder="공약 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.type.sub} == 'candidate' ?${vote.items[0].profile}:''"
+                                                                      name="profile-candidate-1"
+                                                                      placeholder="프로필 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="input-group" style="width: 100%">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <td rowspan="4" style="width: 110px">
+                                                            <img id="img-candidate-preview-2"
+                                                                 class="img-candidate"
+                                                                 src="../../static/img/anonymous.png"
+                                                                 th:src="${vote.type.sub} == 'candidate' ?'/api/vote/item-image/' + ${vote.id} + '/1' : @{/img/anonymous.png}"/><br/>
+                                                            <label class="btn btn-primary" for="img-candidate-2">
+                                                                사진 선택
+                                                            </label>
+                                                            <input class="hidden" type="file" id="img-candidate-2"
+                                                                   name="img-candidate-2"/>
+                                                        </td>
+                                                        <td><p class="bold" style="float: left">기호 2번</p></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input th:value="${vote.type.sub} == 'candidate' ?${vote.items[1].title}:''" type="text"
+                                                                   class="form-control"
+                                                                   name="text-candidate-2" placeholder="이름 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.type.sub} == 'candidate' ?${vote.items[1].commitment}:''"
+                                                                      name="commitment-candidate-2"
+                                                                      placeholder="공약 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.type.sub} == 'candidate' ?${vote.items[1].profile}:''"
+                                                                      name="profile-candidate-2"
+                                                                      placeholder="프로필 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+
+                                            <div th:each="voteItem, status : ${vote.items}" th:if="${vote.type.sub} == 'candidate' and ${status.count > 2}"
+                                                 class="input-group" style="width: 100%">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <td rowspan="4" style="width: 110px">
+                                                            <img th:id="'img-candidate-preview-' + ${status.count}"
+                                                                 class="img-candidate"
+                                                                 src="../../static/img/anonymous.png"
+                                                                 th:src="${vote.type.sub} == 'candidate' ?'/api/vote/item-image/' + ${vote.id} + '/' + ${status.count - 1} : @{/img/anonymous.png}"/><br/>
+                                                            <label class="btn btn-primary" th:for="'img-candidate-' + ${status.count}">
+                                                                사진 선택
+                                                            </label>
+                                                            <input th:id="'img-candidate-' + ${status.count}"
+                                                                   class="hidden" type="file"
+                                                                   th:name="'img-candidate-' + ${status.count}"/>
+                                                        </td>
+                                                        <td>
+                                                            <p th:text="'기호 ' + ${status.count} + '번'" class="bold"
+                                                               style="float: left"></p>
+                                                            <button class="btn btn-danger"
+                                                                    th:onclick="'deletecandidateVoteItem(' + ${status.index} + ')'"
+                                                                    style="float:right">제거
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input th:value="${voteItem.title}" type="text"
+                                                                   class="form-control"
+                                                                   th:name="'text-candidate-' + ${status.count}"
+                                                                   placeholder="이름 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.items[status.count - 1].commitment}"
+                                                                      th:name="'commitment-candidate-' + ${status.count}"
+                                                                      placeholder="공약 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.items[status.count - 1].profile}"
+                                                                      th:name="'profile-candidate-' + ${status.count}"
+                                                                      placeholder="프로필 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+
+                                            <button onclick="addcandidateVoteItem()" type="button"
+                                                    class="btn btn-default"
+                                                    style="margin-top: 6px">항목 추가
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--새화면-->
+                                <div id="vote-items-candidate_single" style="display: none">
+                                    <div class="form-group">
+                                        <label for="inputQuestion-candidate_single"
+                                               class="col-sm-1 control-label">질문</label>
+
+                                        <div class="col-sm-10">
+                                            <input th:value="${vote.type.sub} == 'candidate_single' ? ${vote.question} : ''"
+                                                   type="text" class="form-control" id="inputQuestion-candidate_single"
+                                                   name="question-candidate_single" placeholder="질문"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-1 control-label">투표 항목</label>
+
+                                        <div class="col-sm-10" id="vote-item-container-candidate_single">
+                                            <div id="one-candidate-item" class="input-group" style="width: 100%">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <td rowspan="4" style="width: 110px">
+                                                            <img id="img-candidate-preview-one"
+                                                                 class="img-candidate"
+                                                                 src="../../static/img/anonymous.png"
+                                                                 th:src="${vote.type.sub} == 'candidate_single' ?'/api/vote/item-image/' + ${vote.id} + '/0' : @{/img/anonymous.png}"/><br/>
+                                                            <label class="btn btn-primary" for="img-candidate_single-1">
+                                                                사진 선택
+                                                            </label>
+                                                            <input class="hidden" type="file" id="img-candidate_single-1"
+                                                                   name="img-candidate_single-1"/>
+                                                        </td>
+                                                        <td><p class="bold">단일후보 정보입력</p></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control"
+                                                                   th:value="${vote.type.sub} == 'candidate_single' ?${vote.items[0].title} :''"
+                                                                   name="text-candidate_single-1" placeholder="이름 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      name="commitment-candidate_single-1"
+                                                                      th:text="${vote.type.sub} == 'candidate_single' ?${vote.items[0].commitment}:''"
+                                                                      placeholder="공약 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><textarea class="form-control"
+                                                                      th:text="${vote.type.sub} == 'candidate_single' ?${vote.items[0].profile}:''"
+                                                                      name="profile-candidate_single-1"
+                                                                      placeholder="프로필 입력"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+
+                                            <table class="table table-bordered" style="width: 250px">
+                                                <tr>
+                                                    <td style="background-color: #f3f3f3" align="center">찬성</td>
+                                                    <td style="background-color: #f3f3f3" align="center">반대</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="height: 100px"></td>
+                                                    <td style="height: 100px"></td>
+                                                </tr>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--/새화면-->
+
+                                <div id="vote-items-YN" style="display: none">
+                                    <div class="form-group">
+                                        <label for="inputQuestion-default" class="col-sm-1 control-label">질문</label>
+
+                                        <div class="col-sm-10">
+                                            <input th:value="${vote.type.sub} == 'yn' ? ${vote.question} : ''"
+                                                   type="text" class="form-control" id="inputQuestion-YN"
+                                                   name="question-YN" placeholder="질문"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-1 control-label">투표 항목</label>
+
+                                        <div class="col-sm-10">
+                                            <table class="table table-bordered" style="width: 250px">
+                                                <tr>
+                                                    <td style="background-color: #f3f3f3" align="center">찬성</td>
+                                                    <td style="background-color: #f3f3f3" align="center">반대</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="height: 100px"></td>
+                                                    <td style="height: 100px"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                 <!--/동의형 -->
+                                 <div id="vote-items-Y" style="display: none">
+                                    <div class="form-group">
+                                        <label for="inputQuestion-default" class="col-sm-1 control-label">질문</label>
+
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="inputQuestion-Y" name="question-Y" placeholder="질문" th:value="${vote.type.sub} == 'y' ? ${vote.question} : ''"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-1 control-label">투표 항목</label>
+                                        <div class="col-sm-10">
+                                            <table class="table table-bordered" style="width: 250px">
+                                                <tr>
+                                                    <td style="background-color: #f3f3f3" align="center">서명</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="height: 100px"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+                             aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="">
+                                        <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close"><span
+                                                aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">안내</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="modal-content" style="word-wrap: break-word"></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">닫기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<div class="modal fade" id="select-ho">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">투표 대상 가구 선택하기</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">정렬</label>
+                    <div class="col-sm-10">
+                        <label class="radio-inline">
+                            <input type="radio" name="modal-sort" value="1"/> 라인별
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="modal-sort" value="0"/> 층별
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-body" id="modal-body-select-ho">
+                <select multiple="multiple" id="in-modal-select-ho" name="in-modal-select-ho" style="display: none;">
+
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="onTargetHoSelected()">확인</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script src="../../static/multiselect/js/jquery.multi-select.js" th:src="@{/multiselect/js/jquery.multi-select.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    // <![CDATA[
+    $('.nav-tabs li a').click(function (e) {
+        $('.nav-tabs li.active').removeClass('active');
+        var $parent = $(this).parent();
+        if (!$parent.hasClass('active')) {
+            $parent.addClass('active');
+        }
+
+        $('.tab-content div.active').removeClass('active');
+        var tabId = $(this).attr("href");
+        $(tabId).addClass('active');
+
+        e.preventDefault();
+    });
+
+    $(document).ready(function () {
+        $('input[type=radio][name=typeOptions]').change(function () {
+            var typeValue = this.value;
+
+            $('#items > div').each(function () {
+                $(this).attr('style', 'display:none');
+            });
+
+            $('#vote-items-radio').attr('style', '');
+            $('#vote-items-' + typeValue).attr('style', '');
+        });
+
+        var typeOption = $('input[type=radio][name=typeOptions][checked=checked]').val();
+        $('#items > div').each(function () {
+            $(this).attr('style', 'display:none');
+        });
+        $('#vote-items-radio').attr('style', '');
+        $('#vote-items-' + typeOption).attr('style', '');
+
+        var voteType = /*[[${vote.type.main}]]*/ 'vote';
+        if (voteType == 'poll') {
+            $('#vote-items-default').attr('style', '');
+        }else{
+            setSecurityView();
+            getVoteKey();
+        }
+
+//        $('#multiform').on("keyup keypress", function (e) {
+//            var code = e.keyCode || e.which;
+//            if (code == 13) {
+//                e.preventDefault();
+//                return false;
+//            }
+//        });
+    });
+
+    function setSecurityView(){
+        if($(":radio[name='enableSecurity']:checked").val() == "Y"){
+            $("#divVoteKey, #divSecurityLevel, #divVoteKeyAdmin").show();
+        }else{
+            $("#divVoteKey, #divSecurityLevel, #divVoteKeyAdmin").hide();
+        }
+    }
+
+    var voteKeyState = false;
+    var baseStartDate = '';
+    var baseEndDate = '';
+    function getVoteKey(){
+        var url = '/admin/vote/ajax/voteKeys';
+        var voteKeyId = /*[[${vote.enableSecurity == 'Y' ? vote.voteKey.vkId : ''}]]*/ '';
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                if(data.length > 0){
+                    $("#divVoteKeySelect").show();
+                    $("#divVoteKeyText").hide();
+
+                    for (i in data) {
+                        if(data[i].vkId == voteKeyId){
+                            $('#selectVoteKey').append('<option value="' + data[i].vkId + '" selected >' + data[i].keyName + '</option>');
+                            $('#voteKeyAdminName').html(data[i].adminName);
+                            $('#voteKeyAdminEmail').html(data[i].adminEmail);
+
+                            baseStartDate = new Date(data[i].startDt).format('yyyy.MM.dd HH시 mm분');
+                            baseEndDate = new Date(data[i].endDt).format('yyyy.MM.dd HH시 mm분');
+                        }else{
+                            $('#selectVoteKey').append('<option value="' + data[i].vkId + '"  >' + data[i].keyName + '</option>');
+                        }
+                    }
+                    $('#selectVoteKey').change(function(){
+                        if(this.selectedIndex == 0){
+                            $('#voteKeyAdminName').html('');
+                            $('#voteKeyAdminEmail').html('');
+                            baseStartDate = '';
+                            baseEndDate = '';
+                        }else{
+                            $('#voteKeyAdminName').html(data[this.selectedIndex - 1].adminName);
+                            $('#voteKeyAdminEmail').html(data[this.selectedIndex - 1].adminEmail);
+                            baseStartDate = '';
+                            baseEndDate = '';
+                            if(data[this.selectedIndex - 1].startDt != null && data[this.selectedIndex - 1].startDt != ''){
+                                $('input[name=startDate]').val(new Date(data[this.selectedIndex - 1].startDt).format('yyyy.MM.dd HH시 mm분'));
+                                baseStartDate = new Date(data[this.selectedIndex - 1].startDt).format('yyyy.MM.dd HH시 mm분');
+                            }
+                            if(data[this.selectedIndex - 1].endDt != null && data[this.selectedIndex - 1].endDt != ''){
+                                $('input[name=endDate]').val(new Date(data[this.selectedIndex - 1].endDt).format('yyyy.MM.dd HH시 mm분'));
+                                baseEndDate = new Date(data[this.selectedIndex - 1].endDt).format('yyyy.MM.dd HH시 mm분');
+                            }
+                        }
+                    });
+                    voteKeyState = true;
+                }else{
+                    $("#divVoteKeySelect").hide();
+                    $("#divVoteKeyText").show();
+                    voteKeyState = false;
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ajax fail");
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+
+    //투표일때
+    function addDefaultVoteItem() {
+        var len = $('#vote-item-container-default > div').length;
+
+        var defaultClone = $('#default-item-first').clone();
+        $(defaultClone).attr('style', 'margin-top: 6px');
+        $(defaultClone).find('button').text(len + 1);
+        $(defaultClone).find('input').val('');
+        $(defaultClone).find('input').after('<span class="input-group-btn">' +
+                '<button class="btn btn-danger" type="button" onclick="deleteDefaultVoteItem(' + len + ')">제거</button>' +
+                '</span>');
+        $(defaultClone).find('input[name=text-default-1]').attr('name', 'text-default-' + (len + 1));
+
+        $('#vote-item-container-default > div:nth-child(' + len + ')').after(defaultClone);
+
+    }
+
+
+    //설문일때
+    function addDefaultPollItem() {
+        var len = $('#vote-item-container-default > div').length;
+
+        var defaultClone = $('#default-item-first').clone();
+        $(defaultClone).attr('style', 'margin-top: 6px');
+        $(defaultClone).find('button').text(len + 1);
+        $(defaultClone).find('input').val('');
+        $(defaultClone).find('input').after('<span class="input-group-btn">' +
+                '<button class="btn btn-danger" type="button" onclick="deleteDefaultVoteItem(' + len + ')">제거</button>' +
+                '<label class="checkbox-inline btn btn-default" style="position: inherit; width: 85px; padding-bottom: 5px"><input id="is-subjective-' + len + '" name="is-subjective-' + len + '" type="checkbox" style="margin-left: -15px;"  onclick="setDefaultText(' + len + ')"/>주관식</label></span>');
+        $(defaultClone).find('input[name=text-default-1]').attr('name', 'text-default-' + (len + 1));
+        $(defaultClone).find('input[name=text-default-' + (len + 1) + ']').attr('id', 'text-default-' + (len + 1));
+
+        $('#vote-item-container-default > div:nth-child(' + len + ')').after(defaultClone);
+    }
+
+    function setDefaultText(len) {
+        var lenn = len + 1;
+        if ($('#text-default-' + lenn).val() == "") {
+            $('#text-default-' + lenn).val("기타");
+        }
+    }
+
+    function deleteDefaultVoteItem(index) {
+        $("#vote-item-container-default > div:nth-child(" + (index + 1) + ")").remove();
+
+        $("#vote-item-container-default > div").each(function (i) {
+            $(this).find("button[class*=btn-default]").text(i + 1);
+            $(this).find("button[class*=btn-danger]").attr('onclick', 'deleteDefaultVoteItem(' + i + ')');
+            $(this).find('input').attr('name', 'text-default-' + (i + 1));
+        });
+    }
+
+    function addcandidateVoteItem() {
+        var len = $("#vote-item-container-candidate > div").length;
+
+        var candidateClone = $('#candidate-item-first').clone();
+        $(candidateClone).find('label[for=img-candidate-1]').attr('for', 'img-candidate-' + (len + 1));
+        $(candidateClone).find('input[name=img-candidate-1]').attr('name', 'img-candidate-' + (len + 1));
+        $(candidateClone).find('input[name=text-candidate-1]').val('');
+        $(candidateClone).find('input[name=text-candidate-1]').attr('name', 'text-candidate-' + (len + 1));
+        $(candidateClone).find('textarea[name=commitment-candidate-1]').val('');
+        $(candidateClone).find('textarea[name=commitment-candidate-1]').attr('name', 'commitment-candidate-' + (len + 1));
+        $(candidateClone).find('textarea[name=profile-candidate-1]').val('');
+        $(candidateClone).find('textarea[name=profile-candidate-1]').attr('name', 'profile-candidate-' + (len + 1));
+        $(candidateClone).find('#img-candidate-preview-1').attr('src', '/img/anonymous.png');
+        $(candidateClone).find('#img-candidate-preview-1').attr('id', 'img-candidate-preview-' + (len + 1));
+        $(candidateClone).find('#img-candidate-1').val('');
+        $(candidateClone).find('#img-candidate-1').attr('id', 'img-candidate-' + (len + 1));
+        $(candidateClone).find('p.bold').text('기호 ' + (len + 1) + '번');
+        $(candidateClone).find('p.bold').after('<button class="btn btn-danger" onclick="deletecandidateVoteItem(' + len + ')" style="float:right">제거</button>');
+//        console.log($(candidateClone).find('p.bold').parent());
+
+        $('#vote-item-container-candidate > div:nth-child(' + len + ')').after(candidateClone);
+
+        $("[id^=img-candidate-]").change(function () {
+            readURL(this);
+        });
+    }
+
+    function deletecandidateVoteItem(index) {
+        $("#vote-item-container-candidate > div:nth-child(" + (index + 1) + ")").remove();
+
+        $("#vote-item-container-candidate > div").each(function (i) {
+            $(this).find('p.bold').text('기호 ' + (i + 1) + '번');
+            $(this).find('button.btn-danger').attr('onclick', 'deletecandidateVoteItem(' + i + ')');
+
+            $(this).find('label').attr('for', 'img-candidate-' + (i + 1));
+            $(this).find('input[id^=img-candidate-]').attr('id', 'img-candidate-' + (i + 1));
+            $(this).find('input[name^=img-candidate-]').attr('name', 'img-candidate-' + (i + 1));
+            $(this).find('input[name^=text-candidate-]').attr('name', 'text-candidate-' + (i + 1));
+            $(this).find('textarea[name^=commitment-candidate-]').attr('name', 'commitment-candidate-' + (i + 1));
+            $(this).find('textarea[name^=profile-candidate-]').attr('name', 'profile-candidate-' + (i + 1));
+            $(this).find('img').attr('id', 'img-candidate-preview-' + (i + 1));
+        });
+    }
+
+    $(function () {
+        var startDate = /*[[${startDateUtc}]]*/ 0;
+        var endDate = /*[[${endDateUtc}]]*/ 0;
+        // console.log(startDate);
+        $('#datetimepickerFrom').datetimepicker({
+            locale: 'ko',
+            date: new Date(startDate),
+            format: 'YYYY.MM.DD HH시 mm분'
+        });
+        $('#datetimepickerTo').datetimepicker({
+            locale: 'ko',
+            date: new Date(endDate),
+            format: 'YYYY.MM.DD HH시 mm분'
+        });
+    });
+
+    function submitForm(e) {
+        //e.preventDefault();
+
+        if($(":radio[name='enableSecurity']:checked").val() == "Y"){
+            if(voteKeyState == false){
+                showInfoModal('보안투표의 보안키가 없습니다.\n E투표 보안 프로그램에서 보안키를 등록해주세요.');
+                return false;
+            }
+
+            if($('#selectVoteKey')[0].selectedIndex == 0){
+                showInfoModal('보안 키를 선택해 주세요.');
+                return false;
+            }
+        }
+
+        if ($('#inputTitle').val() == '') {
+            $('.nav-tabs li a[href="#basic"]').trigger('click');
+            $('#inputTitle').focus();
+            showInfoModal('제목을 입력해주세요');
+            return false;
+        }
+
+        if ($('#inputDescription').val() == '') {
+            $('.nav-tabs li a[href="#basic"]').trigger('click');
+            $('#inputDescription').focus();
+            showInfoModal('설명을 입력해주세요');
+            return false;
+        }
+
+        if ($('input[name=startDate]').val() == '' || $('input[name=endDate]').val() == '') {
+            $('.nav-tabs li a[href="#basic"]').trigger('click');
+            showInfoModal('시작/종료 날짜가 정해지지 않았습니다');
+            return false;
+        }
+
+        var checkedExist = false;
+        $('#user-types-container').find('input').each(function(){
+            // console.log($(this));
+            if($(this).is(':checked')){
+                checkedExist = true
+            }
+        });
+        if(!checkedExist){
+            showInfoModal('유저 타입을 최소 하나 이상 선택해주세요');
+            return false;
+        }
+
+        if ($('#inputVoterCount').val() == '') {
+            $('.nav-tabs li a[href="#basic"]').trigger('click');
+            $('#inputVoterCount').focus();
+            showInfoModal('유권자 수를 입력해주세요');
+            return false;
+        }
+
+        var qType = $('input[type=radio][name=typeOptions]:checked').val();
+        if ($('#inputQuestion-' + qType).val() == '') {
+            $('.nav-tabs li a[href="#items"]').trigger('click');
+            $('#inputQuestion-' + qType).focus();
+            showInfoModal('질문을 입력해주세요');
+            return false;
+        }
+
+        if ($(":file").val() != "") {
+            var ext = $(':file').val().split('.').pop().toLowerCase();
+            if ($.inArray(ext, ['gif', 'png', 'jpg', 'jpeg']) == -1) {
+                alert('gif,png,jpg,jpeg 파일만 업로드 할수 있습니다.');
+                return false;
+            }
+        }
+
+        if(!checkItemForm()){
+            return false;
+        }
+
+        if(checkDateChanged()){
+            if(confirm("해당 보안 키를 사용하는 투표들의 투표 기간이 모두 동일하게 변경됩니다. 저장하시겠습니까?")){
+                $('#multiform').submit();
+            }
+        }else{
+            $('#multiform').submit();
+        }
+    }
+
+
+    function checkItemForm(){
+        var qType = $('input[type=radio][name=typeOptions]:checked').val();
+        // console.log(qType);
+
+        if(qType == 'default' || qType == 'candidate'){
+            var len = $('#vote-item-container-' + qType + ' > div').length;
+            for(var i=1; i<=len; i++){
+                if(qType == 'candidate'){
+                    if($('#img-candidate-preview-' + i).attr("src") == '/img/anonymous.png'){
+                        $('.nav-tabs li a[href="#items"]').trigger('click');
+                        showInfoModal("기호 "+i+"번 사진을 선택해주세요.");
+                        return false;
+                        break;
+
+                    }
+                }
+                if($('input[type=text][name=text-'+qType+'-'+i+']').val() == ''){
+                    $('.nav-tabs li a[href="#items"]').trigger('click');
+                    if(qType == 'default'){
+                        showInfoModal(i+"번 항목을 입력해주세요.");
+                    }else if(qType == 'candidate'){
+                        showInfoModal("기호 "+i+"번 이름을 입력해주세요.");
+                    }
+                    return false;
+                    break;
+                }
+
+            }
+        }else if(qType == 'candidate_single'){
+            if($('#img-candidate-preview-one').attr("src") == '/img/anonymous.png'){
+                $('.nav-tabs li a[href="#items"]').trigger('click');
+                showInfoModal("사진을 선택해주세요.");
+                return false;
+            }
+            if($('input[type=text][name=text-candidate_single-1]').val() == ''){
+                $('.nav-tabs li a[href="#items"]').trigger('click');
+                showInfoModal("이름을 입력해주세요.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function checkDateChanged(){
+        var type = /*[[${vote.type.main}]]*/ 'type';
+        if(type != 'vote'){
+            return false;
+        }
+        if($(":radio[name='enableSecurity']:checked").val() != "Y"){
+            return false;
+        }
+        if(baseStartDate != $('input[name=startDate]').val() || baseEndDate != $('input[name=endDate]').val()){
+            return true;
+        }
+        return false;
+    }
+
+
+
+    function readURL(input) {
+//        console.log(input);
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $(input).prevAll('img').attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("[id^=img-candidate-]").change(function () {
+        readURL(this);
+    });
+
+    $("[id^=img-candidate_single-]").change(function () {
+        readURL(this);
+    });
+
+    function showInfoModal(text) {
+        $('#modal-content').text(text);
+        $('#modal-info').modal('show');
+    }
+
+    var selectedTargetHo = /*[[${vote.jsonArrayTargetHo}]]*/ [];
+
+    $(document).ready(function () {
+
+        $('#inputTarget').change(function () {
+            if ($('#inputTarget option:selected').val() != 'all') {
+                $('#target-ho').attr('style', '');
+            } else {
+                $('#target-ho').attr('style', 'display:none');
+            }
+            selectedTargetHo = [];
+            $('#show-selected-ho').empty();
+            $('#modal-body-select-ho').empty();
+            $('#selected-target-ho').val('');
+            $('input[type=radio][name=modal-sort]').removeAttr('checked');
+        });
+
+
+        $('input[type=radio][name=target-ho]').change(function () {
+            var targetValue = this.value;
+
+            if (targetValue == 'part') {
+                $('#btn-target-ho-part').attr('style', '');
+                $('#show-selected-ho').attr('style','');
+            } else {
+                $('#btn-target-ho-part').attr('style', 'display:none');
+                $('#show-selected-ho').attr('style','display:none');
+                selectedTargetHo = [];
+                $('#show-selected-ho').empty();
+                $('#modal-body-select-ho').empty();
+                $('#selected-target-ho').val('');
+                $('input[type=radio][name=modal-sort]').removeAttr('checked');
+            }
+        });
+    });
+
+    function showModalSelectHo() {
+        $('#select-ho').modal('show');
+        //$('#in-modal-select-ho').multiSelect();
+
+        $('input[type=radio][name=modal-sort]').change(function () {
+
+            $('#modal-body-select-ho').empty();
+            $('#modal-body-select-ho').append('<select multiple="multiple" id="in-modal-select-ho"></select>');
+            var aptId = /*[[${user.house.apt.id}]]*/ 0;
+            var dong = $('#inputTarget option:selected').val();
+            var sortValue = this.value;
+
+            var url = '/admin/vote/create/target/' + aptId + '/' + dong + '/' + sortValue;
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                dataType: 'json',
+                success: function (data) {
+                    if(selectedTargetHo == ''){
+                        selectedTargetHo = [];
+                    }
+                    if(!Array.isArray(selectedTargetHo)){
+                        selectedTargetHo = JSON.parse(selectedTargetHo);
+                    }
+                    for (i in data) {
+                        $('#in-modal-select-ho').append('<option value="' + data[i] + '"' + ($.inArray(data[i], selectedTargetHo) == -1 ? '' : 'selected') + '>' + data[i] + '</option>');
+                    }
+
+                    // console.log(selectedTargetHo);
+                    $('#in-modal-select-ho').multiSelect({
+                        select: selectedTargetHo,
+                        afterSelect: function(values){
+                            var idx = $.inArray(values[0], selectedTargetHo);
+                            if (idx == -1) {
+                                selectedTargetHo.push(values[0]);
+                                selectedTargetHo.sort();
+                                $('#selected-target-ho').val(JSON.stringify(selectedTargetHo));
+                            }
+                        },
+                        afterDeselect: function(values){
+                            var idx = $.inArray(values[0], selectedTargetHo);
+                            if (idx != -1) {
+                                selectedTargetHo.splice(idx, 1);
+                                selectedTargetHo.sort();
+                                $('#selected-target-ho').val(JSON.stringify(selectedTargetHo));
+                            }
+                        }
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("ajax fail");
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+        });
+    }
+
+    $(document).ready(function(){
+        if(selectedTargetHo == ''){
+            selectedTargetHo = [];
+        }
+        if(!Array.isArray(selectedTargetHo)){
+            selectedTargetHo = JSON.parse(selectedTargetHo);
+        }
+
+        $('#show-selected-ho').empty();
+
+        for(i in selectedTargetHo){
+            $('#show-selected-ho').append('<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-info">'+selectedTargetHo[i]+'</span>');
+        }
+        $('#div-start-date').attr('style','margin-top:20px');
+    });
+
+    function onTargetHoSelected(){
+//        $('#show-selected-ho').text(selectedTargetHo);
+
+        if(selectedTargetHo == ''){
+            selectedTargetHo = [];
+        }
+        if(!Array.isArray(selectedTargetHo)){
+            selectedTargetHo = JSON.parse(selectedTargetHo);
+        }
+
+        $('#show-selected-ho').empty();
+
+        for(i in selectedTargetHo){
+            $('#show-selected-ho').append('<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-info">'+selectedTargetHo[i]+'</span>');
+        }
+        $('#inputVoterCount').val(selectedTargetHo.length);
+        $('#div-start-date').attr('style','margin-top:20px');
+
+    }
+
+    Date.prototype.format = function(f) {
+        if (!this.valueOf()) return " ";
+
+        var weekName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+        var d = this;
+
+        return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
+            switch ($1) {
+                case "yyyy": return d.getFullYear();
+                case "yy": return (d.getFullYear() % 1000).zf(2);
+                case "MM": return (d.getMonth() + 1).zf(2);
+                case "dd": return d.getDate().zf(2);
+                case "E": return weekName[d.getDay()];
+                case "HH": return d.getHours().zf(2);
+                case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
+                case "mm": return d.getMinutes().zf(2);
+                case "ss": return d.getSeconds().zf(2);
+                case "a/p": return d.getHours() < 12 ? "오전" : "오후";
+                default: return $1;
+            }
+        });
+    };
+
+    String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s += this; } return s;};
+    String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
+    Number.prototype.zf = function(len){return this.toString().zf(len);};
+    // ]]>
+</script>
+</body>
+</html>

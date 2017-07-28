@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css"
+          th:href="@{/css/user.css}"/>
+
+    <style>
+        pre {
+            display: block;
+            padding: 10px;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+            word-break: break-all;
+            word-wrap: break-word;
+            background-color: #fff;
+            border: none;
+            border-radius: 0;
+            font-family: "Nanum Gothic", sans-serif;
+        }
+
+    </style>
+
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>약도</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="#">홈</a></li>
+                    <li><a th:text="${leftSideMenu}? '커뮤니티' : '아파트소개'" href="#">아파트소개</a></li>
+                    <li class="active">약도</li>
+                </ol>
+            </div>
+
+            <div id="map-canvas"></div>
+            <div>
+                <h3 th:text="${user.house.apt.name}" style="font-weight: 600"></h3>
+                <div th:if="${user.house.apt.aptInfo != null and user.house.apt.aptInfo.displayAddress != null and user.house.apt.aptInfo.displayAddress ne ''}">
+               		<p th:text="'주소 : '+${user.house.apt.aptInfo.displayAddress}" ></p>
+                </div>
+                <div th:unless="${user.house.apt.aptInfo != null and user.house.apt.aptInfo.displayAddress != null and user.house.apt.aptInfo.displayAddress ne ''}">
+                	<p th:text="'주소 : '+${user.house.apt.strAddress}" ></p>
+                </div>
+                <!-- 용곡동 동일 하이빌 주소 통합표기 변경 요청 2016.11.30 -->
+                <!-- <p  th:if="${user.house.apt.id == 918}">주소 : 충청남도 천안시 동남구 일봉로 71, 72 (용곡동)</p>
+                <p  th:if="${user.house.apt.id == 912}">주소 :  서울특별시 양천구 신정로13길 51 (신월6동)</p> -->
+
+                <div th:if="${user.house.apt.aptInfo}">
+                	<span th:text="'관리사무소 전화번호 : '+${user.house.apt.aptInfo != null and user.house.apt.aptInfo.aptOfficePhoneNumber != null ? user.house.apt.aptInfo.aptOfficePhoneNumber : ''}"></span>
+                	<span th:text="', 관리사무소 팩스번호 : '+${user.house.apt.aptInfo != null and user.house.apt.aptInfo.aptOfficeFaxNumber != null ? user.house.apt.aptInfo.aptOfficeFaxNumber : ''}"></span>
+                </div>
+
+            </div>
+
+
+            <h3 style="font-weight: 600;margin-top: 50px">대중교통 이용방법</h3>
+            <table th:if="${user.house.apt.aptInfo}"  style="margin-bottom: 50px">
+                <tr><td><img src="/img/subway.png"/></td><td><pre th:text="${user.house.apt.aptInfo.trafficInfo}"></pre></td></tr>
+                <tr><td><img src="/img/bus.png"/></td><td><pre th:text="${user.house.apt.aptInfo.trafficBusInfo}"></pre></td> </tr>
+            </table>
+
+
+            <div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<div th:replace="user/user :: footer"></div>
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    function initializeGoogleMap() {
+        var aptCoordinatesLat = /*[[${user.house.apt.latitude}]]*/;
+        var aptCoordinatesLng = /*[[${user.house.apt.longitude}]]*/;
+        var latlng = new google.maps.LatLng(aptCoordinatesLat, aptCoordinatesLng);
+
+        var map = new google.maps.Map(document.getElementById('map-canvas'), {
+            zoom: 16,
+            center: latlng,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            title: "",
+            animation: google.maps.Animation.DROP
+        });
+    }
+
+    function loadGoogleMapScript() {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC3YdknXI_3BKJVV4heDCgtaIkj8xNlIYU' +
+        '&sensor=false' +
+        '&v=3.exp' +
+        '&signed_in=true&callback=initializeGoogleMap';
+        document.body.appendChild(script);
+    }
+
+    window.onload = loadGoogleMapScript;
+
+
+
+    /*]]>*/
+</script>
+</body>
+</html>

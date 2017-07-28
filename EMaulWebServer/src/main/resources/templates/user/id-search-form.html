@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>아이디찾기 | e마을</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link href="../../static/css/animate.min.css" type="text/css" rel="stylesheet" th:href="@{/css/animate.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+	<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+	<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+	<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+	<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+	<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+    <style>
+
+		.logo{
+			width:100%;
+			margin:0;
+			padding:0;
+		}
+
+        .cell {
+            max-width: 90%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .starter-template {
+            padding: 15px;
+            text-align: center;
+			margin-bottom:20px;
+			color: #f46835;
+			border-bottom:1px solid #e4e4e4;
+        }
+
+        .lead {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+		/*20160610추가:높이값 추가 및 수정*/
+        .container {
+			min-height:820px;
+            width: 750px;
+            padding:80px 15px;
+            margin: 0 auto;
+        }
+
+		.conHeaderTxt{
+			text-align:center;
+		}
+
+		/*20160610추가:마진값삭제*/
+		.content{
+			padding-bottom: 5%;
+		}
+
+		.row{
+			border:1px solid #c3c3c3;
+			margin:50px auto;
+			padding:20px 0;
+		}
+
+		/*20160610추가*/
+		footer{
+			border-top:1px solid #C3C3C3;
+			border-bottom:1px solid #C3C3C3;
+			padding:30px 0;
+		}
+
+		.searchAccountItem {
+		    height:30px;
+		}
+		.searchAccountItem span {
+		    margin-left:3%;
+		}
+		.searchAccountItem input[type=radio] {
+            width:15px;
+            height:15px;
+        }
+        ._link{
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body style="background:#fff;">
+
+<header style="overflow:hidden; padding:15px; border:1px solid #e4e4e4;">
+	<h1 style="float:left; margin:0; padding:0; width:8%;">
+		<a href="/"><img src="../../static/img/emaul-logo-b.png" th:src="@{/img/emaul-logo-b.png}" alt="emaul logo" class="logo"/></a>
+	</h1>
+
+	<input type="button" class="btn btn-default" id="joinLogin" value="로그인" name="joinLogin" style="float:right; margin-top:5px;" onclick="location.href='/';" />
+</header>
+
+<div class="container">
+	<div class="content">
+		<div class="starter-template">
+			<h2>아이디찾기</h2>
+		</div>
+
+		<div id="dv_id_search_form" style="display:">
+			<p class="conHeaderTxt">e마을 회원정보에 등록된 휴대전화 번호와 입력한 전화번호가 같아야 인증번호를 받으실 수 있습니다.</p>
+
+			<form id="thisForm" name="thisForm" class="form-horizontal" action="" method="POST">
+				<div class="row">
+					<div class="cell">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">이름</label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" class="form-control" name="userName" id="userName" style="width:60%;" />
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">휴대전화</label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" placeholder="숫자만 입력하세요." onkeydown='return onlyNumber(event);' onkeyup='removeChar(event);' class="form-control" name="userMobileNumber" id="userMobileNumber" style="width:60%;"/>
+								<input type="button" class="btn btn-default" id="btn_auth_code" value="인증번호받기" onclick="showModal(1);"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label"></label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" class="form-control form-inline" name="authCode" id="authCode" placeholder="인증번호 숫자입력" style="width:60%;" disabled="true" />
+								<input type="hidden" id="authKey" name="authKey" value="" />
+								<span id="spn_timer" style="display:none;"></span>
+							</div>
+						</div>
+
+						<p style="text-align:center; margin-top:25px;">통신사 사정으로 인증번호 수신에 다소 시간이 걸릴 수 있습니다.
+							<!--<a id="a_re_auth_code" style="display:none;" href="javascript:" onclick="getAuthCode();">인증번호 다시받기</a>-->
+						</p>
+
+					</div>
+				</div>
+
+				<div align="center" style="padding-top: 5px">
+					<input id="btn_confirm" type="button" class="btn btn-emaul" name="btn_confirm" onclick="finalConfirm();" value="확인" disabled="true" />
+				</div>
+			</form>
+		</div>
+
+		<div id="dv_id_search_result" style="display:none;">
+			<p class="conHeaderTxt">고객님의 정보와 일치하는 계정목록입니다.<br />( 추가 계정 생성 제한 : 1인 <span th:text="${accountMaxCnt}"></span>개 )</p>
+
+			<div class="row">
+				<div class="cell" >
+					<div class="form-group">
+						<div class="col-sm-12  form-inline" >
+						    <div id="accountList">
+                            </div>
+                            <div style="margin-top:20px;">
+                            가입한 계정이 보이지 않나요?  <span class="_link" onclick="fnMissingAccountMessage()">상세내용 보기</span>
+                            </div>
+                            <div>
+                            내가 가입하지 않는 계정이라면?  <span class="_link" onclick="fnUserDataLeakMessage()">상세내용 보기</span>
+                            </div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<form id="thisForm2" name="thisForm2" method="post" action="">
+				<input type="hidden" id="userEmail" name="userEmail" value="" />
+				<input type="hidden" id="userRegDate" name="userRegDate" value="" />
+				<div align="center" style="padding-top: 5px">
+					<input id="joinloginBtn" type="button" class="btn btn-emaul" name="joinloginBtn" value="로그인하기" onclick="goLogin()"/>
+					<input id="joinPasswordBtn" type="button" class="btn btn-default" name="joinPasswordBtn" value="비빌번호찾기" onclick="goPwSearch();"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!--20160610추가-->
+<footer style="text-align:center; ">
+	Copyright © JAHASMART. All rights reserved.
+</footer>
+<!--20160610추가:e-->
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog modal-mg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title"><b id="myModalLabel">알림</b></h5>
+            </div>
+            <div class="modal-body">
+                <h5 id="b_model_body"></h5>
+            </div>
+			<div class="modal-footer">
+				<input type="button" class="btn btn-primary btn-sm" id="btn_modal_confirm" value="확인" name="btn_modal_confirm" style="display:;" onclick="getAuthCode();" />
+				<input type="button" class="btn btn-default btn-sm" data-dismiss="modal" id="btn_modal_cancel" value="확인" name="btn_modal_cancel" style="display:none;" />
+			</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-missingAccountMessage" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title"><b>가입한 계정이 보이지 않나요?</b></h5>
+            </div>
+            <div class="modal-body">
+                핸드폰 번호가 바뀌어서 이후 인증을 하지 않으셨다면 기존 아이디가 보이지 않을 수도있습니다.<br />
+                이런 경우엔 이마을 서비스 문의를 통해서 확인 가능합니다.<br /><br />
+                핸드폰 번호 변경이 아닌경우에 계정을 찾지못했다면 가입하신적이 없었을 수 있습니다.<br />
+                <span class="_link" onclick="location.href='/join/agreement'">회원가입을 해주세요</span>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-userDataLeakMessage" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title"><b>내가 가입하지 않는 계정이라면?</b></h5>
+            </div>
+            <div class="modal-body">
+                이마을 회원가입을 직접 하지 않았는데, 해당 알림을 보고 계셔서<br />
+                개인정보 오출 우려를 하신다면, 이마을 서비스 문의를 통해서 확인 가능합니다.
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    // 메시지보이기 ( 가입한 계정이 목록에 없을때 설명 )
+    function fnMissingAccountMessage(){
+        $("#modal-missingAccountMessage").centerModal();
+    }
+
+    // 메시지보이기 ( 직접가입하지않는 계정이 있을때 설명 )
+    function fnUserDataLeakMessage(){
+    	$("#modal-userDataLeakMessage").centerModal();
+    }
+
+    function showModal(gubun) {
+		if ( !preSubmit() ) {
+			return;
+		}
+		if ( !gubun || gubun > 4 ) {
+			return;
+		}
+
+		if ( gubun === 1 ) {
+			$("#myModalLabel").text("인증번호 받기");
+			$("#b_model_body").text($("#userMobileNumber").val() + "(으)로 인증번호를 받으시겠습니까?");
+			$("#btn_modal_confirm").show();
+			$("#btn_modal_cancel").hide();
+		}
+		else if ( gubun === 2 ) {
+			$("#myModalLabel").text("인증번호 오류");
+			$("#b_model_body").text("정확한 인증번호를 입력하세요.");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+		}
+		else if ( gubun === 3 ) {
+			$("#myModalLabel").text("인증번호 발송");
+			$("#b_model_body").text("인증번호를 발송했습니다.");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+		}
+
+		$('#modal-info').modal('show');
+	}
+
+	function getAuthCode() {
+		if ( !preSubmit() ) {
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.reqType = "id-search";
+	    reqData.userEmail = "";
+	    reqData.userName = $("#userName").val();
+	    reqData.phoneNumber = $("#userMobileNumber").val();
+
+	    $.ajax({
+	        url: "/join/auth-code/req"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	// if (console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	$('#modal-info').modal('hide');
+
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	        		$("#btn_auth_code").attr("value", "인증번호 다시받기");
+	            	$("#authCode").attr("disabled", false);
+	            	$("#btn_confirm").attr("disabled", false);
+	            	$("#authKey").val(jsonData.key);
+
+	            	startTimer();
+	        	}
+	        	else if (jsonData.resultCode === "01") {
+        			$("#myModalLabel").text("인증번호 오류");
+        			$("#b_model_body").text("회원가입 시 이름 또는 휴대전화번호를 입력해주세요!");
+        			$("#btn_modal_confirm").hide();
+        			$("#btn_modal_cancel").show();
+
+        			$('#modal-info').modal('show');
+        		}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+
+	        	$('#modal-info').modal('hide');
+	        }
+	    });
+	}
+
+	var gTimer = null;
+	function startTimer() {
+		var totalSeconds = 180;
+
+		gTimer = setInterval(function() {
+			var temp1 = totalSeconds / 60;
+			var temp2 = totalSeconds % 60;
+
+			$("#spn_timer").text(parseInt(temp1, 10) + "분 " + temp2 + "초");
+
+			if (totalSeconds === 0) {
+				stopTimer();
+
+            	$("#authCode").attr("disabled", true);
+            	$("#btn_confirm").attr("disabled", true);
+			}
+
+			totalSeconds--;
+		}, 1000);
+
+		$("#spn_timer").show();
+	}
+	function stopTimer() {
+		clearInterval(gTimer);
+		$("#spn_timer").hide();
+	}
+
+	function preSubmit(withAuthCode) {
+		var userNameVal = $("#userName").val();
+		var userMobileNumberVal = $("#userMobileNumber").val();
+
+		if ( !userNameVal ) {
+			$("#myModalLabel").text("알림");
+			$("#b_model_body").text("이름을 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+
+			$("#userName").focus();
+			return false;
+		}
+		if ( !userMobileNumberVal ) {
+			$("#myModalLabel").text("알림");
+			$("#b_model_body").text("휴대전화번호를 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+
+			$("#userMobileNumber").focus();
+			return false;
+		}
+
+		if (withAuthCode) {
+			var authCodeVal = $("#authCode").val();
+
+			if ( !authCodeVal ) {
+				$("#myModalLabel").text("알림");
+				$("#b_model_body").text("인증번호를 입력해주세요!");
+				$("#btn_modal_confirm").hide();
+				$("#btn_modal_cancel").show();
+
+				$('#modal-info').modal('show');
+
+				$("#authCode").focus();
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	function finalConfirm() {
+		if ( !preSubmit(true) ) {
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.userEmail = "";
+	    reqData.userName = $("#userName").val();
+	    reqData.phoneNumber = $("#userMobileNumber").val();
+	    reqData.code = $("#authCode").val();
+	    reqData.key = $("#authKey").val();
+
+	    $.ajax({
+	        url: "/join/auth-code/check"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	        		stopTimer();
+
+	        		var userList = jsonData.data;
+
+	        		if(userList != null && userList.length > 0){
+	        			var _html = '';
+	        			for(var i=0;i<userList.length;i++){
+	        				var item = userList[i];
+	        				var regDate = item.regDate.substring(0, 10);
+	        				_html += '<div class="searchAccountItem">';
+	                        _html += '<input type="radio" name="searchAccount" value="'+item.email+'" value2="'+regDate+'" '+( gfnIsEmpty(item.deactiveDate) ? '' : 'disabled="disabled"' )+'/>';
+	                        _html += '<span>'+item.email+'</span>';
+	                        _html += '<span>(가입일 : '+regDate+')</span>';
+	                        if(!gfnIsEmpty(item.deactiveDate)){
+	                        	var deactiveDate = item.deactiveDate.substring(0, 10);
+	                        	_html += '<span>(탈퇴일 : '+deactiveDate+')</span>';
+	                        }
+	                        _html += '</div>';
+	        			}
+	        			$(_html).appendTo("#accountList");
+	        		}
+	        		$("#spn_result_email").text(jsonData.email);
+
+		        	$("#dv_id_search_form").hide();
+		        	$("#dv_id_search_result").show();
+	        	}
+	        	else {
+	        		showModal(2);
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	}
+
+	function goPwSearch() {
+        var account = $("input[name=searchAccount]:checked").val();
+        var regDate = $("input[name=searchAccount]:checked").attr("value2");
+
+        if(!gfnIsEmpty(account)){
+            $("#userEmail").val(account);
+            $("#userRegDate").val(regDate);
+        }
+
+		$("#thisForm2").attr("action", "/join/pw-search-form");
+		$("#thisForm2").submit();
+	}
+
+	function goLogin(){
+		var account = $("input[name=searchAccount]:checked").val();
+
+		if(!gfnIsEmpty(account)){
+			$("#userEmail").val(account);
+		}
+
+		$("#thisForm2").attr("action", "/api/public/web/login");
+        $("#thisForm2").submit();
+
+	}
+
+/*]]>*/
+</script>
+
+</body>
+</html>

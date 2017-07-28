@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.BoardMapper">
+
+    <insert id="insertBoardCategory" parameterType="BoardCategory" >
+    /* insertBoardCategory */
+        INSERT INTO board_category
+        (
+            apt_id
+           ,name
+           ,ord
+           ,type
+           ,content_mode
+           ,push_after_write
+           ,json_array_readable_user_type
+           ,json_array_writable_user_type
+           ,user_privacy
+        )
+        VALUES
+        (
+            #{apt.id}
+           ,#{name}
+           ,#{ord}
+           ,#{type}
+           ,#{contentMode}
+           ,#{pushAfterWrite}
+           ,#{jsonArrayReadableUserType}
+           ,#{jsonArrayWritableUserType}
+           ,#{userPrivacy}
+        )
+    </insert>
+
+    <!-- BoardCategoryVo용 INSERT -->
+    <insert id="insertBoardCategoryVo" parameterType="BoardCategoryVo" >
+    INSERT INTO /* insertBoardCategoryVo, 조영태(cyt@jahasmart.com) */  board_category (
+		apt_id, json_array_readable_user_type, json_array_writable_user_type, name, ord,
+		type, content_mode, push_after_write, user_privacy, del_yn, comment_display_yn, req_ip,
+		user_id, reg_date
+	) VALUES (
+		#{aptId}, #{jsonArrayReadableUserType} ,#{jsonArrayWritableUserType}, #{name}
+		,(select IFNULL(max(B.ord),0) + 1 from board_category B where apt_id = #{aptId})
+		,#{type} ,#{contentMode} ,#{pushAfterWrite},#{userPrivacy}, #{delYn}, #{commentDisplayYn}, #{reqIp},
+		#{userId}, now()
+	)
+    </insert>
+
+    <update id="updateBoardCategoryVo" parameterType="BoardCategoryVo" >
+	    UPDATE /* updateBoardCategoryVo, 조영태(cyt@jahasmart.com) */ board_category
+		SET
+			json_array_readable_user_type = #{jsonArrayReadableUserType},
+			json_array_writable_user_type = #{jsonArrayWritableUserType},
+			name = #{name},
+			type = #{type},
+			content_mode = #{contentMode},
+			push_after_write = #{pushAfterWrite},
+			user_privacy = #{userPrivacy},
+			del_yn = #{delYn},
+			comment_display_yn = #{commentDisplayYn},
+			req_ip = #{reqIp},
+			mod_id = #{modId},
+			mod_date = now()
+		WHERE id = #{id}
+    </update>
+
+
+
+	<select id="selectBoardCategory" parameterType="long" resultType="BoardCategoryVo">
+	    SELECT /* selectBoardCategory, 전강욱(realsnake@jahasmart.com) */ id
+	    , apt_id
+	    , json_array_readable_user_type
+	    , json_array_writable_user_type
+	    , name
+	    , ord
+	    , type
+	    , content_mode
+	    , push_after_write
+	    , user_privacy
+	    , del_yn
+	    , comment_display_yn
+	    , user_id
+	    , reg_date
+	    , mod_id
+	    , mod_date
+	    FROM board_category
+	    WHERE id = #{id}
+	</select>
+
+
+
+
+</mapper>

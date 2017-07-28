@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+    <script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+	<script th:inline="javascript">
+	$(document).ready(function(){	
+		//검색 라디오버튼
+		$("input[name=searchColumn]").change(function() {
+			var radioValue = $(this).val();
+			if (radioValue == "date") {
+				$("#searchY").prop("disabled", false);
+				$("#searchM").prop("disabled", false);
+				$("#searchDong").prop("disabled", true);
+				$("#searchHo").prop("disabled", true);
+			} else if (radioValue == "user") {
+				$("#searchY").prop("disabled", true);
+				$("#searchM").prop("disabled", true);
+				$("#searchDong").prop("disabled", false);
+				$("#searchHo").prop("disabled", false);	
+			}else{
+				$("#searchY").prop("disabled", true);
+				$("#searchM").prop("disabled", true);
+				$("#searchDong").prop("disabled", true);
+				$("#searchHo").prop("disabled", true);				
+			}	
+		});	
+		//end 검색 라디오버튼
+	}); //end documentt
+			
+    function goSave(){
+    		if(confirm("저장하시겠습니까?")){
+    			var params="sendYn="+$("input[type=radio][name=sendYn]:checked").val();    		
+                $.ajax({
+                    url: '/admin/parcel-sms-save',
+                    type: 'post',
+                    async : false,
+                    dataType: "text",
+                    data:params,
+                    success: function(data) {
+                        if(data == "ok"){
+                        	alert("저장되었습니다.");
+                        } else {
+                        	alert("저장에 실패하였습니다.");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                    	alert("저장에 실패하였습니다.");
+                    }
+                }); 
+            }    	
+    }
+	
+	function goSearchList(page){
+		$("#pageNum").val(page);
+		$("#form").attr('action', "/admin/parcel-sms").submit();
+	}
+	</script>
+</head>
+
+<body>
+
+	<div id="wrapper">                <!-- /#wrapper -->
+
+		<div th:replace="admin/admin :: top-nav"></div>
+		<div th:replace="admin/admin :: vert-nav-admin"></div>
+
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="page-header">무인택배시스템 정책 관리</h1>
+					
+					<div class="form-group">
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								SMS 발송 정책
+							</div>
+							<div class="panel-body">
+								<div style="vertical-align:top;">
+									<label class="radio-inline" style=" width:10%; vertical-align:top; margin-right:50px; ">
+										<input type="radio" name="sendYn" id="sendN" value="N" th:checked="${parcelSms == null || parcelSms.sendYn=='N' }" /> 미발송
+									</label>
+									<div class="" style="display:inline-block; padding:0;">
+										<p>SMS를 발송하지 않습니다.</p>
+										<p>이마을 서비스 가입자에게는 이마을 앱의 알림메시지를 통해 택배 이용(도착/접수) 알림을 발송합니다.</p>
+									</div>
+								</div>
+
+								<div style="vertical-align:top; margin-top:20px;">
+									<label class="radio-inline" style=" width:10%; vertical-align:top; margin-right:50px;">
+										<input type="radio" name="sendYn" id="sendY" value="Y" th:checked="${parcelSms.sendYn=='Y'}"/> 발송
+									</label>
+									<div class="" style="display:inline-block; padding:0;">
+										<p>SMS를 발송합니다.</p>
+										<p>이마을 서비스 가입자에게는 이마을 앱의 알림메시지를 통해 택배 이용(도착/접수) 알림을 발송하며, <br/>미가입자에게만 SMS를 발송합니다. (SMS 발송 비용이 청구됩니다.)</p> 
+									</div>
+								</div>
+								<button type="button" class="btn btn-default" onclick="goSave();">저장</button>
+							</div>
+						</div>					
+						<div class="panel panel-info">
+							<div class="panel-heading">SMS 발송 내역 조회</div>
+							<form name="form" id="form" method="post">
+							<input type="hidden" id="pageNum" name="pageNum" th:value="${params.pageNum}"/>													
+							<div class="panel-body">
+								<div style="padding:15px 0">
+									<label class="radio-inline"  style=" width:10%;">
+										<input type="radio" name="searchColumn" id="" value="" th:checked="${params.searchColumn == null || params.searchColumn =='' }"/> 전체
+									</label>
+								</div>
+								<div style="padding:10px 0">
+									<label class="radio-inline" style=" width:10%; ">
+										<input type="radio" name="searchColumn" id="" value="date" th:checked="${params.searchColumn == 'date'}"/> 월별 조회
+									</label>
+									<div id="select-wrap" class="form-inline" style="display:inline-block;">
+										
+										<select class="form-control" id="searchY" name="searchY" th:disabled="${params.searchColumn != 'date'}">	
+																		
+											 <option th:each="searchYY : ${searchYear}" th:selected="${params.searchY eq searchYY}"  th:value="${searchYY}" th:text="${searchYY} + '년'"></option>
+										</select>
+										<select class="form-control" id="searchM" name="searchM" th:disabled="${params.searchColumn != 'date'}">
+											<option th:each="searchMM : ${searchMonth}" th:selected="${params.searchM eq searchMM}"  th:value="${searchMM}" th:text="${searchMM} + '월'"></option>											
+										</select>
+									</div>
+								</div>
+								<div style="padding:10px 0">
+									<label class="radio-inline" style=" width:10%;">
+										<input type="radio" name="searchColumn" id="" value="user" th:checked="${params.searchColumn == 'user'}"/> 사용자별 조회
+									</label>
+									동<input type="text" class="form-control" style="width:100px; display:inline-block;" id="searchDong" name="searchDong" th:value="${params.searchDong}" th:disabled="${params.searchColumn != 'user'}"></input>									
+									호<input type="text" class="form-control" style="width:100px; display:inline-block;" id="searchHo" name="searchHo" th:value="${params.searchHo}" th:disabled="${params.searchColumn != 'user'}"></input>
+									<button type="button" class="btn btn-default" onclick="goSearchList(1);">조회</button>
+								</div>
+							</div>
+							</form>
+						</div>
+					</div>
+
+<!-- 내용 -->
+				<div id="content-container" style="margin-top:50px;">
+					<div id="table-container">
+						<table class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<th rowspan="2" style="width:10%">발송 시각</th>
+									<th colspan="3" style="width:10%; text-align:center;">수신자</th>
+									<th rowspan="2" style="width:10%">구분</th>
+								</tr>
+								<tr>
+									<th style="width:10%">동</th>
+									<th style="width:10%">호</th>
+									<th style="width:10%">연락처</th>
+								</tr>
+							</thead>
+							<tbody>							
+								<tr  th:if="${page.content} == null">
+	                                <td colspan="5">게시글 목록이 없습니다.</td>
+	                            </tr>
+	                            <tr th:if="${page.content != null}" th:each="post : ${page.content}">								
+									<td th:text="${#dates.format(post.sendTime, 'yyyy.MM.dd HH:mm:ss')}">2016.08.04 15:13:11</td>
+									<td th:text="${post.dong}">101</td>
+									<td th:text="${post.ho}">1002</td>
+									<td th:text="${post.phone}">01011111111</td>
+									<td th:text="${post.gubun}">택배도착</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>			
+				<!-- Pagination Bar -->
+					<div th:fragment='paginationbar' th:unless="${page.content == null}">
+						<ul class='pagination'>
+							<li th:class="${page.firstPage}? 'disabled' : ''">
+								<span th:if="${page.firstPage}">처음</span>
+								<a th:if="${not page.firstPage}" 
+								th:href="@{${page.url}
+								(pageNum=1
+								, searchColumn=${params.searchColumn} 		
+								, searchDong=${params.searchDong} 	
+								, searchHo=${params.searchHo}
+								, searchY=${params.searchY} 
+								, searchM=${params.searchM} 
+								)}">First</a>
+							</li>
+							<li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+								<span th:if="${not page.hasPreviousPage}">«</span>
+								<a th:if="${page.hasPreviousPage}"
+								   th:href="@{${page.url}(
+								   pageNum=${page.number-1}
+									,searchColumn=${params.searchColumn} 		
+									,searchDong=${params.searchDong} 	
+									,searchHo=${params.searchHo} 	
+									,searchY=${params.searchY}
+									,searchM=${params.searchM} 
+								   )}"
+								   title="Go to previous page">«</a>
+							</li>
+							<li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+								<span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+								<a th:if="${not item.current}"
+								   th:href="@{${page.url}(pageNum=${item.number+1}
+								   ,searchColumn=${params.searchColumn} 		
+									,searchDong=${params.searchDong} 	
+									,searchHo=${params.searchHo} 	
+									,searchY=${params.searchY}
+									,searchM=${params.searchM} 
+								   )}"><span th:text="${item.number + 1}">1</span></a>
+							</li>
+							<li th:class="${page.hasNextPage}? '' : 'disabled'">
+								<span th:if="${not page.hasNextPage}">»</span>
+								<a th:if="${page.hasNextPage}"
+								   th:href="@{${page.url}(pageNum=${page.number+1} ,searchColumn=${params.searchColumn} ,searchDong=${params.searchDong} ,searchHo=${params.searchHo} ,searchY=${params.searchY} ,searchM=${params.searchM} )}"
+								   title="Go to next page">»</a>
+							</li>
+							<li th:class="${page.lastPage}? 'disabled' : ''">
+								<span th:if="${page.lastPage}">마지막</span>
+								<a th:if="${not page.lastPage}"
+								   th:href="@{${page.url}(
+								   pageNum=${page.totalPages}
+								   ,searchColumn=${params.searchColumn} 		
+									,searchDong=${params.searchDong} 	
+									,searchHo=${params.searchHo} 	
+									,searchY=${params.searchY}
+									,searchM=${params.searchM}
+								   )}">끝</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</body>
+
+</html>

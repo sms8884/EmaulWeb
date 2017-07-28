@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>eMAUL| 게시판관리</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">게시판 관리</h1>
+
+                <div id="content-container">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">게시판 이름</div>
+                        <div class="panel-body">
+                            <div class="border-round"><strong>읽기권한</strong>
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <button class="btn btn-default delete-need-confirm" type="button">관리자 <i class="fa fa-close"></i></button>
+                            </div>
+                            <div class="border-round"><strong>쓰기권한</strong>
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                                <button class="btn btn-default" type="button">관리자 <i class="fa fa-close"></i></button>
+                                <!--관리자클릭시 confirm-->
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="panel panel-default" id="add-board-div" style="display: none">
+                        <div class="panel-heading form-inline"><label>게시판 이름</label><input type="text" id="board-name" class="form-control" placeholder="예)"/></div>
+                        <div class="panel-body">
+                            <div class="border-round"><strong>읽기권한</strong>
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                            </div>
+                            <div class="border-round"><strong>쓰기권한</strong>
+                                <button class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="panel-footer" align="right">
+                            <button class="btn btn-success" type="button">게시판 생성</button>
+                            <button class="btn btn-success" id="add-reset" type="button">취소</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="button" id="add-board-button" class="btn btn-danger" style="float: right; margin: 5px 0">게시판 추가 <i class="fa fa-plus"></i></button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script>
+    $('#add-board-button').click(function(){
+        $('#add-board-div').removeAttr('style');
+        $('#add-board-div').show();
+        $('#add-board-button').hide();
+    });
+
+    $('#add-reset').click(function(){
+//        $('#add-board-div').attr('style','');
+        $('#add-board-div').hide();
+        $('#add-board-button').show();
+        $('#board-name').val('');
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/group-admin/template/layout">
+
+<head>
+
+<style>
+    .newsRight{
+        text-align:right;
+        margin:5px 5px;
+        vertical-align:middle
+    }
+    .nesessary{
+        color:red;
+        font-size:10px;
+    }
+    table th{
+        width:20%;
+        height:45px;
+    }
+    .noticeSignupbox{
+        margin-bottom:40px;
+        overflow:hidden;
+    }
+
+    /*인풋파일*/
+
+    .noticeFileTextbox{
+        float:left;
+        width:30%;
+    }
+
+    .noticeFileBox{
+        position:relative;
+        width:7%;
+        height:29px;
+        display:inline-block;
+    }
+
+    .noticeFileFakeBtn{
+        width:80px;
+        position:absolute;
+        top:0px;
+        margin-left:5px;
+    }
+
+    .noticeFileupload{
+        font-size:45px;
+        position:absolute;
+        right:0px;
+        top:0px;
+        opacity:0;
+        .filter:alpha(opacity=0);
+        -ms-filter:"alpha(opacity=0)";
+        -khtml-opactiy:0;
+        -moz-opacity:0;
+    }
+
+    .noticeFileLabel{
+        display:none;
+    }
+
+    .noticeFileAddBtn{
+        position:absolute;
+        top:0px;
+        left:90px;
+    }
+.noticePassWord{
+		color:#aaa;
+		font-size:12px;
+}
+.warningPassWord, .warningEmail{
+	color:red;
+	font-size:12px;
+}
+
+.noticeFile{
+	color:#aaa;
+		font-size:12px;
+}
+</style>
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+        <div class="row">
+            <div class="col-lg-12">
+				<h1 class="page-header">관리자 계정 정보</h1>
+                <div id="content-container">
+                        <input type="hidden" name="id" value="" />
+                        <div class="panel-body">
+                            <div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+                                <table class="table table-responsive table" style="margin-bottom: 0">
+                                    <tbody>
+                                        <tr>
+                                            <th class="info">아이디</th>
+                                            <td class="form-inline">
+                                            	<strong th:text="${groupAdmin.userEmail}">jahasmart1</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info">단체명</th>
+                                            <td class="form-inline">
+                                            	<strong th:text="${groupAdmin.userName}">자하스마트</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info">단체 주소 우편번호</th>
+                                            <td th:text="${groupAdmin.groupZipcode}">단체 주소</td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="info">단체 주소</th>
+                                            <td th:text="${groupAdmin.groupAddress}">단체 주소</td>
+                                        </tr>
+                                          <tr>
+                                            <th class="info">단체 연락처</th>
+                                            <td th:text="${groupAdmin.groupPhone1 + '-' + groupAdmin.groupPhone2 + '-' + groupAdmin.groupPhone3}">단체 연락처</td>
+                                        </tr>
+                                         <tr class="form-inline">
+                                            <th class="info">담당자 이름</th>
+                                            <td th:text="${groupAdmin.name}">담당자 이름</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info">담당자 연락처</th>
+                                            <td th:text="${groupAdmin.phone1 + '-' + groupAdmin.phone2 + '-' + groupAdmin.phone3}">담당자 연락처</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info">담당자 이메일</th>
+                                            <td th:text="${groupAdmin.email}">담당자 이메일</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info" rowspan="2">구청 정보</th>
+                                            <td th:text="${groupAdmin.guName}">구청 명</td>
+                                        </tr>
+                                        <tr>
+                                            <td th:text="${groupAdmin.guUrl}">구청 URL</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info" rowspan="2">기관 정보</th>
+                                            <td th:text="${groupAdmin.orgName}">구청 명</td>
+                                        </tr>
+                                        <tr>
+                                            <td th:text="${groupAdmin.orgUrl}">구청 URL</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="info">게시글 노출 범위</th>
+                                            <td th:text="${groupAdmin.area1 + ' ' + groupAdmin.area2 + ' ' + groupAdmin.area3 + ' ' + groupAdmin.area4}">
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="noticeSignupbox" style="margin:20px 0 0 0">
+
+                                <div class="noticeSignupRight" style="float:right;">
+                                    <input type="button" class="btn btn-outline btn-info noticeCancleBtn" id="noticeCancleBtn" value="수정" name="noticeCancleBtn" onclick="document.location.href='/v2/group-admin/user-update'" />
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+
+
+
+</body>
+</html>

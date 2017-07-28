@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'e마을 | '+${user.house.apt.name}">e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+
+    <style>
+        #home-welcome ul
+        {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #home-welcome li
+        {
+            background-image: url('/img/dot.png');
+            background-repeat: no-repeat;
+            background-position: .4em 1.3em;
+            background-size: 8px 6px;
+            padding: .9em 1.2em;
+        }
+
+        #big a {
+            color: #3a3a3a;
+        }
+
+        #big a:hover {
+            color: #ff6100;
+        }
+
+    </style>
+
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div>
+
+            <div id="home-welcome">
+                <table>
+                    <tr>
+                        <td rowspan="2" style="width: 693px;height: 388px">
+                            <span th:if="${user.house.apt.aptInfo} and ${user.house.apt.aptInfo.urlAptPhoto}">
+                            <img style="width: 693px;height: 388px;overflow: hidden" th:src="${user.house.apt.aptInfo.urlAptPhoto}" alt="이마을에 오신 것을 환영합니다"/>
+                            </span>
+                            <span th:if="${user.house.apt.aptInfo == null } or ${user.house.apt.aptInfo.urlAptPhoto==null}">
+                            <img style="width: 693px;height: 388px" src="../../static/img/userHome/main01_welcome.png" th:src="@{img/userHome/main01_welcome.png}" alt="이마을에 오신 것을 환영합니다"/>
+                            </span>
+                        </td>
+                        <td style="padding-left: 14px;padding-top: 1px;width: 342px; height: 188px;vertical-align: top">
+                            <div style="width: 342px; height: 40px;" th:if="${noticeCategories.size() > 0}" th:with="noticeCategory=${noticeCategories[0]}">
+                                <a th:href="'/v2/user/board/' + ${noticeCategory.type} + '/list/' + ${noticeCategory.id}">
+                                	<p class="board-border community-title" th:text="${noticeCategory.name}" style="padding-top: 10px;width: 342px; height: 40px; padding-left:10px; font-size: 16px;font-weight: 600">카테고리</p>
+                                    <span><img src="/img/userHome/arrow.png" style="float: right; margin-top: -30px; margin-right: 15px"/></span>
+                                </a>
+                            </div>
+                            <div style="width: 342px; height: 148px;" class="board-border community-list">
+                                <ul>
+                                    <li th:each="n : ${notice}">
+                                        <a class="board-list-contents board-list-title" th:if="${n.title == null}" th:text="${n.content }" style="width: 250px" th:href="'/v2/user/board/'+${n.category.type}+'/read/'+${n.category.id}+'/' + ${n.id}"></a>
+                                        <a class="board-list-contents board-list-title" th:if="${n.title != null}" th:text="${n.title}" style="width: 250px" th:href="'/v2/user/board/'+${n.category.type}+'/read/'+${n.category.id}+'/' + ${n.id}"></a>
+                                        <span th:text="${#calendars.format(n.regDate,'yy-MM-dd')}" style="font-size: 12px;width: 60px;float: right;position: absolute;"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-left: 14px; height: 188px" th:if="${communityCategories.size() > 0}">
+                            <div style="width: 427px; height: 40px" th:with="communityCategory=${communityCategories[0]}">
+                                <a th:href="'/v2/user/board/' + ${communityCategory.type} + '/list/' + ${communityCategory.id}">
+                                	<p class="board-border community-title" th:text="${communityCategory.name}" style="padding-top: 10px;width: 342px; height: 40px; padding-left:10px; margin-top: 10px;font-size: 16px;font-weight: 600">카테고리</p>
+                                    <span><img src="/img/userHome/arrow.png" style="float: right; margin-top: -30px; margin-right: 100px"/></span>
+                                </a>
+                            </div>
+                            <div style="width: 342px; height: 148px;" class="board-border community-list">
+                                <ul>
+                                    <li th:each="n : ${community}">
+                                        <a class="board-list-contents" th:if="${n.title == null}" th:text="${n.content}" style="width: 250px" th:href="'/v2/user/board/'+${n.category.type}+'/read/'+${n.category.id}+'/' + ${n.id}"></a>
+                                        <a class="board-list-contents" th:if="${n.title != null}" th:text="${n.title}" style="width: 250px" th:href="'/v2/user/board/'+${n.category.type}+'/read/'+${n.category.id}+'/' + ${n.id}"></a>
+
+                                        <span th:text="${#calendars.format(n.regDate,'yy-MM-dd')}" style="font-size: 12px;width: 60px;float: right;position: absolute;"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td style="padding-left: 14px; height: 188px" th:if="!${categories.size() > 1} and ${user.type.anonymous}">
+                            <div style="width: 427px; height: 40px">
+                                <p class="board-border community-title" style="padding-top: 10px;width: 342px; height: 40px; padding-left:10px; margin-top: 10px;font-size: 16px;font-weight: 600">개인공지</p>
+                            </div>
+                            <div style="width: 342px; height: 148px;" class="board-border community-list">
+                                <ul>
+                                    <li>
+                                        <p style="width: 320px">방문자로 접속중입니다. 우리 아파트에 거주중이시면 관리사무소에 문의하여 주민권한을 요청해 주세요.</p>
+                                    </li>
+                                    <li>
+                                        <p style="width: 320px">"e마을" 사용과 서비스는 아파트단지 단위로 제공됩니다. 서비스중인 아파트가 아니라면 <a style="color: #ff6100" href="http://jahasmart.com">자하스마트</a>에 문의해주세요.</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin-top: 0px;height: 58px">
+                <table class="grid-table">
+                    <tbody>
+                        <tr>
+                            <td rowspan="2" style="width: 100px">
+                                <p style="font-size: 18px; padding-top: 15px; font-weight: 600;">마을뉴스</p>
+                            </td>
+                            <td height="29" width="890">
+                            </td>
+                            <td rowspan="2" style="vertical-align: bottom">
+                                <img src="/img/userHome/left_arrow.png" style="cursor: pointer;padding-left: 5px;"/><img src="/img/userHome/right_arrow.png" style="cursor: pointer;padding-left: 4px;"/>
+                            </td>
+                        </tr>
+	                    <tr>
+	                        <td style="border-top: 1px dotted #000;">
+	                        </td>
+	                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="home-today" style="height: 600px; padding: 0">
+                <table class="home-today-main" style="">
+
+                    <tbody th:if="${headerPosts}">
+                    <tr>
+                        <td th:each="p : ${headerPosts}" style="border: 1px solid #000" class="super-wrap-home-today-main">
+                            <div class="wrap-home-today-main" style="width: 261px;height: 274px">
+                            <div th:style="'width: 261px;height: 261px; background-size: 261px auto'">
+                                <a th:href="'/user/board/today/read/' + ${p.id}">
+                                    <img th:src="@{/api/board/post/image/} + ${p.id} + '/0-thumb.jpg'" style=" width: 261px;height: 261px;"/>
+                                    <!--<img th:src="@{/api/board/post/image/} + ${firstPost.id} + '/0.jpg'" style="width: 684px;height: 266px;"/>-->
+                                </a>
+                            </div>
+                            <div class="wrap-home-today-main-title">
+                                <a th:href="'/user/board/today/read/' + ${p.id}">
+                                    <p style="font-size: 15px; line-height: 2.5em; width: 250px; height: 2.5em; overflow: hidden" th:text="${p.title}"></p>
+                                    <p style="font-size: 12px; line-height: 1em" th:text="${#calendars.format(p.regDate,'yyyy-MM-dd hh:mm:ss')}"></p>
+                                </a>
+                            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+
+                </table>
+
+                <div style="margin-top: 12px">
+                    <table class="grid-table">
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align: top;padding-right: 12px;" rowspan="2">
+                                    <table class="grid-table">
+                                        <tr style="border-left: 1px solid #ddd;">
+                                            <td><div style="font-size: 18px; width: 167px; height: 41px; border-top: 3px solid #ff6100;"><p style="padding-top: 10px;padding-left: 10px;font-weight: 600;text-align: center">전체</p></div></td>
+                                            <td class="board-border" style="text-align: right;width: 531px;background-color: #efefef">
+                                                <img id="today-left" class="left_arrow" src="/img/userHome/left_arrow.png" style="cursor: pointer;"/>
+                                                <img id="today-right" class="right_arrow" src="/img/userHome/right_arrow.png" style="cursor: pointer;margin-right: 12px;margin-left: 4px"/>
+                                            </td>
+                                        </tr>
+                                        <tr class="board-border" style="border-top: none;">
+                                            <td colspan="2" width="698" style="padding-bottom: 3px;">
+                                                <div id="big2" style="margin-left: 8px;margin-top: 13px; position: relative" th:if="${page}">
+                                                    <div th:each="post,iterStat : ${page.content}" th:id="${iterStat.count}" >
+                                                        <table style="padding:10px;position: relative;display: inline; font-family: 돋움, Tahoma, Geneva, sans-serif; float: left; height: 120px">
+                                                            <tr>
+                                                                <td style="padding: 0;">
+                                                                    <a th:href="'/user/board/today/read/' + ${post.id}"><img width="97px" height="97px" th:src="@{/api/board/post/image/} + ${post.id} + '/0-thumb.jpg'"/></a>
+                                                                </td>
+                                                                <td style="padding: 10px 3px; max-width: 220px; overflow: hidden;vertical-align: text-top;">
+                                                                    <a th:href="'/user/board/today/read/' + ${post.id}">
+                                                                        <p th:text="${post.title}" th:href="'/user/board/today/read/' + ${post.id}" style="margin-bottom: 10px;margin-left:10px ;font-size: 14px; font-weight: 600;line-height: 1.2em; height: 1em;word-wrap: break-word; text-overflow: ellipsis; overflow: hidden"></p>
+                                                                        <p th:id="'content-'+${iterStat.count}" th:text="${post.content}" th:href="'/user/board/today/read/' + ${post.id}" style="margin: 12px 10px;font-size: 12px; line-height: 1.27em; height: 1em" class="today-list-content"></p>
+                                                                        <p id="iter-stat-size" style="display: none;" th:text="${iterStat.size}"></p>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="padding: 0 2px" th:if="${noticeCategories.size() > 0}" th:with="category=${noticeCategories[0]}">
+                                    <div class="animate" style="width: 169px; height: 147px; background-size: 169px 147px; background-image: url('/img/userHome/ic_01_64bc92.png')">
+                                        <a th:href="'/v2/user/board/' + ${category.type} + '/list/' + ${category.id}"><img src="/img/userHome/ic_01.png"/></a>
+                                    </div>
+                                </td>
+                                <td style="padding: 0 2px" th:if="${communityCategories.size() > 0}">
+                                    <div th:with="category=${communityCategories[0]}" class="animate" style="width: 169px; height: 147px; background-size: 169px 147px; background-image: url('/img/userHome/ic_02_966fc1.png')">
+                                        <a th:href="'/v2/user/board/' + ${category.type} + '/list/' + ${category.id}"><img src="/img/userHome/ic_02.png"/></a>
+                                    </div>
+                                </td>
+                                <!--
+                                <td style="padding: 2px" th:if="!${categories.size() > 1}">
+                                    <div class="animate" style="width: 169px; height: 147px; background-size: 169px 147px; background-image: url('/img/userHome/ic_02_966fc1.png')">
+                                        <img src="/img/userHome/ic_02.png"/>
+                                    </div>
+                                </td>
+                                -->
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px; padding-top: 4px;">
+                                    <div class="animate" style="width: 169px; height: 147px; background-size: 169px 147px; background-image: url('/img/userHome/ic_03_ffc800.png')">
+                                        <a href="/user/apt/info"><img src="/img/userHome/ic_03.png"/></a>
+                                    </div>
+                                </td>
+                                <td style="padding: 2px; padding-top: 4px">
+                                    <div class="animate" style="width: 169px; height: 147px; background-size: 169px 147px; background-image: url('/img/userHome/ic_04_ff7e00.png')">
+                                        <a href="/user/apt/contact"><img src="/img/userHome/ic_04.png"/></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--<div id="big" style="margin-top: 20px; position: relative">-->
+                    <!--<div th:each="post,iterStat : ${page.content}" style="float: left; position: relative; width: 280px;height: 120px; border-left: 1px dotted #3a3a3a" th:id="${iterStat.count}">-->
+                        <!--<table style="position: relative;display: inline; margin-top:-100px ; font-family: 돋움, Tahoma, Geneva, sans-serif">-->
+                            <!--<tr>-->
+                                <!--<td style="padding: 3px 10px;">-->
+                                    <!--<a th:href="'/user/board/today/read/' + ${post.id}"><img th:width="100px" height="100px" th:src="@{/api/board/post/image/} + ${post.id} + '/0-thumb.jpg'"/></a>-->
+                                <!--</td>-->
+                                <!--<td style="padding: 3px 10px">-->
+                                    <!--<a th:href="'/user/board/today/read/' + ${post.id}">-->
+                                        <!--<p th:text="${post.title}" th:href="'/user/board/today/read/' + ${post.id}"></p>-->
+                                    <!--</a>-->
+                                <!--</td>-->
+                            <!--</tr>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="user/user :: footer"></div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/jquery.dotdotdot.min.js" th:src="@{/js/jquery.dotdotdot.min.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+
+        for (var num=5; num<13; num++){
+            $('#'+num).attr('style','display:none');
+        }
+
+        var iterStatSize = $('#iter-stat-size').text();
+        for (var num=1; num<=iterStatSize; num++){
+            var getContentId = '#content-'+num;
+            var contentToText= removeHtml($(getContentId).text());
+            $(getContentId).text(contentToText);
+            $(getContentId).addClass('board-list-contents2');
+//            console.log(getContentId);
+        }
+
+        $('.board-list-contents2').dotdotdot({
+            /*	The text to add as ellipsis. */
+            ellipsis	: '... ',
+
+            /*	How to cut off the text/html: 'word'/'letter'/'children' */
+            wrap		: 'letter',
+
+            /*	Wrap-option fallback to 'letter' for long words */
+            fallbackToLetter: true,
+
+            /*	jQuery-selector for the element to keep and put after the ellipsis. */
+            after		: null,
+
+            /*	Whether to update the ellipsis: true/'window' */
+            watch		: false,
+
+            /*	Optionally set a max-height, if null, the height will be measured. */
+            height		: 40,
+
+            /*	Deviation for the height-option. */
+            tolerance	: 50,
+
+            /*	Callback function that is fired after the ellipsis is added,
+             receives two parameters: isTruncated(boolean), orgContent(string). */
+            callback	: function( isTruncated, orgContent ) {},
+            lastCharacter	: {
+
+                /*	Remove these characters from the end of the truncated text. */
+                remove		: [ ' ', ',', ';', '.', '!', '?' ],
+
+                /*	Don't add an ellipsis if this array contains
+                 the last character of the truncated text. */
+                noEllipsis	: []
+            }
+        });
+
+		$(".board-list-title").each(function() {
+			var tempTitle = $(this).text();
+
+			if (tempTitle) {
+				$(this).text(removeHtml(tempTitle));
+			}
+			else {
+				$(this).text("무제");
+			}
+		});
+
+    });
+
+    $('.super-wrap-home-today-main').mouseover(function(){
+        $(this).attr('style','border: 1px solid #ff6100;');
+        $(this).find('img').attr('style','width: 261px; height: 258; border: 3px solid #ff6100;');
+        $(this).find('div:last-child').attr('style','background-color: #ff6100;border:none');
+        $(this).find('.wrap-home-today-main-title').attr('style','background-color: #ff6100;width:258px;height:63px;border:none;');
+    });
+
+    $('.super-wrap-home-today-main').mouseout(function(){
+        $(this).attr('style','border: 1px solid #000;');
+        $(this).find('img').attr('style','width: 261px','height: auto');
+        $(this).find('div:last-child').attr('style','background-color: #3a3a3a');
+    });
+
+    $('.animate').mouseover(function () {
+        $(':animated').stop(true, true);
+        $(this).find('img').animate({opacity: '0'}, "slow");
+    });
+    $('.animate').mouseout(function () {
+        $(':animated').stop(true, true);
+        $(this).find('img').animate({opacity: '1'}, "slow");
+    });
+
+    $('.left_arrow').mouseover(function () {
+        $(this).attr('src','/img/userHome/left_arrow_o.png');
+
+    });
+    $('.left_arrow').mouseout(function () {
+        $(this).attr('src','/img/userHome/left_arrow.png');
+    });
+
+    $('.right_arrow').mouseover(function () {
+        $(this).attr('src','/img/userHome/right_arrow_o.png');
+
+    });
+    $('.right_arrow').mouseout(function () {
+        $(this).attr('src','/img/userHome/right_arrow.png');
+    });
+
+    var todayCurrentPage = 1;
+
+    $('#today-left').click(function (){
+       switch (todayCurrentPage) {
+           case 1:
+               nineToTwelve();
+               todayCurrentPage = 3;
+               break;
+           case 2 :
+               oneToFour();
+               todayCurrentPage = 1;
+               break;
+           case 3:
+               fiveToEight();
+               todayCurrentPage = 2;
+               break;
+           default :
+               oneToFour();
+               todayCurrentPage = 1;
+               break;
+       }
+    });
+
+    $('#today-right').click(function (){
+        switch (todayCurrentPage) {
+            case 1:
+                fiveToEight();
+                todayCurrentPage = 2;
+                break;
+            case 2:
+                nineToTwelve();
+                todayCurrentPage = 3;
+                break;
+            case 3:
+                oneToFour();
+                todayCurrentPage = 1;
+                break;
+            default :
+                oneToFour();
+                todayCurrentPage = 1;
+                break;
+        }
+    });
+
+    function oneToFour () {
+
+        for (var num=1; num<5; num++) {
+            $('#'+num).attr('style','');
+        }
+
+        for (var num=5; num<13; num++){
+            $('#'+num).attr('style','display:none');
+        }
+    }
+
+    function fiveToEight () {
+
+        for (var num=1; num<5; num++) {
+            $('#'+num).attr('style','display:none');
+        }
+
+        for (var num=5; num<9; num++){
+            $('#'+num).attr('style','');
+        }
+
+        for (var num=9; num<13; num++){
+            $('#'+num).attr('style','display:none');
+        }
+    }
+
+    function nineToTwelve () {
+
+        for (var num=1; num<5; num++) {
+            $('#'+num).attr('style','display:none');
+        }
+
+        for (var num=5; num<9; num++){
+            $('#'+num).attr('style','display:none');
+        }
+
+        for (var num=9; num<13; num++){
+            $('#'+num).attr('style','');
+        }
+
+    }
+
+    function removeHtml(text) {
+        text = text.replace(/<br>/ig, "\n"); // <br>을 엔터로 변경
+        text = text.replace(/&nbsp;/ig, " "); // 공백
+        // HTML 태그제거
+        text = text.replace(/<(\/)?([a-zA-Z]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig, "");
+
+        // shkim.add.
+        text = text.replace(/<(no)?script[^>]*>.*?<\/(no)?script>/ig, "");
+        text = text.replace(/<style[^>]*>.*<\/style>/ig, "");
+        text = text.replace(/<(\"[^\"]*\"|\'[^\']*\'|[^\'\">])*>/ig, "");
+        text = text.replace(/<\\w+\\s+[^<]*\\s*>/ig, "");
+        text = text.replace(/&[^;]+;/ig, "");
+        text = text.replace(/\\s\\s+/ig, "");
+
+        return text;
+    }
+
+    $('.main-header-td').mouseover(function(){
+        var getId = jQuery(this).find('span').text();
+        // console.log(getId);
+        $('#big-img').attr('style','background-image: url("/api/board/post/image/' + getId + '/0.jpg"); width: 684px;height: 266px; background-size: 684px auto');
+
+        // console.log('sdfsdf');
+    });
+
+    /*]]>*/
+</script>
+</body>
+</html>

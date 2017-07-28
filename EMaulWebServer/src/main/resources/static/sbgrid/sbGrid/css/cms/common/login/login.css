@@ -1,0 +1,79 @@
+@charset "utf-8";
+
+/************************************************************************
+ * 파일명      : login.css
+ * 설명        : login page style
+ * 작성자      : 장미경
+ * 작성일      : 2014.08.05
+************************************************************************/
+#wrap.A {background: transparent url('/images/cms/common/login/login_page_bg_A.gif') repeat-x top left;}
+#wrap.P {background: transparent url('/images/cms/common/login/login_page_bg_P.gif') repeat-x top left;}
+#wrap.F {background: transparent url('/images/cms/common/login/login_page_bg_F.gif') repeat-x top left;}
+	#wrap.A .wrap_in.A {background: transparent url('/images/cms/common/login/login_bg_A.gif') no-repeat top center;}
+	#wrap.P .wrap_in.P {background: transparent url('/images/cms/common/login/login_bg_P.gif') no-repeat top center;}
+	#wrap.F .wrap_in.F {background: transparent url('/images/cms/common/login/login_bg_F.gif') no-repeat top center;}
+
+#header {height: 120px;}
+	#header .header_in {width: 1000px; margin: 0 auto;}
+		#header .logo {padding: 30px 25px;}
+
+#container {}
+	/*#container .contents {background: transparent url('/images/cms/common/login/main_img.png') no-repeat 0px 0px; overflow: hidden; width: 1000px; margin: 0 auto;}*/
+	#container .contents {overflow: hidden; width: 1000px; margin: 0 auto;}
+	#container .contents.A {background: transparent url('/images/cms/common/login/main_img_A.png') no-repeat 0px 80px;}
+	#container .contents.P {background: transparent url('/images/cms/common/login/main_img_P.png') no-repeat 0px 80px;}
+	#container .contents.F {background: transparent url('/images/cms/common/login/main_img_F.png') no-repeat 0px 80px;}
+		#container .contents_right {width: 520px; float: right;}
+
+			#container .contents_header {margin-bottom: 30px;}
+				#container .contents_header .logo {margin-bottom: 20px;}
+				#container .contents_header .dc {}
+					#container .contents_header .dc span {color: #DF4752;}
+
+					
+
+			/*#container .login_container {background: url('/images/cms/common/login/login_box.gif') repeat-y 0 0;}
+				#container .login_container_in {background: url('/images/cms/common/login/login_box_top.gif') no-repeat 0 top;}
+					#container .login_contents {background: url('/images/cms/common/login/login_box_bottom.gif') no-repeat 0 bottom; overflow: hidden; padding: 35px 0;}*/
+			#container .login_container {}
+				#container .login_container_in {}
+					#container .login_contents_bg_top {display: block; width: 520px; height: 10px;}
+					#container .login_contents_bg_top.A {background: url('/images/cms/common/login/login_box_top_A.gif') no-repeat 0 top;}
+					#container .login_contents_bg_top.P {background: url('/images/cms/common/login/login_box_top_P.gif') no-repeat 0 top;}
+					#container .login_contents_bg_top.F {background: url('/images/cms/common/login/login_box_top_F.gif') no-repeat 0 top;}
+					#container .login_contents {overflow: hidden; padding: 25px 0;}
+					#container .login_contents.A {background:url('/images/cms/common/login/login_box_A.gif') repeat-y 0 0;}
+					#container .login_contents.P {background:url('/images/cms/common/login/login_box_P.gif') repeat-y 0 0;}
+					#container .login_contents.F {background:url('/images/cms/common/login/login_box_F.gif') repeat-y 0 0;}
+						#container .login_input_box {margin-bottom: 15px; overflow: hidden;}
+							#container .login_input_box_in {width: 380px; margin: 0 auto;}
+								#container .login_info {float: left;}
+									#container .login_info dl {margin-top: 10px; clear: both; overflow: hidden;}
+									#container .login_info dl:first-child {margin-top: 0px;}
+										#container .login_info dl dt {width: 80px; float: left;}
+											#container .login_info dl dt label {line-height: 30px; font-size: 14px; font-weight: bold;}
+										#container .login_info dl dd {float: left;}
+											#container .login_info dl dd input {width: 200px;}
+								#container .btn_login_wrap {float: right;}					
+					#container .login_contents_bg_bottom {display: block; width: 520px; height: 10px;}
+					#container .login_contents_bg_bottom.A {background: url('/images/cms/common/login/login_box_bottom_A.gif') no-repeat 0 bottom;}
+					#container .login_contents_bg_bottom.P {background: url('/images/cms/common/login/login_box_bottom_P.gif') no-repeat 0 bottom;}
+					#container .login_contents_bg_bottom.F {background: url('/images/cms/common/login/login_box_bottom_F.gif') no-repeat 0 bottom;}
+						#container .login_footer {clear: both; width: 380px; margin: 0 auto;}
+							#container .login_footer div {float: left; margin-left: 80px;}
+							#container .login_footer ul {float: right; line-height: 23px; height: 23px;}
+								#container .login_footer ul li {display: inline;}
+								#container .login_footer ul li.se_bar {font-size: 8px; color: #555;}
+			#container .login_container_footer {margin-top: 30px;}
+				#container .login_container_footer ul.dc {margin-bottom: 25px; overflow: hidden;}
+					#container .login_container_footer ul.dc li {background: transparent url('/images/cms/common/login/red_dot.png') no-repeat 0px 0px; padding-left: 8px; color: #1758B0; font-weight: bold;}
+				#container .login_container_footer .down_active {margin-bottom: 35px; overflow: hidden;}
+						#container .login_container_footer .down_active .title {background: transparent url('/images/cms/common/login/bt_01.gif') no-repeat 0px 0px; padding-left: 23px; font-weight: bold; line-height: 18px; height: 18px; margin-bottom: 8px;}
+						#container .login_container_footer .down_active ul.active {border: 1px solid #ddd; padding: 10px 20px; overflow: hidden;}
+							#container .login_container_footer .down_active ul.active li {float: left; margin-right: 15px; height: 15px; line-height: 15px;}
+							#container .login_container_footer .down_active ul.active li a {background: transparent url('/images/cms/common/login/bt_02.gif') no-repeat right 0px; padding-right: 20px; display: block;}
+
+
+#footer {border-top: 1px solid #eee; height: 50px;}
+	#footer .footer_in {text-align: right; width: 1000px; margin: 0 auto; padding: 13px 0; overflow: hidden;}
+		#footer span.copyright {margin-right: 10px; color: #bbb; font-weight: bold; letter-spacing: -1px;}

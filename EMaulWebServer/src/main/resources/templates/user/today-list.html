@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'e마을 | '+${user.house.apt.name}">e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css"
+          th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>마을뉴스</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="#">홈</a></li>
+                    <li><a href="#">마을뉴스</a></li>
+                    <li class="active">전체</li>
+                </ol>
+            </div>
+
+            <div>
+                <table class="today-main">
+
+                    <tbody th:if="${headerPosts[0]}">
+                    <tr th:with="firstPost=${headerPosts[0]}">
+                        <td rowspan="3" width="390">
+                            <div>
+                                <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                                <img th:src="@{/api/board/post/image/} + ${firstPost.id} + '/0.jpg'"/>
+                                </a>
+                            </div>
+                            <div>
+                                <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                                <p th:text="${firstPost.title}"></p>
+                                </a>
+                            </div></td>
+                        <td th:with="secondPost=${headerPosts[1]}">
+                            <a th:href="'/user/board/today/read/' + ${secondPost.id}">
+                            <img th:src="@{/api/board/post/image/} + ${secondPost.id} + '/0-thumb.jpg'"/>
+                            </a>
+                        </td>
+                        <td th:with="secondPost=${headerPosts[1]}">
+                            <a th:href="'/user/board/today/read/' + ${secondPost.id}">
+                            <p class="title" th:text="${secondPost.title}"></p>
+                            <p id="today-main-content-1" class="content board-list-contents" th:text="${secondPost.content}"></p>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:with="firstPost=${headerPosts[2]}">
+                        <td>
+                            <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                            <img th:src="@{/api/board/post/image/} + ${firstPost.id} + '/0-thumb.jpg'"/>
+                            </a>
+                        </td>
+                        <td>
+                            <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                            <p class="title" th:text="${firstPost.title}"></p>
+                            <p id="today-main-content-2" class="content board-list-contents" th:text="${firstPost.content}"></p>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:with="firstPost=${headerPosts[3]}">
+                        <td>
+                            <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                            <img th:src="@{/api/board/post/image/} + ${firstPost.id} + '/0-thumb.jpg'"/>
+                            </a>
+                        </td>
+                        <td>
+                            <a th:href="'/user/board/today/read/' + ${firstPost.id}">
+                            <p class="title" th:text="${firstPost.title}"></p>
+                            <p id="today-main-content-3" class="content board-list-contents" th:text="${firstPost.content}"></p>
+                            </a>
+
+                        </td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+
+
+            <div>
+                <table class="today-list">
+                    <tbody>
+                    <tr th:if="${page.content.empty}">
+                        <td colspan="5">게시글 목록이 없습니다.</td>
+                    </tr>
+                    <tr th:each="post,iterStat : ${page.content}">
+
+                        <td><a th:href="'/user/board/today/read/' + ${post.id}"><img th:width="140px" height="140px" th:src="@{/api/board/post/image/} + ${post.id} + '/0-thumb.jpg'"/></a></td>
+                        <td>
+                            <a th:href="'/user/board/today/read/' + ${post.id}">
+                            <h4 style="font-weight: 600" th:text="${post.title}"
+                               th:href="'/user/board/today/read/' + ${post.id}"></h4>
+
+                            <p th:id="'content-'+${iterStat.index}" th:text="${post.content}" class="today-list-content" style="line-height: 2em"></p>
+
+                            <p class="today-list-date" th:text="${#dates.format(post.regDate)}" style="margin-top: 10px"></p>
+                            <p id="iter-stat-size" style="display: none;" th:text="${iterStat.size}"></p>
+                            </a>
+                        </td>
+
+
+                    </tr>
+
+                    </tbody>
+                </table>
+
+
+
+            </div>
+
+            <!-- Pagination Bar -->
+            <div th:fragment='paginationbar' style="text-align: center">
+                <ul class='pagination2'>
+                    <li th:class="${page.firstPage}? 'disabled' : ''">
+                        <span th:if="${page.firstPage}"><i class="fa fa-angle-double-left"></i></span>
+                        <a th:if="${not page.firstPage}" th:href="@{${page.url}(page=0,size=${page.size})}">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+                        <span th:if="${not page.hasPreviousPage}"><i class="fa fa-angle-left"></i></span>
+                        <a th:if="${page.hasPreviousPage}"
+                           th:href="@{${page.url}(page=${page.number-2},size=${page.size})}"
+                           title="Go to previous page"><i class="fa fa-angle-left"></i></a>
+                    </li>
+                    <li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+                        <span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+                        <a th:if="${not item.current}"
+                           th:href="@{${page.url}(page=${item.number},size=${page.size})}"><span
+                                th:text="${item.number + 1}">1</span></a>
+                    </li>
+                    <li th:class="${page.hasNextPage}? '' : 'disabled'">
+                        <span th:if="${not page.hasNextPage}"><i class="fa fa-angle-right"></i></span>
+                        <a th:if="${page.hasNextPage}"
+                           th:href="@{${page.url}(page=${page.number},size=${page.size})}"
+                           title="Go to next page"><i class="fa fa-angle-right"></i></a>
+                    </li>
+                    <li th:class="${page.lastPage}? 'disabled' : ''">
+                        <span th:if="${page.lastPage}"><i class="fa fa-angle-double-right"></i></span>
+                        <a th:if="${not page.lastPage}"
+                           th:href="@{${page.url}(page=${page.totalPages - 1},size=${page.size})}"><i class="fa fa-angle-double-right"></i></a>
+                    </li>
+                </ul>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<div th:replace="user/user :: footer"></div>
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/jquery.dotdotdot.min.js" th:src="@{/js/jquery.dotdotdot.min.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+
+        for (var num=1; num<4; num++){
+            var getContentId = '#today-main-content-'+num;
+            var contentToText= removeHtml($(getContentId).text());
+            $(getContentId).text(contentToText);
+        }
+
+        var iterStatSize = $('#iter-stat-size').text();
+        for (var num=0; num<iterStatSize; num++){
+            var getContentId = '#content-'+num;
+            var contentToText= removeHtml($(getContentId).text());
+            $(getContentId).text(contentToText);
+            $(getContentId).addClass('board-list-contents2');
+        }
+
+        $('.board-list-contents2').dotdotdot({
+            /*	The text to add as ellipsis. */
+            ellipsis	: '... ',
+
+            /*	How to cut off the text/html: 'word'/'letter'/'children' */
+            wrap		: 'letter',
+
+            /*	Wrap-option fallback to 'letter' for long words */
+            fallbackToLetter: true,
+
+            /*	jQuery-selector for the element to keep and put after the ellipsis. */
+            after		: null,
+
+            /*	Whether to update the ellipsis: true/'window' */
+            watch		: false,
+
+            /*	Optionally set a max-height, if null, the height will be measured. */
+            height		: 20,
+
+            /*	Deviation for the height-option. */
+            tolerance	: 50,
+
+            /*	Callback function that is fired after the ellipsis is added,
+             receives two parameters: isTruncated(boolean), orgContent(string). */
+            callback	: function( isTruncated, orgContent ) {},
+            lastCharacter	: {
+
+                /*	Remove these characters from the end of the truncated text. */
+                remove		: [ ' ', ',', ';', '.', '!', '?' ],
+
+                /*	Don't add an ellipsis if this array contains
+                 the last character of the truncated text. */
+                noEllipsis	: []
+            }
+        });
+
+    });
+
+    function removeHtml(text)
+    {
+        text = text.replace(/<br>/ig, "\n"); // <br>을 엔터로 변경
+        text = text.replace(/&nbsp;/ig, " "); // 공백
+        // HTML 태그제거
+        text = text.replace(/<(\/)?([a-zA-Z]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig, "");
+
+        // shkim.add.
+        text = text.replace(/<(no)?script[^>]*>.*?<\/(no)?script>/ig, "");
+        text = text.replace(/<style[^>]*>.*<\/style>/ig, "");
+        text = text.replace(/<(\"[^\"]*\"|\'[^\']*\'|[^\'\">])*>/ig, "");
+        text = text.replace(/<\\w+\\s+[^<]*\\s*>/ig, "");
+        text = text.replace(/&[^;]+;/ig, "");
+        text = text.replace(/\\s\\s+/ig, "");
+
+        return text;
+    }
+
+
+
+
+
+
+    /*]]>*/
+</script>
+</body>
+</html>

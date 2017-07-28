@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title th:text="${category.name} + ' | 목록'">공지사항 | 목록</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+<form name="boardSearchForm" id="boardSearchForm" method="post" action="">
+	<input type="hidden" id="sort" name="sort" value="BP.id" />
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 th:text="${category.name}" class="page-header">게시판</h1>
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+					<div th:replace="v2/jaha/board/search-form-event :: board-search-form"></div>
+<!--
+					<div  class="btn-group btn-group-sm" role="group" style="height:50px; padding-top:10px;">
+						<button type="button" th:class="((${boardDto.sortColumns == 'BP.id'})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, 'BP.id');">최신순</button>
+						<button type="button" th:class="((${boardDto.sortColumns == 'BP.view_count'})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, 'BP.view_count');">인기순</button>
+						<button type="button" th:class="((${boardDto.sortColumns == 'BP.comment_count'})? 'btn btn-default active' : 'btn btn-default')" onclick="paging(1, 'BP.comment_count');">댓글순</button>
+					</div>
+-->
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="8%" style="text-align:center;">번호</th>
+                            <th style="text-align:center;">제목</th>
+                            <th width="10%" style="text-align:center;">썸네일이미지</th>
+                            <th width="10%" style="text-align:center;">등록일</th>
+                            <th width="15%" style="text-align:center;">기간</th>
+                            <th width="8%" style="text-align:center;">조회수</th>
+                            <th width="7%" style="text-align:center;">서비스노출</th>
+                            <th width="7%" style="text-align:center;">게시여부</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${boardPostList.empty}">
+                            <td colspan="8" style="text-align:center;" th:text="${category.name} + ' 게시글 목록이 없습니다.'">게시글 목록이 없습니다.</td>
+                        </tr>
+                        <tr th:each="post,iterStat : ${boardPostList}">
+                            <td>
+                                <!--<a th:href="@{/admin/user/info/}+${post.userId}" th:text="${post.writerName}" target="_blank"></a>-->
+                                <span th:text="${pagingHelper.listStartNum - iterStat.index}"></span>
+                            </td>
+                            <td>
+                                <div class="board-list-contents2" style="height:40px; text-align:left;">
+                            		<a class="board-list-title" th:text="${post.title}" th:href="'/v2/jaha/board/event/read/' + ${post.id}"></a>
+                            		<span class="badge" th:text="${post.commentCount}">댓글수</span>
+                                </div>
+                            </td>
+                            <td>
+                            	<!--<div class="img-inline"><img th:if="${post.firstEditorImageThumbUrl != null}" th:src="${post.firstEditorImageThumbUrl}" width="80" height="80" /></div>-->
+                            	<span th:if="${post.fileGroupKey == null}">없음</span>
+                                <span th:if="${post.fileGroupKey != null}">있음</span>
+                            </td>
+                            <td th:text="${#dates.format(post.regDate, 'yyyy-MM-dd')}"></td>
+                            <td>
+                            	<span th:text="${#strings.substring(post.startDate, 0, 4) + '.' + #strings.substring(post.startDate, 4, 6) + '.' + #strings.substring(post.startDate, 6, 8) + ' ' + #strings.substring(post.startDate, 8, 10) + '시 ' + #strings.substring(post.startDate, 10, 12) + '분'}">시작일</span><br />
+								~ <span th:text="${#strings.substring(post.endDate, 0, 4) + '.' + #strings.substring(post.endDate, 4, 6) + '.' + #strings.substring(post.endDate, 6, 8) + ' ' + #strings.substring(post.endDate, 8, 10) + '시 ' + #strings.substring(post.endDate, 10, 12) + '분'}">종료일</span>
+                            </td>
+                            <td th:text="${post.viewCount}"></td>
+                            <td th:text="${post.displayPlatform}"></td>
+                            <td th:text="${post.displayYn}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <a class="btn btn-primary" style="float: right" onclick="moveCreateForm()">이벤트 등록</a>
+                </div>
+            </div>
+
+			<!-- paging -->
+			<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+
+        </div>
+	</div>
+</form>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryId = /*[[${category.id}]]*/ '0';
+
+/**
+ * 등록 페이지 이동
+ */
+function moveCreateForm() {
+   	location.href="/v2/jaha/board/event/create-form";
+   	return;
+}
+/**
+ * 수정 페이지 이동
+ */
+function moveModifyForm(postId) {
+   	location.href="/v2/jaha/board/event/modify-form/" + postId;
+   	return;
+}
+/**
+ * 게시글 삭제
+ */
+function deleteBoardPost(postId, commentCount) {
+	if (commentCount > 0) {
+		// alert(" 댓글이 있는 게시글은 삭제할 수 없습니다! ");
+		// return;
+	}
+
+	var url = "/v2/jaha/board/event/remove/" + postId;
+
+    if (confirm(" 게시글을 삭제하시겠습니까?? ")) {
+		location.href = url;
+    }
+}
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum, sortColumns) {
+   	var startDate = removeSpecialChars($("#_start_date").val());
+   	var endDate = removeSpecialChars($("#_end_date").val());
+   	startDate = startDate.replace(/\s/g, "").replace("시", "").replace("분", "");
+   	endDate = endDate.replace(/\s/g, "").replace("시", "").replace("분", "");
+    $("#searchStartDate").val(startDate);
+    $("#searchEndDate").val(endDate);
+
+	$("#pageNum").val(movePageNum);
+
+	var actionUrl = "";
+
+	if (sortColumns) {
+		actionUrl = $("#listUrl").val() + "?sort=" + sortColumns;
+	}
+	else {
+		actionUrl = $("#listUrl").val();
+	}
+
+	var $form = $("#boardSearchForm");
+	$form.attr("action", actionUrl);
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+    // 검색 버튼 클릭 시
+    $("#searchBtn").bind("click", function() {
+      	paging(1);
+    });
+
+    // 초기화 버튼 클릭 시
+    $("#resetBtn").bind("click", function() {
+    	$("#_start_date").val("");
+    	$("#_end_date").val("");
+      	$("#searchStartDate").val("");
+        $("#searchEndDate").val("");
+        $("#searchKeyword").val("");
+
+        paging(1);
+    });
+});
+
+$(function () {
+    $('#datetimepickerFrom, #datetimepickerTo').datetimepicker({
+ 	    locale: 'ko',
+ 	    format: 'YYYY.MM.DD HH시 mm분'
+	});
+});
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

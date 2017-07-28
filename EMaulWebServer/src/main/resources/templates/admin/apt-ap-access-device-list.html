@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+	      th:href="@{/css/bootstrap.min.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+	      th:href="@{/font-awesome/css/font-awesome.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+	      th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+	      th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+	/*추가*/
+	    .sc_asSearchtxt{
+	        width:505px !important;
+	    }
+	    .sc_asResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .sc_asSignupBox{
+	        text-align:right;
+	    }
+	</style>
+
+    <title>출입문 AP 등록 관리</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">출입문 AP 출입 기기 관리</h1>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading"></div>
+                        <div class="panel-body">
+                            <table style="width:1100px;">
+                                <tr>
+                                    <th>TYPE</th>
+                                    <td class="form-inline">
+                                        <select name="type" id="type" class="form-control">
+                                            <option value="" >전체</option>
+                                            <option th:each="item : ${apAccessDeviceTypeList}" th:value="${item.code}" th:text="${item.name}" ></option>
+                                        </select>
+                                    </td>
+                                    <th>소유자</th>
+                                    <td class="form-inline">
+                                        <input type="text" class="form-control" id="userNm" name="userNm" style="width:200px;"/>
+                                    </td>
+                                    <th>Access Key</th>
+                                    <td class="form-inline">
+                                        <input type="text" class="form-control" id="accessKey" name="accessKey" style="width:300px;" />
+                                        <span>
+                                            <input type="button" class="btn btn-sm btn-outline btn-info sc_asSearch" id="searchBtn" name="searchBtn" value="검색" />
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="sc_asResultTxt" id="totalCountText" >0건의 데이터가 조회되었습니다.</p>
+                    <div class="sc_asGridArea" id="sc_asGridArea"></div>
+                    <div id="sbGridPaging" class="pagenate" ></div>
+        
+                    <div class="sc_asSignupBox" th:if="${user.type.jaha}">
+                        <input type="button" class="btn btn-info sc_asSignup" id="sc_asSignup" value="등록" name="sc_asSignup" onclick="moveAdd()"/>
+                        <input type="button" class="btn btn-info sc_asSignup" id="deleteBtn" value="삭제" name="deleteBtn" onclick="deleteRow()"/>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+	$(document).ready(function(){
+	    
+	    $("#searchBtn").bind("click", function(){
+	    	SBGrid_pagingInit();
+        });
+	    
+	    $("#accessKey, #userNm").setEnter(SBGrid_pagingInit);
+	    
+	    var _pageNum = /*[[${param._pageNum}]]*/ 0;
+	    SBGrid_pagingInit(_pageNum);
+	    
+	});
+	
+	var gridJsonData;
+    var nPageNum;      //현재 페이지번호
+	function SBGrid_pagingInit(pageNumber){
+	    
+	    createDataGrid();
+	    
+	    var nCount,        //총건수
+	        nPageSize      //페이지 사이즈
+	    
+	    //현제 페이지 구함
+	    if(pageNumber != null){
+	        nPageNum =  parseInt(pageNumber);
+	        if(nPageNum < 1) {
+	            nPageNum = 1;
+	        }
+	    }else{
+	        nPageNum = 1;
+	    }
+	    datagrid.showWait(true);
+	    
+	    //페이지당 레코드 갯수 설정
+	    nPageSize = 10;
+	    
+	    $.ajax({
+	        url: '/admin/apt/ap/access/device/list-data',
+	        type: 'post',
+	        async : false,
+	        dataType: "json",
+	        data: {
+	        	"page": nPageNum - 1,
+                "size": nPageSize,
+	            "type": $("#type").val(),
+	            "userNm": $("#userNm").val(),
+	            "accessKey": $("#accessKey").val()
+	            
+	        },
+	        success: function(jsonData) {
+	            //var jo = JSON.parse(data);
+	        	gridJsonData = jsonData.content;
+                nCount = jsonData.totalElements;
+                $("#totalCountText").text(nCount+"건의 데이터가 조회되었습니다.");
+                datagrid.rebuild();
+	        },
+	        error: function(xhr, status, error) {
+	            alert("error : apt ap access device list data fail");
+	        }
+	    });
+	    
+	    datagrid.showWait(false);
+	    
+	    //ajax를 sync로 해놔서 순차적실행됨. style등은 datagrid가 rebuild되면 초기화되어서 rebuild후에 설정.
+	    datagrid.addEventListener("onclick","rowClick","","");
+	    
+	    datagrid.setColStyles(datagrid.getColRef("accessKey"), "color:blue; text-decoration: underline; cursor:pointer;", "data");
+	    
+	    var rowSize = datagrid.getRows();
+	    for(var i=1;i<=rowSize;i++){
+	        //datagrid.setCellFormat(i, datagrid.getColRef("view_cnt"), "#,###");
+	    }
+	    
+	    gfnPagingRander("sbGridPaging", nPageNum, nPageSize, nCount);
+	}
+	
+	function createDataGrid(){
+	    var strCaption, 
+	        strWidth,
+	        gridAttr, 
+	        objJson;
+	
+	    strCaption = "^TYPE^Access Key^소유자^사용자^MEMO^등록자^등록일";
+	    strWidth = "3%,15%,13%,15%,15%,15%,15%,14%";
+	    
+	    gridAttr = {
+	        "strParentId"                   : 'sc_asGridArea',
+	        "strId"                         : 'datagrid',
+	        "strCaption"                    : strCaption,
+	        "strColWidth"                   : strWidth,
+	        "strJsonRef"                    : "gridJsonData",
+	        "strStyle"                      : "width:100%; height:433px; font-family:dotum, arial; font-size:14px;",
+	        "strExplorerbar"            : "sortshowmove",
+	        "strRowHeight"              : "50px",
+	        "strDataHeight"              : "38px",
+	        "strFocusColor"         :   "#E8E8E8",
+	        "strSelectFontColorStyle":  "none",
+	        "fixedcol"                       :"1",
+	        "bUseMultiSorting"       : false,
+	        "bDataSearching"             : true,
+	        "bDragMode" : false,
+	        "bIsShowLoadingImage"   :   true,
+	        "strExtendLastCol"       : "scroll",
+	        "strEmptyRecords"   :   "조회결과가 없습니다."
+	        };
+	
+	    datagrid = createSBDataGrid(gridAttr);
+	    
+	    objJson = [
+	                 {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+	                 {"id" : "typeNm" , "type" : "output" , "ref" : "typeNm" , "style":"text-align:center;"},
+	                 {"id" : "accessKey" , "type" : "output" , "ref" : "accessKey" , "style":"text-align:center;"},
+	                 {"id" : "userName" , "type" : "output" , "ref" : "userName" , "style":"text-align:center;"},
+	                 {"id" : "secondUser" , "type" : "output" , "ref" : "secondUser" , "style":"text-align:center;"},
+	                 {"id" : "memo" , "type" : "output" , "ref" : "memo" , "style":"text-align:center;"},
+	                 {"id" : "regName" , "type" : "output" , "ref" : "regName" , "style":"text-align:center;"},
+	                 {"id" : "regDate" , "type" : "output" , "ref" : "regDate" , "style":"text-align:center;"},
+	              ];
+	              
+	    datagrid.createColumns(objJson);
+	    
+	    datagrid.setFixedcellcheckbox(0, 0, true);
+	    
+	}
+	
+	function rowClick(){
+        var rowData = datagrid.getRowData(datagrid.getRow());
+        
+        if(datagrid.getCol() == datagrid.getColRef("accessKey")){
+        	moveDetail(rowData.id);
+        } 
+	}
+	
+	function moveAdd(){
+		fnFormPopup("/admin/apt/ap/access/device/form-pop");
+	}
+	
+	function fnFormPopup(url){
+		var width = 800;
+        var height = 600;
+        var left = (screen.width-width)/2;
+        var top = (screen.height-height)/2;
+        window.open(url,url,"width="+width+", height="+height+", left="+left+", top="+top+", toolbar=no, location=no, status=no, menubar=no, scrollbars=no, resizable=no");
+	}
+	
+    function moveDetail(id){
+    	fnFormPopup("/admin/apt/ap/access/device/detail-pop?id="+id+"&pageNum="+nPageNum);
+    }
+    
+    function deleteRow(){
+    	if(gridJsonData != null){
+    		
+    	    if(!confirm("삭제하시겠습니까?")){
+                return;
+            }
+    		
+    	    $("#frm").empty();
+    		for(var i=0;i<gridJsonData.length;i++){
+    			var rowData = gridJsonData[i];
+    			if(rowData._chk != null && rowData._chk == "true"){
+    				$("<input type='hidden' name='deleteIds' value='"+rowData.id+"' />").appendTo("#frm");
+    			}
+    		}
+    		
+    		if($("input[name=deleteIds]").length > 0){
+    			
+    			$.ajax({
+    	            url: '/admin/apt/ap/access/device/delete',
+    	            type: 'post',
+    	            async : false,
+    	            dataType: "html",
+    	            data: $("#frm").serialize(),
+    	            success: function(data) {
+    	            	if(data > 0){
+    	            		alert("삭제되었습니다.");
+    	            		SBGrid_pagingInit(nPageNum);
+    	            	}
+    	            },
+    	            error: function(xhr, status, error) {
+    	                alert("error : apt ap access device delete fail");
+    	            }
+    	        });
+    			
+    		}
+    		
+    		
+    	}
+    }
+    
+               
+    /*]]>*/
+</script>
+
+</body>
+</html>

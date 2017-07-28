@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<head>
+    <link type="text/css" rel="stylesheet" th:href="@{/css/jquery.toastmessage.css}"/>
+    <style>
+        .cmtStyle {
+            color: red;
+        }
+    </style>
+
+	<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+
+    <title th:text="${category.name} + ' | 상세'">공지사항 | 상세</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">FAQ 상세보기</h1>
+
+            <div id="content-container">
+                <div class="panel panel-info">
+                    <div class="panel-heading" style="overflow:hidden; padding:0 15px; height:40px;">
+						<p style="float: left;  overflow: hidden; white-space:nowrap; text-overflow:ellipsis; width:70%; height: 40px; line-height:40px;padding:0;" th:text="'제목 : ' + ${post.title}">제목</p>
+						<p style="float: right; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; width:30%; border-left:1px solid #bce8f1; height: 40px; line-height:40px; text-align:center;" th:text="'등록일 : ' + ${#dates.format(post.regDate, 'yyyy-MM-dd HH:mm:ss')}">등록일</p>
+                    </div>
+
+                    <div class="panel-heading" style="overflow:hidden; padding:0 15px; height: 40px;">
+                        <p style="float: left;  overflow: hidden; white-space:nowrap; text-overflow:ellipsis; width:70%; height: 40px; line-height:40px;padding:0;" th:text="'작성자 : ' + ${post.writerName}">작성자</p>
+                        <p style="float: left; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; width:15%; border-left:1px solid #bce8f1; height: 40px; line-height:40px; text-align:center;" th:text="'조회수 : ' + ${post.viewCount}">조회수</p>
+                        <p style="float: right; overflow: hidden; white-space:nowrap; text-overflow:ellipsis; width:15%; border-left:1px solid #bce8f1; height: 40px; line-height:40px; text-align:center;" th:text="'댓글수 : ' + ${post.commentCount}">댓글수</p>
+                    </div>
+
+                    <div style="border-bottom:1px solid #bce8f1; padding:10px 15px;">
+                    	카테고리
+                        <span class="label label-success" style="font-size:15px;" th:each="subCategory : ${subCategoryList}" th:if="${subCategory.code == post.subCategory}" th:text="${subCategory.name}" >카테고리</span>
+                    	서비스 노출
+                        <span class="label label-success" style="font-size:15px;" th:text="${post.displayPlatform}">전체</span>
+					</div>
+
+                    <div style="border-bottom:1px solid #bce8f1; padding:10px 15px;" th:if="${post.fileInfoList != null and post.fileInfoList.empty == false}">
+						<p th:each="fileInfo,iterStat : ${post.fileInfoList}">
+							<span th:text="${iterStat.count}">1</span>. 첨부파일 : <a id="a-thumb-attach" th:href="'/v2/board/common/post/file/' + ${post.id} + '/' + ${fileInfo.fileName}" th:text="${fileInfo.fileOriginName}">파일명</a>
+						</p>
+					</div>
+                    <!-- /.panel-heading -->
+
+                    <div class="panel-body">
+                        <div class="board-detail-content" th:utext="${post.contentOnlyBody}" style="margin-bottom: 5%; background: none; border: none"></div>
+
+						<div align="right" style="padding-top:10px; padding-bottom:10px;">
+							<button id="btn-move-modify-form" type="button" class="btn btn-outline btn-info" th:onclick="'moveModifyForm(' + ${post.id} + ')'">수정</button>
+							<button id="btn-move-list" type="button" class="btn btn-outline btn-info">목록</button>
+						</div>
+
+						<!-- 댓글/답글 영역 -->
+						<div th:if="${category.commentDisplayYn == 'Y'}">
+							<form id="commentSearchForm" name="commentSearchForm" method="post" action="">
+							<input type="hidden" id="searchCategoryId" name="searchCategoryId" th:value="${category.id}" />
+							<input type="hidden" id="searchPostId" name="searchPostId" th:value="${post.id}" />
+							<input type="hidden" id="searchCommentId" name="searchCommentId" value="" />
+
+							<input type="hidden" id="content" name="content" value="" />
+
+	                        <div class="well well-sm">
+	                            <p id="p_comment_title">댓글쓰기</p>
+	                            <textarea class="form-control" rows="3" id="text-comment" style="resize: none; margin-bottom: 5px"></textarea>
+
+	                            <div class="button-position">
+	                                <span id="_cmtMaxMsg" style="display:none;"></span>
+	                                <span id="_cmtLength"></span>
+	                                <a class="btn btn-sm btn-outline btn-danger" href="javascript:writeComment()">등록</a>
+	                            </div>
+	                        </div>
+
+	                        <div class="well well-sm" id="comments-container" th:if="${boardCommentList != null}">
+	                        	<!-- 댓글 영역 -->
+	                        	<!-- loop -->
+	                        	<div th:each="comment : ${boardCommentList}">
+		                        	<div th:id="'comment-' + ${comment.id}" class="well well-sm">
+		    							<p>
+		    								<strong th:text="${comment.fullName} + ' (' + ${comment.nickname} + ') ' + ${comment.dong} + '동 ' + ${#dates.format(comment.regDate, 'yyyy-MM-dd HH:mm:ss')}">댓글등록자</strong>
+		    								<span th:if="${user.id == comment.userId or user.type.jaha}">
+			    								<a th:id="'a-modify-button-' + ${comment.id}" class="btn btn-xs btn-outline btn-danger" style="display:none;" th:href="'javascript:modifyComment(' + ${comment.id} + ')'">수정</a>
+			        							<a class="btn btn-xs btn-outline btn-danger" th:href="'javascript:deleteComment(' + ${comment.id} + ', ' + ${comment.replyCount} + ')'">삭제</a>
+		        							</span>
+		    							</p>
+		    							<pre th:id="'pre-comment-' + ${comment.id}" style="cursor:pointer; background: none; border: none; display:;" th:text="${comment.content}" th:onclick="'showCommentTextarea('+ ${comment.id} +')'">댓글본문</pre>
+		    							<textarea th:id="'text-comment-modify-' + ${comment.id}" class="form-control" rows="3" th:text="${comment.content}" style="resize: none; margin-bottom: 5px; display:none;" th:ondblclick="'showCommentPre('+ ${comment.id} +')'">댓글본문</textarea>
+
+										<div class="button-position" th:id="'cmt-length-view-area-' + ${comment.id}" style="display:none;">
+											<span th:id="'_cmtModifyMaxMsg-' + ${comment.id}" style="display:none;" class="cmtStyle"> 댓글 글자수를 초과하였습니다. </span>
+											<span th:id="'_cmtModifyLength-' + ${comment.id}" class="cmtStyle"> [ 0 / 1000 ] </span>
+										</div>
+
+		    							<a th:if="${comment.replyCount == 0}" th:id="'button-reply-' + ${comment.id}" class="button-reply btn btn-sm btn-danger" th:href="'javascript:showCommentReply(' + ${comment.id} + ')'">
+		    								<span>답글쓰기&nbsp;&nbsp;</span>
+		    								<i class="fa fa-sort-down"></i>
+		    							</a>
+		    							<a th:if="${comment.replyCount == 0}" th:id="'button-reply-hide-' + ${comment.id}" class="button-reply-hide btn btn-sm btn-danger" th:href="'javascript:hideCommentReply(' + ${comment.id} + ')'" style="display:none;">
+		    								<span>답글쓰기&nbsp;&nbsp;</span>
+		    								<i class="fa fa-sort-up"></i>
+		    							</a>
+		    							<a th:if="${comment.replyCount > 0}" th:id="'button-reply-' + ${comment.id}" class="button-reply btn btn-sm btn-danger" th:href="'javascript:showCommentReply(' + ${comment.id} + ')'">
+		    								<span th:text="'답글 ' + ${comment.replyCount} + '&nbsp;&nbsp;'">답글</span>
+		    								<i class="fa fa-sort-down"></i>
+		    							</a>
+		        						<a th:if="${comment.replyCount > 0}" th:id="'button-reply-hide-' + ${comment.id}" class="button-reply-hide btn btn-sm btn-danger" th:href="'javascript:hideCommentReply(' + ${comment.id} + ')'" style="display:none;">
+		        							<span th:text="'답글 ' + ${comment.replyCount} + '&nbsp;&nbsp;'">답글</span>
+		        							<i class="fa fa-sort-up"></i>
+		        						</a>
+									</div>
+									<!-- 댓글 영역 -->
+									<!-- 답글 영역 -->
+									<div th:id="'reply-wrap-' + ${comment.id}" class="reply-wrap" style="display:none;">
+										<div th:id="'reply-form-' + ${comment.id}">
+											<textarea class="form-control" rows="3" th:id="'text-comment-' + ${comment.id}" style="resize: none; margin-bottom: 5px"></textarea>
+											<div class="button-position">
+												<span id="'_cmtMaxMsg-' + ${comment.id}" style="display:none;" class="cmtStyle"> 답글 글자수를 초과하였습니다. </span>
+												<span th:id="'_cmtLength-' + ${comment.id}" class="cmtStyle"> [ 0 / 1000 ] </span>
+												<a class="btn btn-sm btn-outline btn-danger" style="margin-bottom: 6px" th:href="'javascript:writeCommentReply(' + ${comment.id} + ')'">등록</a>
+											</div>
+										</div>
+										<div th:each="reply : ${comment.boardCommentReplyList}">
+											<div th:id="'reply-' + ${reply.id}" style="background-color: white; border-radius: 4px; padding: 5px; margin: 5px">
+										    	<p>
+										    		<i class="fa fa-share fa-flip-vertical"></i>
+										    		<strong th:text="${reply.fullName} + ' (' + ${reply.nickname} + ') ' + ${reply.dong} + '동 ' + ${#dates.format(reply.regDate, 'yyyy-MM-dd HH:mm:ss')}">답글 등록자</strong>
+										    		<!--<a class="btn btn-xs btn-outline btn-danger" th:href="'javascript:modifyReply(' + ${reply.id} + ')'">수정</a>-->
+										        	<a th:if="${user.id == comment.userId or user.type.jaha}" class="btn btn-xs btn-outline btn-danger" th:href="'javascript:deleteReply(' + ${comment.id} + ', ' + ${reply.id} + ')'">삭제</a>
+										    	</p>
+										    	<pre style="background: none; border: none" th:text="${reply.content}">답글 본문</pre>
+										    </div>
+										</div>
+									</div>
+								</div>
+								<!-- loop -->
+								<!-- 답글 영역 -->
+	                        </div>
+	                        <!-- paging -->
+							<div th:replace="v2/jaha/board/comment-paging :: paginationbar-comment"></div>
+	                        </form>
+                        </div>
+						<!-- 댓글/답글 영역 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+var categoryType = /*[[${category.type}]]*/ 'error';
+var categoryId = /*[[${category.id}]]*/ '0';
+
+var cmtMaxByte = 1000; // 댓글과 댓글에댓글의 글자수 제한
+var cmtMaxMsg = " 댓글 글자수를 초과하였습니다. ";
+
+// 페이지 내 이동할 commentId
+var commentIdForAnchor = /*[[${commentIdForAnchor}]]*/ '0';
+// 답글 노출 여부
+var replyAreaDisplayYn = /*[[${replyAreaDisplayYn}]]*/ 'N';
+// 수정 후, 또는 리스트에서 왔는지 여부
+var fromWhere = /*[[${fromWhere}]]*/ 'list';
+
+$(document).ready(function () {
+	$(".board-detail-content").each(function() {
+		var tempContent = $(this).html();
+
+		if (tempContent) {
+			$(this).html(tempContent.replace(/\n/g, "<br />"));
+		}
+	});
+
+    // 댓글 글자수 표기
+    setTextLengthStatus({
+        _cmtMaxMsgId : "_cmtMaxMsg",
+        _cmtLengthId : "_cmtLength",
+        _textCommentId : "text-comment"
+    });
+
+    // 해당 댓글 위치로 이동
+    if (commentIdForAnchor) {
+		var $target = $("#comment-" + commentIdForAnchor);
+		if ($target.length) {
+			$("html, body").animate({
+				scrollTop : $target.offset().top
+			}, 800);
+		}
+    }
+
+    // 답글 등록/삭제일 경우 답글 목록 노출
+    if ("Y" === replyAreaDisplayYn) {
+    	showCommentReply(commentIdForAnchor);
+    }
+
+    if (fromWhere === "modify") { // 수정화면에서 왔을 경우
+    	$("#btn-move-list").click(function() {
+        	location.href="/v2/jaha/board/faq/list";
+    	});
+    }
+    else {
+    	$("#btn-move-list").click(function() {
+        	location.href="/v2/jaha/board/faq/list";
+        	// history.back();
+    	});
+    }
+});
+
+/**
+ * 수정 페이지 이동
+ */
+function moveModifyForm(postId) {
+   	location.href="/v2/jaha/board/faq/modify-form/" + postId;
+   	return;
+}
+
+/**
+ * 댓글 목록 페이징
+ */
+function paging(movePageNum) {
+	$("#pageNum").val(movePageNum);
+
+	var $form = $("#commentSearchForm");
+	$form.attr("action", $("#listUrl").val());
+
+	$form.submit();
+}
+/**
+ * 댓글 글자제한 메시지 및 byte수 표기
+ */
+function setTextLengthStatus(options, currentCmtLengh) {
+    $("#"+options._cmtMaxMsgId).text(cmtMaxMsg).addClass("cmtStyle");
+
+    if (!currentCmtLengh) {
+    	currentCmtLengh = 0;
+    }
+
+    // $("#"+options._cmtLengthId).text(" [ 0 / "+cmtMaxByte+" ] ").addClass("cmtStyle"); // 처음 로딩시 기본 글자수 표기
+    $("#"+options._cmtLengthId).text(" [ " + currentCmtLengh +" / "+cmtMaxByte+" ] ").addClass("cmtStyle"); // 처음 로딩시 기본 글자수 표기
+
+    $("#"+options._textCommentId).on("keyup", function() {
+        var currByte = gfnByte($(this).val());
+        $("#"+options._cmtLengthId).text(" [ "+currByte+" / "+cmtMaxByte+" ] ");
+
+        if (currByte > cmtMaxByte) {
+            $("#"+options._cmtMaxMsgId).show();
+        } else {
+            $("#"+options._cmtMaxMsgId).hide();
+        }
+    });
+}
+/**
+ * 댓글 등록
+ */
+function writeComment() {
+    var content = $('#text-comment').val();
+
+    if (!content) {
+        // alert(' 내용을 입력해주세요 ');
+    	$().toastmessage('showToast', {
+    	    text : ' 댓글 내용을 입력해주세요! '
+    	    , sticky : false
+    	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+    	    , type : 'warning' // notice, warning, error, success
+    	    , close : function () { if (window.console && console.log) console.log("toast is closed ..."); }
+    	});
+        return;
+    }
+
+    if (gfnByte(content) > cmtMaxByte) {
+        // alert(cmtMaxMsg);
+    	$().toastmessage('showToast', {
+    	    text : cmtMaxMsg
+    	    , sticky : false
+    	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+    	    , type : 'warning' // notice, warning, error, success
+    	    , close : function () { if (window.console && console.log) console.log("toast is closed ..."); }
+    	});
+        return;
+    }
+
+    $("#content").val(content);
+	var $form = $("#commentSearchForm");
+	$form.attr("action", "/v2/jaha/board/faq/comment/create");
+
+	$form.submit();
+}
+/**
+ * 댓글 수정 textarea 노출
+ */
+ var g_oldPreAndTextCommentId;
+
+function showCommentTextarea(commentId) {
+    if (g_oldPreAndTextCommentId) {
+    	$("#text-comment-modify-" + g_oldPreAndTextCommentId).hide();
+    	$("#pre-comment-" + g_oldPreAndTextCommentId).show();
+    	$("#cmt-length-view-area-" + g_oldPreAndTextCommentId).hide();
+    }
+
+	$("#pre-comment-" + commentId).hide();
+	$("#text-comment-modify-" + commentId).show();
+	$("#cmt-length-view-area-" + commentId).show();
+	$("#a-modify-button-" + commentId).show();
+
+	var commentLength = gfnByte($("#text-comment-modify-" + commentId).val());
+
+    // 댓글 글자수 표기
+    setTextLengthStatus({
+	        _cmtMaxMsgId : "_cmtModifyMaxMsg-" + commentId,
+	        _cmtLengthId : "_cmtModifyLength-" + commentId,
+	        _textCommentId : "text-comment-modify-" + commentId
+    	}, commentLength
+    );
+
+	g_oldPreAndTextCommentId = commentId;
+}
+/**
+ * 댓글 수정 textarea 숨김
+ */
+function showCommentPre(commentId) {
+	$("#pre-comment-" + commentId).show();
+	$("#text-comment-modify-" + commentId).hide();
+	$("#cmt-length-view-area-" + commentId).hide();
+	$("#a-modify-button-" + commentId).hide();
+}
+/**
+ * 댓글 수정
+ */
+function modifyComment(commentId) {
+    var content = $("#text-comment-modify-" + commentId).val();
+
+    if (!content) {
+        // alert(' 내용을 입력해주세요 ');
+    	$().toastmessage('showToast', {
+    	    text : ' 댓글 내용을 입력해주세요! '
+    	    , sticky : false
+    	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+    	    , type : 'warning' // notice, warning, error, success
+    	    , close : function () { if (console && console.log) console.log("toast is closed ..."); }
+    	});
+        return;
+    }
+
+    if (gfnByte(content) > cmtMaxByte) {
+        // alert(cmtMaxMsg);
+    	$().toastmessage('showToast', {
+    	    text : cmtMaxMsg
+    	    , sticky : false
+    	    , position : 'middle-center' // top-left, top-center, top-right, middle-left, middle-center, middle-right
+    	    , type : 'warning' // notice, warning, error, success
+    	    , close : function () { if (window.console && console.log) console.log("toast is closed ..."); }
+    	});
+        return;
+    }
+
+    if (confirm(" 댓글을 수정하시겠습니까? ")) {
+	    $("#content").val(content);
+		var $form = $("#commentSearchForm");
+		$form.attr("action", "/v2/jaha/board/faq/comment/modify/" + commentId);
+
+		$form.submit();
+    }
+}
+/**
+ * 댓글 삭제
+ */
+function deleteComment(commentId, replyCount) {
+	if (replyCount > 0) {
+		// alert(" 답글이 있는 댓글은 삭제할 수 없습니다! ");
+		// return;
+	}
+
+    if (confirm(" 댓글을 삭제하시겠습니까? ")) {
+    	var $form = $("#commentSearchForm");
+    	$form.attr("action", "/v2/jaha/board/faq/comment/remove/" + commentId);
+
+    	$form.submit();
+    }
+}
+/**
+ * 댓글 답글 목록 출력
+ */
+var g_oldCommentId;
+
+function showCommentReply(commentId) {
+    if (g_oldCommentId) {
+    	$('#reply-wrap-'+g_oldCommentId).attr('style', 'display:none');
+    }
+    $('#reply-wrap-'+commentId).attr('style', '');
+    $('#button-reply-'+commentId).attr('style', 'display:none');
+    $('#button-reply-hide-'+commentId).attr('style', '');
+
+  	// 댓글 글자수 표기
+    setTextLengthStatus({
+        _cmtMaxMsgId : "_cmtMaxMsg-"+commentId,
+        _cmtLengthId : "_cmtLength-"+commentId,
+        _textCommentId : "text-comment-"+commentId
+    });
+
+    g_oldCommentId = commentId;
+}
+/**
+ * 댓글 답글 목록 숨김
+ */
+function hideCommentReply(commentId) {
+    $('.reply-wrap').attr('style', 'display:none');
+    $('#button-reply-'+commentId).attr('style', '');
+    $('#button-reply-hide-'+commentId).attr('style', 'display:none');
+}
+/**
+ * 댓글 답글 등록
+ */
+function writeCommentReply(commentId) {
+    var content = $("#reply-form-" + commentId).find("textarea").val();
+
+    if (!content) {
+        alert(" 내용을 입력해주세요. ");
+        return;
+    }
+
+    if (gfnByte(content) > cmtMaxByte) {
+        alert(cmtMaxMsg);
+        return;
+    }
+
+    $("#searchCommentId").val(commentId);
+    $("#content").val(content);
+
+	var $form = $("#commentSearchForm");
+	$form.attr("action", "/v2/jaha/board/faq/comment/reply/create");
+
+	$form.submit();
+}
+/**
+ * 댓글 답글 삭제
+ */
+function deleteReply(commentId, replyId) {
+    if (confirm(" 답글을 삭제하시겠습니까? ")) {
+        $("#searchCommentId").val(commentId);
+
+    	var $form = $("#commentSearchForm");
+    	$form.attr("action", "/v2/jaha/board/faq/comment/reply/remove/" + replyId);
+
+    	$form.submit();
+    }
+}
+/*]]>*/
+</script>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+﻿.sbgrid_datagrid_FixedCell
+{
+	text-align:center;
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#E6EDF2;
+	border-color:#B2BAD2;
+	color:#232323;
+	font-size:12px;
+	font-weight:bold;
+	font-family:'Dotum';
+	overflow:hidden;
+}
+
+.sbgrid_datagrid_DataCell
+{
+	border-top-width:0px !important;
+	border-left-width:0px !important;
+	border-right-width:1px !important;
+	border-bottom-width:1px !important;
+	border-top-style:none;
+	border-left-style:none;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	background-color:#FAFAFA;
+	//border-right-color:#D4D0C8;
+	//border-bottom-color:#D4D0C8;
+	border-color:#DBDAD9;
+	background-color:#EFE0ED
+	color:#404040;
+	font-size:12px;
+	font-family:'Dotum';
+}
+
+.sbgrid_datagrid
+{
+	border:1px;
+	border-style:solid;
+	cursor:default;
+	position:relative;
+	overflow:hidden;
+	text-align:left;
+	background-color:#FFFFFF;
+	border-top-width:2px;
+	border-color:#B2BAD2;
+	border-top-color:#87A0BB;
+}

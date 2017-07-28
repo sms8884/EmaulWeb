@@ -1,0 +1,112 @@
+@charset "utf-8";
+
+/************************************************************************
+ * 파일명      : main.css
+ * 설명        : 공통
+ * 작성자      : 박수림
+ * 작성일      : 2014.07.30
+************************************************************************/
+
+/* 일정 - 왼쪽 레이아웃 */
+.schedule {float:left; width:220px; min-height:533px;}
+
+.sch_top_bg {background:url('../../../images/cms/common/main/sch_top_bg.gif') no-repeat 0 top;}
+.sch_mid_bg {background:url('../../../images/cms/common/main/sch_mid_bg.gif') repeat-y 0 0;}
+.sch_btm_bg {background:url('../../../images/cms/common/main/sch_btm_bg.gif') no-repeat 0 bottom;}
+
+.calendar {padding:12px 16px 7px 16px;}
+.calendar .date_lay {height:28px; text-align:center;}
+.calendar .date_lay img {vertical-align:top; padding:2px;}
+.calendar .date_lay .date {padding:0 5px; font-size:16px; line-height:18px; font-weight:bold; font-family:Tahoma; color:#434445;}
+.calendar .adminbtn {text-align:right; margin-top:5px;}
+
+.sch_list {margin:0 1px;}
+.date_tit {position:relative; height:31px; line-height:31px; background:url('../../../images/cms/common/main/date_tit_bg.gif') repeat-x 0 0;}
+.date_tit .btn_r {position:absolute; top:9px; right:8px;}
+.date_tit .cal_ico {display:inline-block; font-family:"NanumB"; font-weight:bold; font-size:12px; background:url('../../../images/cms/common/main/cal_ico.gif') no-repeat 12px 7px; padding-left:30px;}
+.date_list {padding:13px 15px;}
+.date_list li {font-family:"dotum"; line-height:24px; background:url('../../../images/cms/common/comm/bu_dot_gray.gif') no-repeat 0 8px; padding-left:8px;}
+
+
+/* 가운데 레이아웃 */
+.center_lay {float:left; margin:0 26px;}
+
+/*.main_img {width:470px; height:166px; padding:27px 0 0 10px; background:url('../../../images/cms/common/main/main_img.gif') no-repeat 0 0;}*/
+.main_img {width:480px; height:165px;}
+.main_img.default {background:url('../../../images/cms/common/main/main_img.gif') no-repeat 0 0;}
+.main_img .bviolet {color:#03285d; font-size:29px; letter-spacing:-0.05em;  line-height:28px; font-family:"NanumB";}
+.main_img .sky {margin-top:14px; color:#4294d0; font-size:29px; letter-spacing:-0.05em;  line-height:28px; font-family:"NanumB";}
+
+/* 공지사항 외 탭&리스트 */
+.m_notice {width:480px;} 
+/*.m_notice .m_tab {margin-top:25px; width:480px; height:31px; background:url('../../../images/cms/common/main/center_top_bg.gif') no-repeat 0 0;} */
+.m_notice .m_tab {margin-top:10px; width:480px; height:31px; background:url('../../../images/cms/common/main/center_top_bg.gif') no-repeat 0 0;}
+.m_notice .m_tab li {float:left; font-family:"NanumB"; font-size:13px;}
+.m_notice .m_tab li.tab_on_first a {display:inline-block; color:#fff; width:114px; height:31px; line-height:31px; text-align:center; background:url('../../../images/cms/common/main/notic_tab_on_first.gif') no-repeat 0 0;} /* 첫번째 탭 on일때 라운드 bg */
+.m_notice .m_tab li.tab_on a {display:inline-block; color:#fff; width:112px; height:29px; line-height:31px; text-align:center; background:#77a4e5; border:1px solid #5b82cd;}
+.m_notice .m_tab li.tab_off_first a {display:inline-block; width:114px; height:31px; line-height:31px; text-align:center; background:url('../../../images/cms/common/main/notic_tab_off_first.gif') no-repeat 0 0;}/* 첫번째 탭 off일때 라운드 bg */
+.m_notice .m_tab li.tab_off a {display:inline-block; width:114px; height:31px; line-height:31px; text-align:center; background:url('../../../images/cms/common/main/tab_gap.gif') no-repeat right 0;}
+.m_notice .m_tab .more {float:left; margin:8px 0 0 5px;}
+/*.m_list {padding:10px 15px; height:118px;}*/
+.m_list {padding:10px 15px; height: 169px}
+.m_list li {position:relative; font-family:"dotum"; line-height:24px; background:url('../../../images/cms/common/comm/bu_dot_red.gif') no-repeat 0 8px; padding-left:8px;}
+.m_list li div.title {width: 370px; overflow-x: hidden;}
+.m_list li div.title span {cursor: pointer;}
+.m_list li span.date_r {position:absolute; top:0; right:0;}
+
+.list_mid_bg {overflow:hidden; background:url('../../../images/cms/common/main/center_box_mid.gif') repeat-y 0 0; width: 480px; display: block;}
+.list_btm_bg {overflow:hidden; background:url('../../../images/cms/common/main/center_box_btm.gif') no-repeat 0 bottom;}
+
+/* 업무진행률 탭&리스트 */
+.progress {margin-top:11px;}
+.pro_tit {overflow:hidden; width:480px; height:32px; line-height:32px; background:url('../../../images/cms/common/main/ing_top_bg.gif') no-repeat 0 0;}
+.pro_tit h2.tit {float:left; font-size:13px; font-family:"NanumB"; background:url('../../../images/cms/common/main/grape_ico.gif') no-repeat 8px 5px; padding-left:30px;}
+.pro_tit .ing_tab {float:right; margin-right:10px; line-height:34px;}
+.pro_tit .ing_tab dd {float:left; font-family:"dotum";}
+.pro_tit .ing_tab dd.off a {color:#838383;}
+.pro_tit .ing_tab dd.on a {color:#2775d7; font-weight:bold; background:url('../../../images/cms/common/main/bu_arr_down.gif') no-repeat 0 3px; padding-left:12px;}
+.pro_tit .ing_tab dd.gap {color:#ccc; padding:0 10px;}
+
+/*.ing_list {float:left; padding:13px 15px; height:77px;}*/
+.ing_list {float:left; padding:13px 10px 9px 15px; height:77px;}
+.ing_list li {font-family:"dotum"; line-height:23px; background:url('../../../images/cms/common/comm/bu_dot_red.gif') no-repeat 0 8px; padding-left:8px;}
+
+/*.ing_grape {float:left; margin-top:10px; width:145px; height:76px; background:url('../../../images/cms/common/main/grape_bg.gif') no-repeat 0 0;}*/
+.ing_grape {float:left; margin-top:10px; width:135px; height:76px; background:url('../../../images/cms/common/main/grape_bg2.gif') no-repeat 0 0;}
+.ing_grape li {margin:7px 0;}
+.ing_grape .red_bar {height:16px; background:#f15654;}
+.ing_grape .green_bar {height:16px; background:#7fc8ce;}
+.ing_grape .blue_bar {height:16px; background:#4fa0e1;}
+
+/*.figure {float:left; width:125px; margin:12px 0 0 10px;}*/
+.figure {float:left; width:150px; margin:12px 0 0 5px;}
+.figure dd {float:left; margin:3px 4px 4px 4px; text-align:right; font-weight:bold; font-family:"dotum";}
+/*.figure .per {width:47px; height:15px; padding-right:5px; background:#6791e7; border:1px solid #3b6cc8; color:#fff; line-height:15px;}*/
+/*.figure .fam {width:49px; height:17px; padding-right:5px; background:#f0f0f0; color:#575757; line-height:17px;}*/
+.figure .per {width:50px; height:15px; padding-right:5px; background:#6791e7; border:1px solid #3b6cc8; color:#fff; line-height:15px;}
+.figure .fam {width:72px; height:17px; padding-right:5px; background:#f0f0f0; color:#575757; line-height:17px;}
+
+
+/* 오른쪽 레이아웃 */
+.right_lay {float:right; width:248px;}
+/*.right_box {width:248px; margin-bottom:12px;}*/
+.right_box {width:248px; margin-bottom:10px;}
+.right_box h2.title {position:relative; font-size:13px; font-family:"NanumB"; height:32px; line-height:32px; background:url('../../../images/cms/common/main/title_bg.gif') no-repeat 0 0;}
+.right_box h2.title span.tit1 {background:url('../../../images/cms/common/main/doc_ico.gif') no-repeat 13px 0; padding-left:32px;}
+.right_box h2.title span.tit2 {background:url('../../../images/cms/common/main/doc2_ico.gif') no-repeat 11px 0; padding-left:32px;}
+.right_box h2.title span.tit3 {background:url('../../../images/cms/common/main/com_ico.gif') no-repeat 10px 0; padding-left:32px;}
+.right_box h2.title span.btn_r {position:absolute; top:8px; right:14px;}
+
+.right_list {width:238px; height:120px; padding:10px 0 0 10px;}
+/*.right_list li {font-family:"dotum"; letter-spacing:-0.02em; background:url('../../../images/cms/common/comm/bu_dot_gray.gif') no-repeat 0 7px; padding-left:7px; line-height:22px;}*/
+.right_list li {font-family:"dotum"; background:url('../../../images/cms/common/comm/bu_dot_gray.gif') no-repeat 0 7px; padding-left:7px; line-height:22px;}
+
+.rd_list_top {overflow:hidden; background:url('../../../images/cms/common/main/rd_bg_top.gif') no-repeat 0 top;}
+.rd_list_mid {overflow:hidden; background:url('../../../images/cms/common/main/rd_bg_mid.gif') repeat-y 0 0;}
+.rd_list_btm {overflow:hidden; background:url('../../../images/cms/common/main/rd_bg_btm.gif') no-repeat 0 bottom;}
+
+.quick_menu {height:78px; padding-top:7px}
+.quick_menu li {float:left; width:82px;}
+.quick_menu li p {font-family:"dotum"; font-size:11px; text-align:center;}
+
+

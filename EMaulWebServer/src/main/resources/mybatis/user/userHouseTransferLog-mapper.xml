@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.user.UserHouseTransferLogMapper">
+
+	<insert id="insertUserHouseTransferLog" parameterType="UserHouseTransferLogVo" useGeneratedKeys="true" keyProperty="id">
+	    INSERT /* insertUserHouseTransferLog, 전강욱(realsnake@jahasmart.com) */ INTO user_house_transfer_log (
+	        user_id
+	        , house_id
+	        , gubun
+	        , reg_id
+	        , reg_date
+	    ) VALUES (
+	        #{userId}
+	        , #{houseId}
+	        , #{gubun}
+	        , #{regId}
+	        , NOW()
+	    )
+	</insert>
+
+	<select id="selectUserHouseTransferLogList" parameterType="long" resultType="UserHouseTransferLogVo">
+	    SELECT /* selectUserHouseTransferLogList, 전강욱(realsnake@jahasmart.com) */ id
+	    , user_id
+	    , house_id
+	    , gubun
+	    , reg_id
+	    , reg_date
+		FROM user_house_transfer_log
+		WHERE id = #{userId}
+	</select>
+
+	<select id="selectRecentUserHouseTransferLog" parameterType="long" resultType="UserHouseTransferLogVo">
+	    SELECT /* selectUserHouseTransferLog, 전강욱(realsnake@jahasmart.com) */ id
+	    , user_id
+	    , house_id
+	    , gubun
+	    , reg_id
+	    , reg_date
+		FROM user_house_transfer_log
+		WHERE id = #{userId}
+		ORDER BY id DESC
+		LIMIT 0, 1
+	</select>
+
+</mapper>

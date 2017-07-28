@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 관리자 > 메뉴 > 개표v2
+	* 경로 : /v2/admin/vote/vote-key-list
+	* 이력 :
+		- 2016.10.31 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>투표 | 목록</title>
+
+	<style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        .ms-container {
+            margin-left: 100px;
+        }
+		#all_vote_key{float:right;}
+		#vote_key_list{margin-top:1%;}
+    </style>
+
+</head>
+<body>
+
+		<div id="page-wrapper" layout:fragment="layout_content">
+			<div class="row">
+				<div class="col-lg-12">
+					<h1 class="page-header">개표</h1>
+					<div class="panel panel-info">
+						<div class="panel-heading" style="font-weight:900"></div>
+						<div class="panel-body">
+							<form name="" id="" action="" method="POST">
+								 <table class="table table-responsive">
+									<tbody>
+										<tr>
+											<th class="col-sm-2">선거명</th>
+											<td>
+												<span th:text="${voteKey.keyName}">2016년 1차 보안투표</span>
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">투표기간</th>
+											<td>
+												<div>
+												<span th:text="${#dates.format(voteKey.startDt, 'yyyy-MM-dd HH:mm')}">2016.1.25 09:00:00</span> ~
+												<span th:text="${#dates.format(voteKey.endDt, 'yyyy-MM-dd HH:mm')}">2016.1.26 20:59:59</span>
+											</div>
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">투표등록일</th>
+											<td>
+												<span th:text="${voteKey.regDt}">2016.1.25 09:00:00</span>
+												<span th:text="${voteKey.regTm}">2016.1.25 09:00:00</span>
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">선거관리위원장</th>
+											<td>
+												<div>
+													<div class="col-sm-2">이름</div>
+													<div th:text="${voteKey.adminName}">홍길동</div>
+												</div>
+												<div>
+													<div class="col-sm-2">이메일</div>
+													<div th:text="${voteKey.adminEmail}">jahasmart@jahasmart.com</div>
+												</div>
+												<div>
+													<div class="col-sm-2">서명</div>
+													<div>
+														<img th:src="'/api/vote-key/image/' + ${voteKey.createSignFname}" width="200" />
+                                    					<img th:if="${voteKey.keyGrantYn} == 'Y'" th:src="'/api/vote-key/image/' + ${voteKey.grantSignFname}" width="200"  />
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">선거관리위원</th>
+											<td>
+												<span th:text="${voteKey.keyBase1Uname} + '/'">홍길동/</span><span th:text="${voteKey.keyBase2Uname + '/'}">홍길동/</span><span th:text="${voteKey.keyBase3Uname}">홍길동</span>
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">개표상태</th>
+											<td>
+												<span th:text="${voteKey.openStatus == 1 ? '개표 완료' : '개표 승인' }" >홍길동/</span>
+											</td>
+										</tr>
+										<tr th:if="${voteKey.openStatus == 1}">
+											<th class="col-sm-2">개표일시</th>
+											<td th:text="${#dates.format(voteKey.uptDt, 'yyyy-MM-dd HH:mm')}">
+											</td>
+										</tr>
+										<tr>
+											<th class="col-sm-2">투표목록</th>
+											<td>
+											<table class="table table-striped">
+												<thead>
+													 <tr>
+														<!-- <th width="10%;">
+															<input type="checkbox" name="check" value="" />
+														</th> -->
+														<th width="10%">ID</th>
+														<th style="text-align:center;">투표명</th>
+														<th width="20%" style="text-align:center;">개표상태</th>
+														<!-- <th style="text-align:center;">개표시간</th> -->
+													</tr>
+												</thead>
+													<tr th:each="vote, status:${voteList}">
+														<!-- <td>
+															<input type="checkbox" name="check" th:value="${vote.id}" />
+														</td> -->
+														<td>
+															<a th:href="${'/v2/admin/vote/result/'+vote.id}" th:text="${vote.id}">141</a>
+														</td>
+														<td style="text-align:center;" th:text="${vote.title}">2016년 제 14기 101동 대표자 선거</td>
+														<td th:text="${vote.decYn} == 'Y' ? '개표 완료' : '개표 대기'" style="text-align:center;">승인완료</td>
+														<!-- <td style="text-align:center;">2016-04-04 21:21</td> -->
+													</tr>
+											</table>
+											<button th:if="${voteKey.openStatus} == 0" type="button" class="btn btn-sm btn-info" onclick="secuVoteOpen()">개표</button>
+											<!-- 투표와 보안키는 1:1 논리구조로 일부 개표등은 할 수 없음 -->
+											<!-- <button th:if="${voteKey.openStatus} == 0" type="button" class="btn btn-sm btn-info" onclick="secuVoteOpen()">선택 항목 개표</button>
+											<button th:if="${voteKey.openStatus} == 0" type="button" class="btn btn-sm btn-info" onclick="secuVoteOpen()">개표예약</button>
+											<button th:if="${voteKey.openStatus} == 0" type="button" class="btn btn-sm btn-info" onclick="secuVoteOpen()">개표예약취소</button>
+											<button th:if="${voteKey.openStatus} == 0" id="all_vote_key" type="button" class="btn btn-sm btn-info" onclick="secuVoteOpen()">전체개표</button> -->
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							</form>
+						</div>
+						<!-- /.panel-body -->
+					</div>
+					<!-- /.panel-info -->
+				</div>
+				<!-- /.col-lg-12 -->
+			</div>
+			<!-- /.row -->
+			<button id="vote_key_list" type="button" class="btn btn-outline btn-info" onclick="location.href='/v2/admin/vote/key-list'">목록</button>
+
+			<script type="text/javascript" th:inline="javascript">
+			    // <![CDATA[
+
+			    function secuVoteOpen(){
+			    	event.preventDefault();
+
+			    	if (!confirm('개표처리하시겠습니까?')) {
+			    		return;
+			    	}
+
+			        var voteKeyId = /*[[${voteKey.vkId}]]*/ '';
+			        $.ajax({
+			            type: 'GET'
+			            ,url: '/v2/admin/vote/vote-key-open/' + voteKeyId
+			            ,dataType: 'json'
+			            ,success: function (data) {
+			            	if (data.cnt.decCnt ==0) {
+			            		alert("개표 대상이 없습니다.");
+			            		return;
+			            	} else {
+			            		alert(data.cnt.decCnt + '개의 보안투표가 개표처리 되었습니다.');
+				                location.reload();
+			            	}
+
+			            }
+			            ,error: function (jqXHR, textStatus, errorThrown) {
+			                console.log(errorThrown);
+			                console.log(textStatus);
+			            }
+			        });
+			    }
+
+			    // ]]>
+			</script>
+
+
+		</div>
+		<!-- page wrapper -->
+
+</body>
+</html>

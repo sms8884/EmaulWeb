@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout_popup">
+<head>
+    <title>투표 대상자 선택</title>
+
+    <style>
+		.choiceGray{background:#e6e6e6;}
+		.choiceYellow{background:#E6E44C;}
+		.choiceBlue{background:#4CCAE6;}
+	</style>
+
+</head>
+
+<body>
+
+	<div class="popup_container" style="width:99%; margin:0 auto; padding:10px 0;" layout:fragment="layout_cpopup_ontent">
+
+		<table class="table table-responsive selectGuTable" style="width:100%">
+			<thead>
+				<col width="50px;" />
+				<col />
+			</thead>
+			<tbody>
+				<tr>
+					<th >방식</th>
+					<td>
+						<label class="radio-inline">
+							<input type="radio" name="typeOptions" id="selectArea" value="area" /> 선거구별
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="typeOptions" id="selectDong" value="dong" /> 동 단위
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="typeOptions" id="selectHo" value="ho" /> 동/호 단위
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th >선택 </th>
+					<td>
+						<!-- 방식별 선택 영역 -->
+						<div>
+							<div id="displayArea" style="height: 600px; width:100px; overflow-y: auto; overflow-x: hidden; float: left; "><!-- 동 선택영역 --></div>
+							<div id="hoArea" style="height: 600px; width:780px; overflow: auto;  float: left; "><!-- 호 선택영역 --></div>
+						</div>
+
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center" style="border-top:0px;">
+						<button id="selectBtn" name="selectBtn" class="btn btn-success"  >확인</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="modal-footer" style="margin-top:-20px;">
+			<button type="button" class="btn btn-default" data-dismiss="modal" onclick="self.close();">Close</button>
+		</div>
+
+<script th:inline="javascript">
+    // <![CDATA[
+	var aptId = /*[[${aptId}]]*/ 0;
+
+	// opener
+	var targetDong = $(opener.document).find('#targetDong').val();
+	var jsonArrayTargetHo = $(opener.document).find('#jsonArrayTargetHo').val();
+
+	var parseJsonArrayTargetHo = [];
+	var votersCount = 0;
+	var isFirst = true;		// 최초에만 자동 조회기능 실행 (방식 선택 radio버튼)
+
+    $(document).ready(function () {
+
+        $('input[type="radio"][name="typeOptions"]').change(function () {
+
+            var typeValue = $(this).val();
+			$('#hoArea').empty();
+			parseJsonArrayTargetHo = [];
+
+            // 아파트별 동 조회
+            if (typeValue == 'dong' || typeValue == 'ho') {
+
+        		$.ajax({
+        			type: 'get'
+        			,url: '/v2/admin/vote/selectAptDong/' + aptId
+        			, contentType: "application/json; charset=utf-8"
+        			, dataType: 'json'
+                    , success: function (data) {
+
+        				var selectHtml = '';
+                    	if (data.result) {
+                    		selectHtml += '<table class="table table-bordered selectGu-dong" summary="" style="width:100px; text-align:center;">';
+                   			selectHtml += '<tbody>';
+                			selectHtml += '<tr>';
+               				selectHtml += 	'<td class="form-inline choiceYellow" style="font-weight:bold;" >동</td>';
+               				selectHtml += '</tr>';
+                			if (data.dong.length > 0) {
+                				$(data.dong).each(function (i, obj) {
+                    				selectHtml += '<tr>';
+                        			selectHtml += 	'<td class="col-md-2 form-inline" align="left">';
+                        			selectHtml += 		'<div class="form-group checkbox">';
+                        			selectHtml += 		'<label>';
+                        			if (typeValue == 'ho') {
+                        				selectHtml += 		'<input type="radio" id="dongs' + obj + '" name="dongs" onclick="selectDong(\'' + obj + '\')" value="' + obj + '"/>  ' + obj + '동';
+                        			} else {
+                        				selectHtml += 		'<input type="radio" id="dongs' + obj + '" name="dongs" onclick="checkDong(\'' + obj + '\')" value="' + obj + '"  />  ' + obj + '동';
+                        			}
+                        			selectHtml += 		'</label>';
+                        			selectHtml += 		'</div>';
+                        			selectHtml += 	'</td>';
+                        			selectHtml += '</tr>';
+                    			});
+                			} else {
+                    				selectHtml += '<tr>';
+                        			selectHtml += 	'<td class="col-md-2 form-inline" colspan="2" >등록된 동이 없습니다.';
+                        			selectHtml += 	'</td>';
+                        			selectHtml += '</tr>';
+                			}
+                			selectHtml += '</tbody>';
+                			selectHtml += '</table>';
+
+							$('#displayArea').show();
+							$('#displayArea').html(selectHtml);
+
+							// 수정 시
+							if (isFirst) {
+								if (isNotEmpty(targetDong)) {
+									$('#dongs' + targetDong).prop("checked", true);
+									if (isNotEmpty(jsonArrayTargetHo)) {
+										// 동/호별 조회
+										selectDong(targetDong);
+									} else {
+										// 동별 조회
+										checkDong(targetDong);
+									}
+								}
+								isFirst = false;
+							}
+
+                    	} else {
+        					alert(data.message);
+                    	}
+                    }
+                    ,error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(errorThrown);
+                        console.log(textStatus);
+                    }
+                });
+            }
+        });
+
+
+     	// 확인 버튼
+    	$('#selectBtn').click(function (e) {
+    		event.preventDefault();
+    		if (!$(':radio[name="typeOptions"]').is(':checked')) {
+    			alert("세대 선택방식을 선택하세요.");
+    			return;
+    		}
+    		var selectRadio = $(':radio[name="typeOptions"]:checked').val();
+    		if ("dong" == selectRadio) {
+    			// 동선택
+    			if (!$(':radio[name="dongs"]').is(':checked')) {
+    				alert("동을 선택하세요.");
+    				return;
+    			}
+    			var dongText = '<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-danger" >동별</span>';
+				dongText += '<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-info" >' + $(':radio[name="dongs"]:checked').val() + '동</span>';
+
+   				$(opener.document).find('#jsonArrayTargetHo').val('');
+				$(opener.document).find('#targetDong').val('');
+				$(opener.document).find('#votersCount').val('');
+				$(opener.document).find("#show-selected-user").empty();
+
+				$(opener.document).find('#votersCount').val(votersCount);
+				$(opener.document).find("#show-selected-user").html(dongText);
+    			$(opener.document).find("#targetDong").val($(':radio[name="dongs"]:checked').val());
+
+    			self.close();
+
+    		} else if ("ho" == selectRadio) {
+
+    			if (!$(':radio[name="dongs"]').is(':checked')) {
+    				alert("동을 선택하세요.");
+    				return;
+    			}
+
+    	    	for (var tr = 0; tr < $('#checkAllDong tbody tr').length; tr++) {
+    				if (tr == 0) { continue; }
+    				for (var td = 0; td < $('#checkAllDong tbody tr').filter(':eq(0)').children('td').length; td++) {
+    					if (td == 0) { continue; }
+    					var tdText = $('#checkAllDong tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+    					if ("-" != tdText) {
+
+    						if ($('#checkAllDong tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').hasClass('choiceGray')) {
+    							parseJsonArrayTargetHo.push(tdText);
+    							parseJsonArrayTargetHo.sort();
+    						}
+    					}
+    				}
+    	    	}
+
+    	    	if (parseJsonArrayTargetHo.length > 0) {
+
+    	    		$(opener.document).find('#jsonArrayTargetHo').val('');
+    				$(opener.document).find('#targetDong').val('');
+    				$(opener.document).find('#votersCount').val('');
+    	    		$(opener.document).find("#show-selected-user").empty();
+
+    	    		$(opener.document).find('#jsonArrayTargetHo').val(JSON.stringify(parseJsonArrayTargetHo));
+    	    		$(opener.document).find("#targetDong").val($(':radio[name="dongs"]:checked').val());
+    	    		$(opener.document).find('#votersCount').val(parseJsonArrayTargetHo.length);
+    	    		$(opener.document).find("#show-selected-user").append('<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-danger" >' + $(':radio[name="dongs"]:checked').val() + '동</span>');
+
+    	    		for (i in parseJsonArrayTargetHo) {
+    	    			$(opener.document).find("#show-selected-user").append('<span style="margin-right: 2px; margin-top: 2px" class="btn btn-xs btn-info">' + parseJsonArrayTargetHo[i] + '호</span>');
+        	        }
+    	    		self.close();
+
+    	    	} else {
+    	    		alert("호를 선택하세요.");
+    	    		return;
+    	    	}
+    		}
+    	});
+
+     	// 수정화면 데이터 조회
+     	if (isNotEmpty(targetDong)) {
+     		if (isNotEmpty(jsonArrayTargetHo)) {
+     			// 동/호별 조회
+     			$('#selectHo').prop('checked', true).trigger("change");
+     		} else {
+     			// 동별 조회
+     			$('#selectDong').prop('checked', true).trigger("change");
+     		}
+     	}
+    });
+
+    // 동 선택 시 호수 조회
+    function checkDong(dong) {
+    	$.ajax({
+			type: 'get'
+			,url: '/v2/admin/vote/selectAptHo/' + aptId + "/" + dong
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+            , success: function (data) {
+
+            	if (data.result) {
+        			if (data.ho.length > 0) {
+       					alert(dong + '동에 ' + data.ho.length + "개의 호가 등록되어 있습니다.");
+       					votersCount = data.ho.length;
+        			} else {
+        				alert(dong + "동에 등록된 호가 없습니다.");
+        				$('#dongs' + dong).prop('checked', false);
+        				votersCount = 0;
+        			}
+            	} else {
+					alert(data.message);
+            	}
+
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+
+    // 동별 호 조회
+    /**
+     * 호는 화면 출력을 위해서 숫자형 외의 데이터는 조회해 오지 않는다.
+     * 예> 야, 등등 문자열 데이터는 제외함
+     * 호는 01 ~ MAX(HO)까지 생성하여 그리드를 구성하고
+     * 포함되지 않는 호 (사용자가 없는 호는 선택되지 않도록 한다.)
+     * ("00" + column).slice(-2) 와 같이 사용하는 이유
+     * 1과 10은 like 검색시 같은 id로 판단하므로 001, 010과 같이 문자열을 독립적으로 구분처리 하기 위함
+     */
+    function selectDong(dong) {
+
+    	 $.ajax({
+			type: 'get'
+			,url: '/v2/admin/vote/selectAptHo/' + aptId + "/" + dong
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+            , success: function (data) {
+
+				var selectHtml = '';
+            	if (data.result) {
+
+            		selectHtml += '<table class="table table-bordered selectGu-dong" summary="" id="checkAllDong" >';
+           			selectHtml += '<tbody>';
+
+        			if (data.ho.length > 0) {
+
+        				selectHtml += '<tr>';
+        				selectHtml += '<td width="60px;" id="allDong" style="min-width:60px;cursor:pointer;" align="center" onclick="checkAllDong();" >' + dong + '동</td>';
+        				for (var column = 1; column <= (data.column * 1); column++) {	// 2자리
+            				selectHtml += '<td width="60px;" id="hoTitle' +  ("00" + column).slice(-2) + '" class="choiceGray" style="min-width:60px;" align="center" onclick="checkAllHo(\'' + ("00" + column).slice(-2) + '\', this)">' + column + '호</td>';
+        				}
+        				selectHtml += '</tr>';
+
+        				if(isNotEmpty(jsonArrayTargetHo)){
+        					parseJsonArrayTargetHo = JSON.parse(jsonArrayTargetHo);
+        				}
+
+        				// 0층 0호는 없는 호수로 판단한다.
+        				// 예: 0001 호 는 없는 호수
+            			for (var row = 1; row <= (data.row * 1); row++) {	// 3자리
+            				selectHtml += '<tr>';
+            				selectHtml += '<td width="60px;" id="floorTitle' +  ("000" + row).slice(-3) + '" class="choiceGray" style="min-width:60px;" align="center" onclick="checkAllFloor(\'' + ("000" + row).slice(-3) + '\', this)">' + row + '층</td>';
+
+               				for (var column = 1; column <= (data.column * 1); column++) {	// 2자리
+
+               					var isSame = false;
+               					var hoText = '-';
+               					var isJsonHo = false;
+
+               					$(data.ho).each(function (i, obj) {
+               						var compare = ("000" + row).slice(-3) + ("00" + column).slice(-2);
+               						if (obj == compare) {
+               							hoText = (obj * 1);
+               							isSame = true;
+               							if (parseJsonArrayTargetHo) {
+               								for (i in parseJsonArrayTargetHo) {
+               	        						if (hoText == parseJsonArrayTargetHo[i]) {
+               	        							isJsonHo = true;
+               	        						}
+               	        					}
+               							}
+               							return;
+               						}
+               					})
+
+               					if (!isSame) {
+               						selectHtml += '<td align="center" id="tr-' + ("000" + row).slice(-3) + ' td-' + ("00" + column).slice(-2) + '">';
+               						selectHtml +='-';
+               					} else {
+               						selectHtml += '<td align="center" ' + (isJsonHo?'class="choiceGray"':'') + ' onclick="selectHo(this);" style="cursor:pointer;" id="tr-' + ("000" + row).slice(-3) + ' td-' + ("00" + column).slice(-2) + '">';
+               						selectHtml +=hoText;
+               					}
+               					selectHtml += '</td>';
+               				}
+               				selectHtml += '</tr>';
+               			}
+        			} else {
+            				selectHtml += '<tr>';
+                			selectHtml += 	'<td class="col-md-2 form-inline" align="center">' + dong + '동에 등록된 호가 없습니다.';
+                			selectHtml += 	'</td>';
+                			selectHtml += '</tr>';
+        			}
+        			selectHtml += '</tbody>';
+        			selectHtml += '</table>';
+
+        			$('#hoArea').show();
+        			$('#hoArea').empty();
+					$('#hoArea').html(selectHtml);
+
+					parseJsonArrayTargetHo = [];
+
+            	} else {
+					alert(data.message);
+            	}
+
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+    }
+
+    // 동/호 단위에서 "101동" 클릭시 전체 선택 (toggle)
+    function checkAllDong() {
+    	for (var tr = 0; tr < $('#checkAllDong tbody tr').length; tr++) {
+			if (tr == 0) { continue; }
+			for (var td = 0; td < $('#checkAllDong tbody tr').filter(':eq(0)').children('td').length; td++) {
+				if (td == 0) { continue; }
+				var tdText = $('#checkAllDong tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').text();
+				if ("-" != tdText) {
+					if ($('#checkAllDong').hasClass('choiceGray')) {
+						$('#checkAllDong tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').removeClass('choiceGray');
+			    	} else {
+			    		$('#checkAllDong tbody tr').filter(':eq(' + tr + ')').children('td').filter(':eq(' + td + ')').addClass('choiceGray');
+			    	}
+				}
+			}
+    	}
+
+    	if ($('#checkAllDong').hasClass('choiceGray')) {
+    		$('#allDong').removeClass('choiceYellow');
+    		$('#checkAllDong').removeClass('choiceGray');
+    		// 호 (전체호 클릭)
+    		$("[id*='hoTitle']").removeClass("choiceBlue");
+    		$("[id*='hoTitle']").addClass("choiceGray");
+    		// 층 (전체 층 클릭)
+    		$("[id*='floorTitle']").removeClass("choiceBlue");
+    		$("[id*='floorTitle']").addClass("choiceGray");
+    	} else {
+    		$('#allDong').addClass('choiceYellow');
+    		$('#checkAllDong').addClass('choiceGray');
+    		// 호 (전체호 클릭)
+    		$("[id*='hoTitle']").removeClass("choiceGray");
+    		$("[id*='hoTitle']").addClass("choiceBlue");
+    		// 층 (전체 층 클릭)
+    		$("[id*='floorTitle']").removeClass("choiceGray");
+    		$("[id*='floorTitle']").addClass("choiceBlue");
+    	}
+    }
+
+    // 동/호 단위에서 개별 "호" 클릭 시
+    function selectHo(obj) {
+
+    	var trId = $(obj).attr('id').split(" ")[0].split("-")[1];
+    	var tdId = $(obj).attr('id').split(" ")[1].split("-")[1];
+
+    	if ($(obj).hasClass('choiceGray')) {
+    		// 해제
+    		$(obj).removeClass('choiceGray');
+
+    		// 호, 층 선택상태 해제
+    		$('#hoTitle' + tdId).removeClass("choiceBlue");
+    		$('#hoTitle' + tdId).addClass("choiceGray");
+
+			$('#floorTitle' + trId).removeClass("choiceBlue");
+			$('#floorTitle' + trId).addClass("choiceGray");
+
+    	} else {
+    		// 선택
+    		$(obj).addClass('choiceGray');
+
+    		// 전체 호 선택여부 판단
+			var isAllHo = true;
+    		for (var td = 0; td < $("[id*='td-" + tdId + "']").length; td++) {
+    			if (isAllHo) {
+    				if ("-" != $("[id*='td-" + tdId + "']").filter(':eq(' + td + ')').text()) {
+        				if (! $("[id*='td-" + tdId + "']").filter(':eq(' + td + ')').hasClass("choiceGray") ) {
+        					isAllHo = false;
+        				}
+        			}
+    			}
+        	}
+
+    		if (isAllHo) {
+    			$('#hoTitle' + tdId).addClass("choiceBlue");
+        		$('#hoTitle' + tdId).removeClass("choiceGray");
+    		}
+
+    		// 전체 층 선택여부 판단
+    		var isAllFloor = true;
+    		for (var tr = 0; tr < $("[id*='tr-" + trId + "']").length; tr++) {
+    			if (isAllFloor) {
+    				if ("-" != $("[id*='tr-" + trId + "']").filter(':eq(' + tr + ')').text()) {
+    					if (! $("[id*='tr-" + trId + "']").filter(':eq(' + tr + ')').hasClass("choiceGray") ) {
+    						isAllFloor = false;
+    					}
+    				}
+    			}
+    		}
+    		if (isAllFloor) {
+    			$('#floorTitle' + trId).addClass("choiceBlue");
+        		$('#floorTitle' + trId).removeClass("choiceGray");
+    		}
+    	}
+    }
+
+    // 호 클릭 (전체 호 toggle)
+   	function checkAllHo(ho, obj) {
+
+    	// td id 규칙 tr-001 td-03
+    	// true : 선택되지 않음, false : 선택된 상태
+    	var isToggle = $(obj).hasClass("choiceGray");
+    	resetColumn(ho, obj, isToggle)
+    }
+
+    // 층 클릭 (전체 층 toggle)
+    function checkAllFloor(floor, obj) {
+
+    	// true : 선택되지 않음, false : 선택된 상태
+    	var isToggle = $(obj).hasClass("choiceGray");
+    	resetRow(floor, obj, isToggle)
+    }
+
+    // column 선택여부 체크
+	function resetColumn(ho, obj, isToggle) {
+
+    	for (var td = 0; td < $("[id*='td-" + ho + "']").length; td++) {
+			if ("-" != $("[id*='td-" + ho + "']").filter(':eq(' + td + ')').text()) {
+
+				if (isToggle) {
+					$("[id*='td-" + ho + "']").filter(':eq(' + td + ')').addClass("choiceGray");
+				} else {
+					$("[id*='td-" + ho + "']").filter(':eq(' + td + ')').removeClass("choiceGray");
+				}
+			}
+    	}
+
+    	if (isToggle) {
+    		$(obj).removeClass("choiceGray");
+    		$(obj).addClass("choiceBlue");
+		} else {
+			$(obj).removeClass("choiceBlue");
+			$(obj).addClass("choiceGray");
+		}
+    	// 일괄 변경 시
+   		// $('#checkAllDong tbody td:nth-child(' + (ho + 1) + ')').addClass('choiceGray');
+   	}
+
+
+    // row 선택여부 체크
+    function resetRow(floor, obj, isToggle) {
+    	for (var tr = 0; tr < $("[id*='tr-" + floor + "']").length; tr++) {
+			if ("-" != $("[id*='tr-" + floor + "']").filter(':eq(' + tr + ')').text()) {
+
+				if (isToggle) {
+					$("[id*='tr-" + floor + "']").filter(':eq(' + tr + ')').addClass("choiceGray");
+				} else {
+					$("[id*='tr-" + floor + "']").filter(':eq(' + tr + ')').removeClass("choiceGray");
+				}
+			}
+    	}
+
+    	if (isToggle) {
+    		$(obj).removeClass("choiceGray");
+    		$(obj).addClass("choiceBlue");
+		} else {
+			$(obj).removeClass("choiceBlue");
+			$(obj).addClass("choiceGray");
+		}
+		// 일괄 변경 시
+		// $(this).parents('th').nextAll('td').removeClass('choiceGray');
+    }
+
+
+   	// ]]>
+</script>
+
+
+	</div>
+
+</body>
+</html>

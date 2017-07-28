@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardPostMaulnewsMapper">
+
+	<insert id="insertBoardPostMaulnews" parameterType="BoardPostMaulnewsVo">
+	    INSERT /* insertBoardPostMaulnews, 전강욱(realsnake@jahasmart.com) */ INTO board_post_maulnews (
+	        post_id
+	        , news_type
+	        , news_category
+	        , slide_yn
+	        , gender
+	        , age
+	    ) VALUES (
+	        #{postId}
+	        , #{newsType}
+	        , #{newsCategory}
+	        , #{slideYn}
+	        , #{gender}
+	        , #{age}
+	    )
+	</insert>
+
+	<update id="updateBoardPostMaulnews" parameterType="BoardPostMaulnewsVo">
+	    UPDATE /* updateBoardPostMaulnews, 전강욱(realsnake@jahasmart.com) */ board_post_maulnews
+	    <set>
+		    <if test='newsType != null and !newsType.equals("")'>news_type=#{newsType},</if>
+		    <if test='newsCategory != null and !newsCategory.equals("")'>news_category=#{newsCategory},</if>
+		    <if test='slideYn != null and !slideYn.equals("")'>slide_yn=#{slideYn},</if>
+		    <if test='gender != null and !gender.equals("")'>gender=#{gender},</if>
+		    <if test='age != null and !age.equals("")'>age=#{age},</if>
+	    </set>
+	    WHERE post_id=#{postId}
+	</update>
+
+	<delete id="deleteBoardPostMaulnews" parameterType="long">
+	    DELETE /* deleteBoardPostMaulnews, 전강욱(realsnake@jahasmart.com) */ FROM board_post_maulnews
+	    WHERE post_id=#{postId}
+	</delete>
+
+	<select id="selectBoardPostMaulnews" parameterType="long" resultType="BoardPostMaulnewsVo">
+	    SELECT /* selectBoardPostMaulnews, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , news_type
+	    , news_category
+	    , slide_yn
+	    , gender
+	    , age
+	    FROM board_post_maulnews
+	    WHERE post_id=#{postId}
+	</select>
+
+	<sql id="whereClauseOfBoardPostMaulnews">
+	    <where>
+		    <if test='newsType != null and !newsType.equals("")'> AND news_type=#{newsType}</if>
+		    <if test='newsCategory != null and !newsCategory.equals("")'> AND news_category=#{newsCategory}</if>
+		    <if test='slideYn != null and !slideYn.equals("")'> AND slide_yn=#{slideYn}</if>
+		    <if test='gender != null and !gender.equals("")'> AND gender=#{gender}</if>
+		    <if test='age != null and !age.equals("")'> AND age=#{age}</if>
+	    </where>
+	</sql>
+
+	<select id="selectBoardPostMaulnewsListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardPostMaulnewsListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+	    FROM board_post_maulnews
+	    <include refid="whereClauseOfBoardPostMaulnews" />
+	</select>
+
+	<select id="selectBoardPostMaulnewsList" parameterType="BoardDto" resultType="BoardPostMaulnewsVo">
+	    SELECT /* selectBoardPostMaulnewsList, 전강욱(realsnake@jahasmart.com) */ post_id
+	    , news_type
+	    , news_category
+	    , slide_yn
+	    , gender
+	    , age
+	    FROM board_post_maulnews
+	    <include refid="whereClauseOfBoardPostMaulnews" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+</mapper>

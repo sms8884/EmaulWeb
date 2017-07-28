@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- configuration file for LogBack (slf4J implementation)
+See here for more details: http://gordondickens.com/wordpress/2013/03/27/sawing-through-the-java-loggers/ -->
+<configuration scan="true" scanPeriod="600 seconds">
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <!-- To enable JMX Management -->
+    <jmxConfigurator />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/data/emaulweb/logs/emaulweb.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/data/emaulweb/logs/emaulweb.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+	<logger name="org.apache" level="info" additivity="false" />
+	<logger name="org.springframework" level="info" additivity="false" />
+	<logger name="org.hibernate" level="info" additivity="false" />
+	<logger name="org.mybatis" level="info" additivity="false" />
+	<logger name="org.jboss" level="info" additivity="false" />
+	<logger name="org.thymeleaf" level="info" additivity="false" />
+	<logger name="javax.activation" level="info" additivity="false" />
+	<logger name="sun" level="info" additivity="false" />
+	<logger name="com.jaha.web.emaul" level="info" />
+
+    <root level="info">
+    	<appender-ref ref="console"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

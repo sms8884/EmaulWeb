@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>권한변경 이력 리스트</title>
+</head>
+
+<body style="background:#fff">
+
+<div class="wrap" style="padding:10px;">
+	<h3 class="page-header">가입자 상세정보/권한변경 이력 리스트</h3>
+
+	<div id="content-container">
+
+		<table id="userDetailTable" class="table">
+			<thead>
+				<tr class="info">
+					<th width="4%" style="text-align:center;">No.</th>
+					<th width="7%" style="text-align:center;">타입</th>
+					<th width="15%" style="text-align:center;">아파트명</th>
+					<th width="5%" style="text-align:center;">이름</th>
+					<th width="8%" style="text-align:center;">동/호</th>
+					<th width="14%" style="text-align:center;">ID</th>
+					<th width="7%" style="text-align:center;">연락처</th>
+					<th width="10%" style="text-align:center;">권한</th>
+					<th width="7%" style="text-align:center;">생년/성별</th>
+					<th width="8%" style="text-align:center;">기타변경내용</th>
+					<th width="7%" style="text-align:center;">변경일시</th>
+					<th width="5%" style="text-align:center;">변경자</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan="15" style="text-align: center;">검색된 데이터가 없습니다</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div id="pagingArea" align="center"></div>
+	</div>
+	<!-- /.content-container -->
+</div>
+<!-- /.col-lg-12 -->
+
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var userId = /*[[${userId}]]*/ '';
+
+    var param = {};
+    $(document).ready(function(){
+    	//alert("user id : "+userId);
+    	authChangeList();
+    });
+
+    function authChangeList(pageNum){
+    	param.pageNum = gfnNvl(pageNum, "1");
+    	param.userId = userId;
+
+    	$.ajax({
+			url: '/jaha/user/history/data',
+	       	type: 'get',
+	       	async : true,
+	       	dataType: "json",
+	       	data : param,
+	        success: function (data) {
+	    	   if(data==null) {
+	    		   var html2 = "";
+                   html2 +="<tr>";
+                   html2 +="<td colspan='15' style='text-align:center'>검색된 데이터가 없습니다</td>";
+                   html2 +="</tr>";
+                   $("#userDetailTable tbody").html(html2);
+	    	   } else {
+
+					var dataList = data.dataList;
+					var onlinePagingHtml = makePaging(data.pagingHelper, "authChangeList");
+					$('#pagingArea').html(onlinePagingHtml);
+
+					var no = data.pagingHelper.totalRecordCount - ( data.pagingHelper.startNum );
+
+					if(dataList != null && dataList.length > 0){
+						var html = "";
+
+						for(i=0; i<dataList.length; i++){
+							var fullName = gfnNvl(dataList[i].fullName);
+							var aptName = gfnNvl(dataList[i].aptName);
+							var dong = gfnNvl(dataList[i].dong);
+							var ho = gfnNvl(dataList[i].ho);
+							var email = gfnNvl(dataList[i].email);
+							var phone = gfnNvl(dataList[i].phone);
+							var auth = gfnNvl(dataList[i].auth);
+							var modName = gfnNvl(dataList[i].modName);
+							var modDate = gfnNvl(dataList[i].modDate);
+							var gender = gfnNvl(dataList[i].gender);
+							var type = gfnNvl(dataList[i].type);
+							var _data = gfnNvl(dataList[i].data);
+
+							// 안보여줘도될 내용은 제거
+							if(_data.indexOf("userPwd") != -1){
+								_data = "";
+							}
+							
+							var birthYear = gfnNvl(dataList[i].birthYear);
+							if(gender == "male"){
+								gender = "(남)";
+							}else{
+								gender = "(여)";
+							}
+
+							html +="<tr>";
+							html +="<td style=\"text-align:center;\">"+(no--)+"</td>";
+							html +="<td style=\"text-align:center;\">"+type+"</td>";
+							html +="<td style=\"text-align:center;\">"+aptName+"</td>";
+							html +="<td style=\"text-align:center;\">"+fullName+"</td>";
+							html +="<td style=\"text-align:center;\">"+dong+"/"+ho+"</td>";
+							html +="<td style=\"text-align:center;\">"+email+"</td>";
+							html +="<td style=\"text-align:center;\">"+phone+"</td>";
+							html +="<td style=\"text-align:center;\">"+auth+"</td>";
+							html +="<td style=\"text-align:center;\">"+birthYear+gender+"</td>";
+							html +="<td style=\"text-align:center;\">"+_data+"</td>";
+							html +="<td style=\"text-align:center;\">"+modDate+"</td>";
+							html +="<td style=\"text-align:center;\">"+modName+"</td>";
+							html +="</tr>";
+						}
+						
+						if(html.length > 0){
+							$("#userDetailTable tbody").html(html);
+						}else{
+							var html2 = "";
+							html2 +="<tr>";
+							html2 +="<td colspan='15'>검색된 데이터가 없습니다</td>";
+							html2 +="</tr>";
+							$("#userDetailTable tbody").html(html2);
+						}
+					}
+	    	   }
+			},
+	       	error: function (jqXHR, textStatus, errorThrown) {
+				alert('authChangeList 오류입니다');
+	       }
+	   });
+	}
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 자하 > 메뉴 > 코드
+	* 경로 : /v2/admin/code/code-list
+	* 이력 :
+		- 2016.11.28 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>코드관리</title>
+	<style>
+		.modal-body th {
+            width: 20%;
+		}
+        .modal-body {
+            word-break: break-all;
+        }
+        .box {
+
+text-overflow:ellipsis;
+white-space:nowrap;
+word-wrap:normal;
+width:100px;
+overflow:hidden;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+
+
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">코드관리</h1>
+
+				<div class="panel panel-info">
+					<div class="panel-heading" style="font-weight:900"></div>
+					<div class="panel-body">
+
+<form name="frm" id="frm" method="post">
+
+						<table class="table table-bordered" style="margin:0;">
+							<tr>
+								<th style="background-color: #f3f3f3">코드그룹<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+								<td class="form-inline" >
+									<input type="text" id="codeGroup" name="codeGroup" class="form-control" placeholder="코드그룹" th:maxlength="20" style="width:300px;"/>
+								</td>
+								<th style="background-color: #f3f3f3">코드명<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+								<td class="form-inline" >
+									<input type="text" id="name" name="name" class="form-control" placeholder="코드명" th:maxlength="20" style="width:300px;"/>
+								</td>
+							</tr>
+							<tr>
+								<th style="background-color: #f3f3f3">코드설명<i class="fa fa-asterisk" aria-hidden="true" style="font-size:10px; color:red; vertical-align:middle; padding:0 3px;"></i></th>
+								<td class="form-inline" colspan="3">
+									<input type="text" id="description" name="description" class="form-control" placeholder="코드설명" th:maxlength="30" style="width:600px;"/>
+								</td>
+							</tr>
+						</table>
+
+</form>
+						<div style="text-align:center; margin:20px 0;">
+							<input type="button" id="setBtn" name="setBtn" class="btn btn-default btn-info" value="등록"/>
+						</div>
+					</div>
+				</div>
+
+
+				<div id="content-container" >
+					<div id="table-container" style="width:49% ;float:left;">
+					<h3>코드그룹</h3>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th style="text-align:center;">코드그룹</th>
+									<th style="text-align:center;" >코드명</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:if="${#lists.isEmpty(codeGroupList)}">
+									<td colspan="9">코드그룹이 없습니다.</td>
+								</tr>
+								<tr th:each="codeGroup : ${codeGroupList}" >
+									<td>
+										<span th:text="${codeGroup.codeGroup}" th:onclick="|getCommonCode('${codeGroup.codeGroup}')|"></span>
+									</td>
+									<td th:text="${codeGroup.name}"></td>
+									<!-- <td th:text="${codeGroup.regId}"></td>
+									<td th:text="${#dates.format(codeGroup.regDate, 'yyyy-MM-dd HH:mm')}" ></td> -->
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div id="content-container" style="width:49%; float:right;">
+						<h3>공통코드</h3>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th style="text-align:center;">코드그룹</th>
+									<th style="text-align:center;">코드</th>
+									<th style="text-align:center;" >코드명</th>
+									<th style="text-align:center;" >작업</th>
+								</tr>
+							</thead>
+							<tbody id="commonCodeList">
+								<tr>
+									<td colspan="4">코드그룹을 선택하세요.</td>
+								</tr>
+							</tbody>
+						</table>
+
+					</div>
+
+
+				</div>
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+<form name="groupForm" id="groupForm" method="post">
+	<input type="hidden" id="codeGroupSub" name="codeGroup" value="" />
+	<input type="hidden" id="codeSub" name="code" value="" />
+	<input type="hidden" id="nameSub" name="name" value="" />
+</form>
+
+	<!-- javascript page wrapper th include location -->
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+	$(document).ready(function (){
+
+		$("#setBtn").click(function(){
+			setCodeGroup();
+	    });
+
+		/* getAppVersionList('android');
+		getAppVersionList('ios'); */
+	});
+
+    function setCodeGroup() {
+
+    	if (isEmpty($('#codeGroup').val())) {
+    		alert("코드그룹을 입력하세요.");
+    		$('#codeGroup').focus();
+    		return;
+    	}
+
+    	if (isEmpty($('#name').val())) {
+    		alert("코드명을 입력하세요.");
+    		$('#name').focus();
+    		return;
+    	}
+
+    	if (isEmpty($('#description').val())) {
+    		alert("코드설명을 입력하세요.");
+    		$('#description').focus();
+    		return;
+    	}
+
+		if(confirm("등록하시겠습니까?")){
+
+            $.ajax({
+                url: '/v2/jaha/code/set-code-group',
+                type: 'post',
+                dataType: 'json',
+                data: $("#frm").serialize(),
+                success: function(data) {
+                	if (data.result) {
+                		//getCommonCode(data.codeGroup);
+                		alert(data.codeGroup + '코드그룹이 생성되었습니다.');
+                		document.location.reload();
+                	} else {
+                		alert("코드그룹 등록 중 오류가 발생하였습니다.");
+                	}
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+
+        }
+    }
+
+
+    function insertCommonCode() {
+
+    	if (isEmpty($('#codeGroupForm').val())) {
+    		alert("코드명그룹을 선택하세요.");
+    		return;
+    	}
+
+    	if (isEmpty($('#codeForm').val())) {
+    		alert("코드를 입력하세요.");
+    		$('#codeForm').focus();
+    		return;
+    	}
+
+    	if (isEmpty($('#nameForm').val())) {
+    		alert("코드명을 입력하세요.");
+    		$('#nameForm').focus();
+    		return;
+    	}
+
+    	if(confirm($('#codeGroupForm').val() + ' 그룹의 코드를 등록하시겠습니까?')) {
+
+    		$('#codeGroupSub').val($('#codeGroupForm').val());
+ 			$('#codeSub').val($('#codeForm').val());
+			$('#nameSub').val($('#nameForm').val());
+
+    		$.ajax({
+                url: '/v2/jaha/code/set-code',
+                type: 'post',
+                dataType: 'json',
+                data: $("#groupForm").serialize(),
+                success: function(data) {
+                	if (data.result) {
+                		alert(data.code + ' 코드가 생성되었습니다.');
+                		getCommonCode(data.codeGroup);
+                	} else {
+                		alert("코드그룹 등록 중 오류가 발생하였습니다.");
+                	}
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                    console.log(textStatus);
+                }
+            });
+    	}
+
+
+    }
+
+
+	function getCommonCode(codeGroup) {
+
+	    var reqData = {};
+	    reqData.codeGroup = codeGroup;
+
+		$.ajax({
+			type: 'post'
+			,url: '/v2/jaha/code/code-list'
+			, contentType: "application/json; charset=utf-8"
+			, dataType: 'json'
+			, data: JSON.stringify(reqData)
+            , success: function (data) {
+
+           		var commonCodeList = '';
+
+           		if(data.codeList.length > 0){
+
+           			$(data.codeList).each(function (i, obj) {
+           				commonCodeList += '<tr>'
+           					commonCodeList += '<td style="text-align:center;">' + obj.codeGroup + '</td>'
+           					commonCodeList += '<td style="text-align:center;">' + obj.code + '</td>'
+           					commonCodeList += '<td style="text-align:center;">' + obj.name + '</td>'
+           					commonCodeList += '<td style="text-align:center;"><!--span onClick="deleteCommonCode()">[삭제]</span--></td>'
+						commonCodeList += '</ tr>'
+					});
+
+           		} /*
+           		no data영역 대신 등록폼을 오픈한다.
+           		else {
+          				commonCodeList += '<tr>'
+          									+ '<td colspan="7">등록된 코드가 없습니다.</td>'
+                   						+ '</tr>';
+           		} */
+           		// 등록 폼
+           		commonCodeList += '<tr>'
+   					commonCodeList += '<td style="text-align:center;"><input type="hidden" name="codeGroupForm" id="codeGroupForm" value="' + codeGroup + '" readonly="readonly"/>' + codeGroup + '</td>';
+   					commonCodeList += '<td style="text-align:center;"><input type="text" name="codeForm" id="codeForm" value="" maxlength="20" /></td>'
+   					commonCodeList += '<td style="text-align:center;"><input type="text" name="nameForm" id="nameForm" value="" maxlength="20" /></td>'
+   					commonCodeList += '<td style="text-align:center;"><span onClick="insertCommonCode();">[등록]</span></td>'
+				commonCodeList += '</ tr>'
+
+           		$('#commonCodeList').html(commonCodeList);
+            }
+            ,error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+	}
+	/*]]>*/
+	</script>
+	<!--// javascript page wrapper th include location -->
+
+
+    </div>
+    <!--// page wrapper -->
+
+</body>
+</html>

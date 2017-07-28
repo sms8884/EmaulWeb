@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.MonitoringMapper">
+
+    <select id="selectAptApMonitoringTotalUser" parameterType="map" resultType="int">
+    /* selectAptApMonitoringTotalUser */
+         SELECT 
+			        COUNT(DISTINCT b.user_id) uniqueUser 
+			    FROM
+			        apt_ap a, apt_ap_access_log b
+			    WHERE
+			        a.id = b.ap_id
+                    and  a.apt_id = #{apt_id}
+			     
+			    GROUP BY a.apt_id;
+    </select>
+    
+    <select id="selectAptApUserMonitoringList" parameterType="map" resultType="map">
+    /* selectAptApUserMonitoringList */
+			 SELECT 
+				    a.id,
+				    a.apt_id,
+				    a.sido_nm,
+				    a.sgg_nm,
+				    a.apt_name,
+                    b.uniqueUser,
+				    SUM(a.access_count) AS access_count,
+				    SUM(a.new_user) AS new_user,
+				    SUM(a.deactive_user) AS deactive_user,
+				    MAX(a.total_user) as total_user,
+				    a.reg_date
+			FROM
+			     emaul.apt_ap_user_stats a 
+
+                 left outer join
+                 (
+					SELECT 
+						a.apt_id, COUNT(b.id) accessCount, b.access_date ,  COUNT(DISTINCT b.user_id) uniqueUser 
+					FROM    
+						apt_ap a, apt_ap_access_log b
+					
+					WHERE
+						a.id = b.ap_id
+					 AND (b.access_date<![CDATA[>=]]> STR_TO_DATE(#{sDate}, '%Y-%m-%d')  AND b.access_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), INTERVAL 1 DAY))
+                    GROUP BY a.apt_id
+                                  
+                 ) b           
+                 on a.apt_id = b.apt_id
+			WHERE
+			   (a.reg_date <![CDATA[>=]]> STR_TO_DATE(#{sDate}, '%Y-%m-%d')  AND a.reg_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'),
+			        INTERVAL 1 DAY))
+            AND total_user >0
+            <if test="aptList != null and aptList.size>0">
+            AND a.apt_id in
+                <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            
+            </if> 
+			GROUP BY a.apt_name    
+			ORDER BY access_count DESC
+			
+		<if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+    <select id="selectAptApUserMonitoringTotalCount" parameterType="map" resultType="int">
+    /* selectAptApUserMonitoringTotalList */
+		SELECT COUNT(*)
+		 FROM	
+		(	
+			SELECT 
+				    COUNT(*)
+			FROM
+			     emaul.apt_ap_user_stats a
+			WHERE
+			    (a.reg_date <![CDATA[>=]]> STR_TO_DATE(#{sDate}, '%Y-%m-%d')  AND a.reg_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'),
+			        INTERVAL 1 DAY))
+			        AND total_user >0
+		      <if test="aptList != null and aptList.size>0">
+            AND a.apt_id in
+                <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+            
+            </if>    
+			GROUP BY a.apt_name
+			) AS t
+			
+    </select>
+    
+    <select id="selectAptApUserUniqueList" parameterType="map" resultType="map">
+        /* selectAptApUserUniqueList*/
+			    SELECT 
+			        a.apt_id, COUNT(b.id) accessCount, b.access_date ,  COUNT(DISTINCT b.user_id) uniqueUser 
+			    FROM
+	        apt_ap a, apt_ap_access_log b
+			    WHERE
+			        a.id = b.ap_id
+			     AND (b.access_date  <![CDATA[>=]]>  str_to_date(#{sDate}, '%Y-%m-%d') AND b.access_date  <![CDATA[<]]>  ADDDATE(str_to_date(#{eDate}, '%Y-%m-%d'), interval 1 day) )
+          AND a.apt_id = #{aptId}
+			    GROUP BY a.apt_id
+          
+    </select>
+    
+	<sql id="sqlselectAppDownkloadUserList">
+		SELECT basic.basicDate regDate
+			  ,ifnull(b.deactiveUser, 0) deactiveUser
+			  ,ifnull(a.newUser, 0) newUser
+			  ,ifnull(a.newAndroidCnt, 0) newAndroidCnt
+			  ,ifnull(a.newIosCnt, 0) newIosCnt
+			  ,ifnull(a.newWebCnt, 0) newWebCnt
+		FROM
+		(
+            SELECT * FROM jahacomm.basic_date
+            WHERE basicDate BETWEEN #{sDate} AND #{eDate}
+        ) basic
+        LEFT OUTER JOIN
+		(
+			SELECT DATE_FORMAT(a.reg_date, '%Y-%m-%d') AS regDate,
+				   COUNT(*) newUser,
+				   SUM(IF(a.kind = 'android', 1, 0)) AS newAndroidCnt,
+				   SUM(IF(a.kind = 'ios', 1, 0)) AS newIosCnt,
+				   SUM(IF(a.kind is null OR (a.kind != 'ios' AND a.kind != 'android'), 1, 0)) AS newWebCnt
+			FROM user a,
+			<include refid="monitroingTypeEmaul" />
+			AND (a.reg_date <![CDATA[>=]]> STR_TO_DATE(#{sDate}, '%Y-%m-%d')  AND a.reg_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), INTERVAL 1 DAY)) 
+			GROUP BY regDate
+		) a
+		ON basic.basicDate = a.regDate
+		LEFT OUTER JOIN
+        (
+            SELECT  deactive_date, COUNT(*) deactiveUser
+            FROM
+            (
+                SELECT a.id, DATE_FORMAT(a.deactive_date, '%Y-%m-%d') deactive_date
+                FROM  user a,
+                <include refid="monitroingTypeEmaul" />
+                AND deactive_date IS NOT NULL
+            ) a
+            WHERE deactive_date <![CDATA[>=]]> STR_TO_DATE(#{sDate}, '%Y-%m-%d') AND deactive_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), 1)
+            GROUP BY deactive_date
+        )b
+        ON basic.basicDate = b.deactive_date
+	</sql>
+      
+    <select id="selectAppDownkloadUserList" parameterType="Map" resultType="Map">
+    /* selectAppDownkloadUserList */
+        SELECT aa.*
+              ,bb.androidTotal
+              ,bb.iosTotal
+        FROM
+        (
+            <include refid="sqlselectAppDownkloadUserList" />
+        ) aa
+        LEFT OUTER JOIN
+        (
+            SELECT a.basicDate
+			      ,count(*) totalCnt
+			      ,sum(if(b.kind = 'android', 1,0)) androidTotal
+			      ,sum(if(b.kind = 'ios', 1,0)) iosTotal
+			FROM 
+			(
+			    SELECT * FROM jahacomm.basic_date
+			    WHERE basicDate BETWEEN #{sDate} AND #{eDate}
+			) a,
+			(
+			    SELECT a.id, date_format(a.reg_date, '%Y-%m-%d') reg_date, a.kind
+			    FROM user a, <include refid="monitroingTypeEmaul" />
+			) b
+			WHERE b.reg_date <![CDATA[<=]]> a.basicDate
+			GROUP BY a.basicDate
+        ) bb
+        ON aa.regDate = bb.basicDate
+ 		ORDER BY aa.regDate DESC
+    </select>
+
+    <select id="selectAppDownkloadUserListCnt" parameterType="Map" resultType="int">
+		SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlselectAppDownkloadUserList" />
+        ) A
+    </select>
+    
+    <sql id="sqlSelectAptMembershipList">
+        SELECT a.*
+              ,ifnull(b.hoCnt, 0) hoCnt
+              ,ifnull(c.aptUserCnt, 0) aptUserCnt
+              ,ifnull(c.aptUserCntPeriod, 0) aptUserCntPeriod
+              ,ifnull(c.deactiveUserCnt, 0) deactiveUserCnt
+        FROM 
+        (
+            SELECT 시도명 as sidoNm
+                  ,시군구명 as sggNm
+                  ,l2.id aptId
+                  ,l2.name aptName
+            FROM address l1, emaul.apt l2
+            WHERE l1.건물관리번호 = l2.address_code
+            AND ( l1.비고1 != 'virtual' or l1.비고1 is null )
+            AND l2.registered_apt = true
+            <if test="sidoNm != null and sidoNm != ''">
+                AND l1.시도명 = #{sidoNm}
+            </if>
+            <if test="sggNm != null and sggNm != ''">
+                AND l1.시군구명 = #{sggNm}
+            </if>
+            <if test="aptNm != null and aptNm != ''">
+                AND (l1.시군구용건물명 like concat('%',#{aptNm},'%') OR l2.name like concat('%',#{aptNm},'%'))
+            </if>
+        ) a
+        LEFT OUTER JOIN
+        (
+            SELECT apt_id, sum(hoCnt) hoCnt
+            FROM
+            (
+            SELECT apt_id, dong, count(ho) hoCnt
+            FROM house
+            GROUP BY apt_id, dong
+            ) A
+            GROUP BY apt_id
+        ) b
+        ON a.aptId = b.apt_id
+        LEFT OUTER JOIN
+        (
+            SELECT b.apt_id
+                  ,count(a.id) aptUserCnt
+                  ,sum(if( a.reg_date <![CDATA[>=]]> str_to_date(#{sDate}, '%Y-%m-%d') AND a.reg_date <![CDATA[<]]> adddate(str_to_date(#{eDate}, '%Y-%m-%d'), 1), 1, 0)) aptUserCntPeriod
+                  ,sum(if( a.deactive_date <![CDATA[>=]]> str_to_date(#{sDate}, '%Y-%m-%d') AND a.deactive_date <![CDATA[<]]> adddate(str_to_date(#{eDate}, '%Y-%m-%d'), 1) , 1, 0)) deactiveUserCnt
+            FROM user a, house b, apt c
+            WHERE a.house_id = b.id
+            AND b.apt_id = c.id
+            AND c.virtual = false
+            AND c.registered_apt = true
+            GROUP BY b.apt_id
+        ) c
+        ON a.aptId = c.apt_id
+<!--        /////////////////////////    -->
+              	     <if test="exceptAptList != null and exceptAptList.size>0">
+            		WHERE a.aptId not in
+                <foreach collection="exceptAptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+           </if>
+<!--        /////////////END////////////    -->
+
+             <if test="aptList != null and aptList.size>0">
+            AND a.aptId in
+                <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+                    #{item}
+                </foreach>
+           </if>
+    </sql>
+    
+    <select id="selectAptMembershipList" parameterType="map" resultType="map" >
+    /* selectAptMembershipList */
+        <include refid="sqlSelectAptMembershipList" />
+        ORDER BY
+        <choose>
+            <when test="@com.jaha.util.MyBatis@isNotEmpty( _orderByItem )">${_orderByItem} ${_orderBy}</when>
+            <otherwise>a.aptName ASC</otherwise>
+        </choose>
+        <if test="@com.jaha.util.MyBatis@isNotEmpty( pagingHelper ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.startNum ) and @com.jaha.util.MyBatis@isNotEmpty( pagingHelper.endNum )">
+        LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+        </if>
+    </select>
+    
+    <select id="selectAptMembershipListCount" parameterType="map" resultType="int">
+    /* selectAptMembershipListCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptMembershipList" />
+        ) A
+    </select>
+    
+    
+    <sql id = "monitroingTypeEmaul">
+        house b, apt c,
+        (
+			SELECT DISTINCT id as apt_id
+				   FROM apt a
+				   <where> 
+					   <if test="exceptAptList != null and exceptAptList.size>0">
+	            	       a.id not in
+	                       <foreach collection="exceptAptList" item="item" separator="," open="("  close=")" >
+	                           #{item}
+	                       </foreach>
+	                   </if>
+					   <if test="aptList != null and aptList.size>0">
+	            	       AND a.id in
+		                   <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+		                       #{item}
+		                   </foreach>
+	                   </if> 
+                   </where>
+        ) d
+        WHERE a.house_id = b.id
+        AND b.apt_id = c.id
+        AND c.id = d.apt_id
+			
+    </sql>
+
+   <sql id = "monitroingTypeEdoor">
+      house b, apt c,
+          (
+         SELECT DISTINCT apt_id
+             from apt_ap 
+             <where>
+	             <if test="exceptAptList != null and exceptAptList.size>0">
+	                 apt_id not in
+	                 <foreach collection="exceptAptList" item="item" separator="," open="("  close=")" >
+	                     #{item}
+	                 </foreach>
+	             </if>
+	             <if test="aptList != null and aptList.size>0">
+	                 AND apt_id in
+	                 <foreach collection="aptList" item="item" separator="," open="("  close=")" >
+	                     #{item}
+	                 </foreach>
+	             </if>
+             </where>
+          ) d
+              WHERE a.house_id = b.id
+              AND b.apt_id = c.id
+              and c.id = d.apt_id
+    </sql>
+    
+    
+    <select id="selectAptMemberListByDate" parameterType="map" resultType="map" >
+    /* SelectAptMemberListByDate */
+        SELECT aa.*
+              ,bb.emaulTotalCnt
+		      ,cc.edoorTotalCnt
+        FROM
+        (
+	        <include refid="sqlSelectAptMemberListByDate" />
+	    ) aa
+	    LEFT OUTER JOIN
+        (
+            SELECT a.basicDate
+                  ,count(*) emaulTotalCnt
+            FROM 
+            (
+                SELECT * FROM jahacomm.basic_date
+                WHERE basicDate BETWEEN #{sDate} AND #{eDate}
+            ) a,
+            (
+                SELECT a.id, date_format(a.reg_date, '%Y-%m-%d') reg_date, a.kind
+                FROM user a, <include refid="monitroingTypeEmaul" />
+            ) b
+            WHERE b.reg_date <![CDATA[<=]]> a.basicDate
+            GROUP BY a.basicDate
+        ) bb
+        ON aa.reg_date = bb.basicDate
+        LEFT OUTER JOIN
+        (
+            SELECT a.basicDate
+                  ,count(*) edoorTotalCnt
+            FROM 
+            (
+                SELECT * FROM jahacomm.basic_date
+                WHERE basicDate BETWEEN #{sDate} AND #{eDate}
+            ) a,
+            (
+                SELECT a.id, date_format(a.reg_date, '%Y-%m-%d') reg_date, a.kind
+                FROM user a, <include refid="monitroingTypeEdoor" />
+            ) b
+            WHERE b.reg_date <![CDATA[<=]]> a.basicDate
+            GROUP BY a.basicDate
+        ) cc
+        ON aa.reg_date = cc.basicDate
+	    ORDER BY aa.reg_date DESC
+   </select>
+
+      <select id="selectAptMemberListByDateCount" parameterType="map" resultType="int">
+    /* SelectAptMemberListByDateCount */
+        SELECT COUNT(*)
+        FROM
+        (
+            <include refid="sqlSelectAptMemberListByDate" />
+        ) A
+    </select>
+    
+    <sql id="sqlSelectAptMemberListByDate" >   
+    SELECT basic.basicDate reg_date
+          ,a.dailyCnt emaulNewUser_cnt
+          ,b.dailyCnt emaulDeactive_cnt
+          ,c.dailyCnt edoorNewUser_cnt
+          ,d.dailyCnt edoorDeactive_cnt
+    from
+    (
+          SELECT * FROM jahacomm.basic_date
+          WHERE basicDate BETWEEN #{sDate} AND #{eDate}
+    ) basic
+    LEFT OUTER JOIN
+    (
+          <include refid="sqlSelectEmaulNewUserCnt" />
+    )a
+      ON basic.basicDate = a.reg_date
+    LEFT OUTER JOIN
+    (
+          <include refid="sqlSelectEmaulDeactiveUserCnt" />
+    )b
+      ON basic.basicDate = b.deactive_date
+    LEFT OUTER JOIN
+    (
+          <include refid="sqlSelectEdoorNewUserCnt" />
+    )c  
+      ON basic.basicDate = c.reg_date
+    LEFT OUTER JOIN
+    (
+          <include refid="sqlSelectEdoorDeactiveUserCnt" />
+    )d
+    ON basic.basicDate = d.deactive_date
+    
+    </sql>
+    
+    <sql id="sqlSelectEmaulNewUserCnt">
+   SELECT a.reg_date, a.dailyCnt
+      FROM
+      (
+        SELECT reg_date, COUNT(*) dailyCnt
+        from (
+          SELECT a.id, DATE_FORMAT(a.reg_date, '%Y-%m-%d') reg_date
+          FROM user a,
+          <include refid="monitroingTypeEmaul" />
+        ) a
+        WHERE reg_date <![CDATA[>=]]> ADDDATE(STR_TO_DATE(#{sDate}, '%Y-%m-%d'), 0) AND reg_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), 1)
+        GROUP BY reg_date
+      ) a
+    </sql>
+    
+    <sql id="sqlSelectEmaulDeactiveUserCnt">
+       SELECT    a.deactive_date, a.dailyCnt
+        FROM
+            (
+            SELECT  deactive_date, COUNT(*) dailyCnt
+            FROM  (
+              
+              SELECT  a.id, DATE_FORMAT(a.deactive_date, '%Y-%m-%d') deactive_date
+              FROM  user a,
+              <include refid="monitroingTypeEmaul" />
+	                 AND deactive_date IS NOT NULL
+                 ) a
+            WHERE 
+            deactive_date <![CDATA[>=]]> ADDDATE(STR_TO_DATE(#{sDate}, '%Y-%m-%d'), 0) AND deactive_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), 1)
+            GROUP BY deactive_date
+          ) a
+    </sql>
+    
+    <sql id="sqlSelectEdoorNewUserCnt">
+      SELECT   a.reg_date, a.dailyCnt
+      
+      FROM
+          (SELECT 
+              reg_date, COUNT(*) dailyCnt
+          FROM
+              (SELECT 
+              a.id, DATE_FORMAT(a.reg_date, '%Y-%m-%d') reg_date
+          FROM
+            user a,  
+            <include refid="monitroingTypeEdoor" />
+              ) a
+          WHERE
+            reg_date <![CDATA[>=]]> ADDDATE(STR_TO_DATE(#{sDate}, '%Y-%m-%d'), 0) AND reg_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), 1)
+          GROUP BY reg_date
+          ) a
+    </sql>
+    
+    <sql id="sqlSelectEdoorDeactiveUserCnt">
+     SELECT  a.deactive_date, a.dailyCnt
+      FROM
+        (SELECT deactive_date, COUNT(*) dailyCnt
+          FROM
+            (SELECT a.id, DATE_FORMAT(a.deactive_date, '%Y-%m-%d') deactive_date
+          FROM
+          user a, 
+          <include refid="monitroingTypeEdoor" />
+            AND deactive_date IS NOT NULL
+          ) a
+        WHERE
+          deactive_date <![CDATA[>=]]> ADDDATE(STR_TO_DATE(#{sDate}, '%Y-%m-%d'), 0) AND deactive_date <![CDATA[<]]> ADDDATE(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), 1)
+        GROUP BY deactive_date
+      )a
+    </sql>
+    
+    
+        <select id="selectExceptApt" parameterType="map" resultType="map" >
+    /* selectExceptApt */
+        SELECT * FROM emaul.common_code  a
+		WHERE a.code = #{type};
+    </select>
+    
+    
+    
+    
+
+</mapper>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+
+<link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+<link type="text/css" rel="stylesheet" th:href="@{/font-awesome/css/font-awesome.css}" />
+<link type="text/css" rel="stylesheet" th:href="@{/css/sb-admin-2.css}" />
+<link type="text/css" rel="stylesheet" th:href="@{/css/bootstrap-datetimepicker.css}" />
+<link type="text/css" rel="stylesheet" th:href="@{/css/select2.min.css}" />
+
+<style>
+	.newsRight{
+		text-align:right;
+		margin:5px 5px;
+		vertical-align:middle
+	}
+	.nesessary{
+		color:red;
+		font-size:10px;
+	}
+	.newsSignupbox{
+		margin-bottom:40px;
+		overflow:hidden;
+	}
+
+	table th{
+		width:20%;
+	}
+
+	.newsImgTextbox{
+		float:left;
+		width:30%;
+	}
+
+	.newsThumImgFileBox{
+		position:relative;
+		width:7%;
+		height:29px;
+		display:inline-block;
+	}
+
+	.newsThumImgFileFakeBtn{
+		width:80px;
+		position:absolute;
+		top:0px;
+		margin-left:5px;
+	}
+
+	.newsThumImgFileupload{
+		font-size:45px;
+		position:absolute;
+		right:0px;
+		top:0px;
+		opacity:0;
+		.filter:alpha(opacity=0);
+		-ms-filter:"alpha(opacity=0)";
+		-khtml-opactiy:0;
+		-moz-opacity:0;
+	}
+
+	.newsThumImgFileLabel{
+		display:none;
+	}
+
+	.newsThumImgPriviewBtn{
+		position:absolute;
+		top:0px;
+		left:90px;
+	}
+
+	 #range_sigungu option{
+     	display:none;
+     }
+</style>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<title>Jaha admin | 마을뉴스 입력 페이지</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+    <div th:replace="admin/admin :: top-nav"></div>
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">마을뉴스</h1>
+                <div id="content-container">
+                    <form name="dataForm" id="dataForm" enctype="multipart/form-data" method="post" action="/jaha/board/news/writeOk">
+						<div class="panel-body">
+							<p class="newsRight"><span class="fa fa-asterisk nesessary" style="font-size:8px;"></span>필수 입력 항목 입니다.</p>
+							<div class="border-round" style="padding: 0; margin: 0 0 10px 0">
+								<table class="table table-responsive table" style="margin-bottom: 0">
+									<tbody>
+										<tr>
+											<th>구분<span class="fa fa-asterisk nesessary"></span></th>
+											<td class="form-inline">
+												<select class="form-control" id="news_type" name="news_type">
+												<option th:each="newstype : ${newstypeList}" th:value="${newstype.code}" th:text="${newstype.name}"></option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<th>카테고리<span class="fa fa-asterisk nesessary"></span></th>
+											<td class="form-inline">
+											   <select class="form-control" name="news_category" id="news_category">
+													<option th:each="category : ${categoryList}" th:value="${category.code}" th:text="${category.name}"></option>
+											   </select>
+												<!-- [START] 이벤트 여부(자하권한만 표시) 추가 by realsnake 2016.10.19 -->
+												<span th:if="${user.type.jaha}" class="eventYn_class">
+													<!-- &nbsp;&nbsp;&nbsp;<input type="checkbox" id="_eventYn" name="_eventYn" /><label>이벤트 여부</label> -->
+													(이벤트의 경우 카테고리는 생활로 고정하며 정식 이벤트 게시판이 완료되기 전까지 마을뉴스를 임시로 사용합니다.)
+												</span>
+												<!-- [END] -->
+											</td>
+										</tr>
+										<tr>
+											<th>지역</th>
+											<td class="form-inline">
+												<select class="form-control" id="range_sido" name="range_sido">
+													<!-- [START] 단체관리자 기능 추가 : 단체관리자는 다른 지역으로 변경 못하게 자하권한만 표시하게 수정 by PNS 2016.09.26 -->
+													<option th:if="${user.type.jaha}" value="">시도선택</option>
+													<!-- [END] -->
+													<option th:each="sidoName : ${sidoNameList}" th:value="${sidoName}" th:text="${sidoName}"></option>
+												</select>
+												<select class="form-control" id="range_sigungu" name="range_sigungu">
+													<option th:if="${user.type.jaha}" value="">시군구선택</option>
+													<option th:each="gugun : ${gugunNameList}" th:class="${gugun.sido}" th:value="${gugun.gugun}" th:text="${gugun.gugun}" style='display:none'></option>
+												</select>
+												<!-- [START] 단체관리자 기능 추가 : 자하권한만 표시하게 수정 by PNS 2016.09.19 -->
+												&nbsp;&nbsp;&nbsp; <input th:if="${user.type.jaha}" type="checkbox" id="range_all" name="range_all" value="1"/><label th:if="${user.type.jaha}">모든 사용자 공개</label>
+												<!-- [END] -->
+
+												<!-- [START] 푸시발송여부(자하권한만 표시) 추가 by realsnake 2016.10.19 -->
+												<span th:if="${user.type.jaha}" class="pushSendYn_class">
+													&nbsp;&nbsp;&nbsp;<input type="checkbox" id="_pushSendYn" name="_pushSendYn" /><label>푸시 발송</label>
+													<input type="hidden" id="pushSendYn" name="pushSendYn" value="N" />
+												</span>
+												<!-- [END] -->
+											</td>
+										</tr>
+										<!-- <tr>
+											<th>지역</th>
+											<td class="form-inline">
+												<select class="form-control" id="range_sido" name="range_sido" onchange="sidoToSigungu()">
+													<option value="">시도선택</option>
+													<option th:each="sidoName : ${sidoNameList}" th:value="${sidoName}" th:text="${sidoName}"></option>
+												</select>
+												<select class="form-control" id="range_sigungu" name="range_sigungu">
+													<option value="">시군구선택</option>
+												</select>
+												<input type="checkbox" id="range_all" name="range_all" value="1"/><label>모든 사용자 공개</label>
+											</td>
+										</tr> -->
+										<tr>
+											<th>성별<span class="fa fa-asterisk nesessary"></span></th>
+											<td >
+											<!--
+											    <label class="radio-inline">
+                    								<input type="radio" class="newsNorPost" name="gender" value="ALL" checked="checked"/> ALL
+                    							</label>
+                    						 -->
+												<label class="radio-inline" th:each="gender : ${genderList}">
+													<input type="radio" class="newsNorPost" name="gender" th:value="${gender.code}" th:text="${gender.name}" th:checked="${gender.code =='ALL'}"  />
+												</label>
+											</td>
+										</tr>
+										<tr>
+											<th>나이<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+											    <input type="hidden" id="age" name="age" value=""/>
+							                    <label class="checkbox-inline">
+                    								<input type="checkbox" id="chk_all" name="chk_all" value="ALL" checked="checked"/> ALL
+                    							</label>
+                    							<label class="checkbox-inline" th:each="age : ${ageList}">
+                    								<input type="checkbox" id="chk_list" name="chk_list" th:value="${age.code}" th:text="${age.name}" checked="checked"/>
+                    							</label>
+											</td>
+										</tr>
+										<tr>
+											<th>제목<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+												<input type="text" class="form-control newsNorTitleTxt" value="" name="title"  id="title" placeholder="제목입니다."/>
+											</td>
+										</tr>
+										<tr>
+											<th>내용<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+												<textarea class="form-control newsNorContentTxt" placeholder="내용을 입력하세요" rows="5" style="resize: none" name="content" id="contents"></textarea>
+											</td>
+										</tr>
+										<tr>
+											<th>태그<span class="fa"></span></th>
+											<td>
+												<input type="text" id="hashtag" class="form-control newsImgTextbox" style="margin-right: 5px;" />
+												<input type="button" id="add-display-hashtag" class="btn btn-info" value="등록" />
+												<div id="display-hashtags" style="padding-top: 5px;"></div>
+											</td>
+										</tr>
+										<tr>
+											<th>썸네일<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+												<input type="text" class="form-control newsImgTextbox" id="newsThumImgTextbox" name="newsThumImgTextbox"/>
+												<div class="newsThumImgFileBox">
+													<label for="newsThumImgFileFakeBtn" class="newsThumImgFileLabel">이미지 첨부</label>
+													<input type="button" class="btn btn-success newsThumImgFileFakeBtn" value="파일찾기" name="newsThumImgFileFakeBtn" id="newsThumImgFileFakeBtn"/>
+													<input type="file" class="form-control newsThumImgFileupload" name="img-title" id="img-title" onchange="javascript:document.getElementById('newsThumImgTextbox').value=this.value"/>
+													<!-- <input type="button" class="btn btn-success newsThumImgPriviewBtn" id="newsThumImgPriviewBtn" value="미리보기" name="newsThumImgPriviewBtn" onclick="newsFilePreview()"/>-->
+												</div>
+												<span style="float:right; margin-top:5px">※ 사이즈 993x1002</span>
+											</td>
+										</tr>
+										<tr>
+											<th>e마을 슬라이드 노출여부<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+												<label class="radio-inline">
+													<input type="radio" class="newsNorSliShow" id="slide_yn_y" name="slide_yn" value="Y"/>노출
+												</label>
+												<label class="radio-inline">
+													<input type="radio" class="newsNorSliNoShow" id="slide_yn_n" name="slide_yn" value="N" checked="checked"/>미노출
+												</label>
+											</td>
+										</tr>
+										<tr>
+											<th>게시<span class="fa fa-asterisk nesessary"></span></th>
+											<td>
+												<label class="radio-inline">
+													<input type="radio" class="newsNorPost" value="Y" name="display_yn" id="display_yn_y" checked="checked"/>게시
+												</label>
+												<label class="radio-inline">
+													<input type="radio" class="newsNorNotPost" value="N" name="display_yn" id="display_yn_n"/>미게시
+												</label>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="newsSignupbox">
+							<div class="newsSignupRight" style="float:right;">
+								<input type="button" class="btn btn-outline btn-info newsNorSignupBtn" id="newsNorSignupBtn" value="등록" name="newsNorSignupBtn" onclick="newsNorSignUp()"  />
+								<input type="button" class="btn btn-outline btn-info newsNorCancle" id="newsNorCancle" value="취소" name="newsNorCancle" onclick="history.back()"/>
+							</div>
+						</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script type="text/javascript" th:src="@{/js/sb-admin-2.js}"></script>
+<script type="text/javascript" th:src="@{/js/moment-with-locales.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/select2.min.js}"></script>
+<script type="text/javascript" th:src="@{/ckeditor/ckeditor.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    ( function() {
+        'use strict';
+
+        CKEDITOR.replace( 'contents', {
+            extraPlugins: 'image2,uploadimage,youtube',
+
+            removePlugins: 'save,newpage,preview,print,templates,find,selectall,forms,div,justify,bidi,indentblock,flash,smiley,' +
+            'pagebreak,iframe,colorbutton,font,image',
+
+            // The toolbar groups arrangement, optimized for two toolbar rows.
+            toolbarGroups: [
+                { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+                { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+                { name: 'links' },
+                { name: 'insert' },
+                { name: 'forms' },
+                { name: 'tools' },
+                { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+                { name: 'others' },
+                '/',
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+                { name: 'styles' },
+                { name: 'colors' },
+                { name: 'about' }
+            ],
+
+            // Remove some buttons provided by the standard plugins, which are
+            // not needed in the Standard(s) toolbar.
+            removeButtons: 'Underline,Subscript,Superscript,Copy,Cut,Paste,PasteText,PasteFromWord',
+
+            uploadUrl: '/api/board/today/image/upload',
+
+            // Set the most common block elements.
+            format_tags: 'p;h1;h2;h3;pre',
+
+            // Simplify the dialog windows.
+            removeDialogTabs: 'link:advanced',
+
+            height: 400,
+
+            // Load the default contents.css file plus customizations for this sample.
+            contentsCss: [ CKEDITOR.basePath + 'contents.css', '/ckeditor/contents.css' ],
+
+            stylesSet: [
+                { name: 'Narrow image', type: 'widget', widget: 'image', attributes: { 'class': 'image-narrow' } }
+            ],
+
+            // Configure the Enhanced Image plugin to use classes instead of styles and to disable the
+            // resizer (because image size is controlled by widget styles or the image takes maximum
+            // 100% of the editor width).
+            image2_alignClasses: [ 'image-align-left', 'image-align-center', 'image-align-right' ],
+            image2_disableResizer: true
+        } );
+    } )();
+
+
+ function newsNorDel(){
+	if(confirm('삭제하시겠습니까?')){
+
+	}else{
+
+	}
+ };
+
+ /*vaildation 체크*/
+function newsNorSignUp(){
+	var contents_data = CKEDITOR.instances.contents;
+
+	var confirmMessage = " 등록하시겠습니까? ";
+
+	// 카드뉴스를 선택했을 경우 푸시 발송 제외
+	if ("CARD" == $("#news_type").val()) {
+    	$('#_pushSendYn').prop("checked", false);
+		$("#pushSendYn").val("N");
+	}
+
+	if ($("#_pushSendYn") && $("#_pushSendYn").is(":checked")) {
+		$("#pushSendYn").val("Y");
+
+		confirmMessage += "([주의] 푸시발송포함) ";
+	}
+	else {
+		$("#pushSendYn").val("N");
+	}
+
+	if(confirm( confirmMessage )){
+		if($("#title").val() == ""){
+			alert('제목을  입력해주세요.');
+			$('#title').focus();
+			return;
+		}else if(contents_data == ""){
+			alert('내용을 입력해주세요.');
+			$('#contents').focus();
+			return;
+		}else if($("#news_type").val() ==""){
+			alert('뉴스타입를 선택하세요');
+			$('#news_type').focus();
+			return;
+		}else if($("#news_category").val() ==""){
+			alert('뉴스카테고리를 선택하세요');
+			$('#news_category').focus();
+			return;
+		<!-- [START] 단체관리자 기능 추가 : 모든사용자공개 체크가 안되어 있고 시도값 선택도 안한 경우 차단 by PNS 2016.09.23 -->
+		}else if($("#range_sido").val() =="" && !$("#range_all").is(":checked")){
+			alert('지역의 시도를 선택하세요');
+			$('#range_sido').focus();
+			return;
+		}
+		<!-- [END] -->
+
+		var imgTitle = $('#img-title').val();
+        if(imgTitle == null || imgTitle == ''){
+            alert('썸네일 이미지가 선택되지 않았습니다');
+            return;
+        }
+		//나이체크박스 값 넣기 호출
+		checkSelectedValue();
+		var actionUrl = "/jaha/board/news/writeOk";
+		$('#dataForm').attr('action', actionUrl).submit();
+	}
+
+}
+
+/**
+ * 일반뉴스/카드뉴스에 따라 푸시발송 체크박스 처리
+ */
+$("#news_type").change(function() {
+    var newsType = $("#news_type").val();
+    if (window.console && console.log) console.log(newsType);
+
+    if ("GNRL" == newsType) {
+        $(".pushSendYn_class").css("display", "");
+    }
+    else {
+    	$(".pushSendYn_class").css("display", "none");
+    }
+});
+
+/*시도에 따라 시군 검색
+ function sidoToSigungu() {
+     $('#range_sigungu').empty();
+     $('#range_sigungu').append('<option value="">시군구 선택</option>');
+
+     var sidoName = $('#range_sido option:selected').text();
+     var url = "/api/public/address/sigungu-names/"+sidoName;
+
+     if($('#range_sido option:selected').val()==''){
+         $('#range_sigungu').empty();
+         $('#range_sigungu').append('<option value="">시군구 선택</option>');
+         $('#range_sigungu').append('<option value="">시/도를 먼저 선택하세요</option>');
+     }else {
+         $.ajax({
+             type: 'GET',
+             url: url,
+             contentType: "application/json; charset=utf-8",
+             dataType: 'json',
+             success: function (data) {
+                 for (i in data) {
+                     $('#range_sigungu').append('<option value="'+data[i]+'">' + data[i] + '</option>');
+                 }
+             },
+             error: function (jqXHR, textStatus, errorThrown) {
+                 alert("ajax fail");
+                 if (window.console && console.log) console.log(errorThrown);
+                 if (window.console && console.log) console.log(textStatus);
+             }
+         });
+     }
+ }*/
+
+
+ //체크박스
+ $(window).load(function(){
+	    $("input[name='chk_all']").click(function () {
+	        var chk_listArr = $("input[name='chk_list']");
+	        for (var i=0; i < chk_listArr.length; i++) {
+	            chk_listArr[i].checked = this.checked;
+	        }
+	    });
+
+	    $("input[name='chk_list']").click(function () { //리스트 항목이 모두 선택되면 전체 선택 체크
+	        if ($("input[name='chk_list']:checked").length == 8) {
+	            $("input[name='chk_all']")[0].checked = true;
+	        } else  {                                                //리스트 항목 선택 시 전체 선택 체크를 해제함
+	            $("input[name='chk_all']")[0].checked = false;
+	        }
+	    });
+
+	});
+
+/**
+ * 선택된 체크 박스 배열에 담는다.
+ */
+function checkSelectedValue(){
+	//전체 선택이면 age에 ALL값 만 저장
+	if($("input:checkbox[name='chk_all']").is(":checked")){
+		$("#age").val("ALL");
+	}else{
+		//일부 선택이면 해당 체크박스 값 배열에 담음.
+	    var valueArr = new Array();
+	    var list = $("input[name='chk_list']");
+	    for(var i = 0; i < list.length; i++){
+	        if(list[i].checked){ //선택되어 있으면 배열에 값을 저장함
+	            valueArr.push(list[i].value);
+	        }
+	    }
+	    //선택된 체크박스의 값을 콘솔에 age에 |라인 붙여서 넣어주기
+	    var str = '';
+	    for(var i in valueArr){
+	        str += valueArr[i]+'|';
+	    }
+	    $("#age").val(str.slice(0,-1));
+	}
+}
+
+//모든사용자 공개
+function handleRangeAllClicked(rangeAll){
+    var isChecked = rangeAll.is(':checked');
+    $('#range_sido').prop("disabled", isChecked);
+    $('#range_sigungu').prop("disabled", isChecked);
+}
+
+
+$('#range_all').click(function () {
+    handleRangeAllClicked($(this));
+});
+
+
+//시군구 처리
+ $("#range_sido").change(function(){
+    var sido = $("#range_sido").val();
+    if (window.console && console.log) console.log(sido);
+    $("#range_sigungu>option").css("display","none");
+    $("."+sido).css("display","block");
+});
+
+
+	$('#add-display-hashtag').click(function (e) {
+		e.preventDefault();
+
+		var validation = true;
+
+		var input = $.trim($('#hashtag').val());
+
+		if(input == '')
+			return false;
+
+		$('.label-warning').each(function () {
+			if($.trim(input) == $(this).text())
+				validation = false;
+		});
+
+		if(!validation) {
+			alert('이미 등록 된 해시태그입니다');
+			return false;
+		}
+
+		var tmpl = '<a href="#" style="padding-left: 5px;"><span class="label label-warning" style="height: 50px;">' + input + '</span></a>'
+				+ '<input type="hidden" name="hashtags" value="' + input + '">';
+
+
+		$('#display-hashtags').html($('#display-hashtags').html() + tmpl);
+
+		addRemoveHashtagEvent();
+
+		$('#hashtag').val('');
+		$('#hashtag').focus();
+	});
+
+
+	function addRemoveHashtagEvent() {
+		$('#display-hashtags').find('a').click(function(e) {
+			e.preventDefault();
+			$(this).remove();
+		});
+	}
+
+/*]]>*/
+</script>
+</body>
+</html>

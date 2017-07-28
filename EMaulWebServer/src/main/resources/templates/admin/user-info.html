@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        th {
+            width: 20%;
+            padding-left: 15px;
+        }
+    </style>
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">유저 상세보기</h1>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" th:text="@{이름 : &nbsp; }+${ui.fullName}" style="font-weight: 900"></div>
+                        <div class="panel-body">
+
+                        <table class="table table-responsive table-hover">
+                            <tr>
+                                <th>닉네임</th>
+                                <td th:if="${ui.nickname == null}">익명</td>
+                                <td th:if="${ui.nickname}" th:text="${ui.nickname.name}"></td>
+                            </tr>
+                            <tr>
+                                <th>나이</th>
+                                <td th:text="${age} == null ? '정보 없음' : (${age} + ' (' + ${ui.birthYear} + ' 년생)')"></td>
+                            </tr>
+                            <tr>
+                                <th>성별</th>
+                                <td th:text="${ui.gender} == null ? '정보 없음' : (${ui.gender} == 'male' ? '남자' : '여자')"></td>
+                            </tr>
+                            <tr>
+                                <th>아파트</th>
+                                <td th:text="${ui.house.apt.name}"></td>
+                            </tr>
+                            <tr>
+                                <th>동</th>
+                                <td th:text="${ui.house.dong}"></td>
+                            </tr>
+                            <tr>
+                                <th>호</th>
+                                <td th:text="${ui.house.ho}"></td>
+                            </tr>
+                            <tr>
+                                <th>전화번호</th>
+                                <td th:text="${ui.phone}"></td>
+                            </tr>
+                            <tr>
+                                <th>이메일</th>
+                                <td th:text="${ui.email}"></td>
+                            </tr>
+                            <tr>
+                                <th>가입날짜</th>
+                                <td th:text="${ui.regDate}"></td>
+                            </tr>
+                            <tr>
+                                <th>권한</th>
+                                <td>
+                                <span id="type" th:text="${ui.type.getTrueTypes()}"></span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>최종 로그인 시간</th>
+                                <td th:text="${ui.lastLoginDate}"></td>
+                            </tr>
+                            <tr th:if="${user.type.jaha}">
+                                <th>외부기기 로그인 허용여부</th>
+                                <td>
+                                	<label class="radio-inline"><input type="radio" id="multiLoginYnY" name="multiLoginYn"  value="Y" th:checked="${ui.multiLoginYn eq 'Y'}"/> 허용</label>
+                                	<label class="radio-inline"><input type="radio" id="multiLoginYnN" name="multiLoginYn"  value="N" th:checked="${ui.multiLoginYn != 'Y'}"/> 비허용</label>
+	                                <button type="button" class="btn btn-info" th:onclick="'updateUserMultiLogin(' + ${ui.id} + ');'">저장</button><!--   (관리자 / 자하권한 사용자는 적용되지 않습니다.) -->
+                                </td>
+                            </tr>
+                            <tr th:unless="${user.type.jaha}">
+                                <th>외부기기 로그인 허용여부</th>
+                                <td id="type" th:text="${ui.multiLoginYn eq 'Y' ? '허용' : '비허용'}"></td>
+                            </tr>
+<!--//
+                            <tr>
+                                <th>세대전입일</th>
+                                <td th:text="${ui.house.transDate}"></td>
+                            </tr>
+//-->
+                            <tr>
+                                <th>사진</th>
+                                <td>
+                                    <img style="max-width: 30%; height: auto" th:src="@{/api/public/user/profile-image/} + ${ui.id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                    </div>
+                    <button class="btn btn-default" th:onclick="'history.back();'">목록</button>
+                     <input type="button" class="btn btn-info" th:onclick="'fnUserHistoryPopup(' + ${ui.id} + ')'" value="변경이력" />
+                    <button th:if="${!ui.type.jaha}" type="button" class="btn btn-info" th:onclick="'userHouseTransfer(' + ${ui.id} + ')'">전출</button>
+                    <br />
+                    <br />
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+	function updateUserMultiLogin(uiId) {
+
+		if ("Y" != $(':radio[name="multiLoginYn"]:checked').val()) {
+			if (!confirm(' PC에서 비허용으로 설정을 하면 \n현재 로그인한 App의 로그인이 끊기게 됩니다.\n외부기기 로그인 허용여부를 변경하시겠습니까?' )) {
+				return;
+			}
+		} else {
+			if (!confirm(' 외부기기 로그인 허용여부를 변경하시겠습니까? ')) {
+				return;
+			}
+		}
+
+		$.ajax({
+               type: 'POST',
+               url: "/jaha/v2/user/update-multilogin",
+               data: {
+                   "userId" : uiId,
+                   "multiLoginYn" : $(':radio[name="multiLoginYn"]:checked').val()
+               },
+               dataType: 'json',
+               success: function (data) {
+                   if(data.result) {
+                       alert(" 저장하였습니다. ");
+                   } else {
+                   	alert(data.message);
+                   }
+               },
+               error: function (jqXHR, textStatus, errorThrown) {
+                   if (window.console && console.log) console.log(textStatus);
+               	   if (window.console && console.log) console.log(errorThrown);
+               }
+           });
+	}
+
+    $(document).ready(function (){
+        var types=$('#type').text().split("[").join("").split("]").join("");
+        var replacedTypes = types.replace("jaha","자하").replace("user","주민").replace("anonymous","방문자").replace("groupAdmin","단체관리자").replace("owner","소유주").
+                replace("blocked","차단").replace("deactivated","탈퇴").replace("admin","관리자").replace("gasChecker","가스검침원").replace("houseHost","세대대표");
+        $('#type').text(replacedTypes);
+    });
+
+    function userHouseTransfer(userId){
+        if(confirm(" 해당 유저를 전출처리 하시겠습니까? ")){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/user/transfer",
+                data: {
+                    "userId" : userId
+                },
+                dataType: 'html',
+                success: function (data) {
+                    if(data > 0){
+                        alert(" 전출처리 되었습니다. ");
+                        location.href = "/admin/user/list";
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                	if (window.console && console.log) console.log(textStatus);
+                	if (window.console && console.log) console.log(errorThrown);
+                }
+            });
+        }
+    }
+
+    function fnUserHistoryPopup(userId){
+    	var width = 1600;
+        var height = 850;
+        var param = "?userId="+userId;
+        openWindow("/jaha/user/history/popup"+param,"user", width, height);
+    }
+
+/*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        .modal-body th {
+            width: 20%;
+        }
+
+        .modal-body {
+            word-break: break-all;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" th:if="${type}==@{vote}">투표 관리</h1>
+
+                <h1 class="page-header" th:if="${type}==@{poll}">설문 관리</h1>
+
+                <div id="content-container">
+                    <div id="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr th:if="${type}==@{vote}">
+                                <th width="5%">번호</th>
+                                <th style="text-align:center;">제목</th>
+                                <th width="10%" style="text-align:center;" th:if="${user.type.jaha} == true">보안등급</th>
+                                <th width="10%" style="text-align:center;">투표종류</th>
+                                <th width="10%" style="text-align:center;">상태</th>
+                                <th width="15%" style="text-align:center;">등록일</th>
+                                <th width="20%" style="text-align:center;">제어</th>
+                            </tr>
+                            <tr th:if="${type}==@{poll}">
+                                <th width="6%">번호</th>
+                                <th width="35%" style="text-align:center;">제목</th>
+                                <th width="10%" style="text-align:center;">상태</th>
+                                <th width="14%" style="text-align:center;">등록일</th>
+                                <th width="25%" style="text-align:center;">제어</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-body" data-bind="visible: activeStatusPollingXhr() != null">
+                            <tr th:if="${page.content.empty}">
+                                <td colspan="7">투표 목록이 없습니다.</td>
+                            </tr>
+                            <tr th:each="vote : ${page.content}" th:style="${vote.visible}==false ? 'color:#AAAAAA;'">
+                                <td th:text="${vote.id}"></td>
+                                <td th:text="${vote.title}"></td>
+                                <td th:if="${user.type.jaha} == true and ${type}==@{vote}" style="text-align:center;" th:text="${vote.securityLevel}"></td>
+                                <td th:if="${type}==@{vote}" style="text-align:center;">
+                                    <div th:text="${vote.enableSecurity} == 'Y'? '보안투표' : '일반투표'"></div>
+                                    <div th:if="${vote.enableSecurity} == 'Y' and ${vote.voteKey.keyGrantYn} == 'Y'" th:text="${vote.voteResultAvailable} ? '(개표완료)' :'(개표승인)'"></div>
+                                </td>
+                                <td style="text-align:center;">
+                                    <span th:text="${vote.statusKor}"></span><br/>
+                                    <button type="button" class="btn btn-default" th:if="${vote.visible}==false" th:onclick="'setVoteVisibility(' + ${vote.id} +', true)'">보이기 </button>
+                                    <button type="button" class="btn btn-default" th:if="${vote.visible}" th:onclick="'setVoteVisibility(' + ${vote.id} +', false)'">숨기기 </button>
+                                    <div th:if="${vote.securityCheckState}" style="color:red;">(비정상투표)</div>
+                                </td>
+                                <td th:text="${#dates.format(vote.regDate, 'yyyy-MM-dd HH:mm')}" style="text-align:center;"></td>
+                                <td style="text-align:center;">
+                                    <a th:if="${type}==@{vote}" th:href="'/admin/vote/realtime/'+${vote.id}" class="btn btn-default">실시간</a>
+                                    <div class="btn-group" role="group" aria-label="...">
+                                           <button type="button" class="btn btn-default" th:onclick="'lookVoteDetail(' + ${vote.id} +')'">상세 </button>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">더 보기<span class="caret"></span> </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a th:if="${vote.status != 'ready'}" onclick="alert('진행중이거나 완료된 투표는 수정할 수 없습니다. 개발사에 문의해 주세요')">수정</a></li>
+                                                <li><a th:if="${vote.status == 'ready'}" th:href="'/admin/vote/modify/' + ${vote.id}">수정</a></li>
+                                                <li><a th:if="${vote.status == 'active'}" onclick="alert('진행중인 투표는 삭제할 수 없습니다. 개발사에 문의해 주세요')">삭제</a></li>
+                                                <li><a th:if="${vote.status != 'active'}" th:href="'javascript:deleteVote(' + ${vote.id} + ')'">삭제</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Bar -->
+                    <div th:fragment='paginationbar'>
+                        <ul class='pagination'>
+                            <li th:class="${page.firstPage}? 'disabled' : ''">
+                                <span th:if="${page.firstPage}">← 처음</span>
+                                <a th:if="${not page.firstPage}" th:href="@{${page.url}(page=0,size=${page.size})}">←
+                                    First</a>
+                            </li>
+                            <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+                                <span th:if="${not page.hasPreviousPage}">«</span>
+                                <a th:if="${page.hasPreviousPage}"
+                                   th:href="@{${page.url}(page=${page.number-2},size=${page.size})}"
+                                   title="Go to previous page">«</a>
+                            </li>
+                            <li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+                                <span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+                                <a th:if="${not item.current}"
+                                   th:href="@{${page.url}(page=${item.number},size=${page.size})}"><span
+                                        th:text="${item.number + 1}">1</span></a>
+                            </li>
+                            <li th:class="${page.hasNextPage}? '' : 'disabled'">
+                                <span th:if="${not page.hasNextPage}">»</span>
+                                <a th:if="${page.hasNextPage}"
+                                   th:href="@{${page.url}(page=${page.number},size=${page.size})}"
+                                   title="Go to next page">»</a>
+                            </li>
+                            <li th:class="${page.lastPage}? 'disabled' : ''">
+                                <span th:if="${page.lastPage}">마지막 →</span>
+                                <a th:if="${not page.lastPage}"
+                                   th:href="@{${page.url}(page=${page.totalPages - 1},size=${page.size})}">Last →</a>
+                            </li>
+                        </ul>
+                        <a class="btn btn-success" th:if="${type}==@{vote}" href="/admin/vote/create"
+                           style="float: right;">새로운 투표 만들기</a>
+                        <a class="btn btn-success" th:if="${type}==@{poll}" href="/admin/poll/create"
+                           style="float: right;">새로운 설문 만들기</a>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel" th:text="${type}==@{vote}? '투표상세보기' : '설문상세보기'"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>id</th>
+                                    <td id="vote-de-id">1</td>
+                                </tr>
+                                <tr>
+                                    <th>제목</th>
+                                    <td id="vote-de-title">2</td>
+                                </tr>
+                                <tr>
+                                    <th>설명</th>
+                                    <td id="vote-de-description">3</td>
+                                </tr>
+                                <tr>
+                                    <th>시작날짜</th>
+                                    <td id="vote-de-startdate">5</td>
+                                </tr>
+                                <tr>
+                                    <th>종료날짜</th>
+                                    <td id="vote-de-enddate">6</td>
+                                </tr>
+                                 <tr>
+                                    <th>푸시 발송일</th>
+                                    <td id="vote-de-pushSendDate">9</td>
+                                </tr>
+                                <tr>
+                                    <th>대상</th>
+                                    <td id="vote-de-target">7</td>
+                                </tr>
+                                <tr>
+                                    <th>유권자 수</th>
+                                    <td id="vote-de-voterCnt">8</td>
+                                </tr>
+                                <tr>
+                                    <th>중복제한</th>
+                                    <td id="vote-de-dupl">8</td>
+                                </tr>
+                                <tr>
+                                    <th>상태</th>
+                                    <td id="vote-de-status">9</td>
+                                </tr>
+                                <tr th:if="${type}==@{vote}">
+                                    <th>투표종류</th>
+                                    <td id="vote-de-security">9</td>
+                                </tr>
+                                <tr th:if="${type}==@{vote}" id="tr-admin-name">
+                                    <th>선거관리위원장</th>
+                                    <td id="vote-de-admin-name">10</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <button id="vote-de-goto-result" class="btn btn-success" style="margin-left: 40%">결과보기</button>
+                        <button id="vote-de-send-noti" class="btn btn-success" style="display:none;">투표참여 독려하기</button>
+                        <p id="modal-content" style="word-wrap: break-word"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal-noti-send" tabindex="-1" role="dialog" aria-labelledby="modal-noti-send" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="notiModalLabel" th:text="${type}==@{vote}? '투표참여 독려하기' : ''"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+    	                            투표 독려 메시지는 투표를 안한 주민에게만 발송이 되며, 하루 1번만 발송가능합니다.
+                            <table class="table table-hover">
+                           	 	<tr>
+                                    <th>투표 독려 메시지</th>
+                                    <td><input type="text" id="vote_noti_msg" name="vote_noti_msg"/></td>
+                                </tr>
+                                <tr>
+                                    <th>발송시각</th>
+                                    <td id="vote-noti-time">2016/03/21 10:00:00</td>
+                                </tr>
+                                <tr>
+                                    <th>수신대상</th>
+                                    <td id="vote-noti-cnt">0</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <button id="vote-noti-cancel" class="btn btn-success" style="margin-left: 40%" data-dismiss="modal">취소</button>
+                        <button id="vote-noti-send" class="btn btn-success" >확인</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $('ul.pagination > li > a').click(function (e) {
+        currentPage = $(this).attr("href");
+        switchMainContent(currentPage);
+        e.preventDefault();
+    });
+
+    function deleteVote(voteId) {
+        var type = /*[[${type}]]*/ 'type';
+        var path = '/admin/vote/delete/' + type + '/' + voteId;
+
+        if (confirm("삭제하시겠습니까??")) {
+            $.ajax({
+                url: path,
+                type: 'delete',
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    Date.prototype.yyyymmdd = function () {
+        var yyyy = this.getFullYear().toString();
+        var MM = (this.getMonth() + 1).toString(); // getMonth() is zero-based
+        var dd = this.getDate().toString();
+        var hh = this.getHours().toString();
+        var mm = this.getMinutes().toString();
+        return yyyy + '년 ' + (MM[1] ? MM : "0" + MM[0]) + '월 ' + (dd[1] ? dd : "0" + dd[0]) + '일 ' + (hh[1] ? hh : "0" + hh[0]) + ':' + (mm[1] ? mm : "0" + mm[0]); // padding
+    };
+
+    var noti_data = "";
+    function lookVoteDetail(voteId) {
+        var url = "/admin/vote/detail/" + voteId;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data) {
+                // console.log(data);
+                var vote_type = "투표"
+                if(data.type.main == "poll"){
+                    vote_type = "설문"
+                }
+                $('#vote-de-send-noti').hide();
+                $('#vote-de-id').text(data.id);
+                $('#vote-de-title').text(data.title);
+                $('#vote-de-description').text(data.description);
+                $('#vote-de-target').text(data.targetDong+' '+data.jsonArrayTargetHo);
+                if(data.targetDong == ""){
+                    $('#vote-de-target').text("전체");
+                }
+                if(data.houseLimited){
+                    $('#vote-de-dupl').text("세대별 한 표만 "+vote_type+" 가능");
+                }else{
+                    $('#vote-de-dupl').text("세대별 복수 "+vote_type+" 가능");
+                }
+                if(data.type.main == "vote"){
+                    if(data.enableSecurity == "Y"){
+                        $('#vote-de-security').text("보안투표");
+                        $('#tr-admin-name').show();
+                        $('#vote-de-admin-name').text(data.voteKey.adminName + " (" + data.voteKey.adminEmail + ")");
+                    }else{
+                        $('#vote-de-security').text("일반투표");
+                        $('#tr-admin-name').hide();
+                    }
+                    if(data.status == "active"){
+                        $('#vote-de-send-noti').show();
+                        if(data.notVoteUserCnt > 0){
+                            noti_data = data
+                            $('#vote-de-send-noti').attr("onclick", "showNotiModal();");
+                        }else{
+                            $('#vote-de-send-noti').attr("onclick", "alert('알림 대상 회원이 없습니다.')");
+                        }
+                    }
+                }
+
+                var startDate = data.startDate;
+                $('#vote-de-startdate').text(new Date(startDate).yyyymmdd());
+                $('#vote-de-enddate').text(new Date(data.endDate).yyyymmdd());
+                var pushDate = data.pushDate;
+                if(pushDate !=""){
+                	$('#vote-de-pushSendDate').text(new Date(pushDate).yyyymmdd());
+                }else{
+                	$('#vote-de-pushSendDate').text("");
+                }
+                $('#vote-de-status').text(data.statusText);
+                $('#vote-de-voterCnt').text(data.votersCount);
+                var windowOpenUrl = "'/admin/vote/list/" + voteId + "/result'";
+                $('#vote-de-goto-result').attr("onclick", "window.open(" + windowOpenUrl + ",'pop')");
+
+                $('#modal-info').modal('show');
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+                console.log(textStatus);
+            }
+        });
+
+        $('#modal-info').modal('show');
+    }
+
+
+    function showNotiModal(){
+    	var pushDate = new Date(noti_data.pushDate);
+		if(pushDate != ""){
+	    	var now = new Date();
+	    	var todayD = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	    	var pushD = new Date(pushDate.getFullYear(), pushDate.getMonth(), pushDate.getDate());
+	    	if (todayD >= pushDate){
+				alert('투표 독려 메시지는 하루에 한번 보낼수 있습니다.');
+	    	}else{
+		        $('#vote-noti-time').text(new Date().yyyymmdd());
+		        $('#vote-noti-cnt').text(noti_data.notVoteUserCnt);
+		        $('#vote-noti-send').attr("onclick", "sendNoti()");
+		        $('#modal-info').modal('hide');
+		        $('#modal-noti-send').modal('show');
+    		}
+		}else{
+			$('#vote-noti-time').text(new Date().yyyymmdd());
+	        $('#vote-noti-cnt').text(noti_data.notVoteUserCnt);
+	        $('#vote-noti-send').attr("onclick", "sendNoti()");
+	        $('#modal-info').modal('hide');
+	        $('#modal-noti-send').modal('show');
+		}
+    }//end showNotiModal()
+
+    function sendNoti(){
+        var url = "/admin/vote/sendNoti"
+       	var vote_id = noti_data.id;
+        var vote_noti = $("#vote_noti_msg").val();
+        if(vote_id !=""){
+        	if(vote_noti !=""){
+		        $.ajax({
+		            url: url,
+		            type: 'post',
+		            async : false,
+		            dataType: "html",
+		            traditional: true , // parameter 직렬화를 느슨하게 처리.
+		            data: {"voteId" : vote_id,"voteMsg": vote_noti},
+		            success: function (data) {
+		                alert(data.sendCnt + "명에게 알림을 보냈습니다");
+		                $('#modal-noti-send').modal('hide');
+		                noti_data = "";
+		            },
+		            error: function (jqXHR, textStatus, errorThrown) {
+		                console.log(errorThrown);
+		                console.log(textStatus);
+		            }
+		        });
+        	}else{
+        		alert("투표 독려메시지를 입력하세요");
+        		$("#vote_noti_msg").focus();
+        	}
+        }else{
+        	alert('투표 아이디가 누락되었습니다. ')
+        }
+    } //end sendNoti()
+
+    function setVoteVisibility(voteId, visible) {
+        var confirmString = visible ? '현재 상태는 \'숨기기\'입니다. \'보이기\'로 바꾸시겠습니까?' : '현재 상태는 \'보이기\'입니다. \'숨기기\'로 바꾸시겠습니까?';
+        if(confirm(confirmString)){
+            var url = '/admin/vote/visible/' + voteId + '/' + (visible ? '1' : '0');
+            $.ajax({
+                type: 'PUT',
+                url: url ,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    function showRealTime(voteId){
+
+    }
+
+    /*]]>*/
+
+</script>
+</body>
+</html>

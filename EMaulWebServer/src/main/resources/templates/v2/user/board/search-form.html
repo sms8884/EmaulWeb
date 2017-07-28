@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>JAHA-게시판-검색폼</title>
+</head>
+
+<body>
+
+<div class="panel panel-info" th:fragment='board-search-form'>
+    <table class="table table-responsive" style="margin:0;">
+        <tr th:if="${category.type != 'faq' and category.type != 'system-notice' and category.type != 'event'}">
+            <th style="text-align:center;">기간</th>
+            <td class="form-inline" style="text-align:left; padding-left:3%; border:none;">
+
+           		<div class="form-inline">
+                    <div id="startDateWrap" class='input-group faqStartDate'>
+                        <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="searchStartDate" name="searchStartDate" th:value="${pagingHelper.search.startDate}" placeholder="YYYY-MM-DD" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                    <div id="endDateWrap" class='input-group faqEndDate'>
+                        <input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="searchEndDate" name="searchEndDate" th:value="${pagingHelper.search.endDate}" placeholder="YYYY-MM-DD" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <th style="text-align:center; border:none;">검색</th>
+            <td class="form-inline" style="text-align:left; padding-left:3%; border:none;">
+                <select name="searchItem" id="searchItem" class="form-control">
+                    <option value="title+content" th:selected="${pagingHelper.search.item == 'title+content'}">제목+내용</option>
+                    <option value="title" th:selected="${pagingHelper.search.item == 'title'}">제목</option>
+                    <option value="content" th:selected="${pagingHelper.search.item == 'content'}">내용</option>
+                </select>
+                <input type="text" class="form-control searchtxt" id="searchKeyword" name="searchKeyword" th:value="${pagingHelper.search.keyword}" placeholder="검색 키워드를 입력하세요." />
+                <span class="searchBox">
+                    <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                    <input type="button" class="btn btn-sm btn-outline btn-success" id="resetBtn" name="resetBtn" value="초기화" />
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

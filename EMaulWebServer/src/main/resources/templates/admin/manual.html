@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+
+    <link type="text/css" rel="stylesheet"
+          href="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"
+          th:href="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/datatables-responsive/css/dataTables.responsive.css"
+          th:href="@{/datatables-responsive/css/dataTables.responsive.css}"/>
+
+    <style>
+        label {
+            margin-top: 20px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        #page-wrapper .btn {
+            margin-top: 10px;
+        }
+
+        .file_input label {
+            margin-top: 0;
+        }
+    </style>
+
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12" style="margin-bottom: 20px">
+                <h1 class="page-header">이마을 사용설명서</h1>
+
+                <div id="content-container">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">2015. 08. 07 버전</div>
+                        <div class="panel-body">
+                            아래 링크를 클릭해서 다운 받으세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js"
+        th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"
+        th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    /*]]>*/
+</script>
+</body>
+</html>

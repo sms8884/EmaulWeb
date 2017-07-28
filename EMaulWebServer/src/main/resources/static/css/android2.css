@@ -1,0 +1,130 @@
+body {
+    /* Font */
+    font-family: sans-serif, Arial, Verdana, "Trebuchet MS";
+
+    /* Text color */
+    color: #4b4b4b;
+
+    /* Remove the background color to make it transparent */
+    background-color: #fff;
+
+    text-align: justify;
+    text-justify:inter-cluster;
+}
+
+blockquote {
+    font-style: italic;
+    font-family: Georgia, Times, "Times New Roman", serif;
+    padding: 2px 0;
+    border-style: solid;
+    border-color: #ccc;
+    border-width: 0;
+}
+
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+hr {
+    border: 0px;
+    border-top: 1px solid #ccc;
+}
+
+img.right {
+    border: 1px solid #ccc;
+    float: right;
+    margin-left: 15px;
+    padding: 5px;
+}
+
+img.left {
+    border: 1px solid #ccc;
+    float: left;
+    margin-right: 15px;
+    padding: 5px;
+}
+
+pre {
+    white-space: pre-wrap; /* CSS 2.1 */
+    word-wrap: break-word; /* IE7 */
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    -webkit-tab-size: 4;
+    tab-size: 4;
+}
+
+.marker {
+    background-color: Yellow;
+}
+
+span[lang] {
+    font-style: italic;
+}
+
+figure {
+    text-align: center;
+    border: solid 1px #ccc;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    margin: 10px 20px;
+    display: inline-block;
+}
+
+figure > figcaption {
+    text-align: center;
+    display: block; /* For IE8 */
+}
+
+a > img {
+    padding: 1px;
+    margin: 1px;
+    border: none;
+    /*outline: 1px solid #0782C1;*/
+}
+
+p {
+    margin: 0;
+    text-align: justify;
+    text-justify:inter-cluster;
+    display: inline-block;
+    width: 100%;
+    font-size: 106%;
+    line-height: 150%;
+}
+
+
+img {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-width: 100%;
+    height: auto;
+}
+
+table {
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+table > thead > tr > th,
+table > tbody > tr > th,
+table > tfoot > tr > th,
+table > thead > tr > td,
+table > tbody > tr > td,
+table > tfoot > tr > td {
+    border: 1px solid #ddd;
+    line-height: 1.42857143;
+    border-top: 1px solid #ddd;
+    padding-left: 8px;
+}
+
+#nav #user-menu span {
+    padding: 2px 0;
+}

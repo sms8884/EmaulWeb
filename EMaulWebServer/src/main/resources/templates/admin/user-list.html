@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+        th:after {
+            display: none;
+        }
+    </style>
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA-Admin</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12" style="margin-bottom: 20px">
+                <h1 class="page-header" >사용자 관리</h1>
+
+                <div id="content-container">
+                    <div id="table-container">
+
+                      <!--// 상단 검색영역 -->
+                      <input type="hidden" id="url" name="url" th:value="${page.url}" />
+                      <input type="hidden" id="page" name="page" th:value="${page.number-1}" />
+                      <input type="hidden" id="sort" name="sort" th:value="${page.sort}" />
+
+                      <!--<form id="searchForm" name="searchForm" method="GET">-->
+                      <div id="user-list-table_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                        <div class="row">
+                          <div class="col-sm-6">
+                            <label>
+                              총 <span th:text="${page.totalElements}"></span>명의 사용자,
+                              <span th:text="${page.number}"></span> page / <span th:text="${page.totalPages}"></span> pages,
+                              한번에
+                              <select id="size" name="size" aria-controls="user-list-table" class="form-control input-sm">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                              </select>
+                              명씩 보이기
+                                <button type="button" id="print_btn" class="btn btn-success">전체 사용자 인쇄<span></span></button>
+                              <input type="hidden" id="_size" name="_size" th:value="${page.size}" />
+                            </label>
+                          </div>
+
+                          <div class="col-sm-6">
+                            <div id="user-list-table_filter" class="dataTables_filter">
+                              <!--
+                              <label><input type="checkbox" id="searchDong" name="searchDong" />동</label>
+                              <label><input type="checkbox" id="searchHo" name="searchHo" />호</label>
+                              <label><input type="checkbox" id="searchUserName" name="searchUserName" />이름</label>
+                              <label><input type="checkbox" id="searchMobileNumber" name="searchMobileNumber" />전화번호</label>
+                              -->
+                              <label>
+                      동 <input type="search" id="searchDong" name="searchDong" class="form-control input-sm" style="width:70px;" maxlength="4" placeholder="" aria-controls="user-list-table" th:value="${page.searchDong}" />
+                              </label>
+                              <label>
+                      호 <input type="search" id="searchHo" name="searchHo" class="form-control input-sm" style="width:70px;" maxlength="4" placeholder="" aria-controls="user-list-table" th:value="${page.searchHo}" />
+                              </label>
+                              <select id="searchAuth" name="searchAuth" aria-controls="user-list-table" class="form-control input-sm">
+                      <option value="">권한선택</option>
+                      <option value="anonymous">방문자</option>
+                      <option value="user">주민</option>
+                      <option value="houseHost">세대대표</option>
+                      <option value="owner">소유주</option>
+                      <option value="blocked">차단</option>
+                      <option value="deactivated">탈퇴</option>
+                      <option value="admin">관리자</option>
+                      <option value="groupAdmin" th:if="${user.type.jaha}">단체관리자</option>
+                      <option value="gasChecker">가스검침원</option>
+                      <option value="jaha">자하</option>
+                    </select>
+                    <input type="hidden" id="_searchAuth" name="_searchAuth" th:value="${page.searchAuth}" />
+                              <select id="searchPart" name="searchPart" aria-controls="user-list-table" class="form-control input-sm">
+                                <!-- <option value="">선택</option> -->
+                                <option value="fullName">이름</option>
+                                <option value="phone">전화번호</option>
+                    			<option value="email">이메일</option>
+                    			<option value="nickname">닉네임</option>
+                              </select>
+                              <input type="hidden" id="_searchPart" name="_searchPart" th:value="${page.searchPart}" />
+                              <label>
+                      <input type="search" id="searchWord" name="searchWord" class="form-control input-sm" placeholder="" aria-controls="user-list-table" />
+                              </label>
+                              <input type="hidden" id="_searchWord" name="_searchWord" th:value="${page.searchWord}" />
+                              <input type="button" class="btn btn-success" onclick="search(0);" value="검색" />
+                              <input type="button" class="btn btn-normal" onclick="init();" value="초기화" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!--</form>-->
+                      <!-- 상단 검색영역 //-->
+
+                        <table class="table table-striped table-hover" id="user-list-table">
+                            <thead>
+                            <tr>
+                                <th width="5%">동 <img id="img_sort_dong" th:src="@{/img/sort_asc.png}" onclick="search(0, 'house.dong');" style="cursor:pointer;" /></th>
+                                <th width="5%">호  <img id="img_sort_ho" th:src="@{/img/sort_asc.png}" onclick="search(0, 'house.ho');" style="cursor:pointer;" /></th>
+                                <th width="8%">이름 </th>
+                                <th width="10%">닉네임</th>
+                                <th width="8%">전화번호</th>
+                                <th width="10%">등록일 <img id="img_sort_regDate" th:src="@{/img/sort_desc.png}" onclick="search(0, 'regDate');" style="cursor:pointer;" /></th>
+                                <!--<th width="15%">사진</th>-->
+                                <th>권한수정</th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-body">
+                            <tr th:if="${page.content.empty}">
+                                <td colspan="8">유저 목록이 없습니다</td>
+                            </tr>
+                            <tr th:each="u : ${page.content}"  th:if="${!u.type.deactivated}">
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.house.dong}"></a></td>
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.house.ho}"></a></td>
+                                <td><a th:href="@{/admin/user/info/}+${u.id}" th:text="${u.fullName}"></a></td>
+                                <td>
+                                    <span th:if="${u.nickname == null}">익명</span>
+                                    <span th:if="${u.nickname}" th:text="${u.nickname.name}"></span>
+                                </td>
+                                <!--<td th:text="${user.type.name}"></td>-->
+                                <td th:text="${u.phone}"></td>
+                                <td th:text="${u.regDate}"></td>
+                                <!--<td>-->
+                                    <!--<img th:width="80px" height="80px"-->
+                                         <!--th:src="@{/api/public/user/profile-image/} + ${u.id} + '-thumb'"/>-->
+                                <!--</td>-->
+
+                                <td th:if="${u.type.deactivated}">탈퇴한 회원입니다</td>
+                                <td id="jaha-userType" th:if="${user.type.jaha} and !${u.type.deactivated}">
+                                    <div th:id="@{select-user-type}+${u.id}">
+                                        <form action="/jaha/user/updateUserType" method="post" th:id="Authform_+${u.id}">
+                                            <!--put안하고?회원아이디넘겨줘야 하고,현재 권한도 보내서 체크?-->
+                                            <div style="display: none;"><p class="ori-user-type" th:text="${u.type.getTrueTypes()}"></p></div>
+                                            <input type="hidden" name="userId" th:value="${u.id}"/>
+                                            <input type="hidden" name="page" value="apt"/>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-1-}+${u.id}" value="user" th:onclick=" 'typeCheck ('+${u.id}+',1'+')'"/> 주민
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-2-}+${u.id}" value="houseHost" th:onclick=" 'typeCheck ('+${u.id}+',2'+')'" /> 세대대표
+                                            </label>
+                                            <!-- 소유주 추가 -->
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-9-}+${u.id}" value="owner" th:onclick=" 'typeCheck ('+${u.id}+',9'+')'" /> 소유주
+                                            </label>
+                                            <!--// 소유주 추가 -->
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-3-}+${u.id}" value="anonymous" th:onclick=" 'typeCheck ('+${u.id}+',3'+')'"/> 방문자
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-4-}+${u.id}" value="blocked" th:onclick=" 'typeCheck ('+${u.id}+',4'+')'" /> 차단
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" id="user-type-5" value="deactivated" disabled="disabled"/> 탈퇴
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-6-}+${u.id}" value="admin"/> 관리자
+                                            </label>
+                                            <!-- 단체관리자 -->
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-10-}+${u.id}" value="groupAdmin"/> 단체관리자
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{user-type-7-}+${u.id}" value="gasChecker"/> 가스검침원
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" id="user-type-8" value="jaha"/> 자하
+                                            </label>
+                                            <script th:inline="javascript">
+                                                /*<![CDATA[*/
+                                                var selectId = /*[[@{select-user-type}+${u.id}]]*/ 'selectId';
+                                                var oriUserType = $('.ori-user-type:last').text();
+                                                var newString = oriUserType.split("[").join("");
+                                                var finalString = newString.split("]").join("");
+                                                var newArr = new Array();
+                                                var newArr = finalString.split(', ');
+                                                for (var i in newArr) {
+                                                    $('#' + selectId + ' .type-check[value=' + newArr[i] + ']').attr('checked', 'checked');
+
+                                                }
+
+                                                function typeCheck(uid ,no ){
+                                                  var userChek = $("#user-type-1-"+uid).is(":checked");
+                                                  var anonymChek = $("#user-type-3-"+uid).is(":checked");
+
+                                                  if(no==1){
+                                                    $("#user-type-3-"+uid).attr('checked', false) ;
+                                                  }
+                                                  if(no==2){
+                                                    $("#user-type-3-"+uid).attr('checked', false) ;
+                                                  }
+                                                   if(no==3){
+                                                     $("#user-type-1-"+uid).attr('checked', false) ;
+                                                     $("#user-type-2-"+uid).attr('checked', false) ;
+                                                     $("#user-type-9-"+uid).attr('checked', false) ;	// 소유주
+                                                   }
+                                                   if(no==4){
+                                                     $("#user-type-1-"+uid).attr('checked', false) ;
+                                                     $("#user-type-2-"+uid).attr('checked', false) ;
+                                                    $("#user-type-3-"+uid).attr('checked', false) ;
+                                                    $("#user-type-6-"+uid).attr('checked', false) ;
+                                                    $("#user-type-7-"+uid).attr('checked', false) ;
+                                                    $("#user-type-9-"+uid).attr('checked', false) ;	// 소유주
+                                                    $("#user-type-10-"+uid).attr('checked', false) ;	// 단체관리자
+                                                   }
+                                                	// 소유주
+                                                   	if(no==9){
+                                                	   	$("#user-type-3-"+uid).attr('checked', false) ;
+                                                   	}
+
+                                                }
+
+                                                /*]]>*/
+                                            </script>
+                                            <button type="button" class="btn btn-default" style="float:right" th:onclick="'saveAuthAdmin('+${u.id}+')'">저장</button>
+                                        </form>
+                                    </div>
+                                </td>
+
+                                <td id="admin-userType" th:if="${user.type.admin} and !${user.type.jaha} and !${u.type.deactivated}">
+                                    <div th:id="@{select-user-type}+${u.id}">
+                                        <form action="/admin/user/updateUserType" method="post" th:id="Authform_+${u.id}">
+                                            <!--put안하고?회원아이디넘겨줘야 하고,현재 권한도 보내서 체크?-->
+                                            <div style="display: none"><p class="ori-user-type" th:text="${u.type.getTrueTypes()}"></p></div>
+                                            <input type="hidden" name="userId" th:value="${u.id}"/>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-1-}+${u.id}" value="user" th:onclick=" 'typeCheck ('+${u.id}+',1'+')'"/> 주민
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-2-}+${u.id}" value="houseHost" th:onclick=" 'typeCheck ('+${u.id}+',2'+')'" /> 세대대표
+                                            </label>
+                                            <!-- 소유주 추가 -->
+                                            <label class="checkbox-inline">
+                                            	<input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-9-}+${u.id}" value="owner" th:onclick=" 'typeCheck ('+${u.id}+',9'+')'" /> 소유주
+                                            </label>
+                                            <!--// 소유주 추가 -->
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-3-}+${u.id}" value="anonymous" th:onclick=" 'typeCheck ('+${u.id}+',3'+')'"/> 방문자
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-4-}+${u.id}" value="blocked" th:onclick=" 'typeCheck ('+${u.id}+',4'+')'" /> 차단
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-5-}+${u.id}" value="gasChecker" th:onclick=" 'typeCheck ('+${u.id}+',5'+')'" /> 가스검침원
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="type" class="type-check" id="admin-user-type-6" value="deactivated" disabled="disabled"/> 탈퇴
+                                            </label>
+                                            <label class="checkbox-inline" >
+                                                <input type="checkbox" name="type" class="type-check" id="admin-user-type-7" value="admin"/> 관리자
+                                            </label>
+                                            <!-- 단체관리자 정보 유지를 위함 -->
+                                            <label class="checkbox-inline" style="display:none;">
+                                            	<input type="checkbox" name="type" class="type-check" th:id="@{admin-user-type-10-}+${u.id}" value="groupAdmin"  /> 단체관리자
+                                            </label>
+                                            <script th:inline="javascript">
+
+                                                /* Admin 쪽 */
+
+                                                /*<![CDATA[*/
+                                                var selectId = /*[[@{select-user-type}+${u.id}]]*/ 'selectId';
+                                                var oriUserType = $('.ori-user-type:last').text();
+                                                var newString = oriUserType.split("[").join("");
+                                                var finalString = newString.split("]").join("");
+                                                var newArr = new Array();
+                                                var newArr = finalString.split( ', ');
+                                                for (var i in newArr) {
+                                                    $('#' + selectId + ' .type-check[value=' + newArr[i] + ']').attr('checked', 'checked');
+                                                }
+
+                                                function typeCheck(uid ,no ){
+                                                  var userChek = $("#admin-user-type-1-"+uid).is(":checked");
+                                                  var anonymChek = $("#admin-user-type-3-"+uid).is(":checked");
+
+                                                  if(no==1){
+                                                    $("#admin-user-type-3-"+uid).attr('checked', false) ;
+                                                  }
+                                                  if(no==2){
+                                                    $("#admin-user-type-3-"+uid).attr('checked', false) ;
+                                                  }
+                                                   if(no==3){
+                                                     $("#admin-user-type-1-"+uid).attr('checked', false) ;
+                                                     $("#admin-user-type-2-"+uid).attr('checked', false) ;
+                                                     $("#admin-user-type-9-"+uid).attr('checked', false) ;	// 소유주
+                                                   }
+                                                   if(no==4){
+                                                     $("#admin-user-type-1-"+uid).attr('checked', false) ;
+                                                     $("#admin-user-type-2-"+uid).attr('checked', false) ;
+                                                    $("#admin-user-type-3-"+uid).attr('checked', false) ;
+                                                    $("#admin-user-type-5-"+uid).attr('checked', false) ;
+                                                    $("#admin-user-type-9-"+uid).attr('checked', false) ;	// 소유주
+                                                   }
+                                                   // 소유주
+                                                   if(no==9){
+                                                	   $("#admin-user-type-3-"+uid).attr('checked', false) ;
+                                                   }
+                                                }
+                                                /*]]>*/
+                                            </script>
+                                            <button type="button" class="btn btn-default" style="float:right" th:onclick="'saveAuthAdmin('+${u.id}+')'">저장</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                  <!--// Pagination Bar -->
+                  <div th:fragment='paginationbar'>
+                      <ul class='pagination'>
+                          <li th:class="${page.firstPage}? 'disabled' : ''">
+                              <span th:if="${page.firstPage}">처음</span>
+                              <a th:if="${not page.firstPage}" th:href="'javascript:search(0);'">맨처음</a>
+                          </li>
+                          <li th:class="${page.hasPreviousPage}? '' : 'disabled'">
+                              <span th:if="${not page.hasPreviousPage}">«</span>
+                              <a th:if="${page.hasPreviousPage}" th:href="'javascript:search(' + ${page.number - 2} + ');'">«</a>
+                          </li>
+                          <li th:each="item : ${page.items}" th:class="${item.current}? 'active' : ''">
+                              <span th:if="${item.current}" th:text="${item.number + 1}">1</span>
+                              <a th:if="${not item.current}" th:href="'javascript:search(' + ${item.number} + ');'"><span th:text="${item.number + 1}">1</span></a>
+                          </li>
+                          <li th:class="${page.hasNextPage}? '' : 'disabled'">
+                              <span th:if="${not page.hasNextPage}">»</span>
+                              <a th:if="${page.hasNextPage}" th:href="'javascript:search(' + ${page.number} + ');'">»</a>
+                          </li>
+                          <li th:class="${page.lastPage}? 'disabled' : ''">
+                              <span th:if="${page.lastPage}">마지막</span>
+                              <a th:if="${not page.lastPage}" th:href="'javascript:search(' + ${page.totalPages - 1} + ');'">끝</a>
+                          </li>
+                      </ul>
+                  </div>
+                  <input type="hidden" id="sort" name="sort" th:value="${page.sort}" />
+                  <!-- Pagination Bar //-->
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel" style="font-weight:bold;">무인택배함 장기보관 택배 알림</h4>
+            </div>
+            <div class="modal-body" style="font-size:16px; ">
+            <p class="redtxt" style="text-decoration:underline" th:id = "totalcountText">* 장기보관 택배가 총 10건이 확인됩니다.</p>
+            <p style="margin-top:30px;">무인택배함 최대 보관기간은 3일입니다.</p>
+            <p style="margin-bottom:20px;">수신자에게 내용 전달을 부탁 드립니다.</p>
+            <p style="padding-top:10px;">(이마을 앱에서 푸시로 수신이 가능합니다.)</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-primary" onclick="location='/admin/parcel-lockers-long-term' ">리스트바로가기</button>
+            </div>
+          </div>
+          </div>
+        </div>
+
+<!-- /#wrapper -->
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+
+var regSort="&sort=regDate,DESC";
+var dongSort ="&sort=house.dong,ASC"
+var hoSort="&sort=house.ho,ASC"
+
+
+function search(page, sortItem) {
+  var urlVal = $("#url").val();
+  var pageVal = $("#page").val();
+  var sizeVal = $("#size").val();
+  var sortVal = $("#sort").val();
+
+  if (page === 0 || page) {
+    pageVal = page;
+  }
+
+  if (sortItem) {
+    // &amp;sort=regDate,DESC
+    var temps = sortVal.split("&");
+    // console.log(temps.length);
+
+    var tempSort = "&sort=";
+
+    for (var i=0; i<temps.length; i++) {
+      if (temps[i]) {
+        var tempSorts = temps[i].replace(/sort=/g, "").split(",");
+        // console.log("tempSorts[0]: " + tempSorts[0] + ", tempSorts[1]: " + tempSorts[1]);
+
+        if (sortItem === tempSorts[0]) {
+          if (tempSorts[1] === "DESC") {
+            tempSort += sortItem + ",ASC";
+          }
+          else {
+            tempSort += sortItem + ",DESC";
+          }
+        }/*else {
+          tempSort += sortItem + ",DESC";
+        }*/
+      }
+    }
+
+    // console.log(tempSort);
+    //sortVal = tempSort;
+    if (sortItem === "house.dong") {
+        if(tempSort != '&sort=')
+          dongSort = tempSort;
+
+      sortVal = dongSort+hoSort;
+    }else if (sortItem === "house.ho") {
+            if(tempSort != '&sort=')
+          hoSort = tempSort;
+
+      sortVal = dongSort+hoSort;
+    }else if (sortItem === "regDate") {
+      regSort = tempSort;
+      sortVal = regSort;
+    }
+  }
+
+
+  var actionUrl = urlVal + "?page=" + pageVal + "&size=" + sizeVal + sortVal;
+
+  var searchDongVal = $("#searchDong").val();
+  if (searchDongVal) {
+    actionUrl += "&searchDong=" + searchDongVal;
+  }
+
+  var searchHoVal = $("#searchHo").val();
+  if (searchHoVal) {
+    actionUrl += "&searchHo=" + searchHoVal;
+  }
+
+  var searchPartVal = $("#searchPart").val();
+  var searchWordVal = $("#searchWord").val();
+  if (searchPartVal && searchWordVal) {
+    actionUrl += "&searchPart=" + searchPartVal;
+    actionUrl += "&searchWord=" + searchWordVal;
+  }
+  var searchAuth = $("#searchAuth").val();
+  if(searchAuth){
+    actionUrl += "&searchAuth=" + searchAuth;
+  }
+
+  // console.log(actionUrl);
+  location.href = actionUrl;
+}
+
+function init() {
+  var urlVal = $("#url").val();
+  location.href = urlVal;
+}
+
+//dataTables
+$(document).ready(function () {
+  // 페이지 설렉팅
+  var _sizeVal = $("#_size").val();
+    $("select[name='size']").val(_sizeVal);
+
+  var _searchPartVal = $("#_searchPart").val();
+  var _searchWordVal = $("#_searchWord").val();
+
+  if (_searchPartVal && _searchWordVal) {
+    $("select[name='searchPart']").val(_searchPartVal);
+    $("#searchWord").val(_searchWordVal);
+  }
+  var _searchAuth = $("#_searchAuth").val();
+  $("select[name='searchAuth']").val(_searchAuth);
+
+  var sortVal = $("#sort").val();
+  var temps = sortVal.split("&");
+
+  for (var i=0; i<temps.length; i++) {
+    if (temps[i]) {
+      var tempSorts = temps[i].replace(/sort=/g, "").split(",");
+      // console.log("tempSorts[0]: " + tempSorts[0] + ", tempSorts[1]: " + tempSorts[1]);
+
+      var id = "";
+      if (tempSorts[0] === "house.dong") {
+        id = "img_sort_dong"
+        dongSort= "&sort=house.dong,"+tempSorts[1];
+      }
+      else if (tempSorts[0] === "house.ho") {
+        id = "img_sort_ho"
+        hoSort= "&sort=house.ho,"+tempSorts[1];
+      }
+      else if (tempSorts[0] === "regDate") {
+        id = "img_sort_regDate"
+        regSort="&sort=regDate,"+tempSorts[1]
+      }
+
+      if (tempSorts[1] === "ASC") {
+        $("#" + id).attr("src", "/img/sort_asc.png");
+      }
+      else {
+        $("#" + id).attr("src", "/img/sort_desc.png");
+      }
+    }
+  }
+
+    /* 장기보관택배 알림팝업 */
+     $.ajax({
+        url: '/admin/user/last-login-pop',
+        type: 'get',
+        dataType: "json",
+        success: function(jsonData) {
+
+          var result = jsonData.result;
+          var totalcount = jsonData.totalcount;
+
+        	if(result == "true"){
+              $('#myModal').modal('show');
+              $('#totalcountText').text("*장기보관 택배가 총" + totalcount +"건이 확인됩니다" );
+
+            }
+        },
+        error: function(xhr, status, error) {
+            alert("error : parcelLongTerm list data fail");
+        }
+    });
+
+
+
+});
+
+
+//엔터눌렀을때 검색되게
+$('#searchDong, #searchHo, #searchWord').on('keypress', function(e) {
+  if (e.which == 13) {
+    search(0);
+  }
+});
+
+
+//페이지 리스트 사이즈 변할때 바로 검색되게
+$('#size').change(function(){
+  search(0);
+ });
+
+
+$("#print_btn").bind("click",function(){
+  /*window.print();
+  return false;*/
+    window.open('/admin/user/print_list',"printPopup");
+  /*
+  var myWindow=window.open('','','width=1000,height=1000');
+    myWindow.document.write("<p>This is 'myWindow'</p>");
+    myWindow.document.close();
+  myWindow.focus();
+  myWindow.print();
+  myWindow.close();
+  */
+});
+
+//권한저장 시 리다이렉트 안받게 막음
+function saveAuthJaha(uid) {
+  // $.post("/jaha/user/updateUserType", $("#Authform_"+uid).serialize());
+
+    $.ajax({
+        url: "/jaha/user/updateUserType"
+        , type: 'post'
+        , async: true
+        , data: $("#Authform_"+uid).serialize()
+        , success: function(jsonData) {
+          alert(" 권한을 수정하였습니다! ");
+        }
+        , error: function(xhr, status, error) {
+          if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+}
+
+// 주민권한 변경
+function saveAuthAdmin(uid) {
+  // $.post("/admin/user/updateUserType", $("#Authform_"+uid).serialize());
+
+    $.ajax({
+        url: "/admin/user/updateUserType"
+        , type: 'post'
+        , async: true
+        , data: $("#Authform_"+uid).serialize()
+        , success: function(jsonData) {
+          alert(" 권한을 수정하였습니다! ");
+        }
+        , error: function(xhr, status, error) {
+          if (window.console && console.log) console.log("error : " + error.message);
+        }
+    });
+}
+
+/*]]>*/
+</script>
+</body>
+</html>

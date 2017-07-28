@@ -1,0 +1,41 @@
+@charset "utf-8";
+
+body {
+	background-image: url(/images/cms/common/login/login_bg_01.gif);
+	background-repeat: repeat-x;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+
+}
+p, td, body, div { color:#8E8E8E; font-family:"Nanum", NanumGothic, "NanumB", NanumGothicBold, "dotum", 돋음, sans-serif; font-size: 12px; line-height:16px;} 
+
+
+
+.kfont01 {font-family: "NanumGothic";font-size: 0.95em;color: #fff;line-height: 18px;}
+.kfont01 a{color: #fff; text-decoration:none;}
+.kfont01 a:hover{ color: #FFF799; text-decoration:none;}
+
+.kfont02 {font-family: "NanumGothic";font-size: 1.1em;color: #666;line-height: 20px;}
+.kfont02 a{color: #666; text-decoration:none;}
+.kfont02 a:hover{ color: #666; text-decoration:none;}
+
+.kfont03 {font-family: "NanumGothic";font-size: 1.1em;color: #000;line-height: 18px;font-weight: bold; }
+.kfont03 a{color: #666; text-decoration:none;}
+.kfont03 a:hover{ color: #666; text-decoration:none;}
+
+.kfont04 {font-family: "NanumGothic";font-size: 1.1em;color: #666;line-height: 18px;}
+.kfont04 a{color: #666; text-decoration:none;}
+.kfont04 a:hover{ color: #666; text-decoration:none;}
+
+.kfont05 {font-family: "NanumGothic";font-size: 1.1em;color: #0C4DB9;line-height: 20px;font-weight: bold;background-image: url(/images/cms/common/login/text_bt.png);background-repeat: no-repeat; padding-left:7px;}
+.kfont05 a{color: #666; text-decoration:none;}
+.kfont05 a:hover{ color: #666; text-decoration:none;}
+
+
+
+
+/* NanumGothic */
+@font-face {font-family:"Nanum"; font-style:normal; font-weight:400; src:url(font/NanumGothic.eot); src:local(※), url(font/NanumGothic.woff) format('woff');}
+@font-face{font-family:"NanumB"; font-style:normal; font-weight:400; src:url(font/NanumGothicBold.eot); src:local(※), url(font/NanumGothicBold.woff) format('woff');}

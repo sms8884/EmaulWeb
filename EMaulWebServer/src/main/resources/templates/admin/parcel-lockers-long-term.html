@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css"
+          th:href="@{/css/sb-admin-2.css}"/>
+  
+  
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+
+    .redtxt{color:red;}
+    .bluetxt{color:blue;}
+
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>JAHA| 무인택배</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header" >장기보관 택배 관리</h1>
+        
+                <div id="content-container">
+
+          <div class="row" style="text-align:right; margin:30px 0 40px 0;">
+            <label for="select-wrap" style="margin:0 10px;">검색</label>
+            <div id="select-wrap" class="form-inline" style="display:inline-block;">
+              <select class="form-control" id="searchItem">
+                <option ></option>
+                <option th:value="parcelLockerName" >택배함 이름</option>
+                <option th:value="dongHo" >동/호</option>
+                <option th:value="phone" >핸드폰번호</option>
+              </select>
+            </div>
+            <input type="text"  class="form-control" id="searchKeyWord"  style="width:500px; display:inline-block;"/>
+            <button type="button" class="btn btn-default" th:onclick="'serchParcel()'">조회</button>
+          </div>
+          
+
+                    <div id="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                <tr>
+                  <th width="10%">경고일차</th>
+                  <th width="24%">택배보관기간</th>
+                  <th width="12%">택배함 위치</th>
+                  <th width="10%">수신자 주소</th>
+                  <th width="12%">수신자 연락처</th>
+                  <th width="12%">택배보관 위치</th>
+                  <th width="8%">저장</th>
+                </tr>
+                            </thead>
+                            <tbody>
+                <tr class="board-list"  th:each="content : ${pages.content}" th:id="${content.id}">
+                  <td class="redtxt" th:id="warningDay" th:text="${content.warningDay} + '일차'">2일차</td>
+                  <td th:id="parcelRegDate" th:text="${content.regDate} ">2016-08-30 22:26:00 ~ 2016-08-31 22:27:00</td>
+                  <td th:id="parcelLocation" th:text="${content.parcelLocker.location}">101동 102호 라인</td>
+                  <td th:id="receiveHouse" th:text="${content.dong} + '동' + ${content.ho} + '호' ">101동 202호</td>
+                  <td th:id="receivePhone" th:text="${content.phone}">010-2888-6665</td>
+                  <td th:id="parcelLogId" th:text="${content.id}" hidden=""></td>
+                  <td>
+                    <div id="select-wrap" class="form-inline" style="display:inline-block;">
+                      <select class="form-control" th:id="selectBox+${content.id}">
+                        <option th:value="parcelLocker" class="redtxt" style="color:red" >택배함</option>
+                        <option th:value="adminOffice" class="bluetxt"  style="color:blue" th:selected="${content.officeStoreYn == 'Y'}" >관리사무소</option>
+                       <option th:value="receiveComplete " th:selected="${content.findDate != null} AND ${content.officeStoreYn == 'N'} ">수취완료</option>
+                      </select>
+                    </div>
+                  </td>
+                  <td><button type="button" class="btn btn-default" th:onclick="'saveParcel('+${content.id}+')'" >저장 </button></td>
+                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+               <!--     Pagination Bar-->
+               <div style="text-align: center;">
+               <ul th:fragment="pagination" class="pagination" >
+	    <li th:class="${pages.number eq 0}?'disabled':''">
+	        <a th:if="${pages.number eq 0}" href="javascript:void(0)" aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a>
+	        <a th:unless="${pages.number eq 0}" th:href="@{__${#httpServletRequest.requestURI}__(page=${pages.number-1})}"  aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a>
+	    </li>
+	
+	    <li th:if="${pages.totalPages ==0}" th:each="no:${#numbers.sequence(0, pages.totalPages)}" th:class="${pages.number eq no}?'active':''">
+	        <a th:href="@{__${#httpServletRequest.requestURI}__(page=${no})}" th:inline="text">[[${no+1}]]</a>
+	    </li>
+		<li th:if="${pages.totalPages !=0}" th:each="no:${#numbers.sequence(0, pages.totalPages-1)}" th:class="${pages.number eq no}?'active':''">
+	        <a th:href="@{__${#httpServletRequest.requestURI}__(page=${no})}" th:inline="text">[[${no+1}]]</a>
+	    </li>
+	
+	    <li th:class="${pages.number+1 ge pages.totalPages}?'disabled':''">
+	        <a th:if="${pages.number+1 ge pages.totalPages}" href="javascript:void(0)"   aria-label='Next'><span aria-hidden='true'>&raquo;</span></a>
+	        <a th:unless="${pages.number+1 ge pages.totalPages}" th:href="@{__${#httpServletRequest.requestURI}__(page=${pages.number+1})}"  aria-label='Next'><span aria-hidden='true'>&raquo;</span></a>
+	    </li>
+	</ul>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+   
+                
+    $(document).ready(function() {
+    	
+      var now = new Date();                                                  // 현재시간
+      var nowTime = now.getFullYear() + "-" + checkTime((now.getMonth()+1)) + "-" + checkTime(now.getDate()) + "-" + now.getHours() + ":" 
+      + checkTime(now.getMinutes()) + ":" + checkTime(now.getSeconds());
+    	
+      function checkTime(i) {
+    	    if (i < 10) {
+    	        i= "0" + i;
+    	    }
+    	    return i;
+    	}
+     	$(".board-list").each(function() {
+			  var temp = $(this).children("#parcelRegDate").text(); 
+			  var result = temp + " ~ " + nowTime;
+			  $(this).children("#parcelRegDate").text(result);
+			  	
+		}); 
+    });
+               
+    function saveParcel(logId){
+	  	  var status = $("#selectBox"+logId).val();
+    	  if(status == 'parcelLocker'){
+    		  alert('택배함으로 저장할수는 없습니다');
+    		  return;
+    	  }
+
+    	  
+    	  $.ajax({
+              url: '/admin/parcel-lockers-long-term-save',
+              type: 'post',
+              data: {
+  	            "status": $("#selectBox"+logId).val(),
+  	           "parcelLogId": logId
+  	            
+  	        },
+              success: function(result){
+            	  alert("저장되었습니다");
+                  window.location.reload();
+              },
+              error:function(){
+            	  alert("실패하였습니다");
+              }
+  	        
+	    });
+    }
+    	  
+    function serchParcel(){
+    	
+    	var serchItem = $("#searchItem").val();
+    	var serchKeyWord = $("#searchKeyWord").val();
+    	
+    	if(serchItem == "" ){
+    		alert("검색조건을 선택해주세요")
+    		return ;
+    	}else if(serchKeyWord ==""){
+    		alert("검색어 입력 해주세요")
+    		return ;
+    	}
+    	
+   	  if(serchItem == 'phone'){
+    		  var numCheck = /^[0-9]*$/;
+    		  if(!numCheck.test(serchKeyWord)){
+    		  alert('숫자만 입력해 주세요');
+    		  return;
+    		  }
+    	  } 
+    	
+    	
+    	location.href="/admin/parcel-lockers-long-term?page=0&searchItem="+serchItem +"&searchKeyWord="+serchKeyWord;
+    	
+    }
+    
+               
+    /*]]>*/
+</script>
+
+</body>
+</html>

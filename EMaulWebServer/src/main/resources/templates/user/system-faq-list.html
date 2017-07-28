@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css"
+          th:href="@{/css/user.css}"/>
+
+    <script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+    <script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+    <script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+    <script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+    <script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+    
+
+    <!-- 그리드를 표시하기 위한 CSS -->
+    <link type="text/css" rel="stylesheet" href="../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}" />
+    <!--오류잡기-->
+    <script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+    <!-- SBGrid 종속 Library -->
+    <script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+    <script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+    <!-- SBGrid  -->
+    <script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+    <!--Paging-->
+    <script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+    
+
+<script language="javascript" type="text/javascript">
+//<![CDATA[
+
+    var datagrid;
+    var gridJsonData;
+               
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+    $(document).ready(function(){
+    	$(".container").css("margin-bottom", "20px");
+    	$("#type").val("1");
+    	search();
+    });
+    
+    function search(){
+    	SBGrid_pagingInit(0);
+    }
+
+    function createDataGrid(){
+        var gridAttr, 
+            objJson;
+
+        gridAttr = {
+            "strParentId"             : 'sbGridArea',
+            "strId"                   : 'datagrid',
+            "strCaption"              : "번호^제목",
+            "strColWidth"             : "10%,90%",
+            "strJsonRef"              : "gridJsonData",
+            "strStyle"                : "width:100%; height:500px; font-family:dotum, arial; font-size:14px;border:none;",
+            "strExplorerbar"          : "sortshow",
+            "strRowHeight"            : "50px",
+            "strDataHeight"           : "45px",
+            "strFocusColor"           : "#E8E8E8",
+            "strSelectFontColorStyle" : "none",
+            "fixedcol"                : "1",
+            "bUseMultiSorting"        : true,
+            "bDataSearching"          : true,
+            "strExtendLastCol"        : "scroll",
+            "strOverflow"             :"scroll",
+            "bDragMode"               : false,
+            "strEmptyRecords"   :   "조회결과가 없습니다."
+        };
+
+        datagrid= createSBDataGrid(gridAttr);
+
+        objJson = [
+                     {"id" : "_idx" , "type" : "output" , "ref" : "_idx" , "style":"text-align:center;"},
+                     {"id" : "title" , "type" : "output" , "ref" : "title" , "style":"text-align:center;"}
+                  ];               
+        datagrid.createColumns(objJson);   
+        
+    }
+    
+    function SBGrid_pagingInit(pageNumber){
+    	
+    	createDataGrid();
+
+        var nCount,         //총건수
+            nPageNum,       //현재 페이지번호
+            nPageSize;      //페이지 사이즈
+        
+        //현제 페이지 구함
+        if(pageNumber != null){
+            nPageNum =  parseInt(pageNumber);
+            if(nPageNum < 1) {
+                nPageNum = 1;
+            }
+        }else{
+            nPageNum = 1;
+        }
+        
+        //페이지당 레코드 갯수 설정
+        nPageSize = 10;
+        
+        datagrid.showWait(true);
+        
+        $.ajax({
+            url: '/user/system-faq/list-data',
+            type: 'post',
+            async : false,
+            dataType: "json",
+            data: {
+                "pageNum": nPageNum,
+                "pageSize": nPageSize,
+                "userSearchItem": $("#userSearchItem").val(),
+                "userSearchKeyWord": $("#userSearchKeyWord").val(),
+                "type": $("#type").val()
+            },
+            success: function(jsonData) {
+                //var jo = JSON.parse(data);
+                gridJsonData = jsonData.dataList;
+                nCount = jsonData.totalCount;
+                if(nCount != null){
+                	$("#totalCount").text(nCount+"개");
+                }
+                gfnSetGridPagingIndex(gridJsonData, nPageNum, nPageSize, nCount, "DESC");// 그리드 순번
+                
+                datagrid.rebuild();
+            },
+            error: function(xhr, status, error) {
+                alert("error : faq list data fail");
+            }
+        });
+        
+        datagrid.showWait(false);
+        
+        //ajax를 sync로 해놔서 순차적실행됨. style등은 datagrid가 rebuild되면 초기화되어서 rebuild후에 설정.
+        datagrid.addEventListener("onclick","rowClick","","");
+        
+        datagrid.setColStyles(datagrid.getColRef("title"), "color:blue; text-decoration: underline; cursor:pointer;", "data");
+        
+        gfnPagingRander("sbGridPaging", nPageNum, nPageSize, nCount);
+    }
+
+    function rowClick(){
+        var rowData = datagrid.getRowData(datagrid.getRow());
+        
+        if(datagrid.getCol() == datagrid.getColRef("title")){
+            location.href = "/user/system-faq/form?id="+rowData.id;
+        } 
+    }
+    
+    function typeBtnClick(idx){
+    	$("#type").val(idx);
+    	$(".efaqButton").removeClass("tab_button_active");
+    	$("#efaqButton"+idx).addClass("tab_button_active");
+    	search();
+    }
+        
+//]]>
+</script>
+<style type="text/css">
+<!--
+.sbgrid_datagrid_FixedCell{    font-family: sans-serif;
+    background:#F2F2F2;
+    color:#333333;
+    border:none;
+    border-bottom:1px solid #f2f2f2;
+    font-size: 14px;
+    font-weight:bold;
+}
+.sbgrid_datagrid_DataCell{   font-family: sans-serif;
+    border:none;
+    border-bottom:1px solid #C9C9CA;
+}
+
+/*버튼*/
+
+.pagenate .page a{
+    border:1px solid #DDDDDD;
+    width:30px;
+    height:30px;
+    line-height:22px;
+}
+.pagenate .page a:hover,
+.pagenate .page a:active{
+    color:#FB7216;
+    background:#EEEEEE;
+    border:1px solid #DDDDDD;
+}
+.pagenate .page a.on{
+    color:#fff;
+    background:#FF6100;
+    width:30px;
+    height:30px;
+}
+.pagenate .page a.on:hover,
+.pagenate .page a.on:active{
+    width:30px;
+    height:30px;
+    border:none;
+}
+.pagenate .page a.page_btn{
+    width:30px !important;
+    height:30px !important;
+}
+.pagenate .page a.end{
+    background-position: -90px 0px;
+}
+.pagenate .page a.next{
+    background-position: -62px 0px;
+}
+.pagenate .page a.prev{
+    background-position: -32px 0px;
+}
+.pagenate .page a.first{
+    background-position: -2px 0px;
+}
+
+.tab_button_active{
+    background:#FF6100;
+}
+.tab_button_active a{color:#fff;}
+
+.faqBottonBox{width:100%; margin:10px 0 20px 0;}/*20160607 추가(수정)*/
+.faqBottonBox input[type="button"]{width:25%; }
+.faqBottonBox input[type="button"]:hover,
+.faqBottonBox input[type="button"].tab_button_active{
+background:#FF6100;
+color:#fff;
+}
+
+/*20160607 추가*/
+.searchtxt{
+    width:480px !important;
+}
+.listResultP{
+    margin:30px 0 10px 0;
+}
+//-->
+</style>
+
+</head>
+
+<body>
+
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>자주 하는 질문</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="/user">e마을</a></li>
+                    <li>자주 하는 질문</li>
+                </ol>
+            </div>
+
+            <!--20160607 추가-->
+            <div class="panel panel-info" >    
+                <table class="table table-responsive" style="margin:0;">
+                    <tr>
+                        <th style="border:none;">검색</th>
+                        <td class="form-inline" style="text-align:left; padding-left:8%; border:none;">
+                            <select name="userSearchItem" id="userSearchItem" class="form-control" >
+                                <option value="1">전체</option>
+                                <option value="2">제목</option>
+                                <option value="3">내용</option>
+                            </select>
+                            <input type="text" class="form-control searchtxt" id="userSearchKeyWord" name="userSearchKeyWord" value="" placeholder="검색 키워드를 입력하세요." />
+                            <span class="searchBox">
+                                <input type="button" class="btn btn-outline btn-info searchbtn" id="searchbtn" name="searchbtn" value="검색" onclick="search()" />
+                            </span>
+                            <input type="hidden" name="type" id="type" />
+                        </td>
+                    </tr>
+                </table>
+            </div>        
+            <p class="listResultP">전체 <span class="listResult" id="totalCount" style="font-weight:bold;">0개</span>의 자주 하는 질문이 있습니다.</p>
+           
+            <div class="btn-group faqBottonBox">
+                <input type="button" class="btn btn-default efaqButton tab_button_active" id="efaqButton1" value="우리집" name="efaqButton1" onclick="typeBtnClick(1)" />
+                <input type="button" class="btn btn-default efaqButton" id="efaqButton2" value="우리아파트" name="efaqButton2" onclick="typeBtnClick(2)"/>
+                <input type="button" class="btn btn-default efaqButton" id="efaqButton3" value="투표&amp;설문" name="efaqButton3" onclick="typeBtnClick(3)"/>
+                <input type="button" class="btn btn-default efaqButton" id="efaqButton4" value="기타" name="efaqButton4" onclick="typeBtnClick(4)"/>
+            </div>
+           
+            <div>
+                <div class="noticeGridArea" id="sbGridArea"></div>
+                <div id="sbGridPaging" class="pagenate"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="user/user :: footer"></div>
+
+</body>
+</html>

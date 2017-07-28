@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css"
+	      th:href="@{/css/bootstrap.min.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css"
+	      th:href="@{/font-awesome/css/font-awesome.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/multiselect/css/multi-select.css"
+	      th:href="@{/multiselect/css/multi-select.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap-datetimepicker.css"
+	      th:href="@{/css/bootstrap-datetimepicker.css}"/>
+	<link type="text/css" rel="stylesheet" href="../../../static/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css" th:href="@{/sbgrid/sbGrid/js/kr/co/softbowl/css/Sbgrid_default.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+        input[type=text]{
+            height:30px;
+        }
+
+	/*추가*/
+	    .sc_asSearchtxt{
+	        width:505px !important;
+	    }
+	    .sc_asResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .sc_asSignupBox{
+	        text-align:right;
+	        margin-bottom: 15px;
+	    }
+	    ._btnLeft{
+            float:left;
+            margin-right: 5px;
+        }
+        .search-table tr {
+            height: 35px;
+        }
+        .search-table th {
+            width:100px;
+        }
+        .search-table td {
+            padding-right: 25px;
+        }
+        .search-table .aptName {
+            width:500px;
+        }
+        .search-table .authSaveAptNm {
+            width:400px;
+        }
+        .search-table .searchKeyword {
+            width:400px;
+        }
+        .bottomBtnBox {
+            text-align:right;
+            margin-top:10px;
+        }
+        .scrollTable {
+            height:360px;
+            overflow-y:auto;
+        }
+        .scrollTableHeader {
+            height:40px;
+            border-bottom: 1px solid gray;
+        }
+        ._dataTable {
+            width:100%;
+        }
+        ._dataTable thead{
+            font-weight: bold;
+        }
+        ._dataTable thead tr{
+            height:30px;
+        }
+        ._dataTable tbody{
+            height: 360px;
+        }
+        ._dataTable td {
+            text-align: center;
+        }
+        .searchInput {
+            width: 250px;
+        }
+        .searchSelect {
+            width:150px;
+            height:31px;
+        }
+	</style>
+
+    <title>출입문 AP 등록 관리</title>
+</head>
+
+<body>
+
+<div id="wrapper"><!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">출입문 AP 등록 관리</h1>
+
+                <div id="content-container">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-weight:900"></div>
+                        <div class="panel-body">
+                            <table class="table-responsive search-table">
+                                <tr>
+                                    <th>아파트</th>
+                                    <td class="form-inline" colspan="10">
+                                        <label><input type="radio" name="aptSearchType" value="assign" />지정</label>
+                                        <label><input type="radio" name="aptSearchType" value="empty" />미지정</label>
+                                        <label><input type="radio" name="aptSearchType" value="all" />전체</label>
+                                        <label><input type="radio" name="aptSearchType" value="select" />선택</label>
+                                        <input type="hidden" name="aptId" id="aptId" />
+                                        <input type="text" class="form-control aptName" id="aptNm" name="aptNm" readonly="readonly" />
+                                        <input type="button" class="btn btn-info btn-sm" id="selectAptBtn" value="아파트검색" name="selectAptBtn" onclick="selectAptPopup(1)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>ID검색</th>
+                                    <td>
+                                        <input type="text" class="form-control searchInput" id="ids" name="ids" placeholder="ex) 34, 51-60" /> 
+                                    </td>
+                                    <th>AP ID검색</th>
+                                    <td>
+                                        <input type="text" class="form-control searchInput" id="apId" name="apId" />
+                                    </td>
+                                    
+                                    <th>F/W Version</th>
+                                    <td>
+                                        <input type="text" class="form-control searchInput" id="firmwareVersion" name="firmwareVersion" /> 
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>STATUS</th>
+                                    <td>
+                                        <select name="status" id="status" class="form-control searchSelect">
+                                            <option value="">전체</option>
+                                            <option th:each="item : ${statusList}" th:value="${item.code}" th:text="${item.name}" ></option>
+                                        </select>
+                                    </td>
+                                    <th>동작방식</th>
+                                    <td colspan="10">
+                                        <select name="operationMode" id="operationMode" class="form-control searchSelect">
+                                            <option value="">전체</option>
+                                            <option th:each="item : ${operationModeList}" th:value="${item.code}" th:text="${item.name}" ></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>키워드검색</th>
+                                    <td class="form-inline" colspan="10">
+                                        <input type="text" class="form-control searchKeyword" id="searchKeyword" name="searchKeyword" placeholder="검색 키워드를 입력하세요."/>
+                                        <span>
+                                            <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" />
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="sc_asResultTxt" id="totalCountText" >0건의 데이터가 조회되었습니다.</p>
+                    <div class="sc_asGridArea" id="sc_asGridArea"></div>
+                    <div id="sbGridPaging" class="pagenate" ></div>
+        
+                    <div class="sc_asSignupBox" th:if="${user.type.jaha}">
+                        <input type="button" class="btn btn-info _btnLeft" value="AP업데이트"  onclick="firmwarePopup()"/>
+                        <input type="button" class="btn btn-info _btnLeft" value="아파트지정" onclick="applyAptPopup()"/>
+                        <input type="button" class="btn btn-info _btnLeft" value="AP설치테스트계정관리" onclick="apTestAccountManagePopup()"/>
+                        <input type="button" class="btn btn-info _btnLeft" value="AP출입권한등록" onclick="fnBatchApAuthSave()"/>
+                        <input type="button" class="btn btn-info" id="addBtn" value="등록" name="sc_asSignup" onclick="moveAdd()"/>
+                        <input type="button" class="btn btn-info" id="deleteBtn" value="삭제" name="deleteBtn" onclick="deleteRow()"/>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- page wrapper -->
+</div>
+<!-- /#wrapper -->
+
+<!-- AP출입권한 일괄등록 modal -->
+<div class="modal fade" id="modal-ap-auth-save" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">AP출입권한등록</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel-body">
+                <form name="apAuthForm" id="apAuthForm" method="post" enctype="multipart/form-data">
+                    <table class="table-responsive search-table">
+                        <tr>
+                            <th style="width:100px;">아파트</th>
+                            <td class="form-inline">
+                                <input type="hidden" name="authSaveAptId" id="authSaveAptId" />
+                                <input type="text" class="form-control authSaveAptNm" id="authSaveAptNm" name="authSaveAptNm" readonly="readonly" />
+                                <input type="button" class="btn btn-info btn-sm" id="selectAptBtn2" value="아파트검색" name="selectAptBtn2" onclick="selectAptPopup(2)"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="width:100px;">파일</th>
+                            <td>
+                                <input type="file" name="authFile" id="authFile" />
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-info btn-sm" value="저장"  onclick="fnSaveApAuth()"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AP출입권한 일괄등록 처리결과 modal -->
+<div class="modal fade" id="modal-ap-auth-save-result" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog" style="width:700px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">AP출입권한등록결과</h4>
+            </div>
+            <div class="modal-body">
+                <b>진행여부 : </b><span id="txt_resultYn"></span><br />
+                <b>메시지 : </b><span id="txt_resultMsg"></span><br />
+                <div>
+                    <h5>실패한 목록</h5>
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _dataTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:30%;">Sheet</td>
+                                    <td style="width:10%;">Line No</td>
+                                    <td style="width:20%;">AP ID</td>
+                                    <td style="width:40%;">MESSAGE</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+	                <div class="scrollTable" >
+	                    <table class="table table-hover _dataTable" >
+	                        <tbody id="_saveResultItems">
+	                            <tr><td style="width:100%;">데이터가 없습니다.</td></tr>
+	                        </tbody>
+	                    </table>
+	                </div>
+                </div>
+            
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="frm" id="frm" method="post"></form>
+
+<script src="../../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../../static/js/bootstrap-datetimepicker.min.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+<!-- SBGrid 종속 Library -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json-minified.js}"></script>
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/js/Library/json2.js}"></script>
+<!-- SBGrid  -->
+<script src="../../static/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js" type="text/javascript" th:src="@{/sbgrid/sbGrid/js/kr/co/softbowl/SBGrid.js}"></script>
+<!--Paging-->
+<script type="text/javascript" src="../../static/sbgrid/sbGrid/js/common/sbGrid_common.js" th:src="@{/sbgrid/sbGrid/js/common/sbGrid_common.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var datagrid;
+
+    $(function(){
+        // sbGrid root 경로 설정.
+        try{
+            SBGrid.DEF.DOMAIN = "/sbgrid/sbGrid/js/";
+        }catch(e){}
+    });
+    
+	$(document).ready(function(){
+	    
+	    $("#searchBtn").bind("click", function(){
+	    	SBGrid_pagingInit();
+        });
+	    
+	    //detail에서 뒤로가기시 hash에 있는 pageNum을 유지
+	    var hash = location.hash;
+	    if(hash == ""){
+	    	$("input[type=radio]:first").prop("checked", true)
+            $("#selectAptBtn").prop("disabled", true);
+	    	SBGrid_pagingInit();
+	    } else {
+	    	var tmpPageNum = hash.replace("#","");
+	    	location.hash = "";
+	    	SBGrid_pagingInit(tmpPageNum);
+	    }
+	    
+	    $("input[type=radio][name=aptSearchType]").on("click", function(){
+	    	if($(this).val() == "select"){
+	    		$("#selectAptBtn").prop("disabled", false);	    		
+	    	} else {
+	    		$("#aptId, #aptNm").val("");
+                $("#selectAptBtn").prop("disabled", true);
+	    	}
+	    });
+	    
+	    $("#searchKeyword, #ids, #apId, #firmwareVersion").setEnter(SBGrid_pagingInit);
+	    
+	    
+	});
+	
+	var gridJsonData;
+    var nPageNum;      //현재 페이지번호
+	function SBGrid_pagingInit(pageNumber){
+	    
+	    createDataGrid();
+	    
+	    var nCount,        //총건수
+	        nPageSize      //페이지 사이즈
+	    
+	    //현제 페이지 구함
+	    if(pageNumber != null){
+	        nPageNum =  parseInt(pageNumber);
+	        if(nPageNum < 1) {
+	            nPageNum = 1;
+	        }
+	    }else{
+	        nPageNum = 1;
+	    }
+	
+	    var sDate = null;
+	    var eDate = null;
+	    
+	    
+	    if($("#chkPeriod").prop("checked") == false){
+	        sDate = $("#startDate").val();
+	        eDate = $("#endDate").val();
+	    } 
+	    
+	    datagrid.showWait(true);
+	    
+	    //페이지당 레코드 갯수 설정
+	    nPageSize = 10;
+	    
+	    $.ajax({
+	        url: '/jaha/apt/ap/list-data',
+	        type: 'post',
+	        async : false,
+	        dataType: "json",
+	        data: {
+	            "pageNum": nPageNum,
+	            "aptSearchType": $("input[type=radio][name=aptSearchType]:checked").val(),
+	            "aptId": $("#aptId").val(),
+	            "ids": $("#ids").val(),
+	            "apId": $("#apId").val(),
+	            "firmwareVersion": $("#firmwareVersion").val(),
+	            "status": $("#status").val(),
+	            "operationMode": $("#operationMode").val(),
+	            "searchKeyword": $("#searchKeyword").val()
+	        },
+	        success: function(jsonData) {
+	            //var jo = JSON.parse(data);
+	            gridJsonData = jsonData.dataList;
+	            nCount = jsonData.totalCount;
+	            $("#totalCountText").text(nCount+"건의 데이터가 조회되었습니다.");
+	            
+	            //문자치환
+	            for(var i=0;i<gridJsonData.length;i++){
+	            	var item = gridJsonData[i];
+	            	
+	            	// list의 문자 치환 ( 검색바의 select box 이용 )
+	            	$("#operationMode option").each(function(){
+	            		if($(this).val() == item.operationMode){
+	            			item.operationMode = $(this).text();
+	            			return false;
+	            		}
+	            	});
+	            	
+	            	$("#status option").each(function(){
+                        if($(this).val() == item.status){
+                            item.status = $(this).text();
+                            return false;
+                        }
+                    });
+	            	
+	            }
+	            
+	            datagrid.rebuild();
+	        },
+	        error: function(xhr, status, error) {
+	            alert("error : apt ap list data fail");
+	        }
+	    });
+	    
+	    datagrid.showWait(false);
+	    
+	    //ajax를 sync로 해놔서 순차적실행됨. style등은 datagrid가 rebuild되면 초기화되어서 rebuild후에 설정.
+	    datagrid.addEventListener("onclick","rowClick","","");
+	    
+	    datagrid.setColStyles(datagrid.getColRef("apBeaconUuid"), "color:blue; text-decoration: underline; cursor:pointer;", "data");
+	    
+	    var rowSize = datagrid.getRows();
+	    for(var i=1;i<=rowSize;i++){
+	        //datagrid.setCellFormat(i, datagrid.getColRef("view_cnt"), "#,###");
+	    }
+	    
+	    gfnPagingRander("sbGridPaging", nPageNum, nPageSize, nCount);
+	}
+	
+	function createDataGrid(){
+	    var strCaption, 
+	        strWidth,
+	        gridAttr, 
+	        objJson;
+	
+	    strCaption = "^ID^STATUS^동작방식^AP BEACON UUID^AP ID^AP 이름^아파트";
+	    strWidth = "3%,5%,7%,10%,15%,15%,15%,30%";
+	    
+	    gridAttr = {
+	        "strParentId"                   : 'sc_asGridArea',
+	        "strId"                         : 'datagrid',
+	        "strCaption"                    : strCaption,
+	        "strColWidth"                   : strWidth,
+	        "strJsonRef"                    : "gridJsonData",
+	        "strStyle"                      : "width:100%; height:433px; font-family:dotum, arial; font-size:14px;",
+	        "strExplorerbar"            : "sortshowmove",
+	        "strRowHeight"              : "50px",
+	        "strDataHeight"              : "38px",
+	        "strFocusColor"         :   "#E8E8E8",
+	        "strSelectFontColorStyle":  "none",
+	        "fixedcol"                       :"1",
+	        "bUseMultiSorting"       : false,
+	        "bDataSearching"             : true,
+	        "bDragMode" : false,
+	        "bIsShowLoadingImage"   :   true,
+	        "strExtendLastCol"       : "scroll",
+	        "strEmptyRecords"   :   "조회결과가 없습니다."
+	        };
+	
+	    datagrid = createSBDataGrid(gridAttr);
+	    
+	    objJson = [
+	                 {"id" : "checkbox" , "type" : "checkbox" , "ref" : "_chk" , "style":"text-align:center;"},
+	                 {"id" : "id" , "type" : "output" , "ref" : "id" , "style":"text-align:center;"},
+	                 {"id" : "status" , "type" : "output" , "ref" : "status" , "style":"text-align:center;"},
+	                 {"id" : "operationMode" , "type" : "output" , "ref" : "operationMode" , "style":"text-align:center;"},
+	                 {"id" : "apBeaconUuid" , "type" : "output" , "ref" : "apBeaconUuid" , "style":"text-align:center;"},
+	                 {"id" : "apId" , "type" : "output" , "ref" : "apId" , "style":"text-align:center;"},
+	                 {"id" : "apName" , "type" : "output" , "ref" : "apName" , "style":"text-align:center;"},
+	                 {"id" : "buildingAddress" , "type" : "output" , "ref" : "buildingAddress" , "style":"text-align:center;"}
+	              ];
+	              
+	    datagrid.createColumns(objJson);
+	    
+	    datagrid.setFixedcellcheckbox(0, 0, true);
+	    
+	}
+	
+	function rowClick(){
+        var rowData = datagrid.getRowData(datagrid.getRow());
+        
+        if(datagrid.getCol() == datagrid.getColRef("apBeaconUuid")){
+        	moveDetail(rowData.id);
+        } 
+	}
+	
+	function firmwarePopup(){
+		var percent = 0.8;
+		var width = screen.width * percent;
+        var height = screen.height * percent;
+        var left = (screen.width-width)/2;
+        var top = (screen.height-height)/2;
+        openWindow("/jaha/apt/ap/firmware/popup","aptApFirmware", width, height, left, top);
+	}
+	
+	function moveAdd(){
+		var width = 1200;
+        var height = 820;
+        openWindow("/jaha/apt/ap/form-pop","aptApForm", width, height);
+	}
+	
+    function moveDetail(id){
+    	location.hash = nPageNum;
+        location.href = "/jaha/apt/ap/detail?id="+id;
+    }
+    
+    function deleteRow(){
+    	if(gridJsonData != null){
+    		
+    	    if(!confirm("삭제하시겠습니까?")){
+                return;
+            }
+    		
+    	    $("#frm").empty();
+    		for(var i=0;i<gridJsonData.length;i++){
+    			var rowData = gridJsonData[i];
+    			if(rowData._chk != null && rowData._chk == "true"){
+    				$("<input type='hidden' name='deleteId' value='"+rowData.id+"' />").appendTo("#frm");
+    			}
+    		}
+    		
+    		if($("input[name=deleteId]").length > 0){
+    			
+    			$.ajax({
+    	            url: '/jaha/apt/ap/delete',
+    	            type: 'post',
+    	            async : false,
+    	            dataType: "html",
+    	            data: $("#frm").serialize(),
+    	            success: function(data) {
+    	            	if(data > 0){
+    	            		alert("삭제되었습니다.");
+    	            		SBGrid_pagingInit(nPageNum);
+    	            	}
+    	            },
+    	            error: function(xhr, status, error) {
+    	                alert("error : apt ap delete fail");
+    	            }
+    	        });
+    			
+    		}
+    		
+    		
+    	}
+    }
+    
+    var currAptPopup = 0;
+    function selectAptPopup(idx){
+    	currAptPopup = idx;//아파트 팝업 사용구분 ( 아파트팝업 버튼이 2곳 이상일경우 처리 )
+    	gfnAptSearchPopup();
+    }
+    
+    function _searchAptCallback(apt){
+    	if(currAptPopup == 1){
+    		// 상단 검색바에서 아파트 팝업
+    		$("#aptNm").val(apt.aptAddressNm);
+            $("#aptId").val(apt.aptId);    		
+    	} else if(currAptPopup == 2){
+    		//AP출입권한등록에서 아파트 팝업
+    		$("#authSaveAptNm").val(apt.aptAddressNm);
+            $("#authSaveAptId").val(apt.aptId);
+    	}
+    }
+    
+    function applyAptPopup(){
+        var width = 900;
+        var height = 790;
+        openWindow("/jaha/apt/ap/apply-apt/popup","applyAptPopup", width, height);
+    }
+    
+    function apTestAccountManagePopup(){
+    	var width = 1100;
+        var height = 650;
+        openWindow("/jaha/apt/ap/inspection/account/popup","apInspectionPopup", width, height);
+    }
+    
+    function fnBatchApAuthSave(){
+    	$("#modal-ap-auth-save").centerModal();
+    }
+    
+    function fnSaveApAuth(){
+    	
+    	if(gfnIsEmpty($("#authSaveAptId").val())){
+    		alert("아파트를 선택해주세요.");
+    		return;
+    	}
+    	
+    	var ext = $("#authFile").val().split('.').pop().toLowerCase();
+        if ($.inArray(ext, ['xls', 'xlsx']) == -1) {
+            alert("xls, xlsx 확장자 파일만 업로드 할 수 있습니다.");
+            return;
+        }
+    	
+    	if(!confirm("저장하시겠습니까?")){
+    		return;
+    	}
+    	
+    	gfnLoadingImage();
+    	
+    	$("#apAuthForm").ajaxSubmit({
+            url: "/jaha/apt/ap/access-auth/batch-save"
+            , type: 'post'
+            , async: true
+            , timeout: 180000
+            , dataType: "json"
+            , success: function(data) {
+            	if(data == null){
+            		alert("저장도중 오류가 발생하였습니다.");
+            	} else {
+            		
+            		$("#txt_resultYn").text(data.resultYn);
+            		$("#txt_resultMsg").text(data.resultMsg);
+            		
+            		$("#_saveResultItems").empty();
+
+            		var _html = '';
+            		var failList = data.failList;// null체크 불필요
+            		for(var i=0;i<failList.length;i++){
+            			_html += '<tr>';
+            			_html += '<td style="width:30%;">';
+                        _html += failList[i].sheetName;
+                        _html += '</td>';
+                        _html += '<td style="width:10%;">';
+                        _html += failList[i].rowNo;
+                        _html += '</td>';
+            			_html += '<td style="width:20%;">';
+            			_html += failList[i].apId;
+            			_html += '</td>';
+            			_html += '<td style="width:40%;">';
+            			_html += failList[i].msg;
+                        _html += '</td>';
+            			_html += '</tr>';
+            		}
+            		
+            		if(_html.length == 0){
+            			_html = '<tr><td>실패항목이 없습니다.</td></tr>';
+            		}
+            		
+            		$("#_saveResultItems").html(_html);
+            		
+            		$("#modal-ap-auth-save-result").centerModal({backdrop:"static",keyboard: false});
+            	}
+            }
+            , error: function(xhr, status, error) {
+                alert("error : function fnSaveApAuth fail");
+            }
+            , complete : function(){
+            	gfnUnLoadingImage();
+            }
+        });
+    }
+    
+               
+    /*]]>*/
+</script>
+
+</body>
+</html>

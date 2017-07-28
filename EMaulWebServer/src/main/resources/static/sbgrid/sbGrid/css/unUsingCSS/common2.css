@@ -1,0 +1,26 @@
+@charset "utf-8";
+
+body,input,button,select,textarea{font-size:12px;font-family:'돋움',Dotum,Helvetica,AppleGothic,Sans-serif;color:#666666;} /*line-height:16px;*/
+h1,h2,h3,h4,h5,h6{margin:0;font-size:12px;font-weight:normal;text-align:left;}
+cite, em, dfn,address {font-style:normal;}
+dd, dl, ol, ul {margin:0;padding:0;list-style-type:none;}
+img,fieldset,iframe {border:none;margin:0;padding:0;}
+
+body, blockquote, div, p {margin:0;padding:0;}
+pre {margin:0;font-size:12px;}
+dt {font-weight:normal;}
+li {margin:0;padding:0;list-style:none;}
+table {border:0;border-collapse:collapse;}
+img,input,select {margin:0;padding:0;vertical-align:middle;}
+button {padding:0;margin:0;border:none;vertical-align:middle;cursor:pointer;_cursor:hand;}
+hr,legend,caption {visibility:hidden;height:0;line-height:0;font-size:0;}
+
+a {color:#777777;text-decoration:none;}
+a:hover {color:#004990;text-decoration:underline;}
+
+/* --------------
+common
+------------- */
+.skip-nav {display:block;top:-100px;position:absolute;padding:10px;border:5px solid #d1d1d1;background:#444444;color:#cccccc;font-size:14px;width:200px;font-weight:bold;text-align:center;}
+.skip-nav:focus,a.skip-nav:hover, a.skip-nav:active {visibility:visible;top:0px;left:10%;}
+.hidden {position:absolute;left:-9999px;top:-9999px;visibility:hidden;}

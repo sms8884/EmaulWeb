@@ -1,0 +1,8 @@
+@media print {
+    .panel{
+        border: 0;
+    }
+    .panel-heading{
+        display: none;
+    }
+}

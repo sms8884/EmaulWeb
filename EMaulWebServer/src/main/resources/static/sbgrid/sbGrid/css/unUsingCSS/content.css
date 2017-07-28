@@ -1,0 +1,110 @@
+@charset "utf-8";
+
+/* -------------------
+ About softbowl
+------------------- */
+.buliding {width:192px;height:159px;background:url("../imgs/sub/img_building.png") no-repeat 102px 399px;}
+.mouse {width:130px;height:141px;background:url("../imgs/sub/img_mouse.png") no-repeat 146px 399px;}
+.computor {width:174px;height:155px;background:url("../imgs/sub/img_computor.png") no-repeat 109px 427px;}
+.wheel {width:2994px;height:145px;background:url("../imgs/sub/img_wheel.png") no-repeat 0px 433px;}
+.contents_area {position:relative;}
+.ceo_headline {display:block;margin-top:49px;margin-left:24px;}
+.ceo_bodybox {display:block;margin-top:16px;margin-left:24px;}
+.ceo_pic {position:absolute;right:32px;top:32px;}
+.exe_bodybox {margin-top:35px;}
+.exe_headline {margin-top:49px;margin-left:67px;}
+.exe_list {clear:both;margin-left:67px;width:674px;height:320px;}
+.exe_list li {display:inline;float:left;width:auto;margin-right:9px;}
+.exe_list li .txt_pic_01_01 {display:block;padding-top:51px;}
+.exe_list li .txt_pic_02_01 {display:block;padding-top:36px;}
+.map_bodybox {text-align:center;}
+.map_bodybox .map_pic {display:inline-block;padding-top:49px;}
+.map_bodybox .map_addr {display:inline-block;padding-top:10px;padding-right:46px;}
+
+/* -------------------
+SBgrid
+------------------- */
+.sb_location {position:absolute;right:26px;top:156px;}
+.sb_location a {padding-right:18px;font-size:11px;text-align:left;color:#595858;background:url("../imgs/common/bul_greater.png") no-repeat right top;}
+.sb_location strong {color:#595858;}
+.sb_headline {padding-top:35px;margin-left:24px;}
+.headline_eng {display:block;margin-top:5px;margin-left:24px;}
+.sb_bodybox .merit_list {height:200px;margin-top:30px;margin-left:67px;}
+.sb_bodybox .merit_list li {float:left;width:157px;height:173px;font-weight:bold;background:url("../imgs/sub/sbgrid_bg_merit.gif") no-repeat;}
+.sb_bodybox .merit_list li.bg_01 p {display:block;width:117px;margin-top:18px;text-align:center;}
+.sb_bodybox .merit_list li.bg_01 ol.text_list {margin-top:18px;}
+.sb_bodybox .merit_list li.bg_01 ol.text_list li {height:auto;margin:7px 24px 0px 14px;padding:0;line-height:14px;color:#363434;background:none;}
+.sb_bodybox .merit_list li.bg_02 {background:url("../imgs/sub/sbgrid_bg_merit_04.gif") no-repeat;}
+.sb_bodybox .merit_list li.bg_02 span {display:block;width:117px;margin-top:18px;margin-left:41px;}
+.sb_bodybox .merit_list li.bg_02 ol.text_list {margin-top:18px;}
+.sb_bodybox .merit_list li.bg_02 ol.text_list li {height:auto;margin:7px 24px 0px 14px;padding:0;line-height:14px;color:#363434;background:none;}
+.sb_bodybox .merit_list li.bg_03 {background:url("../imgs/sub/sbgrid_bg_merit_03.gif") no-repeat;}
+.sb_bodybox .merit_list li.bg_03 span {display:block;width:117px;margin-top:10px;margin-left:17px;text-align:center;}
+.sb_bodybox .merit_list li.bg_03 ol.text_list {margin-top:10px;}
+.sb_bodybox .merit_list li.bg_03 ol.text_list li {height:auto;margin:7px 24px 0px 14px;padding:0;line-height:14px;color:#363434;background:none;}
+.sb_bodybox .merit_list li.bg_04 {background:url("../imgs/sub/sbgrid_bg_merit_04.gif") no-repeat;}
+.sb_bodybox .merit_list li.bg_04 span {display:block;width:117px;margin-top:10px;margin-left:17px;text-align:center;}
+.sb_bodybox .merit_list li.bg_04 ol.text_list {margin-top:10px;}
+.sb_bodybox .merit_list li.bg_04 ol.text_list li {height:auto;margin:7px 24px 0px 14px;padding:0;line-height:14px;color:#363434;background:none;}
+
+/* 2013.11.05 SBGrid 데모사이트 적용 후 css 변경 
+.function_list {width:628px;height:260px;margin-top:34px;margin-left:100px;text-align:center;background:url("../imgs/sub/sbgrid_bg_function.png") no-repeat center top;}
+*/
+.function_list {width:628px;height:260px;margin-top:34px;margin-left:65px;text-align:center;background:url("../imgs/sub/sbgrid_bg_function.png") no-repeat center top;}
+.function_list li {display:inline;float:left;width:157px;text-align:center;}
+.function_list li span {display:block;margin-top:9px;}
+.function_list li .sbgrid_txt_function {display:block;padding-top:67px;}
+
+.sbgrid_portpolio {width:620px;height:307px;margin-top:15px;margin-left:100px;background:url("../imgs/sub/sbgrid_txt_portpolio.gif") no-repeat;}
+.sbgrid_txt_refer {display:block;margin-top:34px;margin-left:100px;}
+
+/* -------------------
+Rexpert
+------------------- */
+.rex_img_product {width:636px;height:274px;margin:30px 0 0 49px;background:url("../imgs/sub/rex_img_product.jpg") no-repeat ;}
+.rex_img_product li {height:64px;margin:6px 0 0 235px;}
+.rex_img_product li span.product {display:inline-block;float:left;width:63px;height:39px;padding-top:26px;padding-left:29px;margin-right:6px;background:url("../imgs/sub/rex_bg_product.gif") no-repeat;}
+.rex_img_product li span.product_con {display:inline-block;float:left;width:278px;height:46px;padding-top:18px;padding-left:22px;background:url("../imgs/sub/rex_bg_con.gif") no-repeat;}
+.rex_img_product li span.first {width:74px;padding-left:18px;}
+.rex_img_product li span.second {height:39px;padding-top:26px;}
+.rex_img_function {width:242px;height:143px;padding-top:36px;padding-left:276px;background:url("../imgs/sub/rex_img_function.jpg") no-repeat 88px 36px;}
+.rex_img_function a {display:block;margin-top:7px;}
+.rex_img_certification {display:block;margin-top:22px;margin-left:100px;}
+.rex_table_box {overflow:hidden;width:554px;margin-top:34px;margin-left:70px;padding:12px 7px 10px 8px;background-color:#939392;}
+.rex_table_box .left {float:left;width:301px;}
+.rex_table_box .right {float:right;width:301px;}
+.rex_table_box table {border-top:1px solid #767675;}
+.rex_table_box table th {border-bottom:1px solid #767675;font-size:14px;line-height:23px;font-weight:bold;color:#10100f;background:#878786 url("../imgs/common/img_th_bar.gif") no-repeat left bottom;}
+.rex_table_box table th.no_bg {background-image:none;}
+.rex_table_box table .t-left {padding-left:15px;text-align:left;}
+.rex_table_box table td {padding:0 15px;border-bottom:1px dashed #7b7b7a;font-size:12px;line-height:21px;color:#2e2e2d;background-color:#939392;}
+.rex_table_box table td.last_child {border-bottom:1px solid #80807f;}
+.rex_table_box table td.customer {font-weight:bold;color:#353534;}
+.rex_table_box table td.point_color {font-weight:bold;color:#ffffff;}
+
+.long_bodybox {display:block;border-left:2px solid #c4c5bd;border-right:2px solid #c4c5bd;}
+
+/* -------------------
+notice
+------------------- */
+.table_box {margin:38px 26px 0 24px;border-top:2px solid #b5b5b5;}
+.table_box table {width:100%;font-size:13px;line-height:29px;}
+.table_box table tr th {border-bottom:1px solid #b5b5b5;text-align:center;font-weight:bold;}
+.table_box table td {border-bottom:1px solid #b5b5b5;text-align:center;}
+.table_box table td.subject {text-align:left;}
+.table_box table td.subject a {color:#444444;text-align:left !important;}
+.paging {display:block;margin-top:26px;text-align:center;}
+.paging strong,.paging a {padding:0 5px 0 7px;color:#686565;}
+.paging .btn_prev {display:inline-block;height:12px;margin-right:3px;text-indent:-99999px;background:url("../imgs/common/bul_prev.gif") no-repeat left 50%;}
+.paging .btn_prev_10 {display:inline-block;height:12px;margin-right:5px;text-indent:-99999px;background:url("../imgs/common/bul_prev_10.gif") no-repeat left 50%;} 
+.paging .btn_next {display:inline-block;height:12px;margin-left:11px;text-indent:-99999px;background:url("../imgs/common/bul_next.gif") no-repeat left 50%;}
+.paging .btn_next_10 {display:inline-block;height:12px;text-indent:-99999px;background:url("../imgs/common/bul_next_10.gif") no-repeat left 50%;}
+
+.table_box table td span {display:block;height:23px;padding:0 8px;line-height:23px;color:#444444;text-align:left;background-color:#b8b7b7;}
+.table_box table td .textbox {padding:4px 8px;line-height:23px;color:#444444;text-align:left;background-color:#b8b7b7;}
+.table_box .btn_area {display:block;padding-top:9px;text-align:right;}
+
+/* -------------------
+전자동의서
+------------------- */
+.agree_headline {display:block;padding-top:20px;margin-left:24px;}

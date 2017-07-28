@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/group-admin/template/layout">
+<head>
+    <style>
+		/*추가*/
+	    .faqSearchBox{
+	        float:right;
+	    }
+	    .faqSearchtxt{
+	        width:505px !important;
+	    }
+	    .faqResultTxt{
+	        font-size:17px;
+	        font-weight:bold;
+	    }
+	    .faqSignupBox{
+	        text-align:right;
+	        margin-bottom:40px;
+	    }
+	    .faqStartDate,
+	    .faqEndDate{
+	        width:290px;
+	    }
+	    .faqSelect{
+	        width:585px;
+	    }
+    </style>
+
+    <title>고객센터 1:1 문의내역</title>
+</head>
+
+<body>
+
+<div id="page-wrapper" layout:fragment="layout_content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">고객센터 1:1 문의 내역</h1>
+
+<form name="csForm" id="csForm" method="get" action="" >
+
+            <div id="content-container">
+                <div id="table-container">
+					<!-- search form -->
+
+					<div th:replace="v2/group-admin/board/search-form :: board-search-form"></div>
+
+                    <table class="table" style="text-align:center;">
+                        <thead>
+                        <tr class="info">
+                            <th width="30%" style="text-align:center;">제목</th>
+                            <th width="5%" style="text-align:center;">접수일</th>
+                            <th width="7%" style="text-align:center;">발송일</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${csList.empty}">
+                            <td colspan="8" style="text-align:center;">고객센터 1;1 문의내역이 없습니다.</td>
+                        </tr>
+                        <tr th:each="cs,iterStat : ${csList}">
+                        	<td><a href="#none;"  th:text="${cs.title}" th:title="${cs.content}"></a>
+                        	</td>
+                        	<td th:text="${#dates.format(cs.regDate, 'yyyy-MM-dd HH:mm')}"  ></td>
+                        	<td th:text="${#dates.format(cs.mailSendDate, 'yyyy-MM-dd HH:mm')}"  th:if="not ${#strings.isEmpty(cs.mailSendDate)}"></td>
+                        	<td th:if="${#strings.isEmpty(cs.mailSendDate)}">발송실패</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+			<!-- paging -->
+			<div th:replace="v2/group-admin/template/paging :: paginationbar"></div>
+</form>
+
+        </div>
+	</div>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum) {
+	$("#pageNum").val(movePageNum);
+
+	console.log($("#pageNum").val());
+	var $form = $("#csForm");
+	$form.attr("action", $("#listUrl").val());
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+  	$(".board-list-title").each(function() {
+		var tempTitle = $(this).text();
+		if (tempTitle)  {
+	 		$(this).text(removeHtml(tempTitle ));
+		}
+		else{
+			$(this).text("무제");
+		}
+	});
+
+  	$('#startDateWrap, #endDateWrap').datetimepicker({
+        format : "YYYY-MM-DD",
+        useCurrent: false
+    });
+    $("#startDateWrap").on("dp.change", function (e) {
+        $('#endDateWrap').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endDateWrap").on("dp.change", function (e) {
+        $('#startDateWrap').data("DateTimePicker").maxDate(e.date);
+    });
+
+    // 검색 버튼 클릭 시
+    $("#searchBtn").bind("click", function() {
+      	paging(1);
+    });
+
+    // 초기화 버튼 클릭 시
+    $("#resetBtn").bind("click", function() {
+      	$("#searchStartDate").val("");
+        $("#searchEndDate").val("");
+        $("#searchKeyword").val("");
+
+        paging(1);
+    });
+});
+
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>

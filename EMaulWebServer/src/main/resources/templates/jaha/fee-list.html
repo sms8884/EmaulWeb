@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap.min.css"
+          th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css"
+          th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/bootstrap-datetimepicker.css"
+          th:href="@{/css/bootstrap-datetimepicker.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/jquery.fileupload.css"
+          th:href="@{/css/jquery.fileupload.css}"/>
+
+    <style>
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <title>Jaha admin | 관리비 입력</title>
+</head>
+
+<body>
+
+<div id="wrapper">                <!-- /#wrapper -->
+
+    <div th:replace="admin/admin :: top-nav"></div>
+
+    <div th:replace="admin/admin :: vert-nav-admin"></div>
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">아파트 관리비</h1>
+
+                <div class="panel panel-green">
+                    <div class="panel-heading">관리비 입력</div>
+                    <div class="panel-body">
+                        <form name="multiform" id="multiform" method="POST" enctype="multipart/form-data"
+                        action="/api/apt/fee/upload">
+                            <!--action="/admin/vote/create" -->
+                            <div class="form-group form-inline">
+                                <ul id="parse-result-data-container">
+
+                                </ul>
+                            </div>
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i><span>  파일 선택</span>
+                                <input id="files" type='file' name="files[]" accept='text/csv' onclick="resetFormElement($(this))"
+                                       onchange='openFile(event)' multiple="multiple"/>
+                            </span>
+                            <input type="submit" class="btn btn-outline btn-danger" value="입력" style="float: right"
+                            onclick="showLoading()"/>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">알림</h4>
+            </div>
+            <div class="modal-body">
+                <h3>입력 중입니다. 잠시 기다려주세요.</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+<script th:inline="javascript">
+    // <![CDATA[
+    function openFile(event) {
+    	console.log("DEBUG");
+    	
+        var input = event.target;
+        var dataContainer = $('#parse-result-data-container');
+        dataContainer.empty();
+
+        try {
+            for (var i = 0; i < input.files.length; i++) {
+                (function (file) {
+                    var filename = file.name;
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var text = reader.result.substring(0, 1000);
+                        var splResult = text.split("\n");
+                        
+                        console.log(splResult[0]);
+                        
+                        var columns = splResult[0].split(",");
+                        var firstValues = splResult[1].split(",");
+                        var appliedDate = firstValues[columns.indexOf("부과년월")];
+
+                        if (!appliedDate) {
+                            dataContainer.append('<li>' + filename + ' : <span style="color: #C26230">파일 정보를 불러올 수 없습니다</span></li>');
+                        } else {
+                            dataContainer.append('<li>' + filename + ' : <span style="color: #009926">' + appliedDate + '</span></li>');
+                        }
+                    };
+
+                    reader.readAsText(file, "euc-kr");
+                })(input.files[i]);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    function showLoading(){
+        $('#modal-info').modal('show');
+    }
+
+    function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    }
+
+    function resetFormElement(e) {
+        e.wrap('<form>').closest('form').get(0).reset();
+        e.unwrap();
+    }
+    // ]]>
+</script>
+
+
+</body>
+</html>

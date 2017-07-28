@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 관리자 > 메뉴 > 개표v2
+	* 경로 : /v2/admin/vote/vote-key-list
+	* 이력 :
+		- 2016.10.31 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>투표 | 목록</title>
+
+    <style>
+		.no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+		#search_reset{line-height:50px; text-align:center; margin-top:10px;}
+		/* #content-container{position:relative; margin-top:100px;} */
+		#content-container input{position:absolute; top:-50px; right:0;}
+		#table-body tr{text-align:center;}
+    </style>
+
+
+	<script type="text/javascript">
+		/*<![CDATA[*/
+	 $('ul.pagination > li > a').click(function (e) {
+        currentPage = $(this).attr("href");
+        switchMainContent(currentPage);
+        e.preventDefault();
+	 });
+    /*]]>*/
+	</script>
+
+</head>
+<body>
+
+		<div id="page-wrapper" layout:fragment="layout_content">
+
+<form name="voteKeyForm" id="voteKeyForm" method="get" action="" >
+
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-lg-12">
+						<h1 class="page-header">개표</h1>
+						<div class="panel panel-info">
+							<div class="panel-heading" style="font-weight:900"></div>
+							<div class="panel-body">
+								<form>
+										<table class="table table-bordered" style="margin:0;">
+											<!-- <tr>
+												<th style="background-color: #f3f3f3">상태</th>
+												<td>
+													<select  class="form-control">
+															<option value="">전체(기본값)</option>
+															<option value="">개표상태값</option>
+													</select>
+												</td>
+												<th style="background-color: #f3f3f3">개표일</th>
+												<td>
+													<div class="form-inline">
+														<div id="datetimepickerFrom" class='input-group faqStartDate'>
+															<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="datetimepickerFromStart" name="selectDate" placeholder="YYYY.MM.DD" />
+															<span class="input-group-addon">
+																<span class="glyphicon glyphicon-calendar"></span>
+															</span>
+														</div>
+														<div id="datetimepickerTo" class='input-group faqEndDate'>
+															<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="datetimepickerFromEnd" name="selectDate" placeholder="YYYY.MM.DD" />
+															<span class="input-group-addon">
+																<span class="glyphicon glyphicon-calendar"></span>
+															</span>
+														</div>
+													</div>
+												</td>
+											</tr> -->
+											<tr>
+												<th style="background-color: #f3f3f3; width:10%;">투표기간</th>
+												<td class="form-inline" width="45%">
+													<div class="input-group date sc_aspickdate" id="datetimepickerFrom" style="margin:0;">
+														<input data-format="yyyy-MM-dd" type="text" id="searchStartDate" name="searchStartDate" class="form-control datepicker" th:value="${pagingHelper.search.startDate}" placeholder="YYYY-MM-DD" th:readonly="readonly" />
+							                            <span class="input-group-addon">
+							                                <span class="glyphicon glyphicon-calendar"></span>
+							                            </span>
+													</div>
+													<div class="input-group date sc_aspickdate " id="datetimepickerTo"  style="margin:0;">
+														<input data-format="yyyy-MM-dd" type="text" id="searchEndDate" name="searchEndDate" class="form-control datepicker" th:value="${pagingHelper.search.endDate}" placeholder="YYYY-MM-DD" th:readonly="readonly"/>
+							                            <span class="input-group-addon">
+							                                <span class="glyphicon glyphicon-calendar"></span>
+							                            </span>
+													</div>
+												</td>
+												<th style="background-color: #f3f3f3; width:10%;">선거관리위원장</th>
+												<td style="width:40%">
+													<input type="text" id="adminName" name="adminName" class="form-control" th:value="${voteDto.adminName}" placeholder=""  th:maxlength="20" />
+												</td>
+											</tr>
+											<tr>
+												<th style="background-color: #f3f3f3">보안투표명</th>
+												<td>
+													<input type="hidden" id="searchItem" name="searchItem" value="title" />
+													<input type="text" id="searchKeyword" name="searchKeyword" class="form-control" th:value="${pagingHelper.search.keyword}" placeholder=""  th:maxlength="20" />
+												</td>
+												<th style="background-color: #f3f3f3">아파트명</th>
+												<td>
+													<input type="text" id="aptName" name="aptName" class="form-control" th:value="${voteDto.aptName}" placeholder=""  th:maxlength="20" />
+												</td>
+											</tr>
+										</table>
+										<div id="search_reset">
+											<input type="button" class="btn btn-default  btn-info faqSearchBtn" id="searchBtn" name="searchBtn" value="검색" style="width:100px;" />
+											<input type="reset" class="btn btn-default  btn-success faqResetBtn" id="resetBtn" name="resetBtn" value="초기화" style="width:100px;"/>
+										</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+					<div id="content-container">
+						<div id="table-container">
+							<!-- <input type="button" class="btn btn btn-outline btn-info btn-sm" id="vote_list" name="vote_list" value="투표록다운로드"/> -->
+							<table class="table table-striped">
+								<thead>
+									<tr >
+										<th width="10%">No</th>
+										<th width="10%" style="text-align:center;">아파트명</th>
+										<th style="text-align:center;">보안투표 명</th>
+										<th width="20%" style="text-align:center;">투표기간</th>
+										<th width="10%" style="text-align:center;">선거관리위원장</th>
+										<!-- <th colspan="4" width="24%" style="text-align:center;">개표상태</th> -->
+										<th width="10%" style="text-align:center;">개표상태</th>
+										<th width="10%" style="text-align:center;">개표일시</th>
+									</tr>
+								</thead>
+								<tbody id="table-body">
+									<!-- <tr>
+										<td colspan="5"></td>
+										<th>승인완료</th>
+										<th style="text-align:center;">예약</th>
+										<th style="text-align:center;">처리중</th>
+										<th style="text-align:center;">완료</th>
+									</tr> -->
+									<tr th:if="${#lists.isEmpty(voteKeyList)}">
+										<td colspan="9">
+											개표 목록이 없습니다.
+										</td>
+									</tr>
+									<tr th:each="voteKey, status : ${voteKeyList}" >
+										<!-- <td style="text-align:left;" th:text="${status.size - status.index}"></td> -->
+										<td style="text-align:left;" th:text="${voteKey.vkId}"></td>
+										<td th:text="${voteKey.aptName}">가나아라</td>
+										<td><a th:href="'/v2/admin/vote/key-detail/' + ${voteKey.vkId}"><span  th:text="${voteKey.keyName}">2016년 1차 보안투표</span></a></td>
+										<td style="text-align:center;">
+											<div>
+												<span th:text="${#dates.format(voteKey.startDt, 'yyyy-MM-dd HH:mm')}" >2016.01.25</span> ~
+												<span th:text="${#dates.format(voteKey.endDt, 'yyyy-MM-dd HH:mm')}" >2016.01.26</span>
+											</div>
+										</td>
+										<td style="text-align:center;" th:text="${voteKey.adminName}">홍길동</td>
+										<td th:text="${voteKey.openStatus} == 1 ? '개표 완료' : '개표 승인'" style="text-align:center;"></td>
+                                		<td th:text="${voteKey.openStatus} == 1 ? ${#dates.format(voteKey.uptDt, 'yyyy-MM-dd HH:mm')} : ''" style="text-align:center;"></td>
+									</tr>
+
+								</tbody>
+							</table>
+						</div>
+
+						<!-- Pagination Bar -->
+						<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+						<!--// Pagination Bar -->
+
+					</div>
+			</div>
+
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+
+		// 페이지 이동
+	    function paging(movePageNum) {
+	    	$("#pageNum").val(movePageNum);
+	    	search();
+	    }
+
+	    // 검색 (조회)
+	    function search() {
+	    	var $form = $("#voteKeyForm");
+	    	$form.attr("action", $("#listUrl").val());
+	    	$form.submit();
+	    }
+
+
+	    $(function () {
+	        $('#datetimepickerFrom, #datetimepickerTo').datetimepicker({
+	            locale: 'ko',
+	            format: 'YYYY-MM-DD'
+	        });
+
+			// 검색 버튼
+			$("#searchBtn").unbind("click").bind("click",function(e){
+				e.preventDefault();
+				paging(1);
+			});
+
+			// 초기화 버튼
+			$('#resetBtn').click(function (e) {
+				e.preventDefault();
+				$('#adminName').val('');
+				$('#aptName').val('');
+				$('#searchStartDate').val('');
+				$('#searchEndDate').val('');
+				$('#searchKeyword').val('');
+
+			});
+	    });
+    /*]]>*/
+	</script>
+</form>
+
+		</div>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link type="text/css" rel="stylesheet" href="../../../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css" >
+	    body,div,a,ul,li,img,h1,h2,h3,h4,p,address,span,dl,dt,dd,form,
+	    fieldset,legend,label,input,table,tr,td,thead,tbody,caption,colgroup{
+	        padding:0; 
+	        margin:0;
+	    }
+	    
+	    header,footer,section,aside,article,time,nav,figure,figcaption,video{
+	        display:block;
+	    }
+	    body {
+	        background: #FFFFFF;
+	    }
+	    body,
+	    input{
+	        font-size:12px; 
+	        color:#333;
+	        font-family:Malgun Gothic,dotum, Arial, Helvetica, sans-serif;
+	    }
+	    input[type=text]{
+            height:30px;
+        }
+	    .defaultPopup{
+	        border:1px solid #c3c3c3;
+	        margin:0 auto;
+	        padding:0px 15px 0px 15px;
+	        vertical-align:middle;
+	    }
+	    .bottomBtnBox {
+	        text-align:right;
+	        margin-top:10px;
+	    }
+	    
+	    .areas {
+            width:100%;
+            display: inline-block;
+            border-bottom: 1px solid #c3c3c3;
+	    }
+	    .area1{
+	        width: 48%;
+	        height:490px;
+	        float: left;
+	    }
+	    .area2{
+	        width: 2%;
+	        height:490px;
+	        float: left;
+	    }
+	    .area3{
+	        width: 50%;
+	        height:490px;
+	        float: left;
+	    }
+        
+        .scrollTableHeader {
+            height:40px;
+            border-bottom: 1px solid gray;
+        }
+        ._listArea{
+            width: 100%;
+        }
+        .listTableScroll{
+            overflow-y:auto;
+            height:300px;
+        }
+        ._listTable {
+            width:100%;
+        }
+        ._listTable thead{
+            font-weight: bold;
+        }
+        ._listTable thead tr{
+            height:30px;
+        }
+        ._listTable td {
+            text-align: center;
+        }
+    </style>
+
+    <title>AP 설치 테스트 계정 관리</title>
+</head>
+
+<body>
+
+    <div class="defaultPopup">
+        <h4 class="page-header"><b>AP 설치 테스트 계정 관리</b></h4>
+        <div class="areas">
+        <form name="frm" id="frm" method="post" >
+	        <div class="area1">
+	            <h4 class="page-header" style="margin-top:5px;">QC 계정</h4>
+		        <div class="_listArea panel panel-default panel-body">
+		            <div class="scrollTableHeader">
+		                <table class="table-hover _listTable" >
+		                    <thead>
+		                        <tr>
+		                            <td style="width:10%;"><input type="checkbox" name="chkAllQC" id="chkAllQC" /></td>
+                                    <td style="width:20%;">name</td>
+                                    <td style="width:25%;">nickname</td>
+                                    <td style="width:45%;">email</td>
+		                        </tr>
+		                    </thead>
+		                </table>
+		            </div>
+		            <div class="listTableScroll" >
+		                <table class="table table-hover _listTable" >
+		                    <tbody id="_listTable_QC">
+		                        <tr th:each="item : ${qcUserList}">
+		                            <td style="width:10%;">
+		                                <input type="checkbox" name="chkQC" />
+                                        <input type="hidden" name="inspUser" th:value="${item.id}" />
+                                        <input type="hidden" name="inspUserType" value="QC" />
+		                            </td>
+                                    <td style="width:20%;" th:text="${item.fullName}">name</td>
+                                    <td style="width:25%;" th:text="${item.nickname}? ${item.nickname} : '없음'">nickname</td>
+                                    <td style="width:45%;" th:text="${item.email}">email</td>
+		                        </tr>
+		                    </tbody>
+		                </table>
+		            </div>
+		        </div>
+		        <div class="bottomBtnBox">
+		            <input type="button" class="btn btn-primary btn-sm _btnLeft" value="추가"  onclick="fnAddQc()"/>
+		            <input type="button" class="btn btn-primary btn-sm _btnLeft" value="삭제"  onclick="fnDelQc()"/>
+		        </div>
+	        </div>
+	        
+	        <div class="area2">
+	        </div>
+	        
+	        <div class="area3">
+	            <h4 class="page-header" style="margin-top:5px;">Filed 계정</h4>
+                <div class="_listArea panel panel-default panel-body">
+                    <div class="scrollTableHeader">
+                        <table class="table-hover _listTable" >
+                            <thead>
+                                <tr>
+                                    <td style="width:10%;"><input type="checkbox" name="chkAllFD" id="chkAllFD" /></td>
+                                    <td style="width:20%;">name</td>
+                                    <td style="width:25%;">nickname</td>
+                                    <td style="width:45%;">email</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="listTableScroll" >
+                        <table class="table table-hover _listTable" >
+                            <tbody id="_listTable_FD">
+                                <tr th:each="item : ${fieldUserList}">
+                                    <td style="width:10%;">
+                                        <input type="checkbox" name="chkFD" />
+                                        <input type="hidden" name="inspUser" th:value="${item.id}" />
+                                        <input type="hidden" name="inspUserType" value="FD" />
+                                    </td>
+                                    <td style="width:20%;" th:text="${item.fullName}">name</td>
+                                    <td style="width:25%;" th:text="${item.nickname}? ${item.nickname} : '없음'">nickname</td>
+                                    <td style="width:45%;" th:text="${item.email}">email</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bottomBtnBox">
+                    <input type="button" class="btn btn-primary btn-sm _btnLeft" value="추가"  onclick="fnAddFd()"/>
+                    <input type="button" class="btn btn-primary btn-sm _btnLeft" value="삭제"  onclick="fnDelFd()"/>
+                </div>
+            </div>
+        </form>
+        </div>
+        <div class="bottomBtnBox" style="margin-bottom:10px;">
+            <input type="button" class="btn btn-info _btnLeft" value="저장"  onclick="fnSave()"/>
+        </div>
+    </div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/jquery.blockUI.js" th:src="@{/js/jquery.blockUI.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+<script src="../../static/sbgrid/js/XRegExp.js" type="text/javascript" th:src="@{/sbgrid/js/XRegExp.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function(){
+        
+    	$("#chkAllQC").on("click", function(){
+    		$("input[name=chkQC]").prop("checked", $(this).prop("checked"));
+    	});
+    	$("#chkAllFD").on("click", function(){
+            $("input[name=chkFD]").prop("checked", $(this).prop("checked"));
+        });
+    	
+    	$("input[name=chkQC]").on("click", function(){
+    		if($("input[name=chkQC]").length == $("input[name=chkQC]:checked").length){
+    			$("#chkAllQC").prop("checked", true);
+    		} else {
+    			$("#chkAllQC").prop("checked", false);
+    		}
+    	});
+    	
+    	$("input[name=chkFD]").on("click", function(){
+            if($("input[name=chkFD]").length == $("input[name=chkFD]:checked").length){
+                $("#chkAllFD").prop("checked", true);
+            } else {
+                $("#chkAllFD").prop("checked", false);
+            }
+        });
+    	
+    });
+    
+    var type;
+    function fnAddQc(){
+    	var width = 1000;
+        var height = 720;
+        openWindow("/jaha/user/search/popup?_type=1","userSearchPopup", width, height);
+        type = "QC";
+    }
+    
+    function fnDelQc(){
+    	$("input[name=chkQC]:checked").each(function(){
+            $(this).parent().parent().remove();
+        });
+    }
+    
+    function fnAddFd(){
+    	var width = 1000;
+        var height = 720;
+        openWindow("/jaha/user/search/popup?_type=1","userSearchPopup", width, height);
+        type = "FD";
+    }
+    
+    function fnDelFd(){
+    	$("input[name=chkFD]:checked").each(function(){
+    		$(this).parent().parent().remove();
+    	});
+    }
+    
+    function _searchUserCallback(userDataList){
+        $(userDataList).each(function(idx){
+        	var id = gfnNvl(userDataList[idx].id);
+        	var fullName = gfnNvl(userDataList[idx].fullName);
+        	var nickname = gfnNvl(userDataList[idx].nickname);
+        	var email = gfnNvl(userDataList[idx].email);
+        	
+        	//중복제거
+        	var existUser = false;
+        	$("input[name=inspUser]").each(function(idx){
+        		var inspUserType = $("input[name=inspUserType]").eq(idx).val();
+        		if($(this).val() == id && inspUserType == type){
+        			existUser = true;
+        			return false;
+        		}
+        	});
+        	
+        	if(existUser == false){
+        		var _html = '<tr>';
+                _html += '<td style="width:10%;">';
+                _html += '<input type="checkbox" name="chk'+type+'" />';
+                _html += '<input type="hidden" name="inspUser" value="'+id+'" />';
+                _html += '<input type="hidden" name="inspUserType" value="'+type+'" />';
+                _html += '</td>';
+                _html += '<td style="width:20%;">'+fullName+'</td>';
+                _html += '<td style="width:25%;">'+nickname+'</td>';
+                _html += '<td style="width:45%;">'+email+'</td>';
+                _html += '</tr>';
+                
+                $(_html).appendTo("#_listTable_"+type);
+                
+                // checkbox 클릭 all클릭과 연계 이벤트
+                var chkName = "chk"+type;
+                $("input[name="+chkName+"]").on("click", function(){
+                    if($("input[name="+chkName+"]").length == $("input[name="+chkName+"]:checked").length){
+                        $("#chkAll"+type).prop("checked", true);
+                    } else {
+                        $("#chkAll"+type).prop("checked", false);
+                    }
+                });
+                
+                //새로운 row가 추가되었으므로 all check는 false
+                $("#chkAll"+type).prop("checked", false);
+        	}
+        });
+    }
+    
+    function fnSave(){
+    	
+    	if(!confirm("저장하시겠습니까?")){
+    		return;
+    	}
+    	
+    	gfnLoadingImage();
+    	
+    	$.ajax({
+            url: '/jaha/apt/ap/inspection/account/save',
+            type: 'post',
+            async : true,
+            dataType: "html",
+            data: $("#frm").serialize(),
+            success: function(data) {
+                if(data == "Y"){
+                    alert("저장하었습니다.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("error : fnSave fail");
+            },complete : function(){
+                gfnUnLoadingImage();
+            }
+        });
+    }
+    
+    
+    /*]]>*/
+</script>
+
+</body>
+</html>

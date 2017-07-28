@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jaha.web.emaul.v2.mapper.board.BoardCommentMapper">
+
+	<insert id="insertBoardComment" parameterType="BoardCommentVo" useGeneratedKeys="true" keyProperty="id">
+	    INSERT /* insertBoardComment, 전강욱(realsnake@jahasmart.com) */ INTO board_comment (
+	        post_id
+	        , content
+	        , blocked
+	        , reply_count
+	        , display_yn
+	        , req_ip
+	        , user_id
+	        , reg_date
+	    ) VALUES (
+	        #{postId}
+	        , #{content}
+	        , b'0'
+	        , 0
+	        , 'Y'
+	        , #{reqIp}
+	        , #{userId}
+	        , NOW()
+	    )
+	</insert>
+
+	<update id="updateBoardComment" parameterType="BoardCommentVo">
+	    UPDATE /* updateBoardComment, 전강욱(realsnake@jahasmart.com) */ board_comment
+		SET content = #{content}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<update id="updateDisplayYn" parameterType="BoardCommentVo">
+	    UPDATE /* updateDisplayYn, 전강욱(realsnake@jahasmart.com) */ board_comment
+	    SET display_yn = #{displayYn}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<update id="updateBlocked" parameterType="BoardCommentVo">
+	    UPDATE /* updateBlocked, 전강욱(realsnake@jahasmart.com) */ board_comment
+		SET blocked = #{blocked}
+		, req_ip = #{reqIp}
+		, mod_id = #{modId}
+		, mod_date = NOW()
+	    WHERE id = #{id}
+	</update>
+
+	<!-- 답글수 감소 -->
+	<update id="updateReplyCount" parameterType="long">
+	    UPDATE /* updateReplyCount, 전강욱(realsnake@jahasmart.com) */ board_comment
+		SET reply_count = reply_count - 1
+	    WHERE id = #{id}
+	</update>
+
+	<select id="selectBoardComment" parameterType="long" resultType="BoardCommentVo">
+	    SELECT /* selectBoardComment, 전강욱(realsnake@jahasmart.com) */ id
+	    , post_id
+	    , content
+	    , blocked
+	    , reply_count
+	    , user_id
+	    , reg_date
+		FROM board_comment
+		WHERE id = #{id}
+	</select>
+
+	<sql id="whereClauseOfBoardComment">
+	    WHERE BC.post_id = #{searchPostId}
+			AND BC.blocked = b'0'
+			AND BC.display_yn = 'Y'
+	</sql>
+
+	<sql id="orderClauseOfBoardComment">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+	</sql>
+
+	<select id="selectBoardCommentListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardCommentListCount, 전강욱(realsnake@jahasmart.com) */ COUNT(*)
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    <include refid="whereClauseOfBoardComment" />
+	</select>
+
+	<select id="selectBoardCommentList" parameterType="BoardDto" resultType="BoardCommentVo">
+	    SELECT /* selectBoardCommentList, 전강욱(realsnake@jahasmart.com) */ BC.id
+	    , BC.post_id
+	    , BC.content
+	    , BC.blocked
+	    , BC.reply_count
+	    , BC.user_id
+	    , BC.reg_date
+		, IFNULL(U.full_name, '탈퇴회원') AS full_name /* 암호화된 사용자명 */
+		, IFNULL(U.nickname, '익명') AS nickname
+		, IFNULL(H.dong, '0') AS dong
+		, IFNULL(H.ho, '0') AS ho
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    <include refid="whereClauseOfBoardComment" />
+		<include refid="orderClauseOfBoardComment" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+
+
+
+	<!-- 단체 관리자용 -->
+	<sql id="whereClauseOfGroupAdminBoardComment">
+	    WHERE
+	    	P.category_id = #{searchCategoryId}
+			AND BC.blocked = b'0'
+			AND BC.display_yn = 'Y'
+			 <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND BC.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BC.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND BC.reg_date &lt;= CONCAT(#{searchEndDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("title")'>
+						AND P.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND P.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<when test='pagingHelper.search.item.equals("comment")'>
+						AND BC.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    	<otherwise>
+						AND (P.title LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%') OR P.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+						OR BC.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%'))
+			    	</otherwise>
+			    </choose>
+	    	</if>
+	</sql>
+
+	<sql id="orderClauseOfGroupAdminBoardComment">
+        <if test="pagingHelper.sortList != null">
+        	ORDER BY
+            <foreach collection="pagingHelper.sortList" item="sort" separator="," open="" close="">
+                ${sort.column} ${sort.ascOrDesc}
+            </foreach>
+        </if>
+        <if test="pagingHelper.sortList == null">
+        	ORDER BY BC.reg_date desc
+        </if> 	
+
+	</sql>
+
+	<!-- 단체관리자 댓글 목록 갯수 -->
+	<select id="selectGroupAdminBoardCommentListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectGroupAdminBoardCommentListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+                      					 LEFT OUTER JOIN board_post P ON BC.post_id = P.id
+	    <include refid="whereClauseOfGroupAdminBoardComment" />
+	</select>
+
+	<!-- 단체관리자 댓글 목록  -->
+	<select id="selectGroupAdminBoardCommentList" parameterType="BoardDto" resultType="BoardCommentVo">
+	    SELECT /* selectGroupAdminBoardCommentList, 조영태(cyt@jahasmart.com) */ BC.id
+	    , BC.post_id
+	    , BC.content
+	    , BC.blocked
+	    , BC.reply_count
+	    , BC.user_id
+	    , BC.reg_date
+		, IFNULL(U.full_name, '탈퇴회원') AS full_name /* 암호화된 사용자명 */
+		, IFNULL(U.nickname, '익명') AS nickname
+		, IFNULL(H.dong, '0') AS dong
+		, IFNULL(H.ho, '0') AS ho
+		, P.title as postTitle
+		, P.content
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+					  					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+                      					 LEFT OUTER JOIN board_post P ON BC.post_id = P.id
+	    <include refid="whereClauseOfGroupAdminBoardComment" />
+		<include refid="orderClauseOfGroupAdminBoardComment" />
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+	
+		<!-- 게시판 댓글 목록 갯수 -->
+	<select id="selectBoardMgrCommentListCount" parameterType="BoardDto" resultType="int">
+	    SELECT /* selectBoardMgrCommentListCount, 조영태(cyt@jahasmart.com) */ COUNT(*)
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+                      					 LEFT OUTER JOIN board_post P ON BC.post_id = P.id
+                      					 LEFT JOIN board_category bcg ON P.category_id = bcg.id
+                      					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+	    WHERE
+        (bcg.type='notice' OR bcg.type = 'community')
+        AND P.blind_yn = 'N'
+        AND P.display_yn = 'Y'
+	    AND P.blocked = 0
+	    AND BC.blocked = 0
+	    AND BC.display_yn = 'Y'
+	    AND bcg.del_yn = 'N'
+	     <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND BC.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  BC.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  BC.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND  BC.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    </choose>
+	    	</if>
+	    	<if test=' searchUserId != null and !"".equals(searchUserId) '>AND BC.user_id = #{searchUserId}</if>
+	</select>
+	
+	<!-- 게시판 모니터링용 -->
+		<select id="selectBoardMgrCommentList" parameterType="BoardDto" resultType="BoardCommentVo">
+	    SELECT /* selectBoardMgrCommentList, 송명섭(sms@jahasmart.com) */ BC.id
+	    , BC.post_id
+	    , BC.content
+	    , BC.blocked
+	    , BC.reply_count
+	    , BC.user_id
+	    , BC.reg_date
+		, IFNULL(U.nickname, '익명') AS nickname
+		, IFNULL(A.name, '없음') AS aptName
+		, IFNULL(H.dong, '0') AS dong
+		, IFNULL(P.title , P.content) as postTitle
+		, P.content
+		, IFNULL(bpr.id, 0) AS readId
+		FROM board_comment BC LEFT OUTER JOIN user U ON BC.user_id = U.id
+                      					 LEFT OUTER JOIN board_post P ON BC.post_id = P.id
+                      					 LEFT JOIN board_category bcg ON P.category_id = bcg.id
+                      					 LEFT OUTER JOIN house H ON U.house_id = H.id
+                      					 LEFT OUTER JOIN apt A ON H.apt_id = A.id
+                      					 LEFT OUTER JOIN board_post_read bpr ON bpr.post_id = 0 AND bpr.comment_id = BC.id 
+	    WHERE
+        (bcg.type='notice' OR bcg.type = 'community')
+        AND P.blind_yn = 'N'
+        AND P.display_yn = 'Y'
+	    AND P.blocked = 0
+	    AND BC.display_yn = 'Y'
+	    AND bcg.del_yn = 'N'
+	     <choose>
+		    	<when test='pagingHelper.search.startDate != null and !pagingHelper.search.startDate.equals("")'>
+			    	AND BC.reg_date &gt;= CONCAT(#{pagingHelper.search.startDate}, ' 00:00:00')
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  BC.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</when>
+		    	<otherwise>
+			    	<if test='pagingHelper.search.endDate != null and !pagingHelper.search.endDate.equals("")'>
+			    		AND  BC.reg_date &lt;= CONCAT(#{pagingHelper.search.endDate}, ' 23:59:59')
+			    	</if>
+		    	</otherwise>
+		    </choose>
+	    	<if test='pagingHelper.search.keyword != null and !pagingHelper.search.keyword.equals("")'>
+			    <choose>
+			    	<when test='pagingHelper.search.item.equals("content")'>
+						AND  BC.content LIKE CONCAT('%', #{pagingHelper.search.keyword}, '%')
+			    	</when>
+			    </choose>
+	    	</if>
+	    	<if test='searchUserId != null and !"".equals(searchUserId) '>AND BC.user_id = #{searchUserId}</if>
+	    	ORDER BY BC.reg_date DESC
+	    LIMIT #{pagingHelper.startNum}, #{pagingHelper.endNum}
+	</select>
+	
+
+</mapper>

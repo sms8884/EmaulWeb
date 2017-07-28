@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 관리자 > 메뉴 > 선거구 v2
+	* 경로 : /v2/admin/vote/group-list
+	* 이력 :
+		- 2016.10.13 : 최초작성 (cyt@jahasmart.com)
+-->
+<head>
+	<title>선거구 | 목록</title>
+	<style>
+		.modal-body th {
+            width: 20%;
+		}
+        .modal-body {
+            word-break: break-all;
+        }
+	</style>
+</head>
+<body>
+
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+
+<form name="voteGroupForm" id="voteGroupForm" method="get" action="" >
+
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header" >선거구 설정</h1>
+				<div class="panel panel-info">
+					<div class="panel-heading" style="font-weight:900"></div>
+					<div class="panel-body">
+						<form>
+							<table class="table table-bordered" style="margin:0;">
+								<!-- <tr>
+									<th style="background-color: #f3f3f3">등록일</th>
+									<td class="form-inline" width="45%">
+										<div class="input-group date sc_aspickdate" id="datetimepickerFrom" style="margin:0;" readonly="readonly">
+											<input data-format="yyyy-MM-dd" type="text" class="form-control datetimepicker" id="startDate" name="startDate" placeholder="YYYY-MM-DD"  style="background:#fff" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+										<div class="input-group date sc_aspickdate " id="datetimepickerTo"  style="margin:0;">
+											<input data-format="yyyy-MM-dd" type="text" class="form-control datetimepicker" id="endDate" name="endDate" placeholder="YYYY-MM-DD" style="background:#fff"/>
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+									</td>
+									<th style="background-color: #f3f3f3">등록자</th>
+									<td>
+										<input type="text" class="form-control" name="" value="" placeholder=""/>
+									</td>
+								</tr> -->
+								<tr>
+									<th style="background-color: #f3f3f3">선거구명</th>
+									<td>
+										<input type="hidden" id="searchItem" name="searchItem" value="title" />
+										<input type="text" id="searchKeyword" name="searchKeyword" class="form-control" th:value="${pagingHelper.search.keyword}" placeholder=""  th:maxlength="20" />
+									</td>
+
+									<th style="background-color: #f3f3f3" th:if="${user.type.jaha}">아파트명</th>
+									<td th:if="${user.type.jaha}">
+										<input type="text" id="aptName" name="aptName" class="form-control" th:value="${voteDto.aptName}" placeholder=""  th:maxlength="20" />
+									</td>
+								</tr>
+							</table>
+							<div style="text-align:center; margin:20px 0;">
+								<input type="button" id="searchBtn" name="searchBtn" class="btn btn-default btn-info" value="검색"/>
+								<input type="button" id="resetBtn" name="resetBtn"  class="btn btn-default btn-success" value="초기화" />
+							</div>
+						</form>
+					</div>
+				</div>
+				<div id="content-container">
+					<div id="table-container">
+						<a href="/v2/admin/vote/group-create"><input type="button" class="btn btn-outline btn-info btn-sm" id="" name="" value="선거구 등록" style="float:right; margin:15px 0;" /></a>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th width="5%" style="text-align:center;">번호</th>
+									<th width="10%" style="text-align:center;">아파트명</th>
+									<th style="text-align:center;">선거구명</th>
+									<th style="text-align:center;">해당 동</th>
+									<th width="10%" style="text-align:center;">세대수</th>
+									<th width="10%" style="text-align:center;">등록자</th>
+									<th width="10%" style="text-align:center;">등록일</th>
+								</tr>
+							</thead>
+							<tbody id="table-body">
+								<tr th:if="${#lists.isEmpty(voteGroupList)}">
+									<td colspan="7">
+										투표 목록이 없습니다.
+									</td>
+								</tr>
+								<tr th:each="voteGroupVo : ${voteGroupList}">
+									<td style="text-align:center;" th:text="${voteGroupVo.id}">1</td>
+									<td style="text-align:center;" th:text="${voteGroupVo.aptName}">자하아파트</td>
+									<td style="text-align:center;" >
+									<a href="#none" th:text="${voteGroupVo.name}" th:onclick="'updateVoteGroup(' + ${voteGroupVo.id} +')'">제 2기 자하아파트 106동 동대표 선거[제6선거구]</a>
+									</td>
+									<td style="text-align:center;" th:text="${voteGroupVo.description}">101동 외 2개</td>
+									<td style="text-align:center;" th:text="${voteGroupVo.votersCount}">156</td>
+									<td style="text-align:center;" th:text="${voteGroupVo.userName}">홍길동</td>
+									<td style="text-align:center;" th:text="${#dates.format(voteGroupVo.regDate, 'yyyy-MM-dd HH:mm')}" >2016-06-15</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Pagination Bar -->
+					<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+					<!--// Pagination Bar -->
+
+				</div>
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+		<script th:inline="javascript">
+    	/*<![CDATA[*/
+			$(function () {
+
+				// 검색 버튼
+				$("#searchBtn").unbind("click").bind("click",function(e){
+					e.preventDefault();
+					paging(1);
+				});
+
+				// 초기화 버튼
+				$('#resetBtn').click(function (e) {
+					e.preventDefault();
+					$('#searchKeyword').val('');
+					$('#aptName').val('');
+				});
+			});
+
+			// 페이지 이동
+		    function paging(movePageNum) {
+		    	$("#pageNum").val(movePageNum);
+		    	search();
+		    }
+
+		    // 검색 (조회)
+		    function search() {
+		    	var $form = $("#voteGroupForm");
+		    	$form.attr("action", $("#listUrl").val());
+		    	$form.submit();
+		    }
+
+
+			function updateVoteGroup(id) {
+				document.location.href = '/v2/admin/vote/group-update/' + id;
+	    	}
+		/*]]>*/
+		</script>
+
+</form>
+
+    </div>
+    <!-- page wrapper -->
+
+</body>
+</html>

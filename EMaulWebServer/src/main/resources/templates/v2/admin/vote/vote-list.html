@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/admin/template/layout">
+<!--
+	* 메뉴 : 이마을 > 관리자 > 메뉴 > 투표 v2
+	* 경로 : /v2/admin/vote/list
+	* 이력 :
+		- 2016.10.13 : 최초작성 (cyt@jahasmart.com)
+		- 2016.10.14 : 테스트
+-->
+<head>
+	<title>투표 | 목록</title>
+	<style>
+		.modal-body th {
+            width: 20%;
+		}
+        .modal-body {
+            word-break: break-all;
+        }
+	</style>
+</head>
+<body>
+
+	<div id="page-wrapper" layout:fragment="layout_content">
+
+<form name="voteForm" id="voteForm" method="get" action="" >
+
+		<div class="row">
+			<div class="col-lg-12">
+				<!-- <h1 class="page-header" th:if="${type}==@{vote}">투표</h1> -->
+				<h1 class="page-header">투표</h1>
+				<div class="panel panel-info">
+					<div class="panel-heading" style="font-weight:900"></div>
+					<div class="panel-body">
+
+						<table class="table table-bordered" style="margin:0;">
+							<tr>
+								<th style="background-color: #f3f3f3">상태 / 종류</th>
+								<td>
+									<div class="col-sm-6" style="padding:0">
+										<select class="form-control" name="voteStatus" id="voteStatus">
+											<option value="" >전체</option>
+											<option value="ready" th:selected="${vote.voteStatus eq 'ready'}">준비</option>
+											<option value="active" th:selected="${vote.voteStatus eq 'active'}">진행중</option>
+											<option value="done" th:selected="${vote.voteStatus eq 'done'}">완료</option>
+										</select>
+									</div>
+									<div class="col-sm-6" style="padding:0">
+										 <select class="form-control" name="voteTypeId" id="voteTypeId" >
+				                          	<option value="" >전체</option>
+				                          	<option th:each="voteType : ${voteTypeList}" th:value="${voteType.id}" th:text="${voteType.text}" th:selected="(${vote.voteTypeId} == *{voteType.id})" >종류 선택</option>
+				                      	</select>
+									</div>
+								</td>
+								<th style="background-color: #f3f3f3">등록일</th>
+								<td class="form-inline" width="45%">
+									<div class="input-group date sc_aspickdate" id="datetimepickerFrom" style="margin:0;">
+										<input data-format="yyyy-MM-dd" type="text" id="searchStartDate" name="searchStartDate" class="form-control datepicker" th:value="${pagingHelper.search.startDate}" placeholder="YYYY-MM-DD" th:readonly="readonly" />
+			                            <span class="input-group-addon">
+			                                <span class="glyphicon glyphicon-calendar"></span>
+			                            </span>
+									</div>
+									<div class="input-group date sc_aspickdate " id="datetimepickerTo"  style="margin:0;">
+										<input data-format="yyyy-MM-dd" type="text" id="searchEndDate" name="searchEndDate" class="form-control datepicker" th:value="${pagingHelper.search.endDate}" placeholder="YYYY-MM-DD" th:readonly="readonly"/>
+			                            <span class="input-group-addon">
+			                                <span class="glyphicon glyphicon-calendar"></span>
+			                            </span>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th style="background-color: #f3f3f3">제목</th>
+								<td th:if="${site == 'jaha'}">
+									<!-- pagingHelper에 title 검색으로 세팅 -->
+									<input type="hidden" id="searchItem" name="searchItem" value="title" />
+									<input type="text" id="searchKeyword" name="searchKeyword" class="form-control" th:value="${pagingHelper.search.keyword}" placeholder=""  th:maxlength="20" />
+								</td>
+								<td th:unless="${site == 'jaha'}" colspan="3">
+									<!-- pagingHelper에 title 검색으로 세팅 -->
+									<input type="hidden" id="searchItem" name="searchItem" value="title" />
+									<input type="text" id="searchKeyword" name="searchKeyword" class="form-control"  th:value="${pagingHelper.search.keyword}" placeholder=""  th:maxlength="20" />
+								</td>
+
+								<th style="background-color: #f3f3f3" th:if="${site == 'jaha'}">아파트명</th>
+								<td th:if="${site == 'jaha'}">
+									<input type="text" id="aptName" name="aptName" class="form-control" th:value="${vote.aptName}" placeholder=""  th:maxlength="20" />
+								</td>
+							</tr>
+						</table>
+						<div style="text-align:center; margin:20px 0;">
+							<input type="button" id="searchBtn" name="searchBtn" class="btn btn-default btn-info" value="검색"/>
+							<input type="button" id="resetBtn" name="resetBtn"  class="btn btn-default btn-success" value="초기화" />
+						</div>
+
+					</div>
+				</div>
+				<div id="content-container">
+					<div id="table-container">
+						<!-- <input type="button"  id="vote-format-download" name="vote-format-download" class="btn btn-outline btn-info btn-sm" value="투표 서식 다운로드" style="float:right; margin:15px 0;" /> -->
+						<table class="table table-striped">
+							<thead>
+								<!-- <tr th:if="${type}==@{vote}"> -->
+								<tr>
+									<th width="5%" style="text-align:center;"><!-- 번호 --><!-- 표시되는 데이터는 번호가 아닌 투표 아이디 -->투표번호</th>
+									<th width="7%" style="text-align:center;" >아파트</th>
+									<th style="text-align:center;">제목</th>
+									<th width="8%" style="text-align:center;" th:if="${user.type.jaha}==true">보안등급</th>
+									<th width="8%" style="text-align:center;">종류</th>
+									<th width="8%" style="text-align:center;">상태</th>
+									<th width="8%" style="text-align:center;">등록자</th>
+									<th width="11%" style="text-align:center;">등록일</th>
+									<th width="18%" style="text-align:center;"></th>
+								</tr>
+							</thead>
+							<tbody id="table-body" data-bind="visible: activeStatusPollingXhr() !=null">
+								<tr th:if="${#lists.isEmpty(voteList)}">
+									<td colspan="9">
+										투표 목록이 없습니다.
+									</td>
+								</tr>
+								<tr th:each="vote : ${voteList}" th:style="${vote.visible}==false ? 'color:#AAAAAA;'">
+									<td style="text-align:center;" th:text="${vote.id}">1</td>
+									<td style="text-align:center;" th:text="${vote.aptName}" >가나다라</td>
+									<td style="text-align:center;">
+										<a href="#none" th:text="${vote.title}" th:onclick="'openVoteDetail(' + ${vote.id} +',\'' + ${vote.status} + '\')'">제 2기 자하아파트 106동 동대표 선거[제6선거구]</a>
+										<br/>
+										<span th:text="${#dates.format(vote.startDate, 'yyyy-MM-dd HH:mm')}" ></span>~
+										<span th:text="${#dates.format(vote.endDate, 'yyyy-MM-dd HH:mm')}" ></span>
+									</td>
+									<td style="text-align:center;" th:if="${user.type.jaha}==true" th:text="${vote.securityLevel eq 'S' ? 'S등급' : '미적용' }">s등급</td>
+									<td style="text-align:center;">
+										<div th:text="${vote.enableSecurity}=='Y'? '보안투표' : '일반투표'"></div>
+										<!-- <div th:if="${vote.enableSecurity}=='Y' and ${vote.voteKey.keyGrantYn}=='Y'" th:text="${vote.voteResultAvailable} ? '(개표완료)' :'(개표승인)'"></div> -->
+										<div th:if="${vote.enableSecurity}=='Y'" th:text="${vote.voteResultAvailable} ? '(개표완료)' :'(미개표)'"></div>
+									</td>
+									<td style="text-align:center;">
+										<span th:text="${vote.statusText}"></span><br/>
+										<div th:if="${vote.securityCheckState}" style="color:red;">
+											(비정상투표)
+										</div>
+									</td>
+									<td style="text-align:center;" th:text="${vote.userName}" >등록자</td>
+									<td style="text-align:center;" th:text="${#dates.format(vote.regDate, 'yyyy-MM-dd HH:mm')}" >2016-08-18 16:46</td>
+									<td style="text-align:center;">
+										<button type="button" class="btn btn-default" th:onclick="'openSaveVote(' + ${vote.id} + ')'" th:if="${not vote.voteResultAvailable}">집계완료</button>
+										<button type="button" class="btn btn-default" th:onclick="'openSaveVote(' + ${vote.id} + ')'" th:if="${vote.voteResultAvailable}">집계취소</button>
+
+										<button type="button" class="btn btn-default" th:onclick="'voteResult(' + ${vote.id} + ')'">결과</button>
+										<!-- <button type="button" class="btn btn-default" th:if="${vote.status == 'done'}" th:onclick="'voteResult(' + ${vote.id} + ')'">결과</button>
+										<button type="button" class="btn btn-default" th:unless="${vote.status == 'done'}" onclick="alert('투표 완료 전에는 결과가 나타나지 않습니다.\n투표가 완료되면 결과를 확인할 수 있습니다.')">결과</button> -->
+
+										<button type="button" class="btn btn-default" th:if="${vote.status == 'active'}" onclick="alert('진행중인 투표는 삭제할 수 없습니다.')">삭제</button>
+										<button type="button" class="btn btn-default" th:unless="${vote.status == 'active'}" th:onclick="'deleteVote(' + ${vote.id} + ')'">삭제</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- Pagination Bar -->
+					<div th:replace="v2/admin/template/paging :: paginationbar"></div>
+					<!--// Pagination Bar -->
+
+
+				</div>
+			</div>
+			<!-- /.col-lg-12 -->
+		</div>
+		<!-- /.row -->
+
+		<!-- 투표 상세보기 Modal -->
+        <div class="modal" id="modal-info">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+                        <h4 class="modal-title" id="myModalLabel">투표상세보기</h4>
+						<p style="font-size:13px; color:red; margin:5px 0; display:none;" id="voteNoticeMent" >※ 투표가 진행중, 완료 상태일경우엔 수정이 불가능합니다.<br />수정을 원하시는 경우 새로운 투표를 생성바랍니다.</p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>id</th>
+                                    <td id="vote-de-id">157</td>
+                                </tr>
+                                <tr>
+                                    <th>투표제목</th>
+                                    <td id="vote-de-title">-</td>
+                                </tr>
+                                <tr>
+                                    <th>설명</th>
+                                    <td id="vote-de-description">-</td>
+                                </tr>
+                                <tr>
+                                    <th>시작날짜</th>
+                                    <td id="vote-de-startdate">-</td>
+                                </tr>
+                                <tr>
+                                    <th>종료날짜</th>
+                                    <td id="vote-de-enddate">-</td>
+                                </tr>
+                                <tr>
+                                    <th>투표대상</th>
+                                    <td id="vote-de-target">-</td>
+                                </tr>
+                                <tr>
+                                    <th>유권자 수</th>
+                                    <td id="vote-de-voterCnt">-</td>
+                                </tr>
+                                <tr>
+                                    <th>중복제한</th>
+                                    <td id="vote-de-dupl">-</td>
+                                </tr>
+                                <tr>
+                                    <th>상태</th>
+                                    <td id="vote-de-status">-</td>
+                                </tr>
+                                <tr>
+                                    <th>투표종류</th>
+                                    <td id="vote-de-security">-</td>
+                                </tr>
+                                <tr  id="tr-admin-name">
+                                    <th>선거관리위원장</th>
+                                    <td id="vote-de-admin-name">-</td>
+                                </tr>
+                                <tr th:if="${site == 'jaha' and user.type.jaha}">
+                                    <th rowspan="2"><font color="red">투표정보</font></th>
+                                    <td id="vote-de-updatedate">-</td>
+                                </tr>
+                                <tr th:if="${site == 'jaha' and user.type.jaha}">
+                                    <td id="vote-de-updatestatus">-</td>
+                                </tr>
+                            </table>
+                        </div>
+						<div style="text-align:center;">
+							<button id="vote-de-goto-result" class="btn btn-success" >확인</button>
+                        	<button id="vote-de-send-noti" class="btn btn-success" style="display:none;">투표 독려하기</button>
+                        	<button id="vote-de-update-date" class="btn btn-success" th:if="${site eq 'jaha' and user.type.jaha}" >투표정보 변경하기</button>
+						</div>
+
+                        <p id="modal-content" style="word-wrap: break-word"></p>
+                    </div>
+                    <div class="modal-footer">
+                    	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 투표 독려하기 Modal -->
+        <div class="modal fade" id="modal-noti-send" tabindex="-1" role="dialog" aria-labelledby="modal-noti-send" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="notiModalLabel" >투표참여 독려하기</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+							<input type="text" id="votePushMsg" name="votePushMsg" class="form-control" value="" placeholder="확인버튼을 누르시면 투표 미참여자에게 투표를 참여하라는 알림 메시지를 전송합니다." th:maxlength="50" />
+                            <p style="font-size:13px; color:red; margin:5px 0;">※ 투표 독려 메시지는 투표를 안한 주민에게만 발송이 되며,하루 1번만 발송 가능합니다.</p>
+                        </div>
+						<div style="text-align:center;">
+							<button id="vote-noti-cancel" class="btn btn-default" data-dismiss="modal">취소</button>
+							<button id="vote-noti-send" class="btn btn-success" >보내기</button>
+						</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	<!-- javascript page wrapper th include location -->
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+		var site = /*[[${site}]]*/ 0;
+		var jaha = /*[[${user.type.jaha}]]*/ 0;
+
+		// 페이지 이동
+	    function paging(movePageNum) {
+	    	$("#pageNum").val(movePageNum);
+	    	search();
+	    }
+
+	    // 검색 (조회)
+	    function search() {
+	    	var $form = $("#voteForm");
+	    	$form.attr("action", $("#listUrl").val());
+	    	$form.submit();
+	    }
+
+	    $(function () {
+	        $('#datetimepickerFrom, #datetimepickerTo').datetimepicker({
+	            locale: 'ko',
+	            format: 'YYYY-MM-DD'
+	        });
+
+			// 검색 버튼
+			$("#searchBtn").unbind("click").bind("click",function(e){
+				e.preventDefault();
+				paging(1);
+			});
+
+			// 초기화 버튼
+			$('#resetBtn').click(function (e) {
+				e.preventDefault();
+				$('#voteStatus').val('');
+				$('#voteTypeId').val('');
+				$('#searchStartDate').val('');
+				$('#searchEndDate').val('');
+				//$('#searchItem').val('');
+				$('#searchKeyword').val('');
+				$('#aptName').val('');
+			});
+
+			// 투표 서식 다운로드 버튼 클릭
+			$('#vote-format-download').click(function (e) {
+				e.preventDefault();
+				openWindow('/v2/admin/vote/vote-doc-download-pop', "투표서식 다운로드", '800px', '250px');
+			});
+	    });
+
+	    // 투표 상세보기
+		function openVoteDetail(voteId, status) {
+			event.preventDefault();
+	    	if (status != "active" && status != "done") {
+	    		// 준비상태 - 상세페이지로 이동
+	    		document.location.href = "/v2/admin/vote/update/" + voteId;
+	    		return;
+	    	}
+
+			$.ajax({
+				type: 'post'
+	            , url: '/v2/admin/vote/detail/' + voteId
+	            , contentType: "application/json; charset=utf-8"
+	            , dataType: 'json'
+	            , success: function(data) {
+
+	            	$('#vote-de-id').text(data.vote.id);						/* id */
+	                $('#vote-de-title').text(data.vote.title);					/* 투표제목 */
+	                $('#vote-de-description').text(data.vote.description);	/* 설명 */
+	                $('#vote-de-startdate').text(new Date(data.vote.startDate).yyyymmdd());		/* 시작날자 */
+	                $('#vote-de-enddate').text(new Date(data.vote.endDate).yyyymmdd());		/* 종료날자 */
+
+	                if(isEmpty(data.vote.targetDong) && isEmpty(data.vote.jsonArrayTargetGroup)){						/* 투표대상 */
+	                    $('#vote-de-target').text("전체");
+	                } else {
+	                	if (isNotEmpty(data.vote.jsonArrayTargetGroup)) {
+	                		// 선거구
+	                		$('#vote-de-target').text('선거구별 : ');
+							$(data.voteGroupList).each(function (i, obj) {
+								if (i != 0) {
+	    	                		$('#vote-de-target').append(',');
+	    	                	}
+								$('#vote-de-target').append(obj.name + ' ');
+	                		});
+
+	                		/* var displayTargetGroup = JSON.parse(data.voteGroupList);
+
+	                		for(i in displayTargetGroup){
+	    	                	if (i != 0) {
+	    	                		$('#vote-de-target').append(',');
+	    	                	}
+	    	                	$('#vote-de-target').append(displayTargetGroup[i]+'호 ');
+	    			        } */
+
+
+	                	} else {
+	                		// 동 / 동호별
+	                		$('#vote-de-target').text(data.vote.targetDong+'동 ');
+
+	                		if (isNotEmpty(data.vote.jsonArrayTargetHo)) {
+	                			var displayTargetHo = JSON.parse(data.vote.jsonArrayTargetHo);
+		    	                for(i in displayTargetHo){
+		    	                	if (i != 0) {
+		    	                		$('#vote-de-target').append(',');
+		    	                	}
+		    	                	$('#vote-de-target').append(displayTargetHo[i]+'호 ');
+		    			        }
+	                		}
+
+	                	}
+
+	                }
+
+	                $('#vote-de-voterCnt').text(data.vote.votersCount.toLocaleString());	/* 유권자 수 */
+
+	                if(data.vote.houseLimited){								/* 중복제한 */
+	                	$('#vote-de-dupl').text("세대별 한 표만 투표 가능");	// 1
+	                }else{
+	                	$('#vote-de-dupl').text("세대별 복수 투표 가능");	// 0
+	                }
+
+	                $('#vote-de-status').text(data.vote.statusText);		/* 상태 */
+
+	                if(data.vote.enableSecurity == "Y"){					/* 투표종류 */
+                        $('#vote-de-security').text("보안투표");
+                        $('#tr-admin-name').show();					/* 선거관리위원장 */
+                        $('#vote-de-admin-name').text(data.vote.adminName + " (" + data.vote.adminEmail + ")");
+                    }else{
+                        $('#vote-de-security').text("일반투표");
+                        $('#tr-admin-name').hide();
+                    }
+
+	                if (data.vote.status != 'done') {
+	                	$('#vote-de-goto-result').text('확인');
+	                	$('#vote-de-goto-result').attr('onclick', 'closeModal();');
+	                } else {
+	                	$('#vote-de-goto-result').text('결과보기');
+	                	$('#vote-de-goto-result').attr('onclick', 'goVoteResult(' + data.vote.id + ');');
+	                }
+
+
+	                /* 투표 독려하기 */
+	                if(data.vote.status == "active"){
+                        $('#vote-de-send-noti').show();
+                        $('#vote-de-send-noti').attr("onclick", "checkVotePush('" + voteId + "')");
+                    }
+
+	                /* 수정불가 메세지 */
+	                if(data.vote.status == "active" || data.vote.status == "done"){		// 진행중, 완료시 수정불가 메세지 출력
+	                	$('#voteNoticeMent').show();
+	                }
+
+	             	// 날자 변경 옵션
+        			if (site == 'jaha' && jaha) {
+        				$('#vote-de-update-date').attr("onclick", "updateVoteDate('" + voteId + "', '" + data.vote.enableSecurity + "')");
+        				$('#vote-de-updatedate').html('<input type="text" name="startDay" id="startDay" value="' + new Date(data.vote.startDate).format('yyyyMMdd') + '" style="width:80px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="8" /><input type="text" name="startHour" id="startHour" value="' + new Date(data.vote.startDate).format('HH') + '" style="width:20px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="2"/>시<input type="text" name="startMin" id="startMin" value="' + new Date(data.vote.startDate).format('mm') + '" style="width:20px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="2"/>분~<input type="text" name="endDay" id="endDay" value="' + new Date(data.vote.endDate).format('yyyyMMdd') + '" style="width:80px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="8"/><input type="text" name="endHour" id="endHour" value="' + new Date(data.vote.endDate).format('HH') + '" style="width:20px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="2"/>시<input type="text" name="endMin" id="endMin" value="' + new Date(data.vote.endDate).format('mm') + '" style="width:20px;" onkeydown="return onlyNumber(event);" onkeyup="removeChar(event);" maxlength="2"/>분');
+        				$('#vote-de-updatestatus').empty();
+        				$('#vote-de-updatestatus').append('<label class="radio-inline"><input type="radio" id="status-ready" name="status"  value="ready" ' + (data.vote.status ==  'ready'? "checked='checked'":"") + '/> 준비 </label>');
+						$('#vote-de-updatestatus').append('<label class="radio-inline"><input type="radio" id="status-active" name="status"  value="active" ' + (data.vote.status ==  'active'? "checked='checked'":"") + '/> 진행중 </label>');
+						$('#vote-de-updatestatus').append('<label class="radio-inline"><input type="radio" id="status-done" name="status"  value="done" ' + (data.vote.status ==  'done'? "checked='checked'":"") + '/> 완료 </label>');
+        			}
+
+	            }
+		        , error: function(xhr, status, error) {
+		        	if (window.console && console.log) console.log("error : " + error.message);
+		        }
+        	});
+        	$('#modal-info').modal('show');
+	 	}
+
+	    // 확인 [투표상세보기 모달 close]
+	    function closeModal() {
+	    	event.preventDefault();
+	    	$('#modal-info').modal('hide');
+	    }
+
+	    // 결과보기 [done]
+	    function goVoteResult(voteId) {
+	    	event.preventDefault();
+	    	$('#modal-info').modal('hide');
+	    	voteResult(voteId);
+	    }
+
+	    // 날자 변경 (자하권한 관리자 / 자하권한 페이지)
+	    function updateVoteDate(voteId, enableSecurity) {
+	    	event.preventDefault();
+
+	    	if ("Y" == enableSecurity) {
+	    		if (!confirm('해당 보안키를 사용하는 투표들의 투표 기간이 모두 동일하게 변경됩니다. \n 투표 기간을 수정하시겠습니까?')) {
+		    		return;
+		    	}
+	    	}
+
+	        // 투표기간
+	        if (isEmpty($("#startDay").val())) {
+	        	alert('투표 시작일자를 입력해주세요.');
+                return;
+	        }
+
+	        if (isEmpty($("#startHour").val())) {
+	        	alert('투표 시작시간을 입력해주세요.');
+                return;
+	        }
+
+	        if (isEmpty($("#startMin").val())) {
+	        	alert('투표 시작분을 입력해주세요.');
+                return;
+	        }
+
+	        if (isEmpty($("#endDay").val())) {
+	        	alert('투표 종료일자를 입력해주세요.');
+                return;
+	        }
+
+	        if (isEmpty($("#endHour").val())) {
+	        	alert('투표 종료시간을 입력해주세요.');
+                return;
+	        }
+
+	        if (isEmpty($("#endMin").val())) {
+	        	alert('투표 종료분을 입력해주세요.');
+                return;
+	        }
+
+
+		    var reqData = {};
+		    reqData.voteId = voteId;
+		    reqData.startDay = $("#startDay").val();
+		    reqData.startHour = $("#startHour").val();
+		    reqData.startMin = $("#startMin").val();
+		    reqData.endDay = $("#endDay").val();
+		    reqData.endHour = $("#endHour").val();
+		    reqData.endMin = $("#endMin").val();
+		    reqData.status = $(":radio[name='status']:checked").val();
+
+			$.ajax({
+				type: 'post'
+				, url: '/v2/admin/vote/update-date/' + voteId
+				, contentType: "application/json; charset=utf-8"
+				, dataType: 'json'
+				, data: JSON.stringify(reqData)
+				, success: function (data) {
+
+					if (data.result) {
+						alert("투표정보를 변경하였습니다.");
+						$('#modal-info').modal('hide');
+						document.location.reload();
+					} else {
+						alert("투표정보 변경 중 오류가 발생하였습니다.");
+						return;
+					}
+
+				}
+				, error: function (jqXHR, textStatus, errorThrown) {
+					console.log(errorThrown);
+					console.log(textStatus);
+				}
+			});
+	    }
+
+		/**
+		 * STEP 분리 및 플로우 변경
+		 * 1. 푸시 발송여부 확인 (하루에 1번) - push-send-check
+		 * 2. 투표하지 않은 사용자 리스트를 조회한다. - vote-check-yet-user
+		 * 3. 해당 리스트를 비동기로 응답받아 "투표 독려하기" 클릭 시 체크한다.
+		 * 		사유 : AS-IS에서는 1번 로직이 페이지 로딩 시 이루어지므로 상세보기 오픈시 로딩타임이 길어짐. 버튼 클릭시 체크로 분기
+		 * 		TODO : 1번 로직 재 정리 (Java for문 에서 Query로 변경) 예정
+		 */
+		 // 투표 독려하기 가능여부 체크
+		var send_data = "";	// 메세지 발송 대상
+		function checkVotePush(voteId) {
+			event.preventDefault();
+			send_data = "";
+
+			$.ajax({
+				type: 'post'
+		        , url: '/v2/admin/vote/push-send-check/' + voteId
+	    	    , contentType: "application/json; charset=utf-8"
+	        	, dataType: 'json'
+	            , async:false
+	            , success: function(data) {
+
+	            	if (data.result) {
+	            		// 금일 이미 발송한 상태
+	            		alert('투표 독려 메시지는 하루에 한번 보낼 수 있습니다.');
+	        			return;
+
+	            	} else {
+
+	            		// 발송한 적이 없거나, 발송한 날자가 지난경우 -- 발송대상 목록 조회 실행
+	            		$.ajax({
+	        				type: 'post'
+	        		        , url: '/v2/admin/vote/vote-check-yet-user/' + voteId
+	        	    	    , contentType: "application/json; charset=utf-8"
+	        	        	, dataType: 'json'
+	        	            , async:false
+	        	            , success: function(data) {
+
+	        	            	if (data.length > 0) {	// 미참여자가 존재하는 경우
+
+	        						send_data = data;
+	        						$('#vote-noti-send').attr("onclick", "sendVotePush(" + voteId + ")");
+	        						$('#modal-info').modal('hide');
+	        						// 투표 독려하기 모달 오픈
+	        						$('#modal-noti-send').modal('show');
+	        						return;
+
+	        					} else {
+	        						alert("알림 대상 회원이 없습니다.");
+	        						return;
+	        					}
+	        	            }
+	        		        , error: function(xhr, status, error) {
+	        		        	if (window.console && console.log) console.log("error : " + error.message);
+	        		        }
+	                	});
+
+	            	}
+	            }
+		        , error: function(xhr, status, error) {
+		        	if (window.console && console.log) console.log("error : " + error.message);
+		        }
+        	});
+		}
+
+		// 투표 삭제하기 (!= active)
+		function deleteVote(voteId) {
+
+	        if (confirm("삭제하시겠습니까??")) {
+	            $.ajax({
+	                url: '/v2/admin/vote/delete/' + voteId
+	                , type: 'get'
+	                , success: function (result) {
+	                	if (result && result > 0) {
+	                		window.location.reload();
+	                	} else {
+	                		alert("삭제중 오류가 발생하였습니다.");
+	                	}
+	                }
+	            });
+	        }
+	    }
+
+		// 투표참여 독려하기 푸시 "보내기"
+		var jobPush = false;	// 중복 클릭 엑션 방지
+		function sendVotePush(voteId) {
+			event.preventDefault();
+
+			if (jobPush) {
+				alert("메세지 발송중입니다.");
+    			return;
+			}
+			jobPush = true;
+
+			if (isEmpty($("#votePushMsg").val())) {
+				alert("투표 독려메시지를 입력하세요");
+        		$("#votePushMsg").focus();
+    			return;
+			}
+
+			var reqData = {};
+		    reqData.voteId = voteId;
+		    reqData.voteMsg = $("#votePushMsg").val();
+
+			$.ajax({
+				type: 'post'
+				, url: '/v2/admin/vote/sendVotePush'
+				, contentType: "application/json; charset=utf-8"
+				, dataType: 'json'
+				, data: JSON.stringify(reqData)
+				, success: function (data) {
+					alert(data.pushCount + "명에게 알림을 보냈습니다");
+					$('#modal-noti-send').modal('hide');
+					send_data = "";
+					jobPush = false;
+				}
+				, error: function (jqXHR, textStatus, errorThrown) {
+					console.log(errorThrown);
+					console.log(textStatus);
+				}
+			});
+
+		}
+
+		// 투표 결과보기 이동
+		function voteResult(voteId) {
+			event.preventDefault();
+			$.ajax({
+				type: 'post'
+	            , url: '/v2/admin/vote/detail/' + voteId
+	            , contentType: "application/json; charset=utf-8"
+	            , dataType: 'json'
+	            , success: function(data) {
+
+	                if (data.vote.status != 'done') {
+	                	alert('투표 완료 전에는 결과가 나타나지 않습니다.\n투표가 완료되면 결과를 확인할 수 있습니다.');
+	                	return;
+	                } else if ( !data.vote.voteResultAvailable) {
+						alert("집계 완료 후 결과를 확인할 수 있습니다.");
+						return;
+	                } else {
+	                	document.location.href = "/v2/admin/vote/result/" + voteId;
+	                }
+
+	            }
+		        , error: function(xhr, status, error) {
+		        	if (window.console && console.log) console.log("error : " + error.message);
+		        }
+        	});
+		}
+
+		// 투표 집계완료
+		function openSaveVote(voteId) {
+			openWindow('/v2/admin/vote/complete/' + voteId, "투표서식 다운로드", '800px', '600px');
+		}
+	/*]]>*/
+	</script>
+	<!--// javascript page wrapper th include location -->
+
+</form>
+
+    </div>
+    <!--// page wrapper -->
+
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
+<link  type="text/css" rel="stylesheet" href="/js/jquery-ui/jquery-ui.min.css" th:href="@{/js/jquery-ui/jquery-ui.min.css}"  />
+<script src="/jquery-ui/jquery-ui.min.js" th:src="@{/js/jquery-ui/jquery-ui.min.js}" ></script>
+
+<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+<link type="text/css" rel="stylesheet" href="/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+<link type="text/css" rel="stylesheet" href="/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+<link type="text/css" rel="stylesheet" href="/css/bootstrap-datetimepicker.css" th:href="@{/css/bootstrap-datetimepicker.css}"/>
+<link type="text/css" rel="stylesheet" href="/multiselect/css/multi-select.css" th:href="@{/multiselect/css/multi-select.css}"/>
+<link type="text/css" rel="stylesheet" href="/js/colorpicker-master/jquery.colorpicker.css" th:href="@{/js/colorpicker-master/jquery.colorpicker.css}"  />
+<link type="text/css" rel="stylesheet" href="/css/jquery.toastmessage.css" th:href="@{/css/jquery.toastmessage.css}"/>
+
+<style>
+
+        .no-border-on-me > thead > tr > th,
+        .no-border-on-me > tbody > tr > th,
+        .no-border-on-me > tfoot > tr > th,
+        .no-border-on-me > thead > tr > td,
+        .no-border-on-me > tbody > tr > td,
+        .no-border-on-me > tfoot > tr > td {
+            border-top-style: none;
+            border-bottom-style: none;
+        }
+        .ms-container {
+            width: 100%
+        }
+        .form-group {
+            overflow: hidden;
+        }
+		ul,li{list-style:none; padding:0; margin:0;}
+		show{display:block;}
+		._rightDelBtn{background:#ffffff; font-weight:bold; font-size:18px; height:25px; line-height:16px; border:none}
+</style>
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<title></title>
+</head>
+<body>
+<div id="wrapper">
+	<!-- /#wrapper -->
+	<div th:replace="admin/admin :: top-nav">
+	</div>
+	<div th:replace="admin/admin :: vert-nav-admin">
+	</div>
+	<div id="page-wrapper">
+		<div class="row" style="margin-bottom:20px">
+			<div class="col-lg-12">
+				<h1 class="page-header">e마을 앱</h1>
+				<div role="tabpanel">
+
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs" role="tablist">
+						<li role="presentation" ><a href="/admin/appMain?tapId=APP_MAIN">오늘</a></li>
+						<li role="presentation" class="active"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">메뉴</a></li>
+					</ul>
+
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="today" >
+
+
+
+						<div class="row" style="margin-top:25px;" >
+							<div class="" style="margin:40px;">
+								<span style="font-size:18px; font-weight:bold; margin-right:30px">1. 알림영역</span>
+
+								<span style="margin-right:20px;">
+									<label>
+										<input type="radio" class="ip " id="alarm1-on" value="alarm1On" name="alarm1"  style="vertical-align:top"/> ON
+									</label>
+								</span>
+								<span style="margin-right:20px;">
+									<label>
+										<input type="radio" class="ip " id="alarm1-off" value="alarm1Off" name="alarm1" style="vertical-align:top"/> OFF
+									</label>
+								</span>
+							</div>
+							<div id="alarmArea">
+							<div class="col-xs-7 col-sm-5" style="">
+								<div style="width:70%; text-align:center; margin:0 auto;">
+									<p style="font-size:15px; font-weight:bold; margin:10px;">step1. 템플릿 선택</p>
+									<table class="table step1" style="width:100%; border:1px solid #c3c3c3; margin:0 auto;" id = "tableStep1" >
+										<tbody id="codeTable">
+											<tr><td  class="normal" data-idx="1" data-code="COMMUNITY_TOPFIX" >커뮤니티 상단 고정</td></tr>
+											<tr><td   class="normal" data-idx="2" data-code="SYSTEM-NOTICE" >공지사항</td></tr>
+											<tr><td   class="normal" data-idx="3" data-code="EVENT" >이벤트</td></tr>
+											<tr><td   class="normal" data-idx="4" data-code="GROUP" >단체 게시판</td></tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="col-xs-2 col-sm-1"  style="text-align:center;  padding:70px 0;">
+									<button type="button" class="btn btn-danger" onclick="addData();"  >추가</button>
+							</div>
+
+							<div class="clearfix visible-xs-block"></div>
+
+							<div class="col-xs-7 col-sm-5" style="">
+								<div style="width:70%; text-align:center; margin:0 auto;">
+									<p style="font-size:15px; font-weight:bold; margin:10px;">step2. 노출 위치 변경
+										<span class="btnUp" style="border:1px solid #c3c3c3;  padding:3px 7px; display:inline-block;"><i class="fa fa-angle-up" aria-hidden="true" style="font-size:20px; "></i></span>
+										<span class="btnDown" style="border:1px solid #c3c3c3; padding:3px 7px; display:inline-block;"><i class="fa fa-angle-down" aria-hidden="true" style="font-size:20px; "></i></span>
+									</p>
+									<div class="step2" style="width:100%; border:1px solid #c3c3c3; margin:0 auto;">
+									<!-- ****Step2**** -->
+										<ul class="nodata" id="mainList">
+											<li th:each="list : ${mainTemplateList}" th:unless="${list.code} == 'A_TYPE_BANNER' OR ${list.code} == 'B_TYPE_BANNER' OR ${list.displayYn} == 'N'  " th:value="${list.code}" th:text="${list.displayTemplateName}" th:id="${list.id}" th:onclick="|orderSort('${list.id}')|" class="list-group-item">선택 된 데이터가 없습니다.
+											<!-- <td><button type="button" class="btn btn-default" th:onclick="'saveParcel('+${content.id}+')'" >저장 </button></td> -->
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							</div>
+							
+						</div>
+
+						<div class="" style="margin:60px 40px;">
+							<span style="font-size:18px; font-weight:bold; margin-right:30px">2. 배너영역</span>
+
+							<span style="margin-right:20px;">
+								<label>
+									<input type="radio" class="ip alarm2On" id="alarm2-on" value="alarm2On" name="alarm2"  style="vertical-align:top"/> ON
+								</label>
+							</span>
+							<span style="margin-right:20px;">
+								<label>
+									<input type="radio" class="ip alarm2Off" id="alarm2-off" value="alarm2Off" name="alarm2" style="vertical-align:top"/> OFF
+								</label>
+							</span>
+
+							<div class="bnImgArea" style="text-align:center; margin:40px 0;">
+								<div class="bnImg1"  id="AtypeButton" style="width:400px; height:50px; display:inline-block; border:1px solid #c3c3c3; margin-right:20px; line-height:45px; cursor:pointer; background:#fff" onclick="aBannerCheck()">
+									A형 배너(이미지1)
+								</div>
+								<div class="bnImg2" id="BtypeButton" style="width:400px; height:50px; display:inline-block;  border:1px solid #c3c3c3; margin-right:20px; line-height:45px; cursor:pointer" onclick="bBannerCheck()">
+									B형 배너(이미지2)
+								</div>
+							</div>
+						</div>
+
+					<script>
+				
+					$('.bnImg1').click(function(){
+						if($(this).css('background','#fff')){
+							$(this).css('background','#F3F3F3');
+							$('.bnImg2').css('background','#fff');
+						}
+					});
+					$('.bnImg2').click(function(){
+						if($(this).css('background','#fff')){
+							$(this).css('background','#F3F3F3');
+							$('.bnImg1').css('background','#fff');
+						}
+					});
+					</script>
+	<form id="dataForm" name = "dataForm" method="post" enctype="multipart/form-data">
+			<div class="modal fade" id="AtypeModal" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+					 <!-- header -->
+					      <div class="modal-header">
+					        <!-- 닫기(x) 버튼 -->
+					        <button type="button" class="close" data-dismiss="modal">×</button>
+					        <!-- header title -->
+					        <h4 class="modal-title">컨텐츠 관리</h4>
+					      </div>
+					      <div class="modal-body" id="modalBody">
+						<!--모달안에 들어갈 테이블 1-->
+						<table id="A_TYPE_BANNER" class="table table-bwordered modalTable1" style="width:100%;">
+							<colgroup>
+								<col style="width:10%"/>
+								<col style="width:40%"/>
+								<col style="width:10%"/>
+								<col style="width:40%"/>
+							</colgroup>
+							<tbody>
+								<tr><th colspan="4" style="background-color: #f3f3f3;" name="displayYn0"><input type="checkbox" id="" name="AtypeGroup" style=""/> 내부 컨텐츠 링크</th></tr>
+
+								<tr>
+									<th style=" text-align:center;">APP ID</th>
+									<td>
+										<input type="text" class="form-control" name="webUrl0" value="" placeholder="최대 10자 입력 가능"/>
+									</td>
+
+									<th style="text-align:center;" title="thName">이미지</th>
+									<td style="text-align:left;">
+										<div class="file_input">
+											<input type="text" readonly="readonly" title="File Route" id="fileNum1" name="fileVal"/>
+											<label>
+												찾아보기
+												<input type="file" onchange="javascript:document.getElementById('fileNum1').value=this.value" name="" id=""/>
+											</label>
+										</div>
+									</td>
+								</tr>
+								<tr><th colspan="4" style="background-color: #f3f3f3;" name="displayYn1"><input type="checkbox" name="AtypeGroup" style=""/> 광고 링크</th></tr>
+								<tr>
+									<th style=" text-align:center;">ID</th>
+									<td colspan="3">
+										<input type="text" class="form-control" name="webUrl1" value="" placeholder="최대 10자 입력 가능"/>
+									</td>
+								</tr>
+								<tr><th colspan="4" style="background-color: #f3f3f3;" name="displayYn2"><input type="checkbox" name="AtypeGroup" style=""/> 외부사이트 링크</th></tr>
+							
+							
+								<tr>
+									<th style=" text-align:center;">URL</th>
+									<td >
+										<input type="text" class="form-control" name="webUrl2" value="" placeholder="최대 10자 입력 가능"/>
+									</td>
+									<th style="text-align:center;" title="thName">이미지</th>
+									<td style="text-align:left;">
+										<div class="file_input">
+											<input type="text" readonly="readonly" title="File Route" id="fileNum1" name="fileVal"/>
+											<label>
+												찾아보기
+												<input type="file" onchange="javascript:document.getElementById('fileNum1').value=this.value" name="" id=""/>
+											</label>
+										</div>
+									</td>
+									
+								</tr>
+							</tbody>
+						</table>
+					</div> <!-- modal body end -->
+						  <!-- Footer -->
+					      <div class="modal-footer" id="modalFooter">
+					        <button type="button" class="btn btn-default" data-dismiss="modal" id="atypeUpdate">적용</button>
+					        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+					      </div>
+							  <!-- Footer -->
+						</div>
+							</div>
+								</div>
+
+						<!--모달안에 들어갈 테이블 2-->
+	<div class="modal fade" id="BtypeModal" >
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+					 <!-- header -->
+					      <div class="modal-header">
+					        <!-- 닫기(x) 버튼 -->
+					        <button type="button" class="close" data-dismiss="modal">×</button>
+					        <!-- header title -->
+					        <h4 class="modal-title">컨텐츠 관리</h4>
+					      </div>
+					      <div class="modal-body" id="modalBody">
+						<div id = "B_TYPE_BANNER" class="wrap" style="margin-top:40px; overflow:hidden;">
+							<div class="leftImg" style="width:48%; float:left">
+								<p style="font-size:15px; font-weight:bold;">왼쪽 이미지</p>
+								<table id="B_TYPE_BANNER_LEFT" class="table table-bordered modalTable2" style="width:100%; font-size:12px">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:80%"/>
+									</colgroup>
+									<tbody>
+										<tr><th colspan="4" style="background-color: #f3f3f3;" ><input type="checkbox" name="BtypeGroupLeft" style=""/> 내부 컨텐츠 링크</th></tr>
+
+										<tr>
+											<th style="text-align:center; ">APP ID</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl0" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="text-align:center;" title="thName">이미지</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="fileNum2"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('fileNum2').value=this.value" name="" id=""/>
+													</label>
+												</div>
+											</td>
+										</tr>
+										<tr><th colspan="4" style="background-color: #f3f3f3;"><input type="checkbox" name="BtypeGroupLeft"  style=""/> 광고 링크</th></tr>
+										<tr>
+											<th style=" text-align:center;">ID</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="webUrl1" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr><th colspan="4" style="background-color: #f3f3f3;"><input type="checkbox" name="BtypeGroupLeft" style=""/> 외부사이트 링크</th></tr>
+										<tr>
+											<th style=" text-align:center;">URL</th>
+											<td >
+												<input type="text" class="form-control" name="webUrl2" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="text-align:center;" title="thName">이미지</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="fileNum2"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('fileNum2').value=this.value" name="" id=""/>
+													</label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+
+							<div class="rightImg" style="width:48%; float:right;">
+								<p style="font-size:15px; font-weight:bold;">오른쪽 이미지</p>
+								<table id="B_TYPE_BANNER_LEFT_B" class="table table-bordered modalTable2" style="width:100%;">
+									<colgroup>
+										<col style="width:20%"/>
+										<col style="width:80%"/>
+									</colgroup>
+									<tbody>
+										<tr><th colspan="4" style="background-color: #f3f3f3;"><input type="checkbox" name="BtypeGroupRight" style=""/> 내부 컨텐츠 링크</th></tr>
+
+										<tr>
+											<th style=" text-align:center;">APP ID</th>
+											<td>
+												<input type="text" class="form-control" name="webUrl3" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr>
+											<th style="text-align:center;" title="thName">이미지</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="fileNum3"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('fileNum3').value=this.value" name="" id=""/>
+													</label>
+												</div>
+											</td>
+										</tr>
+										<tr><th colspan="4" style="background-color: #f3f3f3;"><input type="checkbox" name="BtypeGroupRight" style=""/> 광고 링크</th></tr>
+										<tr>
+											<th style=" text-align:center;">ID</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="webUrl4" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+										<tr><th colspan="4" style="background-color: #f3f3f3;"><input type="checkbox" name="BtypeGroupRight" style=""/> 외부사이트 링크</th></tr>
+										<tr>
+											<th style=" text-align:center;">URL</th>
+											<td colspan="3">
+												<input type="text" class="form-control" name="webUrl5" value="" placeholder="최대 10자 입력 가능"/>
+											</td>
+										</tr>
+											<tr>
+											<th style="text-align:center;" title="thName">이미지</th>
+											<td style="text-align:left;">
+												<div class="file_input">
+													<input type="text" readonly="readonly" title="File Route" id="fileNum2"/>
+													<label>
+														찾아보기
+														<input type="file" onchange="javascript:document.getElementById('fileNum2').value=this.value" name="" id=""/>
+													</label>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div><!--wrap:e-->
+							</div>
+							  <!-- Footer -->
+					      <div class="modal-footer" id="modalFooter">
+					        <button type="button" class="btn btn-default" data-dismiss="modal" id="btypeUpdate">적용</button>
+					        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+					      </div>
+							  <!-- Footer -->
+								</div>
+									</div>
+									<!-- modal end -->
+										</div>
+							<input type = "hidden" id ="jsonDataForm" name = "jsonData"/>
+								</form>
+
+						<div class="" style="float:right;">
+							<input type="button" class="btn  btn-info" id="" value="취소" onclick="javascript: history.back();"  name=""/>
+							<input type="button" class="btn  btn-success " id="" value="저장" name="" onclick="saveAndflush();" />
+						</div>
+						</div><!--#today end-->
+						<div role="tabpanel" class="tab-pane" id="tab2">
+						</div><!--#tab2 end-->
+						<div role="tabpanel" class="tab-pane" id="tab3">2</div><!--#tab3 end-->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script> -->
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+
+<script src="../../static/js/colorpicker-master/jquery.colorpicker.js" th:src="@{/js/colorpicker-master/jquery.colorpicker.js}" ></script>
+
+<script src="../../static/js/colorpicker-master/i18n/jquery.ui.colorpicker-nl.js" th:src="@{/js/colorpicker-master/i18n/jquery.ui.colorpicker-nl.js}" ></script>
+<script src="../../static/js/colorpicker-master/parts/jquery.ui.colorpicker-rgbslider.js" th:src="@{/js/colorpicker-master/parts/jquery.ui.colorpicker-rgbslider.js}"></script>
+<script src="../../static/js/colorpicker-master/parts/jquery.ui.colorpicker-memory.js" th:src="@{/js/colorpicker-master/parts/jquery.ui.colorpicker-memory.js}"></script>
+<script src="../../static/js/jquery.toastmessage.js" th:src="@{/js/jquery.toastmessage.js}"></script>
+<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+	var objData = [[${data}]];
+
+    function guid() {
+    	  function s4() {
+    	    return Math.floor((1 + Math.random()) * 0x10000)
+    	  }
+    	  return s4()+s4() ;
+    	}
+
+/* 알림영역 데이터 추가  */
+	function addData(){
+		if($('#mainList li').attr('data-row') == "0"){
+			$('#mainList li').remove();
+			$('#mainList').attr('data-row','1');
+		}
+ 		var itemIndex = cloneTxt.attr('data-idx');
+ 		var itemCode= cloneTxt.attr('data-code');
+ 		var tableCode = itemCode + '_tb' + itemGuid;
+ 		var itemGuid = cloneTxt.attr("name") 
+
+ 		for(var i = 0 ; i <$('#mainList').children().length ; i++){
+ 			if($('#mainList').children().eq(i).attr('value') == itemCode){
+ 				alert('이미 목록에 추가되어있습니다');
+ 				return;
+ 			}
+ 		}
+/*//알림영역 데이터 추가  */
+
+ 		$("#"+tableCode).attr("name","use")
+
+		/* Li 생성 Start  */
+		var li = document.createElement("li");
+			$(li).css(
+				{'background':'white', 'border':'1px solid #e6e6e6','height':'40px', 'line-height':'35px'}
+			);
+
+			$(li).addClass("list-group-item");
+			$(li).attr("class","list-group-item"+itemIndex);
+			$(li).attr("id",itemGuid);
+			$(li).attr("onclick","orderSort('"+itemGuid+"')");
+			$(li).attr("value",itemCode);
+			$('#mainList').append(li);
+			$(li).append(cloneTxt.html() +'<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />' );
+
+			$("._rightDelBtn").click(function(event){
+		    	$(this).parent().remove();
+				$('table').removeClass('show');
+				deleteTemplate($(this).parent().attr("id"));
+				if($('#mainList li').length == "0"){
+					$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+					$('#mainList').attr('data-row','0');
+				}
+				event.stopPropagation();
+			})
+		//	setLiEvent(li);
+
+		/* Li 생성 END */
+	}
+	/*//////////////// 유효성 Start ////////////////*/
+//		function dataCheck(){
+//		var result = 1;	
+//		for(var i=0 ; i<$('#dataForm').find('[type=checkbox]').length; i++){
+
+//			if($('#dataForm').find('[type=checkbox]').eq(i).prop('checked') == true){ // 체크된값만 display Y 로바꿔줍니다
+// 			 result ++
+// 	 	}
+			
+//		}
+//		alert(result);
+		
+			
+			
+//		}
+
+/*////////// 유효성 END /////// */
+ 
+ 
+	function setLiEvent(li){
+		var delBtn = '<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />'
+		var inputStr = '';
+		//$("input[name=_rightDelBtn]").on("click", btnDel);
+		$("._rightDelBtn").click(function(event){
+	    	$(this).parent().remove();
+			$('table').removeClass('show');
+			deleteTemplate($(this).parent().attr("id"));
+			if($('#mainList li').length == "0"){
+				$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+				$('#mainList').attr('data-row','0');
+			}
+			event.stopPropagation();
+		})
+
+	}
+
+	$('.btnUp').click(
+		function(){
+			var item = $('#mainList .step2Sel');
+			var _idx = $('#mainList li').index(item);
+
+			if(_idx > 0){
+				$('#mainList li').eq(_idx-1).before(item.clone());
+				$(item).remove();
+				setLiEvent($('#mainList li').eq(_idx-1));
+			}
+		}
+	);
+
+	$('.btnDown').click(
+		function(){
+			var item = $('#mainList .step2Sel');
+			var _idx = $('#mainList li').index(item);
+
+			if( _idx < $('#mainList li').length-1){
+				$('#mainList li').eq(_idx+1).after(item.clone());
+				$(item).remove();
+				setLiEvent($('#mainList li').eq(_idx+1));
+			}
+		}
+	);
+
+	/* 키워드 END */
+
+/* X 버튼 생성*/
+	function setDelBtn(){
+
+		var delBtn = '<input type="button" class="_rightDelBtn" name="_rightDelBtn" value="x" />'
+		 var codeName ;
+		$("#mainList").children().append(delBtn);
+		if($('#mainList li').length == "0"){
+			$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+		}
+		$("._rightDelBtn").click(function(event){
+			    	$(this).parent().remove();
+					$('table').removeClass('show');
+					deleteTemplate($(this).parent().attr("id"));
+					if($('#mainList li').length == "0"){
+						$('#mainList').append('<li class="list-group-item" data-row="0">선택 된 데이터가 없습니다.</li>');
+						$('#mainList').attr('data-row','0');
+					}
+						event.stopPropagation();
+					})
+
+	}
+/*//X 버튼 생성*/
+	
+		/* LI 눌렀을때 색변화 CSS */
+	function orderSort(templateId){
+		$('#mainList li').removeClass('step2Sel');
+		$('#mainList li').css('background-color','white');
+		$('#mainList li ._rightDelBtn').css('background-color','white');
+		$("#" + templateId).css('background-color','#c4c4c4');
+		$("#" + templateId).find('._rightDelBtn').css('background-color','#c4c4c4');
+		$("#" + templateId).addClass('step2Sel');
+
+	}
+		/*////LI 눌렀을때 색변화 CSS */
+
+
+
+
+/*업데이트 오브젝트 */
+	function updateData(templateId){
+        var maintemplate ;
+        var templateDetail  = new Array();
+
+        /* AppMainTemplateDetail 데이터  */
+        for(var i = 0; i<objData.appMainTemplateDetailList.length; i++) {
+        	if(objData.appMainTemplateDetailList[i].mainTemplateId+"" == templateId){
+        		templateDetail.push(objData.appMainTemplateDetailList[i]);
+        		continue;
+        	}
+        };
+		var loopNum = templateDetail.length;
+		
+		for(var i = 0 ; i < loopNum  ; i++){
+        	 templateDetail[i].webUrl = $('#'+templateId).find('input[name=webUrl'+i+']').val();
+        	 if($('#'+templateId).find('[type=checkbox]').eq(i).prop('checked') == true){ // 체크된값만 display Y 로바꿔줍니다
+        		 templateDetail[i].displayYn = 'Y'
+        	 }else{
+        		 templateDetail[i].displayYn = 'N'
+        	 }
+       }
+		
+	}
+	/*/////업데이트 오브젝트 */
+
+	function saveAndflush(){
+
+		var result = confirm(' 등록하시겠습니까? ');
+		if(result){
+		var jsonData = new Object();
+		
+	/*  노출위치 변경 순서정하기 */
+	
+		for(var i = 0 ; i < 4; i++) {
+				delete objData.appMainTemplate[i].regDate; // 등록날짜와 업데이트 날짜는 Ggone 으로 바꿀때 타입 에러가 발생하여 넘길때는 삭제한다
+				for(var j = 0 ; j <$('#mainList').children().length ; j++){
+					if($('#mainList').children().eq(j).attr('id') == objData.appMainTemplate[i].id){
+		 				objData.appMainTemplate[i].displayOrder  = $('#mainList').children().eq(j).index()+1 ; 
+		 				objData.appMainTemplate[i].displayYn = 'Y';
+		 				objData.appMainTemplate[i].check='Y';
+		 				//console.log('이미 목록에 추가되어있습니다');
+		 			}else if(objData.appMainTemplate[i].check == null){
+		 				objData.appMainTemplate[i].displayYn = 'N';
+		 			}
+	 			}
+ 			}	
+
+			console.log(objData);
+
+
+	/*  ///노출위치 변경 순서정하기 */
+		
+	for(var i = 0; i<6 ; i++){
+		delete objData.appMainTemplate[i].regDate; // 등록날짜와 업데이트 날짜는 Ggone 으로 바꿀때 타입 에러가 발생하여 넘길때는 삭제한다
+	}
+	
+	/* off 로 저장하면 모든 템플릿들을 display N 우로 업데이트한다 */
+	if($("#alarm1-off").prop("checked") == true){
+		
+		for(var i = 0; i<4 ; i++){
+			objData.appMainTemplate[i].displayYn = 'N'; //   
+		}
+	};
+	if($("#alarm2-off").prop("checked") == true){
+		
+		for(var i =4 ; i<6 ; i++){
+			objData.appMainTemplate[i].displayYn = 'N'; // 
+		}
+// 		for(var i = 0 ; i < objData.appMainTemplateDetailList.length; i++) {
+// 			 objData.appMainTemplateDetailList[i].displayYn = 'N'; 
+// 			}
+		
+	};
+	/*//// off 로 저장하면 모든 템플릿들을 display N 우로 업데이트한다 */
+ 		
+ 		for(var i = 0 ; i < objData.appMainTemplateDetailList.length; i++) {
+		delete objData.appMainTemplateDetailList[i].regDate; //등록날짜와 업데이트 날짜는 Ggone 으로 바꿀때 타입 에러가 발생하여 넘길때는 삭제한다
+		delete objData.appMainTemplateDetailList[i].modDate; //등록날짜와 업데이트 날짜는 Ggone 으로 바꿀때 타입 에러가 발생하여 넘길때는 삭제한다
+
+		}
+ 		
+ 		var formData = new FormData($("#dataForm"));
+ 		formData.append("jsonData",JSON.stringify(objData));
+
+			$("#jsonDataForm").val(JSON.stringify(objData));
+		$("#dataForm").ajaxSubmit({
+	        url: "/admin/appMain/saveAndflush"
+	        , type: 'post'
+	        , async: true
+	        , dataType: "json"
+	        , success: function(jsonData) {
+	        		alert("저장에 성공하였습니다");
+	        		location.reload();
+
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (console && console.log) console.log("error : " + error.message);
+	        	alert("저장에 실패했습니다")
+	        }
+	    });
+		}
+	}
+	
+	/* 라디오버튼 체크 */
+	function radioCheck(){
+        for(var i = 0; i<objData.appMainTemplate.length; i++) {
+        	if(objData.appMainTemplate[i].code!="A_TYPE_BANNER"&&objData.appMainTemplate[i].code!="B_TYPE_BANNER" && objData.appMainTemplate[i].displayYn == 'Y'){
+        		$("#alarm1-on").attr("checked","checked")
+        		break;
+        	}else{
+	       		$("#alarm1-off").attr("checked","checked")
+        	}
+        };
+
+        /* AppMainTemplateDetail 데이터  */
+        for(var i = 4; i<objData.appMainTemplate.length; i++) {
+        	if(objData.appMainTemplate[i].displayYn == 'Y'){
+        		$("#alarm2-on").attr("checked","checked")
+        		break;
+        	}else{
+        		$("#alarm2-off").attr("checked","checked")
+        	}
+        };
+        
+	}
+	/*///라디오버튼 체크 */
+	
+	
+	/* 체크박스 한개만 선택되도록 */
+	function checkBox(){
+		  //라디오 요소처럼 동작시킬 체크박스 그룹 셀렉터
+	    $('input[type="checkbox"][name="AtypeGroup"]').click(function(){
+	        //클릭 이벤트 발생한 요소가 체크 상태인 경우
+	        if ($(this).prop('checked')) {
+	            //체크박스 그룹의 요소 전체를 체크 해제후 클릭한 요소 체크 상태지정
+	            $('input[type="checkbox"][name="AtypeGroup"]').prop('checked', false);
+	            $(this).prop('checked', true);
+	        }
+	    });
+	    $('input[type="checkbox"][name="BtypeGroupLeft"]').click(function(){
+	        //클릭 이벤트 발생한 요소가 체크 상태인 경우
+	        if ($(this).prop('checked')) {
+	            //체크박스 그룹의 요소 전체를 체크 해제후 클릭한 요소 체크 상태지정
+	            $('input[type="checkbox"][name="BtypeGroupLeft"]').prop('checked', false);
+	            $(this).prop('checked', true);
+	        }
+	    });
+	    $('input[type="checkbox"][name="BtypeGroupRight"]').click(function(){
+	        //클릭 이벤트 발생한 요소가 체크 상태인 경우
+	        if ($(this).prop('checked')) {
+	            //체크박스 그룹의 요소 전체를 체크 해제후 클릭한 요소 체크 상태지정
+	            $('input[type="checkbox"][name="BtypeGroupRight"]').prop('checked', false);
+	            $(this).prop('checked', true);
+	        }
+	    });
+	}
+		/*//체크박스 한개만 선택되도록 */
+	
+	function setTable(){
+	
+		$("#A_TYPE_BANNER").attr("id",[[${appMenuIdList}]][4]);
+		$("#B_TYPE_BANNER").attr("id",[[${appMenuIdList}]][5]);
+		$("#atypeUpdate").attr("onclick",'updateData('+[[${appMenuIdList}]][4]+')');
+		$("#btypeUpdate").attr("onclick",'updateData('+[[${appMenuIdList}]][5]+')');
+		
+		for(var i = 4 ; i< 6; i++  ){
+	        var templateDetail  = new Array();
+			var templateId = [[${appMenuIdList}]][i];
+			var fileInfo = new Array();
+	/* 디스플레이 Y/N 에따른 배너색상선택1 */
+			if(objData.appMainTemplate[i].displayYn =='Y'){
+				if(objData.appMainTemplate[i].code == 'A_TYPE_BANNER'){
+						$("#AtypeButton").css('background','#F3F3F3');
+						$('#BtypeButton').css('background','#fff');
+				}
+				if(objData.appMainTemplate[i].code == 'B_TYPE_BANNER'){
+						$("#BtypeButton").css('background','#F3F3F3');
+						$('#AtypeButton').css('background','#fff');
+				}
+			}
+	/*////디스플레이 Y/N 에따른 배너색상선택1 */
+	
+	/* 파일정보를 뿌려줄 ID 와 NAME 생성 */
+			var cloneTable = $('#'+templateId);
+ 			$('#'+templateId).find('.file_input').find(':input').eq(0).attr("id","fileText" + templateId +"-"+ 0) ; //// fileText + 템플릿아이디로 생성
+ 			$('#'+templateId).find('.file_input').find(':input').eq(0).attr("name","fileText" + templateId +"-"+ 0) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(1).attr("name","fileVal" + templateId +"-" + 0 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(2).attr("id","fileText" + templateId +"-" + 1 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(2).attr("name","fileText" + templateId +"-" + 1 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(3).attr("name","fileVal" + templateId +"-" + 1) ;
+ 			
+ 			$('#'+templateId).find('.file_input').find(':input').eq(4).attr("id","fileText" + templateId +"-" + 2 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(4).attr("name","fileText" + templateId +"-" + 2 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(5).attr("name","fileVal" + templateId +"-" + 2) ;
+
+ 			$('#'+templateId).find('.file_input').find(':input').eq(6).attr("id","fileText" + templateId +"-" + 3 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(6).attr("name","fileText" + templateId +"-" + 3 ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(7).attr("name","fileVal" + templateId +"-" + 3) ;
+ 			
+ 			
+ 			$('#'+templateId).find('.file_input').find(':input').eq(1).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '0").value=this.value' ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(3).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '1").value=this.value' ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(5).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '2").value=this.value' ) ;
+ 			$('#'+templateId).find('.file_input').find(':input').eq(7).attr("onchange",'javascript:document.getElementById("'+  'fileText' + templateId +'-'+ '3").value=this.value' ) ;
+ 			
+	 		/* 디테일을 담아서 따로처리  */	
+ 			for(var j=0; j<objData.appMainTemplateDetailList.length; j++){
+ 				
+ 				if(objData.appMainTemplateDetailList[j].mainTemplateId == templateId){
+	        		templateDetail.push(objData.appMainTemplateDetailList[j]);
+	        	}		
+ 			}
+	 		
+	 		//각각의 데이터를 뿌려준다 
+	 		for(var t = 0 ; t <templateDetail.length ; t++){
+	 			if(templateDetail[t].displayYn =='Y'){
+	 					$('#'+templateId).find('[type=checkbox]').eq(t).attr('checked',true); // display y 에 check
+	 				}
+ 	        	 $('#'+templateId).find('input[name=webUrl'+t+']').val(templateDetail[t].webUrl);
+ 	        	 
+	 		/* 파일정보를 담아서 따로처리*/
+ 	        	 if(objData.fileInfo[templateDetail[t].id] !=null){
+ 	        	 fileInfo.push(objData.fileInfo[templateDetail[t].id]);
+ 	        	 }
+	      	 }
+	 		for(var f=0; f< fileInfo.length; f++ ){
+	 			$('#'+templateId).find('input[name=fileText'+templateId+'-'+f+']').val(fileInfo[f]);
+	 		}
+	 		
+			}//메인 템플릿 FOR문 END
+		}
+	
+	/*  배너버튼을 선택했을 디스플레이를 결정한다 */
+	function aBannerCheck(){
+		$('#AtypeModal').modal('show');
+		objData.appMainTemplate[4].displayYn = 'Y';
+		objData.appMainTemplate[5].displayYn = 'N';
+	}
+	function bBannerCheck(){
+		$('#BtypeModal').modal('show');
+		objData.appMainTemplate[4].displayYn = 'N';
+		objData.appMainTemplate[5].displayYn = 'Y';
+	}
+	/*/////  배너버튼을 선택했을 디스플레이를 결정한다 */
+		
+		
+		
+	$(document).ready( function(){
+		radioCheck();
+		checkBox();
+		console.log(objData);
+		setTable();
+		
+		
+        for(var i= 0; i < 4; i++ ){
+		$("#codeTable tr").children().eq(i).attr("name",[[${appMenuIdList}]][i]);
+        }
+        
+		$('.step1 tr td').click(function(){
+				$('.step1 tr td').css('background','white');
+				$(this).css('background','#c4c4c4');
+				cloneTxt = $(this).clone();
+					$('#myTab a[href="#today"]').tab('show'); // Select tab by name
+					$('#myTab a:first').tab('show'); // Select first tab
+					$('#myTab a:last').tab('show') ;// Select last tab
+			});
+				    setDelBtn();
+		}
+	);
+
+    /*]]>*/
+</script>
+</body>
+</html>

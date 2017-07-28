@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:th="http://www.thymeleaf.org"
+      	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      	layout:decorator="v2/jaha/boardMgr/template/layout">
+
+<head>
+	<title>게시글 모니터링 | 숨김글 관리</title>
+</head>
+
+<body>
+
+    <!-- Page Content -->
+    <div id="page-wrapper" layout:fragment="layout_content">
+		<form name="boardSearchForm" id="boardSearchForm" method="post" >
+		    <div class="row">
+		        <div class="col-lg-12">
+		            <h1 class="page-header">숨김글 관리</h1>
+
+		            <div id="content-container">
+		                <div id="table-container">
+							<!-- search form -->
+							<div class="panel panel-info">
+							    <table class="table table-responsive" style="margin:0;">
+							        <colgroup>
+							        	<col width="100"/>
+							        </colgroup>
+							        <tr>
+							            <th style="text-align:center; border:none;">검색</th>
+							            <td class="form-inline" style="text-align:left; padding-left:3%; border:none;">
+							                <select name="searchItem" id="searchItem" class="form-control">
+							                    <option value="title+content">제목+내용</option>
+							                    <option value="title">제목</option>
+							                    <option value="content">내용</option>
+							                    <option value="categoryNm">게시판명</option>
+							                </select>
+							                <input type="text" class="form-control searchtxt" id="searchKeyword" name="searchKeyword" placeholder="검색 키워드를 입력하세요." value="" />
+							                <span class="searchBox">
+							                    <input type="button" class="btn btn-sm btn-outline btn-info" id="searchBtn" name="searchBtn" value="검색" onclick="searchData();" />
+							                    <input type="button" class="btn btn-sm btn-outline btn-success" id="" name="" value="상세검색" onclick="showDetailBox();"/>
+							                </span>
+							                <div class="detailBox" style="display:none; margin:5px 0;">
+							                	<span>
+							                		<select name="" id="selectDate" class="form-control" style="width:112px; padding:6px 12px;">
+									                    <option value="0">전체기간</option>
+									                    <option value="1">1일</option>
+									                    <option value="7">1주</option>
+									                    <option value="30">1개월</option>
+									                    <option value="180">6개월</option>
+									                    <option value="366">1년</option>
+									                </select>
+							                	</span>
+												<div id="startDateWrap" class="input-group sc_aspickdate">
+													<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="startDate" name="startDate" placeholder="YYYY-MM-DD" />
+														<span class="input-group-addon">
+														    <span class="glyphicon glyphicon-calendar"></span>
+														</span>
+												</div>
+												<div id="endDateWrap" class="input-group sc_aspickdate">
+													<input data-format="yyyy-MM-dd" type="text" class="form-control datepicker" id="endDate" name="endDate" placeholder="YYYY-MM-DD" />
+														<span class="input-group-addon">
+														   <span class="glyphicon glyphicon-calendar"></span>
+														</span>
+												</div>
+											</div>
+							            </td>
+							        </tr>
+							    </table>
+							</div>
+							<div>
+								<p>
+							    	<input type="button" class="btn btn-sm btn-outline btn-info"  value="해제" onclick="hiddenCancelConfirm();"/>
+							    </p>
+							    <p class="form-inline" style="text-align:right; padding-left:3%; border:none;">
+									<select name="pageSize" id="pageSize" class="form-control">
+								    	<option value="100">100개씩 보기</option>
+								        <option value="50">50개씩 보기</option>
+										<option value="30">30개씩 보기</option>
+										<option value="10">10개씩 보기</option>
+								     </select>
+							     </p>
+							</div>
+		                    <table class="table" style="text-align:center;">
+		                        <thead>
+		                        <tr class="info">
+		                        	<th>
+		                        		<label>
+		                        			<input type="checkbox"   id="checkall" />
+		                        		</label>
+		                        	</th>
+		                            <th style="text-align:center;">게시판명</th>
+		                            <th style="text-align:center; width: 250px; " >제목</th>
+		                            <!-- <th style="text-align:center;">댓글</th> -->
+		                            <th style="text-align:center;">아파트명</th>
+		                            <th style="text-align:center;">작성자</th>
+		                            <th style="text-align:center;">등록일시</th>
+		                            <th style="text-align:center;">조회수</th>
+		                        </tr>
+		                        </thead>
+		                        <tbody id="blindList">
+			                        <!-- <tr>
+			                        	<td style="text-align:left;">
+			                        		<label><input type="checkbox" name="check" /></label>
+			                        	</td>
+			                        	<td>
+			                        		공지사항
+			                        	</td>
+			                            <td>
+			                                <a onclick="read(this);" href="javascript:pu_content();"  data-toggle="popover-top" class="popover-top"  title="선거관리위원회 회의 공고" data-content="선거관리위원회 회의 공고 내용">선거관리위원회 회의 공고</a>
+			                            </td>
+			                            <td>
+											<a href="#" data-toggle="popover-top" class="popover-top"  title="" data-content="선거관리위원회 회의 공고 댓글">선거관리위원회</a>
+			                            </td>
+			                            <td>
+			                                <a href="#" title="아파트명">신도림우성 1차</a>
+			                            </td>
+			                            <td>
+			                                <div class="btn-group" role="group" aria-label="...">
+			                                    <div class="btn-group" role="group">
+			                                        <a  class="link link-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">관리사무소장(1동)<span class="caret"></span>
+			                                        </a>
+			                                        <ul class="dropdown-menu" role="menu">
+			                                             <li><a href="javascript:pu_memberInfo();">회원 정보</a></li>
+			                                            <li><a href="javascript:pu_writeBoard();">작성글 보기</a></li>
+			                                        </ul>
+			                                    </div>
+			                                </div>
+			                            </td>
+			                            <td>
+			                            	2016.12.08 14:14:50
+			                            </td>
+			                            <td>
+			                            	27
+			                            </td>
+			                        </tr> -->
+		                        </tbody>
+		                    </table>
+		                </div>
+		            </div>
+
+					<!-- paging -->
+					<div align="center" id="hiddenListPaging"></div>
+
+		        </div>
+			</div>
+		</form>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+/**
+ * 페이지 이동
+ */
+function paging(movePageNum) {
+	$("#pageNum").val(movePageNum);
+
+	var $form = $("#boardSearchForm");
+	$form.attr("action", $("#listUrl").val());
+
+	$form.submit();
+}
+
+$(document).ready(function() {
+	// 숨김글 리스트 조회
+    selectBoardList(1);
+
+    $('#pageSize').change(function(){
+    	selectBoardList(1);
+    });
+
+});
+
+
+// 숨김글 목록 조회
+function selectBoardList(pageNum) {
+
+	$.ajax({
+ 	 url: '/v2/jaha/board-mgr/blind/select-list',
+     type: 'post',
+     dataType: "json",
+     data : {
+    	 pageNum : pageNum,
+    	 pageSize : $("#pageSize").val(),
+    	 searchKeyword : $("#searchKeyword").val(),
+         searchItem : $("#searchItem").val(),
+         searchStartDate : $("#startDate").val(),
+         searchEndDate : $("#endDate").val()
+     },
+     success: function (data) {
+
+ 		var blindHtml = "";
+ 		$('#blindList').empty();
+
+     	if (data.postList) {
+     		if (data.postList.length > 0) {
+
+     			$(data.postList).each(function (i, obj) {
+     				blindHtml += '<tr>';
+         			blindHtml += '<td style="text-align:left;">';
+         			blindHtml += '<label><input type="checkbox" name="ids" value="' + obj.id + '" /></label>';
+         			blindHtml += '</td>';
+         			blindHtml += '<td>' + obj.categoryName + '</td>';
+         			blindHtml += '<td class = "board-list-contents">';
+         			blindHtml += '<a onclick="read(this);" class="popover-top ' + ((obj.postReadId != null && obj.postReadId > 0)?'read':'') + '" href="javascript:pu_content(' + obj.id + ');"  data-toggle="popover-top" title="' + obj.title + '" data-content="' + obj.contentOnlyBody + '">' + obj.title + '</a>';
+         			blindHtml += '</td>';
+         			/* blindHtml += '<td>';
+         			if (obj.commentId > 0) {
+         				// obj.commentId
+         				blindHtml += '<a href="#" data-toggle="popover-top" class="popover-top"  title="" data-content="' + obj.commentContent + '">' + obj.commentContent + '</a>';
+         			} else {
+         				blindHtml += '-';
+         			}
+         			blindHtml += '</td>'; */
+         			blindHtml += '<td>';
+         			//blindHtml += '<a href="#" title="아파트명">' + obj.userAptName + '</a>';
+         			blindHtml += obj.userAptName;
+         			blindHtml += '</td>';
+         			blindHtml += '<td>';
+         			blindHtml += '<div class="btn-group" role="group" aria-label="...">';
+         			blindHtml += '<div class="btn-group" role="group">';
+         			blindHtml += '<a  class="link link-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">' + obj.writerName + '<span class="caret"></span>';
+         			blindHtml += '</a>';
+         			blindHtml += '<ul class="dropdown-menu" role="menu">';
+         			blindHtml += '<li><a href="javascript:pu_memberInfo(' + obj.userId + ');">회원 정보</a></li>';
+         			blindHtml += '<li><a href="javascript:pu_writeBoard(' + obj.userId + ');">작성글 보기</a></li>';
+         			blindHtml += '</ul>';
+         			blindHtml += '</div>';
+         			blindHtml += '</div>';
+         			blindHtml += '</td>';
+         			blindHtml += '<td>' + new Date(obj.regDate).format('yyyy-MM-dd HH:mm:ss') + '</td>';
+         			blindHtml += '<td>' + obj.viewCount + '</td>';
+         			blindHtml += '</tr>';
+
+     			});
+
+ 				if (data.pagingHelper && data.pagingHelper.totalPageNum) {
+ 					$('#hiddenListPaging').html(makePaging(data.pagingHelper, 'selectBoardList'));
+ 				} else {
+ 					$('#hiddenListPaging').html('');
+ 				}
+
+     		} else {
+     			blindHtml += '<tr>';
+     			blindHtml += '<td colspan="8">등록된 숨김글이 없습니다.</td>';
+     			blindHtml += '</tr>';
+     		}
+
+     		$('#blindList').html(blindHtml);
+
+     		/*제목,댓글 미리보기 팝오버*/
+     		$(".popover-top").popover({trigger: 'hover click','placement': 'top'});
+
+     	} else {
+     		alert("숨김글 리스트 조회 중 오류가 발생하였습니다.");
+     		return;
+     	}
+     },
+     error: function (jqXHR, textStatus, errorThrown) {
+         console.log(errorThrown);
+         console.log(textStatus);
+     }
+ });
+}
+/*]]>*/
+</script>
+</div>
+
+</body>
+</html>
+

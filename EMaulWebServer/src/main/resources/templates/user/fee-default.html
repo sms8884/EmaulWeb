@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>e마을 유저 홈페이지</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+	<meta name="naver-site-verification" content="9bbc13c1ca9c07fdb3fc96bbadf58df3558bbeb9"/>
+    <meta name="keywords" content="아파트앱, 온라인투표, 무인택배, 자동출입문, IoT, 이마을, e마을, 이도어, e도어, 전자투표, 모바일투표, 층간소음, 아파트 관리비, 주차관리, 마을뉴스, 안전귀가, 스마트출입, 소셜IoT, 사물인터넷, 버스도착시간, 오늘날씨, 아파트 커뮤니티, 아파트 홈페이지, 아파트 관리업체, 관리사무소, 아파트 선거, 동대표, 입주자대표" />
+	<meta name="description" content="꿈의 아파트를 실현하는 스마트앱" />
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/font-awesome/css/font-awesome.css" th:href="@{/font-awesome/css/font-awesome.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/user.css" th:href="@{/css/user.css}"/>
+
+    <style>
+        th:after {
+        color : #ff6100;
+        }
+
+        .tr-border > td:first-child {
+        border-right: 1px solid #ddd;
+        }
+
+        .tr-border > td:last-child {
+        border-left: 1px solid #ddd;
+        }
+    </style>
+
+</head>
+<body>
+<div th:replace="user/user :: nav"></div>
+
+<div class="container">
+
+    <div id="page">
+
+        <div th:replace="user/user :: left-side-menu"></div>
+
+        <div id="wrapper" class="col-xs-10">
+            <h3>청구내역조회</h3>
+
+            <div>
+                <ol class="breadcrumb">
+                    <li><a href="#">홈</a></li>
+                    <li><a href="#">관리비조회</a></li>
+                    <li class="active">청구내역조회</li>
+                </ol>
+            </div>
+
+            <div th:if="!${user.type.user} and !${user.type.jaha} and !${user.type.houseHost} and !${user.type.admin}">
+                <p>현재 방문자 권한으로 접속중입니다. <br/>
+                    주민 권한이 있어야 관리비를 볼 수 있습니다. <br/>
+                    거주중인 주민은 관리사무소에 권한 변경을 요청해주세요.</p>
+            </div>
+
+            <div th:if="${user.type.user} or ${user.type.jaha} or ${user.type.houseHost} or ${user.type.admin}">
+
+                <div id="select-wrap" style="margin-bottom: 15px">
+                    월 선택
+                    <select>
+                        <option th:each="l,iterStat : ${list}" th:value="${iterStat.index}" th:text="${l.date}"></option>
+                    </select>
+
+                    <span id="info"></span>
+                </div>
+
+                <table id="top-table" class=" table table-bordered">
+                    <tbody>
+                    <tr>
+                        <th width="30%">납기내</th>
+                        <td id="납기내"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">납기후</th>
+                        <td id="납기후"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">당월부과금액</th>
+                        <td id="당월부과금액"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">미납금액</th>
+                        <td id="미납금액"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">미납연체</th>
+                        <td id="미납연체"></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">납기후연체료</th>
+                        <td id="납기후연체료"></td>
+                    </tr>
+                    </tbody>
+
+                </table>
+
+                <p style="font-size: 15px; font-weight: 600; margin-top: 30px"><img src="/img/userHome/fee-default.png" style="margin-right: 10px"/>상세내역</p>
+
+                <table id="detail" class="table">
+                    <thead style="text-align: center">
+                    <tr style="background-color: #ffdfcc">
+                        <th width="33%">항목</th>
+                        <th width="33%">전월</th>
+                        <th width="33%">당월</th>
+                    </tr>
+                    </thead>
+
+                    <tbody th:if="${list.isEmpty()}">
+                    <tr>
+                        <td colspan="3">정보가 없습니다.</td>
+                    </tr>
+                    </tbody>
+
+                    <tbody id="fee-items" th:if="!${list.isEmpty()}">
+
+                    <tr id="tr-border">
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="user/user :: footer"></div>
+
+<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+<script src="../../static/datatables/media/js/jquery.dataTables.min.js" th:src="@{/datatables/media/js/jquery.dataTables.min.js}"></script>
+<script src="../../static/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js" th:src="@{/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js}"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    var selectedMonth = 0;
+
+    var dateInfo = $('#wrapper option:selected').text();
+    var dong = /*[[${user.house.dong}]]*/ 0;
+    var ho = /*[[${user.house.ho}]]*/ 0;
+
+    var list = /*[[${jsonList}]]*/;
+    var keySetList = /*[[${keySetList}]]*/;
+
+    $(document).ready(function () {
+        if(list != null) {
+            showData();
+            $('#detail').dataTable({
+                "paging": false,
+                "info": false,
+                "searching": false,
+                "language": {
+                    "emptyTable": "자료가 없습니다. 관리소에 자료 등록을 문의해주세요."
+                }
+            });
+        }else{
+            $('#top-table').attr('style','display: none');
+            $('#select-wrap').attr('style','display: none');
+        }
+    });
+
+    $('select').change(function () {
+        selectedMonth = Number($('select').val());
+        dateInfo = $('#wrapper option:selected').text();
+        showData();
+    });
+
+    function showData() {
+
+        // $('#info').text(dateInfo + '/ ' + dong + '동 ' + ho + '호');
+        $('#info').text(' ' + dong + '동 ' + ho + '호');
+
+        var jsonLast = JSON.parse(list[selectedMonth]);
+        var keyMap = keySetList[selectedMonth];
+
+        $('#fee-items').empty();
+        $.each(keyMap, function (key, value) {
+        	// console.log("<<key>> " + key + ", <<value>> " + value);
+        	// key = key.replace(/\s/gi, '');
+
+            $('#fee-items').append('<tr class="tr-border" id="tr-border' + key + '"></tr>');
+            $('#tr-border'+ key).append('<td id="' + value + '"><p>' + value + '</p></td>');
+            $('#tr-border'+ key).append('<td id="1' + value + '"></td>');
+            $('#tr-border'+ key).append('<td id="2' + value + '"></td>');
+        });
+
+        if (list[selectedMonth + 1] != undefined) {
+
+            var jsonTwoMAgo = JSON.parse(list[selectedMonth + 1]);
+
+            $.each(jsonTwoMAgo, function (key, value) {
+                <!--$('#' + key).text(key);-->
+            	key = key.replace(/\s/gi, '');
+            	// console.log("<<key>> " + key + ", <<value>> " + value);
+
+            	if (key.indexOf("일자") > -1) {
+            		$('#1' + key).text(value);
+            	} else {
+            		$('#1' + key).text(numberWithCommas(value));
+            	}
+            });
+
+        } else {
+
+            $.each(jsonLast, function (key, value) {
+                $('#1' + key).text('-');
+            });
+
+        }
+
+        $.each(jsonLast, function (key, value) {
+        	key = key.replace(/\s/gi, '');
+        	// console.log("<<key>> " + key + ", <<value>> " + value);
+
+        	if (key.indexOf("일자") > -1) {
+        		$('#top-table #' + key).text(value);
+        		$('#2' + key).text(value);
+        	} else {
+        		$('#top-table #' + key).text(numberWithCommas(value));
+        		$('#2' + key).text(numberWithCommas(value));
+        	}
+        });
+
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+/*]]>*/
+</script>
+</body>
+</html>

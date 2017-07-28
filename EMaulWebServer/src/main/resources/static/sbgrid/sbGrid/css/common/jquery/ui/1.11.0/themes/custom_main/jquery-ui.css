@@ -1,0 +1,117 @@
+.ui-datepicker .ui-datepicker-header {
+	padding: 0px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+	border : none;
+	background : #eef5ff;
+	font-weight : normal;
+	color : #434445;
+}
+
+.ui-datepicker-today .ui-state-default {
+	font-weight: bold;
+	font-size: 13px;
+}
+
+.ui-datepicker-today .ui-state-hover {
+	font-weight: bold;
+	font-size: 13px;
+}
+
+.ui-datepicker .ui-datepicker-title {
+	margin: 0 2.0em;
+	line-height: 1.8em;
+	text-align: center;
+}
+
+.ui-datepicker .ui-datepicker-prev {
+	left: 20px;
+}
+
+.ui-datepicker .ui-datepicker-prev .ui-icon {
+	background: url('/images/cms/common/main/cal_btn_left.gif')
+}
+
+.ui-datepicker .ui-datepicker-next {
+	right: 20px;
+}
+
+.ui-datepicker .ui-datepicker-next .ui-icon {
+	background: url('/images/cms/common/main/cal_btn_right.gif')
+}
+
+.ui-icon {
+	width : 20px;
+	height : 18px;
+}
+
+.ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span {
+	margin-top : -7px;
+}
+
+.ui-datepicker .ui-datepicker-prev-hover,
+.ui-datepicker .ui-datepicker-next-hover {
+	top: 2px;
+	cursor: pointer;
+}
+
+.ui-datepicker th {
+	font-family:"NanumGothic";
+}
+
+.ui-datepicker tr td:first-child span {
+	color: red;
+}
+
+.ui-datepicker tr td:first-child a {
+	color: red;
+}
+
+.ui-datepicker tr td:last-child span {
+	color: blue;
+}
+
+.ui-datepicker tr td:last-child a {
+	color: blue;
+}
+
+.ui-datepicker td {
+	padding : 0px;
+	font-family:"NanumGothic";
+}
+
+.ui-datepicker {
+	/*width: 100%;*/
+	width: 188px;
+	padding: 5px;
+}
+
+.ui-widget-header {
+	border : none;
+	color : #434445;
+	font-weight : bold;
+	background : #ffffff;
+}
+
+.ui-widget-content {
+	border: 1px solid #aaaaaa;
+	background: #ffffff;
+	color: #222222;
+}
+
+.ui-datepicker-title {
+	font-size: 15px;
+	font-weight : bold;
+	font-family:"NanumGothic";
+}
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+	border: none;
+	background: #ffffff;
+}

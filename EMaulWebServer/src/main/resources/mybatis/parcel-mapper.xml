@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jaha.web.emaul.mapper.ParcelMapper">
+  
+	<select id="selectParcelSmsList" parameterType="map" resultType="ParcelLog">
+		/* selectParcelSmsList */
+		SELECT a.send_time
+				,b.dong
+				,b.ho
+				,b.phone
+				,(select name from common_code where code_group = 'PARCEL_SMS_GUBUN' and code = b.api_number) as gubun
+		FROM uds_msg a, parcel_log b
+		WHERE a.ETC4 = b.id
+		AND a.ETC3 = concat('parcel-', #{aptId})
+		<if test="searchColumn != '' and searchColumn != null">		
+			<if test="searchColumn == 'date' ">		        
+			AND date_format(a.send_time,'%Y%m') = concat(#{searchY}, #{searchM})		
+			</if>
+			<if test="searchColumn == 'user' ">	
+				<if test="searchDong != '' and searchDong != null">
+					AND b.dong = #{searchDong} 
+				</if>
+				<if test="searchHo != '' and  searchHo != null">
+					AND b.ho = #{searchHo}
+				</if>
+			</if>
+		</if>
+		Order by send_time desc
+		LIMIT #{startNum}, #{pageSize}
+	</select>
+	
+	<select id="selectParcelSmsListCount" parameterType="map" resultType="int">
+        /* selectParcelSmsListCount */
+		SELECT count(*)
+		FROM uds_msg a, parcel_log b
+		WHERE a.ETC4 = b.id
+		AND a.ETC3 = concat('parcel-', #{aptId})
+		<if test="searchColumn != '' and searchColumn != null">		
+			<if test="searchColumn == 'date' ">		        
+				AND date_format(a.send_time,'%Y%m') = concat(#{searchY}, #{searchM})		
+			</if>
+			<if test="searchColumn == 'user' ">	
+				<if test="searchDong != '' and searchDong != null">
+					AND b.dong = #{searchDong} 
+				</if>
+				<if test="searchHo != '' and  searchHo != null">
+					AND b.ho = #{searchHo}
+				</if>
+			</if>
+		</if>
+    </select>
+    
+    
+    <!--투표  SMS 정보 추가 -->
+	<insert id="saveParcelSmsPolicy" parameterType="HashMap">
+	/* saveParcelSmsPolicy */	
+	INSERT INTO parcel_sms_policy(
+				apt_id
+				, send_yn
+				, test_service_start_date
+				, test_service_end_date
+				, test_service_msg_title
+				, long_parcel_collect_day
+				, test_service_msg
+				, reg_id
+				, reg_date		
+	) 
+	SELECT #{aptId}
+			, #{sendYn}
+			, date_format(now(),'%Y%m%d')
+			, date_format(date_add(now(), interval 60 day),'%Y%m%d')
+			, test_service_msg_title
+			, long_parcel_collect_day
+			, test_service_msg
+			, #{userId}
+			, now()
+	FROM  parcel_sms_policy       
+	WHERE apt_id = '1' 
+	ON DUPLICATE KEY UPDATE send_yn = #{sendYn} , mod_id = #{userId} , mod_date = now()	
+	</insert>
+	
+	<!--투표  SMS 정보 가져오기 -->
+	<select id="selectParcelSmsPolicy" parameterType="HashMap" resultType="ParcelSmsPolicy">
+	/* selectParcelSmsPolicy */	
+	SELECT send_yn
+		, test_service_start_date
+		, test_service_end_date
+		, reg_date
+		, mod_date
+		, apt_id
+		, long_parcel_collect_day
+		, reg_id
+		, mod_id
+		, test_service_msg_title
+		, test_service_msg
+	FROM parcel_sms_policy
+	WHERE apt_id = #{aptId}
+	</select>
+	
+</mapper>

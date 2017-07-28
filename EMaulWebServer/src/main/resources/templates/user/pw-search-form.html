@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>비밀번호찾기 | e마을</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+
+    <link href="../../static/css/bootstrap.min.css" type="text/css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link href="../../static/css/animate.min.css" type="text/css" rel="stylesheet" th:href="@{/css/animate.min.css}"/>
+    <link type="text/css" rel="stylesheet" href="../../static/css/sb-admin-2.css" th:href="@{/css/sb-admin-2.css}"/>
+
+	<script src="../../static/js/jquery-1.11.2.min.js" th:src="@{/js/jquery-1.11.2.min.js}"></script>
+	<script src="../../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
+	<script src="../../static/js/metisMenu/metisMenu.js" th:src="@{/js/metisMenu/metisMenu.js}"></script>
+	<script src="../../static/js/sb-admin-2.js" th:src="@{/js/sb-admin-2.js}"></script>
+	<script src="../../static/js/moment-with-locales.js" th:src="@{/js/moment-with-locales.js}"></script>
+	<script src="../../static/js/bootstrap-datetimepicker.js" th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+	<script src="../../static/js/jquery.form.js" th:src="@{/js/jquery.form.js}"></script>
+	<script src="../../static/js/common.js" th:src="@{/js/common.js}"></script>
+
+    <style>
+
+		.logo{
+			width:100%;
+			margin:0;
+			padding:0;
+		}
+
+        .cell {
+            max-width: 90%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        .starter-template {
+            padding: 15px;
+            text-align: center;
+			margin-bottom:20px;
+			color: #f46835;
+			border-bottom:1px solid #e4e4e4;
+        }
+
+        .lead {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+		/*20160610추가:높이값 추가 및 수정*/
+        .container {
+			min-height:772px;
+            width: 750px;
+            padding:80px 15px;
+            margin: 0 auto;
+        }
+
+		.conHeaderTxt{
+			text-align:center;
+		}
+
+		/*20160610추가:마진값삭제*/
+		.content{
+			padding-bottom: 5%;
+		}
+
+		.row{
+			border:1px solid #c3c3c3;
+			margin:50px auto;
+			padding:20px 0;
+		}
+
+		.nav{
+			text-align:right;
+			margin:10px;
+		}
+
+		.navList{
+			list-style:none;
+			overflow:hidden;
+			display:inline-block;
+			font-size:12px;
+		}
+
+		.navList li{
+			float:left;
+			margin:0 5px;
+		}
+
+		.navList li:after{
+			content: ">";
+			font-weight:normal;
+			margin-left:5px;
+		}
+
+		.navList li:last-child:after{
+			content: none;
+			margin:none;
+		}
+
+		/*20160610추가*/
+		footer{
+			border-top:1px solid #C3C3C3;
+			border-bottom:1px solid #C3C3C3;
+			padding:30px 0;
+		}
+
+    </style>
+</head>
+
+<body style="background:#fff;">
+
+<header style="overflow:hidden; padding:15px; border:1px solid #e4e4e4;">
+	<h1 style="float:left; margin:0; padding:0; width:8%;">
+		<a href="/"><img src="../../static/img/emaul-logo-b.png" th:src="@{/img/emaul-logo-b.png}" alt="emaul logo" class="logo"/></a>
+	</h1>
+	<form method="post" action="">
+		<input type="button" class="btn btn-default" id="joinLogin" value="로그인" name="joinLogin" style="float:right; margin-top:5px; " onclick="location.href='/';" />
+	</form>
+</header>
+
+<div id="dv_nav" class="nav">
+	<ul class="navList" align="right">
+<!--
+		<li id="li_nav1"><a href="javascript:" onclick="setDisp(1);">e마을 아이디 입력</a></li>
+		<li id="li_nav2"><a href="javascript:" onclick="setDisp(2);">인증번호 받기</a></li>
+		<li id="li_nav3"><a href="javascript:" onclick="setDisp(3);">비밀번호 재설정</a></li>
+-->
+		<li id="li_nav1">e마을 아이디 입력</li>
+		<li id="li_nav2">인증번호 받기</li>
+		<li id="li_nav3">비밀번호 재설정</li>
+	</ul>
+</div>
+
+<div class="container">
+	<div class="content">
+
+		<div id="dv_pw_search_form1" style="display:none;">
+			<div class="starter-template">
+				<h2>비밀번호 찾기</h2>
+			</div>
+
+			<p class="conHeaderTxt">비밀번호를 찾고자 하는 아이디를 입력해주세요.</p>
+
+			<form id="thisForm1" name="thisForm1" class="form-horizontal" action="" method="POST">
+				<div class="row">
+					<div class="cell">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">e마을 아이디</label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" class="form-control" name="userEmail" id="userEmail" style="width:70%;" placeholder="이메일주소를 입력하세요."/>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<div align="center" style="padding-top: 5px">
+					<input id="joinNextBtn" type="button" class="btn btn-emaul" name="joinNextBtn" value="다음" onclick="searchEmail();"/>
+				</div>
+			</form>
+		</div>
+
+		<div id="dv_pw_search_form2" style="display:none;">
+			<div class="starter-template">
+				<h2>비밀번호 찾기</h2>
+			</div>
+
+			<p class="conHeaderTxt">e마을 회원정보에 등록된 휴대전화 번호와 입력한 전화번호가 같아야 인증번호를 받으실 수 있습니다.</p>
+
+			<form id="thisForm2" name="thisForm2" class="form-horizontal" action="" method="POST">
+				<div class="row">
+					<div class="cell">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">이름</label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" class="form-control" name="userName" id="userName" style="width:60%;"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">휴대전화</label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" placeholder="숫자만 입력하세요." onkeydown='return onlyNumber(event);' onkeyup='removeChar(event);' class="form-control" name="userMobileNumber" id="userMobileNumber" style="width:60%;"/>
+								<input type="button" class="btn btn-default" id="btn_auth_code" value="인증번호받기" onclick="showModal(1);"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label"></label>
+							<div class="col-sm-9  form-inline">
+								<input type="text" class="form-control form-inline" name="authCode" id="authCode" placeholder="인증번호 숫자입력" style="width:60%;" disabled="true" />
+								<input type="hidden" id="authKey" name="authKey" value="" />
+								<span id="spn_timer" style="display:none;"></span>
+							</div>
+						</div>
+
+						<p style="text-align:center; margin-top:25px;">통신사 사정으로 인증번호 수신에 다소 시간이 걸릴 수 있습니다.
+							<!--<a id="a_re_auth_code" style="display:none;" href="javascript:" onclick="getAuthCode();">인증번호 다시받기</a>-->
+						</p>
+					</div>
+				</div>
+
+				<div align="center" style="padding-top: 5px">
+					<input id="btn_confirm" type="button" class="btn btn-emaul" name="btn_confirm" onclick="nextConfirm();" value="확인" disabled="true" />
+				</div>
+			</form>
+		</div>
+
+		<div id="dv_pw_search_form3" style="display:none;">
+			<div class="starter-template">
+				<h2>비밀번호 재설정</h2>
+			</div>
+
+			<p class="conHeaderTxt">새로 사용할 비밀번호를 입력해주세요.<br/>사용하시던 비밀번호는 e마을서비스 관리자도 알 수 없습니다.</p>
+
+			<form id="thisForm3" name="thisForm3" class="form-horizontal" action="" method="POST">
+				<div class="row">
+					<div class="cell">
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">아이디</label>
+							<div class="col-sm-9  form-inline">
+								<!--<input type="text" class="form-control" name="idName" id="idName" style="width:60%;" placeholder="dlakdmf123@gmail.com"/>-->
+								<span id="spn_result_email"></span><span style="margin-left:3%">(가입일 : <span id="spn_result_regDate"></span>)</span>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">새 비밀번호</label>
+							<div class="col-sm-9  form-inline">
+								<input type="password" class="form-control" name="newPwNum" id="newPwNum" style="width:60%;"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label">새 비밀번호 확인</label>
+							<div class="col-sm-9  form-inline">
+								<input type="password" class="form-control form-inline" name="newPwNum2" id="newPwNum2" style="width:60%;"/>
+							</div>
+						</div>
+
+						<p style="text-align:center; margin-top:25px;">암호를 8자리 이상 입력하세요.</p>
+					</div>
+				</div>
+
+				<div align="center" style="padding-top: 5px">
+					<input id="joinSubmitBtn" type="button" class="btn btn-emaul" name="joinSubmitBtn" value="확인" onclick="resetPassword();" />
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+<!--20160610추가-->
+<footer style="text-align:center; ">
+	Copyright © JAHASMART. All rights reserved.
+</footer>
+<!--20160610추가:e-->
+
+<input type="hidden" id="hdnUserEmail" name="hdnUserEmail" th:value="${userEmail}" />
+<input type="hidden" id="hdnRegDate" name="hdnRegDate" th:value="${userRegDate}" />
+
+<!-- Modal -->
+<div class="modal fade" id="modal-info" tabindex="-1" role="dialog" aria-labelledby="modal-info" aria-hidden="true">
+    <div class="modal-dialog modal-mg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title"><b id="myModalLabel">알림</b></h5>
+            </div>
+            <div class="modal-body">
+                <h5 id="b_model_body"></h5>
+            </div>
+			<div class="modal-footer">
+				<input type="button" class="btn btn-primary btn-sm" id="btn_modal_confirm" value="확인" name="btn_modal_confirm" style="display:;" onclick="getAuthCode();" />
+				<input type="button" class="btn btn-default btn-sm" data-dismiss="modal" id="btn_modal_cancel" value="확인" name="btn_modal_cancel" style="display:none;" />
+			</div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    function setDisp(gubun) {
+		if (gubun === 1) {
+			$("#li_nav1").css("font-weight", "bold");
+			$("#li_nav2").css("font-weight", "normal");
+			$("#li_nav3").css("font-weight", "normal");
+
+			$("#dv_pw_search_form1").show();
+			$("#dv_pw_search_form2").hide();
+			$("#dv_pw_search_form3").hide();
+		}
+		else if (gubun === 2) {
+			$("#li_nav1").css("font-weight", "normal");
+			$("#li_nav2").css("font-weight", "bold");
+			$("#li_nav3").css("font-weight", "normal");
+
+			$("#dv_pw_search_form1").hide();
+			$("#dv_pw_search_form2").show();
+			$("#dv_pw_search_form3").hide();
+		}
+		else if (gubun === 3) {
+			$("#li_nav1").css("font-weight", "normal");
+			$("#li_nav2").css("font-weight", "normal");
+			$("#li_nav3").css("font-weight", "bold");
+
+			$("#dv_pw_search_form1").hide();
+			$("#dv_pw_search_form2").hide();
+			$("#dv_pw_search_form3").show();
+		}
+	}
+
+	function searchEmail() {
+		var userEmailVal = $("#userEmail").val();
+
+		if ( !userEmailVal ) {
+			$("#myModalLabel").text("알림");
+			$("#b_model_body").text("이메일 주소를 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.email = userEmailVal;
+
+	    $.ajax({
+	        url: "/join/id-search"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	// if (console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	        		setDisp(2);
+	        	} else if( jsonData.resultCode === "02" ){
+	        		$("#myModalLabel").text("알림");
+                    $("#b_model_body").html("탈퇴한 이메일 계정입니다. <br />해당 이메일정보는 탈퇴시점부터 3개월이후 파기됩니다.<br />파기된후에 해당 이메일로 가입하실 수 있습니다.");
+                    $("#btn_modal_confirm").hide();
+                    $("#btn_modal_cancel").show();
+
+                    $('#modal-info').modal('show');
+	        	}else {
+	    			$("#myModalLabel").text("알림");
+	    			$("#b_model_body").text("일치하는 이메일 주소가 존재하지 않습니다!");
+	    			$("#btn_modal_confirm").hide();
+	    			$("#btn_modal_cancel").show();
+
+	    			$('#modal-info').modal('show');
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	}
+
+    function showModal(gubun) {
+		if ( !preSubmit() ) {
+			return;
+		}
+		if ( !gubun || gubun > 4 ) {
+			return;
+		}
+
+		if ( gubun === 1 ) {
+			$("#myModalLabel").text("인증번호 받기");
+			$("#b_model_body").text($("#userMobileNumber").val() + "(으)로 인증번호를 받으시겠습니까?");
+			$("#btn_modal_confirm").show();
+			$("#btn_modal_cancel").hide();
+		}
+		else if ( gubun === 2 ) {
+			$("#myModalLabel").text("인증번호 오류");
+			$("#b_model_body").text("정확한 인증번호를 입력하세요.");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+		}
+		else if ( gubun === 3 ) {
+			$("#myModalLabel").text("인증번호 발송");
+			$("#b_model_body").text("인증번호를 발송했습니다.");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+		}
+
+		$('#modal-info').modal('show');
+	}
+
+	function getAuthCode() {
+		if ( !preSubmit() ) {
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.reqType = "pw-search";
+	    reqData.userEmail = $("#userEmail").val();
+	    reqData.userName = $("#userName").val();
+	    reqData.phoneNumber = $("#userMobileNumber").val();
+
+	    $.ajax({
+	        url: "/join/auth-code/req"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	$('#modal-info').modal('hide');
+
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	        		$("#btn_auth_code").attr("value", "인증번호 다시받기");
+	            	$("#authCode").attr("disabled", false);
+	            	$("#btn_confirm").attr("disabled", false);
+	            	$("#authKey").val(jsonData.key);
+
+	            	startTimer();
+	        	}
+	        	else if (jsonData.resultCode === "01") {
+        			$("#myModalLabel").text("인증번호 오류");
+        			$("#b_model_body").text("회원가입 시 이름 또는 휴대전화번호를 입력해주세요!");
+        			$("#btn_modal_confirm").hide();
+        			$("#btn_modal_cancel").show();
+
+        			$('#modal-info').modal('show');
+        		}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+
+	        	$('#modal-info').modal('hide');
+	        }
+	    });
+	}
+
+	var gTimer = null;
+	function startTimer() {
+		var totalSeconds = 180;
+
+		gTimer = setInterval(function() {
+			var temp1 = totalSeconds / 60;
+			var temp2 = totalSeconds % 60;
+
+			$("#spn_timer").text(parseInt(temp1, 10) + "분 " + temp2 + "초");
+
+			if (totalSeconds === 0) {
+				stopTimer();
+
+            	$("#authCode").attr("disabled", true);
+            	$("#btn_confirm").attr("disabled", true);
+			}
+
+			totalSeconds--;
+		}, 1000);
+
+		$("#spn_timer").show();
+	}
+	function stopTimer() {
+		clearInterval(gTimer);
+		$("#spn_timer").hide();
+	}
+
+	function preSubmit(withAuthCode) {
+		var userNameVal = $("#userName").val();
+		var userMobileNumberVal = $("#userMobileNumber").val();
+
+		if ( !userNameVal ) {
+			$("#myModalLabel").text("알림");
+			$("#b_model_body").text("이름을 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+
+			$("#userName").focus();
+			return false;
+		}
+		if ( !userMobileNumberVal ) {
+			$("#myModalLabel").text("알림");
+			$("#b_model_body").text("휴대전화번호를 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+
+			$("#userMobileNumber").focus();
+			return false;
+		}
+
+		if (withAuthCode) {
+			var authCodeVal = $("#authCode").val();
+
+			if ( !authCodeVal ) {
+				$("#myModalLabel").text("알림");
+				$("#b_model_body").text("인증번호를 입력해주세요!");
+				$("#btn_modal_confirm").hide();
+				$("#btn_modal_cancel").show();
+
+				$('#modal-info').modal('show');
+
+				$("#authCode").focus();
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	function nextConfirm() {
+		if ( !preSubmit(true) ) {
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.userEmail = $("#userEmail").val();
+	    reqData.userName = $("#userName").val();
+	    reqData.phoneNumber = $("#userMobileNumber").val();
+	    reqData.code = $("#authCode").val();
+	    reqData.key = $("#authKey").val();
+
+	    $.ajax({
+	        url: "/join/auth-code/check"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	        		stopTimer();
+
+	        		var user = jsonData.data;
+
+	        		$("#spn_result_email").text(user.email);
+	        		var regDateVal = getDateFromUnixTimestamp(user.regDate);
+	        		$("#spn_result_regDate").text(regDateVal.substring(0, 10));
+
+		        	setDisp(3);
+	        	}
+	        	else {
+	        		showModal(2);
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	}
+
+	function resetPassword() {
+		var newPwNumVal = $("#newPwNum").val();
+		var newPwNum2Val = $("#newPwNum2").val();
+
+		if ( newPwNumVal.length < 8 ) {
+			$("#myModalLabel").text("비밀번호 확인");
+			$("#b_model_body").text("새 비밀번호를 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+			return;
+		}
+		if ( newPwNum2Val.length < 8 ) {
+			$("#myModalLabel").text("비밀번호 확인");
+			$("#b_model_body").text("새 비밀번호 확인에 새 비밀번호를 입력해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+			return;
+		}
+
+		if ( newPwNumVal !== newPwNum2Val ) {
+			$("#myModalLabel").text("비밀번호 확인");
+			$("#b_model_body").text("새 비밀번호를 확인해주세요!");
+			$("#btn_modal_confirm").hide();
+			$("#btn_modal_cancel").show();
+
+			$('#modal-info').modal('show');
+			return;
+		}
+
+	    var reqData = {};
+	    reqData.email = $("#userEmail").val();
+	    reqData.password = newPwNumVal;
+
+	    $.ajax({
+	        url: "/join/pw-reset"
+	        , type: 'post'
+		    , contentType: "application/json; charset=utf-8"
+	        , dataType: "json"
+	        , data: JSON.stringify(reqData)
+	        , success: function(jsonData) {
+	        	// if (window.console && console.log) console.log(JSON.stringify(jsonData));
+
+	        	if ( !jsonData ) {
+	        		// 실패
+	        		return;
+	        	}
+
+	        	if ( jsonData.resultCode === "00" ) {
+	    			$("#myModalLabel").text("알림");
+	    			$("#b_model_body").text("비밀번호를 재설정하였습니다. 로그인 페이지로 이동합니다.");
+	    			$("#btn_modal_confirm").hide();
+	    			$("#btn_modal_cancel").hide();
+
+	    			$('#modal-info').modal('show');
+
+					setTimeout(function() { location.href = "/"; }, 2000);
+	        	}
+	        	else {
+	    			$("#myModalLabel").text("비밀번호 재설정");
+	    			$("#b_model_body").text("비밀번호 재설정 실패! 다시 시도하여 주십시오.");
+	    			$("#btn_modal_confirm").hide();
+	    			$("#btn_modal_cancel").show();
+
+	    			$('#modal-info').modal('show');
+	        	}
+	        }
+	        , error: function(xhr, status, error) {
+	        	if (window.console && console.log) console.log("error : " + error.message);
+	        }
+	    });
+	}
+
+	$(document).ready(function() {
+
+		var hdnUserEmailVal = $("#hdnUserEmail").val();
+		var hdnRegDateVal = $("#hdnRegDate").val();
+
+		if ( hdnUserEmailVal) {
+			$("#spn_result_email").text(hdnUserEmailVal);
+			$("#spn_result_regDate").text(hdnRegDateVal);
+			$("#userEmail").val(hdnUserEmailVal);
+			setDisp(3);
+		}
+		else {
+			setDisp(1);
+		}
+
+	});
+
+/*]]>*/
+</script>
+
+</body>
+</html>

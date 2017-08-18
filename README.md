@@ -1,5 +1,12 @@
 # EmaulWeb
 
+### 프로젝트 설명 <br>
+
+아파트의 생활과 IOT 기술의 융합으로 <br>
+많은 서비스를 제공하는 스타트업 회사입니다 <br>
+이곳에 맡은 업무는 이마을 웹/앱 서버 개발및 유지보수였습니다<br>
+
+
 ### 프로젝트 참여범위
 
 #### 신규개발
@@ -16,12 +23,5 @@
 * ServerSide: Thymeleaf ,jQuery, Ajax, JSON ,HTML , BootStrap , JSP
 * Server & ServerFramework : Tomcat7.0 & Spring3.0  / JPA
 * ETC : junit 
-
-
-### 프로젝트 설명 <br>
-
-아파트의 생활과 IOT 기술의 융합으로 <br>
-많은 서비스를 제공하는 스타트업 회사입니다 <br>
-이곳에 맡은 업무는 이마을 웹/앱 서버 개발및 유지보수였습니다<br>
 
 <br>
